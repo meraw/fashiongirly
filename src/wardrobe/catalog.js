@@ -9,6 +9,7 @@ export const STRIPE_JUMPER_ID = 'bershka-asymmetric-stripe-jumper-v1';
 export const POINTELLE_FLOWER_ID = 'cream-pointelle-flower-jumper-v1';
 export const SILVER_CABLE_ID = 'desigual-silver-cable-jumper-v1';
 export const LACROIX_FLOWER_ID = 'desigual-lacroix-flower-sweater-v1';
+export const TOMMY_CABLE_ID = 'tommy-green-cable-sweater-v1';
 export const BARREL_JEANS_ID = 'topshop-barrel-jeans-v1';
 export const DAVINIA_JEANS_ID = 'desigual-davinia-jeans-v1';
 export const LEVIS_94_ID = 'levis-94-wide-leg-v1';
@@ -131,6 +132,20 @@ export const GARMENTS = Object.freeze({
     layering: { coversWaistband: true },
     uncertainties: ['the flowers are painted procedurally from the photos, not copied; their shapes and streaks are an interpretation', 'flower sizes are adapted to her short, wide torso', 'the back is read from one model photo partly hidden by hair'],
     authoring: { texture: 'procedural lacroixData() in src/doll/model.js, painted locally when first worn', runtimeGeneration: false, sourcePhotosBundled: false },
+  },
+  [TOMMY_CABLE_ID]: {
+    slot: 'top',
+    id: TOMMY_CABLE_ID, name: 'Green cable knit wool sweater', family: 'cable-knit-sweater', version: 1,
+    status: 'reference-study-awaiting-visual-review', brandAsProvided: 'Tommy Hilfiger',
+    source: { note: 'user supplied five phone screenshots of a Rinascente listing (Tommy Hilfiger cable knit wool sweater): front and full length on a model, a close-up, the back and a flat lay' },
+    referenceViews: ['front on model', 'full length on model', 'front close-up', 'back on model', 'front flat lay'],
+    details: ['forest green wool', 'rope cables all over: about eight columns across the front and the back, continuing down the sleeves', 'raglan sleeves with seams from the neck to each underarm', 'narrow ribbed crew neck', 'deep ribbed hem band and long ribbed cuffs', 'small embroidered flag on her left chest', 'relaxed fit to the hip'],
+    material: { construction: 'cable knit', composition: 'wool (from the listing title); exact blend not visible', finish: 'soft, slightly heathered' },
+    fit: { silhouette: 'relaxed, straight', sleeve: 'long raglan sleeves into ribbed cuffs', hem: 'hip, deep rib band', adjustment: 'fixed authored fit for review' },
+    exclusions: ['striped-shirt','knit-sweater'],
+    layering: { coversWaistband: true },
+    uncertainties: ['the cables are a regular procedural repeat; their twist is taller than wide in the photos, slightly squatter here to suit her short torso', 'the flag is a simple three-colour tab, not the exact logo'],
+    authoring: { texture: 'procedural cableKnitData() in src/doll/model.js, drawn locally when first worn', runtimeGeneration: false, sourcePhotosBundled: false },
   },
   [BARREL_JEANS_ID]: {
     slot: 'bottom',

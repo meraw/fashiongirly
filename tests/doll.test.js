@@ -498,3 +498,22 @@ test('cuffs and sleeve ends never cut through her mittens or thumbs',()=>{
   }
   disposeObject(doll);
 });
+
+test('green cable sweater: rope cables in relief, raglan seams, a flag on her left chest and deep ribbing',()=>{
+  const id='tommy-green-cable-sweater-v1',recipe=cleanRecipe({topId:id,knit:true,shirt:true});
+  assert.equal(recipe.knit,false);assert.equal(recipe.shirt,false);
+  const outfit=makeOutfit({topId:id});outfit.updateMatrixWorld(true);
+  for(const name of ['cable-knit-body','ribbed-hem-band','ribbed-crew-neck','embroidered-flag'])assert.ok(outfit.getObjectByName(name),name);
+  const count=name=>{let n=0;outfit.traverse(o=>{if(o.name===name)n++;});return n;};
+  assert.equal(count('raglan-seam'),4);assert.equal(count('ribbed-cuff'),2);assert.equal(count('flag-stripe'),3);
+  const flag=outfit.getObjectByName('embroidered-flag').getWorldPosition(new T.Vector3());assert.ok(flag.x>.03&&flag.z>.1,'flag on her left chest');
+  // The cables are relief: the same tile drives the bump, with deep troughs and high ridges; sixteen columns round the body.
+  const body=outfit.getObjectByName('cable-knit-body'),bump=body.material.bumpMap;assert.ok(bump);assert.equal(body.material.map.repeat.x,16);
+  let low=0,high=0;const hd=bump.image.data;for(let i=0;i<hd.length;i+=4){if(hd[i]<40)low++;if(hd[i]>180)high++;}
+  const n=hd.length/4;assert.ok(low/n>.08&&high/n>.15,`troughs ${low/n}, ridges ${high/n}`);
+  disposeObject(outfit);
+  const skirted=makeOutfit({topId:id,skirt:true}),plain=makeOutfit({topId:id});
+  const width=o=>new T.Box3().setFromObject(o.getObjectByName('ribbed-hem-band')).getSize(new T.Vector3()).x;
+  assert.ok(width(skirted)>width(plain));assert.equal(skirted.getObjectByName('ribbon-knot'),undefined);
+  disposeObject(skirted);disposeObject(plain);
+});
