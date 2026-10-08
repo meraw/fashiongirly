@@ -374,9 +374,9 @@ export const GARMENTS = Object.freeze({
     status: 'reference-study-awaiting-visual-review', brandAsProvided: 'Tommy Jeans',
     source: { note: 'user supplied five phone screenshots of an ASOS listing (Tommy Jeans Remastered carpenter jeans in black wash): front on model twice, side close-up, waist close-up, back' },
     referenceViews: ['front on model', 'side close-up', 'front on model (full)', 'front waist close-up', 'back on model'],
-    details: ['mid rise', 'relaxed wide straight legs, full length, resting on the shoes', 'even black wash', 'white double contrast topstitching throughout', 'large carpenter patch panels over the front hips, from the waistband to the crotch, under the scoop pockets', 'big utility patch pockets on both outer thighs, a red, white and navy flag badge on the wearer\'s left one', 'hammer loop on the wearer\'s right thigh', 'silver button and rivets', 'back yoke, patch pockets, a red, white and navy tape across the wearer\'s right back pocket', 'tonal grey flag patch on the back waistband'],
+    details: ['mid rise', 'relaxed wide straight legs, full length on the model (the user wears them narrower, at the ankle)', 'even black wash', 'white double contrast topstitching throughout', 'large carpenter patch panels over the front hips, from the waistband to the crotch, under the scoop pockets', 'big utility patch pockets on both outer thighs, a red, white and navy flag badge on the wearer\'s left one', 'hammer loop on the wearer\'s right thigh', 'silver button and rivets', 'back yoke, patch pockets, a red, white and navy tape across the wearer\'s right back pocket', 'tonal grey flag patch on the back waistband'],
     material: { construction: 'rigid denim', composition: 'not visible in the supplied screenshots', finish: 'black wash' },
-    fit: { silhouette: 'relaxed wide straight, carpenter', rise: 'mid', length: 'full, resting on the shoes', adjustment: 'fixed authored fit for review' },
+    fit: { silhouette: 'relaxed straight, carpenter', rise: 'mid', length: 'ankle', adjustment: 'narrower and ankle length, as the user wears them (the photos show wide, full-length legs)' },
     uncertainties: ['folds are procedural', 'badges and patches are colour blocks without lettering', 'no coin pocket was visible in the screenshots', 'the fly bar tacks are not modelled'],
     authoring: { texture: 'tommy-carpenter-denim.js: flat-lit seamless swatch processed from the waist close-up, keeping its brightness detail only (the dark photo carries compression colour blotches)', runtimeGeneration: false, sourcePhotosBundled: 'fabric swatch only' },
     build: {
@@ -385,9 +385,9 @@ export const GARMENTS = Object.freeze({
       crotch: { top: 1.19, y: .95 }, uvScale: [12, 4.1],
       tiles: { small: [7.5, 2.6], legs: [1, 1], hips: [1, 1] },
       hips: [[1.26, .26, .171], [1.16, .278, .19], [1.05, .294, .198], [.97, .304, .19], [.935, .25, .11]],
-      // Relaxed wide straight legs down to the floor, resting on the shoes.
-      legs: [[1.03, .15, .18, .13], [.95, .157, .18, .153], [.75, .163, .181, .165], [.55, .167, .182, .17], [.35, .171, .184, .175], [.18, .175, .187, .18], [.06, .178, .19, .182]],
-      hem: 'rests-on-shoe', folds: { base: .005, low: .011, stack: .01 }, gradient: [.9, .15], whiskers: 0,
+      // Relaxed straight legs, narrower than the photos' wide look, ending at her ankle above the shoes (as the user wears them).
+      legs: [[1.03, .15, .178, .13], [.95, .154, .176, .152], [.75, .155, .172, .16], [.55, .152, .167, .162], [.38, .148, .162, .163], [.24, .145, .159, .163]],
+      hem: 'ankle', folds: { base: .004, low: .009 }, gradient: [.9, .15], whiskers: 0,
       waistband: { y: 1.235, rx: .262, rz: .173, h: .05 },
       loops: [-2.7, -1.45, -.55, .55, 1.45, 2.7, Math.PI],
       button: { colour: '#c9ccd0' }, thread: '#b4b2b8', rivetColour: '#c9ccd0',
@@ -401,7 +401,7 @@ export const GARMENTS = Object.freeze({
       // Utility pockets on both outer thighs, wrapping from behind the side seam toward the front.
       sidePocket: { top: .9, bottom: .6, span: [-.4, .5], badge: { side: 1, y: .8, t: .22 }, hammerLoop: { side: -1, t: 0, above: .045, below: .02 } },
       rivets: [[.135, 1.205], [.262, 1.13]],
-      seamEnd: .1,
+      seamEnd: .245,
       backYoke: [[.268, 1.207], [.14, 1.187], [.004, 1.167]],
       backPocket: { x: .122, outline: [[-.074, 1.153], [.074, 1.153], [.07, 1.025], [0, .997], [-.07, 1.025]], stitchBelow: 1.095,
         // Diagonal tape across the wearer's right pocket: navy, white and red stripes, from its lower outer edge upward.

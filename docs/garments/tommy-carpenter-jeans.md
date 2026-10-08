@@ -1,6 +1,6 @@
 # Wardrobe item: Tommy Jeans Remastered carpenter jeans
 
-Authored 8 October 2026. Status: first interpretation awaiting the user's visual review. A piece from the user's wardrobe list, built on the shared jeans template.
+Authored 8 October 2026. Status: narrowed and shortened to the ankle after the user's first review; awaiting their second look. A piece from the user's wardrobe list, built on the shared jeans template.
 
 ## Source and reference reading
 
@@ -22,7 +22,7 @@ The Tommy boxer waistband showing above the jeans, the bra top and the chequered
 
 ## Implementation
 
-Catalog ID `tommy-remastered-carpenter-v1` (slot `bottom`), built by `makeJeans()` with the sewn crotch construction. Waistband 1.21 to 1.26; legs from 0.18 at the thigh to 0.19 at the hem, reaching the floor and resting on whatever shoes she wears.
+Catalog ID `tommy-remastered-carpenter-v1` (slot `bottom`), built by `makeJeans()` with the sewn crotch construction. Waistband 1.21 to 1.26; relaxed straight legs, ending at her ankle (see the revision below).
 
 New jeans template options, off by default. Other pairs are unaffected: every new step is guarded by its spec field, and rivets stay copper unless a colour is given.
 
@@ -33,6 +33,10 @@ New jeans template options, off by default. Other pairs are unaffected: every ne
 
 The white double stitching uses the Mango pair's `doubleSeams` and `hemStitch` options at normal thickness; heavier stitching looked much bolder than in the photos. The side pockets first sat so close to the side seam that its stitching showed through them; they now stand clear of it.
 
+## Revision after user feedback
+
+The user found the legs a little too wide and said the jeans stop at their ankle. The first version followed the photos' wide, full-length legs (0.18 at the thigh widening to 0.19 at the floor, resting on the shoes). The legs are now relaxed and straight, slightly tapered (0.154 at the thigh to 0.145 at the hem), and end at her ankle (0.24), above the loafers. Over the Buffalo boots the hem now sits on the padded collar, as the other ankle-length pairs do. The stacked folds at the hem were removed.
+
 ## Denim and colour
 
 The swatch comes from inside the front panel in the waist close-up, the cleanest plain area. The photos are so dark that their JPEG compression shows as coloured blotches when the contrast is raised, so the swatch keeps only the photo's brightness variation (twill and grain) and takes its colour from the measured average. It repeats often because the close-up is zoomed in. Stored as WebP in `src/wardrobe/tommy-carpenter-denim.js`.
@@ -41,7 +45,7 @@ Plain denim in the photos measures about RGB 16, 15, 17 (side close-up) and 14, 
 
 ## Checks
 
-- `npm test`: 39 passing. A new test checks the panels, pockets and stripes, that the badge is on the left thigh, the hammer loop on the right and the tape on the right back pocket inside its outline, and that each side pocket covers the side seam's stitching. The layering test covers this pair under every waist-covering top, and the shoe tests cover it with every pair of shoes.
+- `npm test`: 39 passing. A new test checks ankle length above the shoes, that her legs and socks stay covered down to the hem, the panels, pockets and stripes, that the badge is on the left thigh, the hammer loop on the right and the tape on the right back pocket inside its outline, and that each side pocket covers the side seam's stitching. The layering test covers this pair under every waist-covering top, and the shoe tests cover it with every pair of shoes.
 - `npm run build` succeeds.
 - Rendered in headless Chromium from the front, side, back and a slight turn, without a top, under the crochet top and with the silver cable jumper and Buffalo boots; compared side by side with the front and back photos. The user has not yet seen it.
 
@@ -50,5 +54,4 @@ Plain denim in the photos measures about RGB 16, 15, 17 (side close-up) and 14, 
 - The badges and patches are colour blocks without lettering.
 - The fly's bar tacks are not modelled.
 - The back pockets have rounded bottoms rather than the photo's slight point.
-- Her legs are short, so the side pockets reach closer to the hem than on the model.
 - A faint line remains where the hips meet the legs.
