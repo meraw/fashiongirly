@@ -6,7 +6,7 @@ import { readFileSync } from 'node:fs';
 import { makeDoll, makeOutfit, disposeObject, fitDoll } from '../src/doll/model.js';
 import { OUTFITS, cleanRecipe } from '../src/doll/recipe.js';
 import { startStudio } from '../src/doll/app.js';
-import { GARMENTS, BUFFALO_ASPHA_ID, DM_COW_SLIDE_ID } from '../src/wardrobe/catalog.js';
+import { GARMENTS, BUFFALO_ASPHA_ID, DM_COW_SLIDE_ID, UGG_LOWMEL_ID } from '../src/wardrobe/catalog.js';
 import { levelCaster } from '../src/doll/level-caster.js';
 const shoes=Object.keys(GARMENTS).filter(id=>GARMENTS[id].slot==='shoes');
 const named=(root,name)=>{const found=[];root.traverse(o=>{if(o.name===name)found.push(o);});return found;};
@@ -67,7 +67,7 @@ test('jeans drape over every shoe or sit on a boot collar, and the classic jeans
       eachVertex(boots,(p,o,i)=>{if(p.y/.76<.2)return;const leg=side(p.x);
         const c=cast(leg.hit,leg.x,p);if(!c)return;checked++;
         assert.ok(!c.hit||c.hit.distance>c.r+.002,`${o.name} vertex ${i} pokes through ${bottomId} over ${shoesId}`);});
-      if(hem==='rests-on-shoe'){let floor=Infinity;for(const leg of legs)floor=Math.min(floor,new T.Box3().setFromObject(leg).min.y/.76);assert.ok(floor<build.sole.footbed+.01,`${bottomId} hem reaches the footbed`);}
+      if(hem==='rests-on-shoe'){let floor=Infinity;for(const leg of legs)floor=Math.min(floor,new T.Box3().setFromObject(leg).min.y/.76);assert.ok(floor<(build.sole.footbed??build.sole.top+.06)+.01,`${bottomId} hem comes down onto the shoe`);}
     }else if(GARMENTS[bottomId]?.build?.template==='jeans'&&trousers.userData.hemOnCollar){
       // A shorter, slimmer leg whose hem would end inside the boot sits on top of its padded collar instead.
       const legs=named(trousers,GARMENTS[bottomId].build.legName);
@@ -118,6 +118,27 @@ test('Dr. Martens slides: platform raises her, bare feet with the straps clear o
   // With the loafers she stands where she always has, with her socks on.
   const plain=makeOutfit({}),d2=makeDoll();fitDoll(d2,plain);assert.equal(d2.position.y,0);d2.traverse(o=>{if(o.name==='sock')assert.equal(o.visible,true);});
   [outfit,doll,plain,d2].forEach(disposeObject);
+});
+
+test('UGG sneakers: low cream sneaker with puffy laces and her own ankle socks, not raised',()=>{
+  const spec=GARMENTS[UGG_LOWMEL_ID].build,outfit=makeOutfit({shoesId:UGG_LOWMEL_ID}),doll=makeDoll();fitDoll(doll,outfit);
+  doll.updateMatrixWorld(true);outfit.updateMatrixWorld(true);const shoesGroup=outfit.getObjectByName('shoes');
+  for(const name of ['lug-sole','boot-upper','collar-roll','tongue','tongue-label','eyelet','lace','lace-bow','lace-end','pull-loop','suede-band','heel-counter','side-quarter','eyestay','ankle-sock'])assert.ok(shoesGroup.getObjectByName(name),name);
+  for(const name of ['quilt-stitch','heel-tab','webbing-loop','side-piping'])assert.equal(shoesGroup.getObjectByName(name),undefined,`no boot ${name}`);
+  assert.equal(named(shoesGroup,'eyelet').length,2*2*spec.eyelets.length);
+  // Low: the collar sits well below her sock tops, and she is not raised.
+  assert.ok(Math.max(...Object.values(spec.collar))<spec.sock.rows.at(-1)[0]-.08);assert.equal(outfit.userData.lift,0);assert.equal(doll.position.y,0);
+  // Her round doll socks are replaced by the shoe's slim ankle socks, which hold the bottom of her legs.
+  doll.traverse(o=>{if(o.name==='sock')assert.equal(o.visible,false);});
+  const socks=levelCaster(named(shoesGroup,'ankle-sock')),top=spec.sock.rows.at(-1)[0];let checked=0;
+  doll.traverse(o=>{if(o.name!=='leg')return;eachVertex(o,p=>{const y=p.y/.76;if(y>top-.008)return;const c=cast(socks,Math.sign(p.x)*(spec.sock.cx??spec.cx)*1.06,p.clone().setZ(p.z-spec.sock.z));if(!c)return;
+    assert.ok(c.hit&&c.hit.distance>c.r,`leg shows through the ankle sock at y ${y.toFixed(3)}`);checked++;});});
+  assert.ok(checked>20,`checked ${checked}`);
+  // The ankle socks sit inside the shoe below its collar.
+  const uppers=levelCaster(named(shoesGroup,'boot-upper'));let inside=0;
+  for(const sk of named(shoesGroup,'ankle-sock'))eachVertex(sk,p=>{const y=p.y/.76;if(y<spec.sole.top+.03||y>spec.collar.side-.02)return;const c=cast(uppers,Math.sign(p.x)*spec.cx*1.06,p);if(!c)return;assert.ok(c.hit&&c.hit.distance>c.r,'sock shows through the shoe');inside++;});
+  assert.ok(inside>20);
+  [outfit,doll].forEach(disposeObject);
 });
 
 test('UI: choosing shoes is saved with the look, and the boots study wears them',async()=>{

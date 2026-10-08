@@ -5,6 +5,7 @@ export const DESIGUAL_LEATHER_JACKET_ID = 'desigual-black-faux-leather-jacket-v1
 // Shoes: built-in loafers are 'classic'; catalog shoes fill the 'shoes' slot.
 export const BUFFALO_ASPHA_ID = 'buffalo-aspha-mid-olive-v1';
 export const DM_COW_SLIDE_ID = 'dr-martens-cow-slide-v1';
+export const UGG_LOWMEL_ID = 'ugg-lowmel-cream-v1';
 export const BRONZE_TOP_ID = 'desigual-bronze-mesh-v1';
 export const LILAC_TOP_ID = 'lilac-portrait-mockneck-v1';
 export const CROCHET_TOP_ID = 'desigual-crochet-flowers-v1';
@@ -585,6 +586,41 @@ export const GARMENTS = Object.freeze({
       cowBands: [[.27, .15, .11, .008], [.13, .25, .11, .016]],
       cords: [[.29, .1, .024], [.1, .29, .024]],
       instep: { z: [.1, .085], width: .068, gap: .01, buckleAt: .8 },
+    },
+  },
+  [UGG_LOWMEL_ID]: {
+    slot: 'shoes',
+    id: UGG_LOWMEL_ID, name: 'UGG cream platform sneakers', family: 'platform-sneaker', version: 1,
+    status: 'reference-study-awaiting-visual-review', brandAsProvided: 'UGG',
+    source: { note: 'user supplied five phone screenshots of a shop gallery (images 1, 2, 3, 4 and 6 of 6): outer side, front three-quarter pair, back pair, top pair, toe close-up; the insole and tongue read UGG; the style resembles the UGG Lowmel' },
+    referenceViews: ['outer side', 'front three-quarter', 'back', 'top', 'toe close-up'],
+    details: ['low-cut chunky skate-style sneaker, all cream', 'cream mesh base showing at the toe box and as a band round the heel collar', 'cream suede overlays: a band all round above the sole, the side quarters, the heel counter and the eyestays, with tonal stitching', 'big round eyelets, four a side', 'very wide, puffy flat laces in cream with a beige-brown diamond zigzag, tied in a large floppy bow with long tails', 'thick padded tongue with a debossed UGG label', 'padded collar and a cream webbing pull loop at the heel', 'smooth cream platform sole with a rounded top edge and small lugs round the bottom'],
+    material: { construction: 'suede and mesh upper on a moulded platform sole', composition: 'not visible in the supplied screenshots', finish: 'matte suede, open mesh' },
+    fit: { silhouette: 'low chunky platform sneaker', height: 'low, below the ankle bone, so her socks show', platform: 'sole within her normal foot height; she is not raised', adjustment: 'fixed authored fit for review' },
+    uncertainties: ['panel outlines simplified (the curved suede piece beside the toe mesh is not modelled)', 'lace pattern is redrawn', 'UGG logos on the tongue label, side and insole carry no lettering'],
+    authoring: { texture: 'procedural meshKnit() and laceTexture() in src/doll/model.js', runtimeGeneration: false, sourcePhotosBundled: false },
+    // Construction for makeLugBoot() (template 'sneaker') in src/doll/model.js, in outfit units. Upper rows are
+    // [y, front, back, halfWidth]; proportions measured from the side photo (length about 3.5 times the heel height).
+    build: {
+      template: 'sneaker', cx: .168, mesh: true,
+      colours: { upper: '#e2d7b7', mesh: '#d0cab1', sole: '#cab792', thread: '#b3a27c', piping: '#b9a782', lace: '#d9cfb6', laceLine: '#ad9b80', collar: '#cbc0a3', eyelet: '#cfc9b9', lining: '#bfb196', webbing: '#d4c9ae', sock: '#ecdcac' },
+      sole: { top: .069, heelTop: .069, heelFrom: -.03, rand: .069, lugTop: .016, groove: null, bulge: .004, flare: .014, toeLift: .02, lugs: 56, lugDepth: .006 },
+      upper: [[.069, .41, -.155, .134], [.09, .425, -.158, .137], [.11, .425, -.16, .138], [.13, .415, -.16, .137], [.15, .39, -.158, .136], [.17, .345, -.155, .132], [.19, .28, -.15, .122], [.21, .215, -.138, .106], [.23, .17, -.122, .094], [.25, .15, -.112, .09]],
+      collar: { front: .25, side: .205, back: .225 },
+      nFront: 2.8, nBack: 2.1, heelNarrow: .1, toeNarrow: .2, restCap: .2, collarRoll: .006, drapeClear: .066, collarRest: .035,
+      eyelets: [.163, .19, .217, .244], laceHalfWidth: .044, eyeletSize: [.012, .0045],
+      puffyLace: { width: .046, thick: .019, loop: .09, tailTo: .1 },
+      // Her own ankle socks for a low shoe: a knit tube [y, rx, rz] centred at z, from inside the shoe up into her leg.
+      // Centred on her leg (cx .16), which sits slightly inside the shoe's centre line.
+      sock: { cx: .16, z: .0, rows: [[.1, .074, .08], [.2, .075, .08], [.3, .074, .078], [.37, .074, .077], [.38, .079, .082], [.405, .079, .082], [.41, .074, .077]] },
+      pullLoop: { height: .06, width: .036 }, tongueLabel: .2,
+      // Suede overlays: a band above the sole (taller round the toe), the heel counter, and the side quarters up to the
+      // eyestays; mesh shows at the toe box and as a band round the heel collar.
+      panels: [
+        { name: 'suede-band', band: .03, toe: .02, colour: '#ddcea9' },
+        { name: 'heel-counter', z: [-.17, .0], top: [[-.17, .17], [-.1, .155], [-.04, .128], [.0, .112]] },
+        { name: 'side-quarter', z: [-.03, .3], top: [[-.03, .122], [.05, .162], [.11, .19], [.18, .192], [.24, .165], [.3, .118]] },
+      ],
     },
   },
   // Outerwear.
