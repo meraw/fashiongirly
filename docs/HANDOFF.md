@@ -6,6 +6,12 @@ Last updated: 8 October 2026.
 
 Read [PRODUCT_BRIEF.md](PRODUCT_BRIEF.md) for the product's intent and agreed constraints, then the [README](../README.md) for running the code. The brief deliberately distinguishes goals from implementation. Later explicit user decisions can supersede it; update the documentation when that happens.
 
+## Core destination and current phase — user clarification, 8 October 2026
+
+Weather-aware daily self-dressing is a core goal: she checks the weather and creates her own playful, daring outfit from the user's imported wardrobe, with hair chosen as part of the look. Finish wardrobe import first, then build that experience. Manual selectors and preset studies are the current construction/review tools, not the final goal.
+
+Every lane should retain independently selectable garments and record known styling, coverage/warmth and layer-compatibility information needed by later outfit selection. Mark unknowns rather than inventing weather performance. The current no-API phase remains in force; the weather source and daily/background behaviour are not yet chosen. The product brief now records the sequence and boundaries.
+
 ## Current implementation
 
 - Static JavaScript app with Three.js 0.180.0; no runtime AI or service API calls.

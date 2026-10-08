@@ -6,7 +6,9 @@ Last updated: 8 October 2026. This records decisions from the project conversati
 
 “A fashion girl who lives inside my phone.” She is a tiny, cute, living doll with playful, experimental taste. She puts together daring outfits that inspire the user to try something, rather than merely producing a practical matching outfit.
 
-The original spark was a character that checked the weather and dressed herself each morning. That remains a possible future experience. The immediate goal is to establish a lovable character, convincing clothes, a reusable wardrobe, and enjoyable local dressing. Weather and automatic daily behaviour are not required for the first version.
+Core destination, clarified by the user on 8 October 2026: she checks the weather and dresses herself each morning in a playful, daring outfit drawn from the imported wardrobe. Weather-aware daily self-dressing is important to the intended product, not an optional stretch idea. Wardrobe import is the current phase; build the daily styling experience after the user finishes importing their wardrobe. Manual dressing and garment studies are foundations for that experience, not the final product.
+
+She should share the user's wardrobe while developing an adventurous styling identity. Resemblance to the user need not be eliminated; choices should help the user expand their horizons. Hair is part of an outfit and should eventually be chosen with the clothing, rather than fixed independently of styling.
 
 The user has a separate project, [meraw/outfits](https://github.com/meraw/outfits), whose 2D approach remains useful in its own right. Fashiongirly is a distinct direction. Do not merge the products by assumption.
 
@@ -61,6 +63,24 @@ The app should eventually support local outfit creation through authored styling
 
 If AI is added later, it should translate requests into the same validated wardrobe operations and styling choices that the local app already understands. It should be optional and should not require rebuilding the garment system.
 
+## Building towards daily self-dressing
+
+Agreed sequence:
+1. Finish importing and visually reviewing the user's wardrobe, including supported layers and hairstyles.
+2. Build a local outfit-selection system that assembles new combinations from available pieces. Account for weather suitability, compatible layers, and playful contrast; do not limit this to cycling through pre-authored presets.
+3. Connect weather input and the daily dressing experience. She should present a complete outfit on the same doll, with the user able to keep liked pieces, request variations, and save looks.
+
+The destination is agreed; the exact interaction, weather source, location handling, refresh timing and closed-app/background behaviour remain design decisions. Do not promise background operation or silently introduce location access, a weather provider, credentials, or a runtime service. The initial no-API constraint still applies to the current phase. Keep weather input separate from local styling so it can be tested using supplied conditions before a live source is selected. Optional AI later should improve the same wardrobe operations, not become a prerequisite for outfit creation.
+
+All garment lanes should support this goal now:
+- Keep pieces independently selectable by stable IDs, with reusable assets and explicit slot/layer compatibility; avoid baking a complete outfit into a garment or the doll.
+- Record useful styling facts as pieces are imported: silhouette/proportion, palette/pattern, material, coverage, relative warmth and known weather limitations, plus layering constraints. Extend existing garment records/metadata where suitable; a new central schema is not required in each lane.
+- Distinguish observed or user-provided facts from inferences and unknowns. Do not infer waterproofing or exact thermal performance from a photo, or block import because information is missing.
+- Preserve known fit and clearance constraints for valid combinations, and make those constraints available beyond the visual builder.
+- Keep garment identity independent of styling decisions, so future selection can change the outfit while preserving a liked piece and choose hair alongside clothes.
+
+Importing more clothes alone does not complete the product. The later acceptance question is whether she can dress herself in a weather-appropriate, recognisably adventurous outfit that inspires the user, with a way for the user to refine it. Weather should constrain comfort and practicality without reducing her taste to safe matching.
+
 ## Text editing must be honest
 
 The existing “Tell her what to change” input is a small keyword parser. It recognises specific colours and phrases, not arbitrary natural language or reference images. It does not call a model.
@@ -83,7 +103,8 @@ The user may make the repository private later. Do not change its visibility as 
 2. Build one actual reference garment, with recognisable details and convincing fit.
 3. Verify its silhouette, seams, cuffs and layer clearance across supported adjustments and viewing angles.
 4. Store it as a reusable wardrobe entry, rather than baking an entire look into the character.
-5. Expand the garment vocabulary and local styling experience after that quality is established.
+5. Finish the user's wardrobe import with reusable styling and layering information.
+6. Build weather-aware daily self-dressing and outfit refinement on that wardrobe; this is the core product milestone after import.
 
 Assess both recognition and wearability: can the user identify the reference garment, can it be changed without losing its construction, and does it sit convincingly on the doll? Technical tests alone cannot answer these questions. User visual feedback is a core acceptance step.
 

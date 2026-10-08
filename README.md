@@ -2,6 +2,8 @@
 
 A tiny living fashion doll with a playful wardrobe. The current homepage is a **reusable 3D doll study** with separate, editable clothing geometry.
 
+The intended product is a girl who **checks the weather and dresses herself each morning**, choosing playful, daring combinations from the user's wardrobe. Finish wardrobe import first, then build daily styling; the current manual studio is the foundation. Weather integration and autonomous outfit selection are not implemented yet.
+
 ## Start here in a new chat
 
 Read the [product brief](docs/PRODUCT_BRIEF.md) for the intended experience, approved visual direction, reference-based garment creation, individual fit requirements, and no-API-first constraint. Read the [working handoff](docs/HANDOFF.md) for what exists, what is still planned, and where to resume. [AGENTS.md](AGENTS.md) points coding assistants to these documents.
