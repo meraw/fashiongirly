@@ -39,6 +39,7 @@ Every chat should retain independently selectable garments and record known styl
 | `src/doll/polo.js` | Knit polo builder (stripe knit, polo collar, open placket, short sleeves) |
 | `tests/outerwear.test.js` | Outerwear slot, windbreaker construction, coverage of every top, bottom and the skirt, arms inside its sleeves, selector |
 | `tests/shoes.test.js` | Shoe slot, boot construction, how every bottom layers with every shoe, shoe selector |
+| `src/doll/level-caster.js` | `levelCaster()`: the same nearest hit as a three.js Raycaster for level rays, much faster; used by `makeJeans()` and the layering tests (`tests/level-caster.test.js`) |
 | `scripts/build.mjs` | Static build including local Three.js dependencies |
 | `.github/workflows/pages.yml` | Manually dispatched Pages deployment |
 
@@ -147,6 +148,7 @@ Lessons from these reviews: calibrate colour by measurement, not by eye. Sample 
 ## Operational notes
 
 - Run `npm ci`, `npm test`, and `npm run build`; use `npm run dev` for local development with Node 22+.
+- Keep the tests quick, since every chat runs them before every push: the checks that try every bottom with every shoe or top grow with each new garment. When many level rays test the same meshes, use `levelCaster()` instead of a new `Raycaster` per ray (8 October 2026: the jeans-over-shoes test went from about 160s to 17s, and an outfit with catalog jeans builds in about 0.2s instead of 0.9s, with the same geometry, which also makes the app quicker to respond).
 - The built application bundles rendering dependencies. An in-chat preview may load Three.js from a CDN; that is a preview convenience, not an AI API or the deployed app's dependency strategy.
 - Saving in the full app uses browser local storage. Inline chat previews have used in-memory storage and are not evidence of durable lookbook persistence.
 - Deployment is separate from committing. Pages requires the repository setting and a manual workflow run; no live deployment is established by this handoff.
