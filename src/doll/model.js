@@ -1,6 +1,6 @@
 import * as T from 'three';
 import { cleanRecipe } from './recipe.js';
-import { BRONZE_TOP_ID, LILAC_TOP_ID, CROCHET_TOP_ID, PLAID_JUMPER_ID, GARMENTS } from '../wardrobe/catalog.js';
+import { BRONZE_TOP_ID, LILAC_TOP_ID, CROCHET_TOP_ID, PLAID_JUMPER_ID, STRIPE_JUMPER_ID, GARMENTS } from '../wardrobe/catalog.js';
 // Body and wardrobe share one toy proportion system; the face stays unscaled.
 const BODY_HEIGHT = .76;
 const BODY_WIDTH = 1.06;
@@ -324,6 +324,95 @@ function makePlaidJumper(id=PLAID_JUMPER_ID,overSkirt=false){
   }
   return top;
 }
+// Asymmetric stripe jumper: ecru slub knit with dark green stripes, worn off her left shoulder.
+// Darker than the photographed yarn: exposure, tone mapping and sheen lift these values.
+const SLUB={ecru:[212,204,170],green:[28,37,22]};
+const STRIPE_PITCH=.08;
+let stripePixels=null;
+function stripeKnitData(){
+  if(stripePixels)return stripePixels;
+  // Four stripe repeats across and one down. A green stripe fills a third of each repeat, as in the photos.
+  const w=256,h=64,data=new Uint8Array(w*h*4),rand=random(64);
+  for(let y=0;y<h;y++)for(let x=0;x<w;x++){
+    const colour=y<h/3?SLUB.green:SLUB.ecru,i=(y*w+x)*4;
+    for(let k=0;k<3;k++)data[i+k]=colour[k];data[i+3]=255;
+  }
+  // Slubs: short thick lengths of yarn, a little lighter or darker than their row.
+  for(let n=0;n<420;n++){
+    const y=Math.floor(rand()*h),x0=Math.floor(rand()*w),len=4+Math.floor(rand()*14),lift=(rand()-.45)*.16;
+    for(let d=0;d<len;d++){const i=(y*w+(x0+d)%w)*4;for(let k=0;k<3;k++)data[i+k]=Math.max(0,Math.min(255,data[i+k]*(1+lift)));}
+  }
+  for(let i=0;i<data.length;i+=4){const grain=(rand()-.5)*10;for(let k=0;k<3;k++)data[i+k]=Math.max(0,Math.min(255,data[i+k]+grain));}
+  stripePixels={data,w,h};return stripePixels;
+}
+// The neckline in body coordinates: high at the base of her neck on her right, sloping across the chest and
+// off her left shoulder onto the upper arm. The back edge runs a little higher than the front.
+function stripeNeckline(x,z){const front=1.80-.4*x,back=1.85-.3*x,f=.5+.5*z/Math.max(1e-6,Math.hypot(x,z));return back+(front-back)*f;}
+function trimToEdge(mesh,segments,toBody,edge){
+  // Cut each column of a shell() grid where it crosses the edge, then spread the column's rows evenly below the cut,
+  // so the cut is clean and nothing folds back inside.
+  const p=mesh.geometry.attributes.position,rows=p.count/(segments+1),v=new T.Vector3();
+  const height=i=>{v.fromBufferAttribute(p,i);toBody(v);return edge(v.x,v.z)-v.y;};
+  for(let i=0;i<=segments;i++){
+    const col=Array.from({length:rows},(_,j)=>(rows-1-j)*(segments+1)+i);
+    let k=col.findIndex(index=>height(index)<0);if(k<0)continue;if(k===0)k=1;
+    const pts=col.slice(0,k).map(index=>new T.Vector3().fromBufferAttribute(p,index)),a=height(col[k-1]),b=height(col[k]);
+    pts.push(new T.Vector3().fromBufferAttribute(p,col[k-1]).lerp(new T.Vector3().fromBufferAttribute(p,col[k]),a/(a-b)));
+    const lengths=[0];for(let n=1;n<pts.length;n++)lengths.push(lengths[n-1]+pts[n].distanceTo(pts[n-1]));
+    const total=lengths.at(-1);
+    col.forEach((index,j)=>{const target=total*j/(rows-1);let n=1;while(n<pts.length-1&&lengths[n]<target)n++;
+      const t=(target-lengths[n-1])/Math.max(1e-9,lengths[n]-lengths[n-1]);v.copy(pts[n-1]).lerp(pts[n],Math.min(1,t));p.setXYZ(index,v.x,v.y,v.z);});
+  }
+  p.needsUpdate=true;mesh.geometry.computeVertexNormals();
+}
+function makeStripeJumper(id=STRIPE_JUMPER_ID,overSkirt=false){
+  const top=new T.Group();top.name=id;
+  const rib=woolMaterial(null),hem=1.16,band=.12,flare=overSkirt?[.338,.252]:[.305,.226],skin=cloth('#dfb195');rib.color.set('#d4cbb6');
+  // Her body under clothes is cream felt; this skin piece is what shows above the neckline.
+  // On her bare left side it slopes out over the top of the arm, so no gap shows inside the sleeve's edge.
+  const shoulder=shell(top,[[1.885,.06,.05],[1.86,.13,.09],[1.82,.2,.122],[1.77,.24,.14],[1.70,.262,.152],[1.62,.27,.158]],skin,'bare-shoulder-skin',48);
+  const sp0=shoulder.geometry.attributes.position;
+  for(let n=0;n<sp0.count;n++){const x=sp0.getX(n),y=sp0.getY(n);if(x<=0)continue;const r=Math.hypot(x,sp0.getZ(n)),lift=Math.max(0,Math.min(1,(y-1.64)/.1))*Math.max(0,Math.min(1,(1.88-y)/.06));sp0.setX(n,x*(1+.32*lift*(x/r)**2));}
+  sp0.needsUpdate=true;shoulder.geometry.computeVertexNormals();
+  const knit=()=>{const m=woolMaterial(yarnTexture(stripeKnitData(),1,1));m.bumpMap.repeat.set(5,1.6);m.bumpScale=.012;return m;};
+  const body=shell(top,[[1.89,.114,.108],[1.85,.2,.15],[1.81,.27,.19],[1.76,.3,.208],[1.6,.306,.214],[1.4,.31,.222],[hem+band+.012,overSkirt?.336:.312,overSkirt?.25:.228],[hem+band,flare[0],flare[1]]],knit(),'stripe-jumper-body',96);
+  // Where the sleeve takes over from the body on her left, the body's edge drops inside the sleeve, so the neckline runs
+  // on along the sleeve's top instead of looping out behind her arm.
+  trimToEdge(body,96,v=>v,(x,z)=>{const t=Math.max(0,Math.min(1,(x-.17)/.1));return stripeNeckline(x,z)-.1*t*t*(3-2*t);});
+  // Stripes follow the neckline's slant near the top and level out by mid-chest.
+  const centre=stripeNeckline(0,1),uv=body.geometry.attributes.uv,bp=body.geometry.attributes.position;
+  for(let n=0;n<uv.count;n++){const x=bp.getX(n),y=bp.getY(n),z=bp.getZ(n),w=Math.max(0,Math.min(1,(y-1.42)/(centre-1.42)));
+    uv.setXY(n,uv.getX(n)*5,(centre-y+w*(stripeNeckline(x,z)-centre))/STRIPE_PITCH+.5);}
+  uv.needsUpdate=true;
+  // A narrow plain edge finishes the neckline. On her left the sleeve's own edge takes over, so the body's edge stops
+  // where it drops inside the sleeve.
+  const lip=[...Array(97).keys()].filter(n=>bp.getX(n)<.18),gap=lip.findIndex((n,k)=>k&&n!==lip[k-1]+1);
+  curve(top,[...lip.slice(gap),...lip.slice(0,gap)].map(n=>[bp.getX(n)*1.01,bp.getY(n)+.003,bp.getZ(n)*1.01]),.0075,rib,'neckline-edge');
+  // The band tucks just inside the body's lower edge, so the body blouses over it.
+  ribbed(shell(top,[[hem+band+.012,flare[0]-.008,flare[1]-.006],[hem+band/2,flare[0]-.004,flare[1]-.003],[hem,flare[0]-.006,flare[1]-.004]],rib,'ribbed-hem-band',128),72,.012);
+  for(const side of [-1,1]){
+    const arm=new T.Group();arm.position.set(side*.242,1.815,0);arm.rotation.z=side*.22;arm.updateMatrix();
+    // Long straight sleeves into deep ribbed cuffs.
+    const sleeve=shell(arm,[[.03,.124,.12],[-.06,.132,.127],[-.2,.133,.128],[-.33,.13,.126],[-.42,.122,.118],[-.455,.108,.104]],knit(),'knit-jumper-sleeve',64);
+    roundSleeveCap(sleeve,side,.03);
+    if(side>0){
+      // The neckline runs on across this sleeve's top, and the edge hugs her upper arm instead of standing away from it.
+      // Her arm is an oval .25 tall and .09 wide whose top sits just below this sleeve's top; follow its narrowing dome.
+      trimToEdge(sleeve,64,v=>v.applyMatrix4(arm.matrix),stripeNeckline);
+      const q=sleeve.geometry.attributes.position;
+      const armRadius=y=>.09*Math.sqrt(Math.max(0,1-((y+.314)/.25)**2));
+      for(let j=0;j<6;j++)for(let i=0;i<=64;i++){const n=j*65+i,r=Math.hypot(q.getX(n),q.getZ(n)),k=1+(Math.min(1,Math.max(.05,armRadius(q.getY(n))+.014)/r)-1)*(1-j/6);q.setX(n,q.getX(n)*k);q.setZ(n,q.getZ(n)*k);}
+      q.needsUpdate=true;sleeve.geometry.computeVertexNormals();
+    }
+    const suv=sleeve.geometry.attributes.uv,sp=sleeve.geometry.attributes.position;
+    for(let n=0;n<suv.count;n++)suv.setXY(n,suv.getX(n)*3,(centre-1.815-sp.getY(n))/STRIPE_PITCH+.5);
+    suv.needsUpdate=true;
+    if(side>0)curve(arm,Array.from({length:65},(_,n)=>[sp.getX(n)*1.02,sp.getY(n)+.003,sp.getZ(n)*1.02]),.0075,rib,'neckline-edge');
+    ribbed(shell(arm,[[-.44,.1,.096],[-.5,.099,.096],[-.575,.099,.096]],rib,'ribbed-cuff',64),36,.03);
+    top.add(arm);
+  }
+  return top;
+}
 // Acid-wash barrel jeans: construction is read from the product photos.
 let washPixels=null;
 function acidWashData(base=[48,61,70]){
@@ -556,6 +645,7 @@ export function makeOutfit(raw, atlas=null) {
   }
   if(state.topId===CROCHET_TOP_ID)root.add(makeCrochetTop());
   else if(state.topId===PLAID_JUMPER_ID)root.add(makePlaidJumper(PLAID_JUMPER_ID,state.skirt));
+  else if(state.topId===STRIPE_JUMPER_ID)root.add(makeStripeJumper(STRIPE_JUMPER_ID,state.skirt));
   else if(state.topId!== 'classic')root.add(makeReferenceTop(atlas?.isTexture?atlas:atlas?.[state.topId],state.topId));
   if(state.shirt){
     const layer=new T.Group();layer.name='shirt';root.add(layer);

@@ -87,6 +87,8 @@ Items added so far:
 3. [Desigual Davinia heart jeans](garments/desigual-davinia-jeans.md). First pair on the shared jeans template (`makeJeans()` with a `build` spec in the catalog). The user found the crotch strange; it was rebuilt as sewn (hips morphing into the legs), applied to both pairs, and the user said it “looks better”. The user asked for “a few more jeans” next.
 4. [Levi's '94 baggy wide leg](garments/levis-94-wide-leg.md). Washed black wide legs with arc stitching, red tab and frayed pocket edges. Full length resting on the shoes, confirmed by the user (a brief shortening came from mixing it up with another pair); awaiting visual review.
 
+5. [Bershka asymmetric stripe jumper](garments/bershka-stripe-jumper.md), added by the tops chat. Ecru slub knit with dark green stripes, worn off her left shoulder, with a deep ribbed hem band and cuffs. The first off-the-shoulder top: it brings a skin piece for the bare shoulder (her body under clothes is cream felt) and a catalog `layering.bareShoulder` flag that the shared sleeve test respects. Awaiting visual review.
+
 Fit follows the user, not the product photos: when the user says a garment fits them differently (length, rise, looseness), build it that way and note it in the garment record.
 
 Adding more jeans: write a catalog entry with a `build` spec (copy the closest pair), take a denim swatch from the flat lay or the plainest leg area (`scripts`-free: crop inside the seams, divide by a heavy blur, calibrate, make seamless), measure plain-denim colour in the photos and in a render and adjust the swatch until they match, then add the swatch to `view.js`, the selector and a preset. The layering test picks up new bottoms automatically.
