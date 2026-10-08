@@ -1,5 +1,5 @@
-import { BRONZE_TOP_ID, LILAC_TOP_ID, CROCHET_TOP_ID, PLAID_JUMPER_ID, GARMENTS } from '../wardrobe/catalog.js';
-export const DEFAULT = Object.freeze({ sweater: '#bf303e', trousers: '#283c59', sleeve: .74, hem: .3, barrel: .78, knit: true, shirt: true, skirt: false, skirtColour: '#bd9bc8', topId: 'classic' });
+import { BRONZE_TOP_ID, LILAC_TOP_ID, CROCHET_TOP_ID, PLAID_JUMPER_ID, BARREL_JEANS_ID, GARMENTS } from '../wardrobe/catalog.js';
+export const DEFAULT = Object.freeze({ sweater: '#bf303e', trousers: '#283c59', sleeve: .74, hem: .3, barrel: .78, knit: true, shirt: true, skirt: false, skirtColour: '#bd9bc8', topId: 'classic', bottomId: 'classic' });
 export const SWATCHES = [['Tomato', '#bf303e'], ['Butter', '#ead391'], ['Lilac', '#bd9bc8'], ['Cobalt', '#315cb3'], ['Moss', '#74804b'], ['Cream', '#f0e3cb']];
 export function cleanRecipe(value = {}) {
   const v = value && typeof value === 'object' ? value : {};
@@ -7,7 +7,9 @@ export function cleanRecipe(value = {}) {
   for (const key of ['sweater', 'trousers', 'skirtColour']) if (/^#[0-9a-f]{6}$/i.test(v[key] || '')) result[key] = v[key];
   for (const key of ['sleeve', 'hem', 'barrel']) if (Number.isFinite(v[key])) result[key] = Math.max(0, Math.min(1, v[key]));
   for (const key of ['knit', 'shirt', 'skirt']) if (typeof v[key] === 'boolean') result[key] = v[key];
-  if (Object.hasOwn(GARMENTS,v.topId)) result.topId=v.topId;
+  // Each catalog garment fills one slot; an ID from the wrong slot falls back to the built-in piece.
+  if (GARMENTS[v.topId]?.slot==='top') result.topId=v.topId;
+  if (GARMENTS[v.bottomId]?.slot==='bottom') result.bottomId=v.bottomId;
   if(result.topId!== 'classic'){result.knit=false;result.shirt=false;}
   return result;
 }
@@ -20,14 +22,17 @@ export function editRecipe(current, sentence) {
   if (/\b(cropped|shorter)\b/.test(text)) { next.hem = .1; changes.push('cropped hem'); }
   else if (/\b(longer|hip length)\b/.test(text)) { next.hem = .9; changes.push('longer hem'); }
   }
+  if(next.bottomId==='classic'){
   if (/\b(wider|barrel|bigger) (jeans|trousers)\b/.test(text)) { next.barrel = 1; changes.push('fuller jeans'); }
   else if (/\b(straight|slimmer) (jeans|trousers)\b/.test(text)) { next.barrel = .05; changes.push('straighter jeans'); }
+  }
   if (/\b(no skirt|remove (the )?skirt)\b/.test(text)) { next.skirt=false; changes.push('skirt removed'); }
   else if (/\b(add (a |the )?skirt|skirt over jeans)\b/.test(text)) { next.skirt=true; changes.push('skirt over jeans'); }
   return { recipe: next, changes };
 }
 
 export const OUTFITS = [
+  { name: 'Barrel jeans study', note: 'Reference study: low-rise acid-wash barrel jeans with knee darts, twisted side seams and flap back pockets, worn with the cropped crochet top. The wash is drawn, not copied.', recipe: { ...DEFAULT, topId: CROCHET_TOP_ID, bottomId: BARREL_JEANS_ID, knit: false, shirt: false } },
   { name: 'Windowpane jumper study', note: 'Reference study: brushed oversized jumper with a knitted-in rust, taupe and pale-blue check and deep ribbing. The check is drawn from the photos, not copied.', recipe: { ...DEFAULT, topId: PLAID_JUMPER_ID, knit: false, shirt: false, trousers: '#283c59', barrel: .35 } },
   { name: 'Crochet flower study', note: 'Reference study: joined crochet flowers, open lace, a filet neckband and scalloped edges. The motif repeat is drawn from the photos, not copied.', recipe: { ...DEFAULT, topId: CROCHET_TOP_ID, knit: false, shirt: false, trousers: '#d9cbb2', barrel: .3 } },
   { name: 'Lilac portrait study', note: 'Portrait and floral front, silvery back, navy patterned sleeves and a raised collar. Artwork is an interpretation of the references.', recipe: { ...DEFAULT, topId: LILAC_TOP_ID, knit: false, shirt: false, trousers: '#39363b', barrel: .12 } },

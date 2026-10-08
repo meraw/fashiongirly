@@ -15,7 +15,7 @@ Read [PRODUCT_BRIEF.md](PRODUCT_BRIEF.md) for the product's intent and agreed co
 - Sweater and denim colours, sweater sleeve volume and hem, trouser volume, and layer toggles.
 - Bounded text parser, turn controls, draft persistence and a 24-look browser lookbook.
 - Earlier vector implementation retained at `illustration.html`.
-- Eighteen tests were passing and the static build succeeded at this handoff. Geometry and UI checks do not establish visual quality; full device/WebGL appearance and performance still require review.
+- Twenty tests were passing and the static build succeeded at this handoff. Geometry and UI checks do not establish visual quality; full device/WebGL appearance and performance still require review.
 
 ## Code landmarks
 
@@ -31,7 +31,7 @@ Read [PRODUCT_BRIEF.md](PRODUCT_BRIEF.md) for the product's intent and agreed co
 | `scripts/build.mjs` | Static build including local Three.js dependencies |
 | `.github/workflows/pages.yml` | Manually dispatched Pages deployment |
 
-The current flat recipe is not a garment database. It holds colours, bounded numeric controls and layer booleans for the procedural study. Four catalog entries now exist, selected by `topId`: `desigual-bronze-mesh-v1` and `lilac-portrait-mockneck-v1` use fitted geometry and bundled generated textures; `desigual-crochet-flowers-v1` and `mango-plaid-jumper-v1` use their own geometry and textures drawn procedurally in `model.js`. A catalog `layering.coversWaistband` flag hides the skirt's ribbon bow under tops whose hem covers the waist. Only tops can be swapped: trousers, skirt and shoes are still the built-in procedural pieces in the flat recipe. There is no general import pipeline, fitting rig or automatic reference reconstruction yet.
+The current flat recipe is not a garment database. It holds colours, bounded numeric controls and layer booleans for the procedural study. Five catalog entries now exist. Each declares a `slot`. Tops are selected by `topId`: `desigual-bronze-mesh-v1` and `lilac-portrait-mockneck-v1` use fitted geometry and bundled generated textures; `desigual-crochet-flowers-v1` and `mango-plaid-jumper-v1` use their own geometry and textures drawn procedurally in `model.js`. A catalog `layering.coversWaistband` flag hides the skirt's ribbon bow under tops whose hem covers the waist. Bottoms are selected by `bottomId`: `topshop-barrel-jeans-v1` replaces the built-in jeans. `cleanRecipe()` only accepts IDs from the matching slot. The skirt and shoes are still built-in procedural pieces; dresses, outerwear and shoes have no slot yet. There is no general import pipeline, fitting rig or automatic reference reconstruction yet.
 
 ## Latest decisions
 
@@ -62,7 +62,7 @@ The user sends pictures or product links found online, not photos of their own c
 
 So far, large multi-brand shops and price-comparison sites block automated fetching; a brand's own site worked once. Screenshots of the product gallery are a reliable fallback.
 
-Fetching a page depends on both the environment's network settings and the shop. When a link fails, say so and ask for the pictures; do not guess the garment from its name. Do not commit downloaded product photos.
+Fetching a page depends on both the environment's network settings and the shop. When a link fails, say so and ask for the pictures; do not guess the garment from its name. Do not commit downloaded product photos. Exception, at the user's request: the barrel jeans bundle a small processed fabric swatch from the product flat lay, because invented denim never looked like the real jeans. Prefer textures taken from the garment's own pictures (processed swatches or generated atlases) over invented ones, and note any bundled photo-derived material in the garment record.
 
 ## The user's wardrobe and how to add it
 
@@ -78,11 +78,14 @@ The user wants to add their whole wardrobe, **one item at a time**, reviewing ea
 - about seven coats and other outerwear (layering matters)
 - about ten pairs of shoes (the user expects these to be harder)
 
-Each new kind of garment needs its slot the first time it appears. Only the top slot exists today. Bottoms, dresses, outerwear and shoes each need a slot with layering rules. Button-downs need collar, placket and button details; hoodies need a hood that clears her large head and hair.
+Each new kind of garment needs its slot the first time it appears. Top and bottom slots exist. Dresses, outerwear and shoes each still need a slot with layering rules. Button-downs need collar, placket and button details; hoodies need a hood that clears her large head and hair.
 
-Items added so far: [Mango windowpane jumper](garments/mango-windowpane-jumper.md). First version: the user found it awkward (balloon-like rather than boxy) and the check a different pattern. Revised; awaiting their second look.
+Items added so far:
 
-Lessons from that review: read “oversized” as the garment's actual cut (boxy, dropped shoulders, straight sleeves), not as extra volume. Before rendering, compare the drawn pattern side by side with the clearest reference crop, and check the count and proportion of motifs on her wide, short torso.
+1. [Mango windowpane jumper](garments/mango-windowpane-jumper.md). First version: the user found it awkward (balloon-like rather than boxy) and the check a different pattern. Revised; the user then sent the next item without further comment on the revision.
+2. [Topshop acid-wash barrel jeans](garments/topshop-barrel-jeans.md). Added the bottom slot. Its new layering test also found and fixed the bronze top clipping over trousers. First version: the user found it balloon-like, too short and not recognisable from the back. Revised to straight, floor-length legs with bolder details; awaiting their second look.
+
+Lessons from these reviews: calibrate colour by measurement, not by eye. Sample plain areas of the photos and the same areas of a render, and adjust until the averages match; studio lighting, tone mapping and sheen shift colours. Match the average only: the photos' light-dark spread comes from their lighting and folds, so don't paint it into the texture (drawn streaks on the jeans read as ruffles). Keep textures as plain as the fabric looks. Fabric character (drape, stacking, wear on raised areas, paler seam edges) belongs in the geometry and in shading derived from it, not in painted texture; a perfectly smooth shell reads as plastic. Stitching should be tonal unless the photo shows contrast. Read cut names like “oversized” or “barrel” from the garment's actual silhouette in the photos, not from the word. Judge length against the photos (floor-length means resting on the shoes). Make each piece's distinguishing details large and contrasting enough to identify it from every angle, especially the back. Read “oversized” as the garment's actual cut (boxy, dropped shoulders, straight sleeves), not as extra volume. Before rendering, compare the drawn pattern side by side with the clearest reference crop, and check the count and proportion of motifs on her wide, short torso.
 
 ## Operational notes
 

@@ -3,8 +3,10 @@ export const BRONZE_TOP_ID = 'desigual-bronze-mesh-v1';
 export const LILAC_TOP_ID = 'lilac-portrait-mockneck-v1';
 export const CROCHET_TOP_ID = 'desigual-crochet-flowers-v1';
 export const PLAID_JUMPER_ID = 'mango-plaid-jumper-v1';
+export const BARREL_JEANS_ID = 'topshop-barrel-jeans-v1';
 export const GARMENTS = Object.freeze({
   [BRONZE_TOP_ID]: {
+    slot: 'top',
     id: BRONZE_TOP_ID,
     name: 'Bronze Buddha mesh',
     family: 'fitted-long-sleeve-top',
@@ -21,6 +23,7 @@ export const GARMENTS = Object.freeze({
     authoring: { texture: 'bronze-atlas.js', runtimeGeneration: false, sourcePhotosBundled: false },
   },
   [LILAC_TOP_ID]: {
+    slot: 'top',
     id: LILAC_TOP_ID, name: 'Lilac portrait mock neck', family: 'fitted-long-sleeve-top', version: 1,
     status: 'reference-study-awaiting-visual-review', brandAsProvided: null,
     referenceViews: ['front','back'],
@@ -33,6 +36,7 @@ export const GARMENTS = Object.freeze({
     authoring: { texture: 'lilac-atlas.js', runtimeGeneration: false, sourcePhotosBundled: false },
   },
   [CROCHET_TOP_ID]: {
+    slot: 'top',
     id: CROCHET_TOP_ID, name: 'Blue crochet flowers', family: 'cropped-crochet-sweater', version: 1,
     status: 'reference-study-awaiting-visual-review', brandAsProvided: 'Desigual',
     source: { page: 'https://www.desigual.com/it_IT/26SWJFXG.html', sku: '26SWJFXG5050', fetchedForAuthoring: '2026-10-08' },
@@ -45,6 +49,7 @@ export const GARMENTS = Object.freeze({
     authoring: { texture: 'procedural crochetData() in src/doll/model.js, drawn locally when first worn', runtimeGeneration: false, sourcePhotosBundled: false },
   },
   [PLAID_JUMPER_ID]: {
+    slot: 'top',
     id: PLAID_JUMPER_ID, name: 'Brushed windowpane jumper', family: 'oversized-knit-jumper', version: 1,
     status: 'reference-study-awaiting-visual-review', brandAsProvided: 'Mango',
     source: { page: 'https://www.zalando.ie/mango-jumper-light-blue-zir03dt4f-001.html', note: 'page blocked automated fetching; user supplied phone screenshots of 7 product photos' },
@@ -57,5 +62,17 @@ export const GARMENTS = Object.freeze({
     layering: { coversWaistband: true },
     uncertainties: ['check scale and band order are an interpretation of the photos', 'fibre composition is unknown', 'the shirt collar and cuffs in the photos are styling, not part of the jumper'],
     authoring: { texture: 'procedural plaidData() in src/doll/model.js, drawn locally when first worn', runtimeGeneration: false, sourcePhotosBundled: false },
+  },
+  [BARREL_JEANS_ID]: {
+    slot: 'bottom',
+    id: BARREL_JEANS_ID, name: 'Acid-wash barrel jeans', family: 'barrel-leg-jeans', version: 1,
+    status: 'reference-study-awaiting-visual-review', brandAsProvided: 'Topshop',
+    source: { note: 'user supplied four phone screenshots of the product gallery (front on model, back detail, back full length, flat lay)' },
+    referenceViews: ['front on model', 'back pocket close-up', 'back full length', 'front flat lay'],
+    details: ['low rise', 'very wide barrel (horseshoe) legs, widest around the knee, full length resting on the shoes', 'side seams twisting forward toward the hem', 'horizontal darts across each knee', 'slanted front pockets', 'belt loops, silver shank button and zip fly', 'tan contrast topstitching', 'back yoke and patch pockets with pointed buttoned flaps', 'welt slit above the right back pocket', 'brown suede waistband patch', 'mid-dark blue marbled acid wash with a grey cast'],
+    material: { construction: 'rigid denim', composition: 'not visible in the supplied screenshots', finish: 'marbled acid wash' },
+    fit: { silhouette: 'barrel', rise: 'low', length: 'full, resting on the shoes', adjustment: 'fixed authored fit for review' },
+    uncertainties: ['folds are procedural', 'exact pocket and dart placement adapted to the doll', 'brand text on the patch is not reproduced'],
+    authoring: { texture: 'topshop-denim.js: flat-lit seamless swatch processed from the product flat lay (at the user\'s request)', runtimeGeneration: false, sourcePhotosBundled: 'fabric swatch only' },
   },
 });

@@ -17,7 +17,7 @@ export async function startStudio(doc=document, makeView) {
     button.onclick=()=>{recipe=cleanRecipe(look.recipe);sync();apply();message(look.note);};return button;
   }));
   function sync(){
-    $('top-select').value=recipe.topId;
+    $('top-select').value=recipe.topId;$('bottom-select').value=recipe.bottomId;
     for(const key of ['knit','shirt'])$(key).disabled=recipe.topId!=='classic';
     const selected=OUTFITS.find(look=>Object.keys(DEFAULT).every(key=>look.recipe[key]===recipe[key]));
     $('outfit-title').textContent=selected?.name||'Her own little experiment.';
@@ -26,12 +26,15 @@ export async function startStudio(doc=document, makeView) {
     for(const key of ['knit','shirt','skirt'])$(key).checked=recipe[key];
     for(const [id,key] of [['sweater-colours','sweater'],['denim-colours','trousers']])for(const b of $(id).children)b.setAttribute('aria-pressed',String(b.dataset.color===recipe[key]));
     for(const id of ['sleeve','hem'])$(id).disabled=!recipe.knit;
+    // Catalog bottoms have an authored fit and wash; the colour and width controls belong to the classic jeans.
+    $('barrel').disabled=recipe.bottomId!=='classic';for(const b of $('denim-colours').children)b.disabled=recipe.bottomId!=='classic';
     for(const b of $('sweater-colours').children)b.disabled=!recipe.knit;
     $('count').textContent=looks.length;
   }
   for(const key of ['sleeve','hem','barrel'])$(key).oninput=()=>{recipe[key]=Number($(key).value)/100;sync();schedule();};
   for(const key of ['knit','shirt','skirt'])$(key).onchange=()=>{recipe[key]=$(key).checked;sync();apply();};
   $('top-select').onchange=()=>{recipe=cleanRecipe({...recipe,topId:$('top-select').value,knit:$('top-select').value==='classic',shirt:$('top-select').value==='classic'});sync();apply();message(recipe.topId==='classic'?'Classic layers restored.':'Reference top selected. Its fit and print are fixed for this first review.');};
+  $('bottom-select').onchange=()=>{recipe=cleanRecipe({...recipe,bottomId:$('bottom-select').value});sync();apply();message(recipe.bottomId==='classic'?'Classic jeans restored.':'Reference jeans selected. Their fit and wash are fixed for this first review.');};
   $('edit-form').onsubmit=e=>{e.preventDefault();const result=editRecipe(recipe,$('request').value);recipe=result.recipe;sync();apply();message(result.changes.length?`Changed: ${result.changes.join(', ')}. Only these supported details were interpreted.`:(recipe.topId==='classic'?'I could not interpret that yet. Try “butter sweater, enormous sleeves, cropped”.':'This reference top has a fixed fit and print for now. Try “straight jeans” or “add a skirt”.'));};
   $('reset').onclick=()=>{recipe=cleanRecipe(DEFAULT);sync();apply();message('Back to the original outfit.');};
   for(const b of doc.querySelectorAll('[data-angle]'))b.onclick=()=>{view?.turn(Number(b.dataset.angle));for(const other of doc.querySelectorAll('[data-angle]'))other.setAttribute('aria-pressed',String(other===b));};
