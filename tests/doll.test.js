@@ -230,13 +230,16 @@ test('every waist-covering top hides every bottom between its hem and the waist'
       return surface.get(key);};
     for(const bottomId of bottoms){
     const outfit=makeOutfit({topId,bottomId});outfit.updateMatrixWorld(true);const p=new T.Vector3();let checked=0;
+    // Instanced pieces (the crystal grid) are checked at every copy.
+    const im=new T.Matrix4(),each=new T.Matrix4();
     outfit.getObjectByName('trousers').traverse(o=>{if(!o.geometry)return;const pos=o.geometry.attributes.position;
+      for(let k=0;k<(o.isInstancedMesh?o.count:1);k++){if(o.isInstancedMesh){o.getMatrixAt(k,im);each.multiplyMatrices(o.matrixWorld,im);}else each.copy(o.matrixWorld);
       for(let i=0;i<pos.count;i++){
         // Up to the top of the highest waistband (ultra high rise jeans reach her natural waist).
-        p.fromBufferAttribute(pos,i).applyMatrix4(o.matrixWorld);const y=p.y/.76;if(y<hem+.012||y>1.4)continue;
+        p.fromBufferAttribute(pos,i).applyMatrix4(each);const y=p.y/.76;if(y<hem+.012||y>1.4)continue;
         const radius=Math.hypot(p.x,p.z);if(radius<.01)continue;
         assert.ok(coverAt(p.y,Math.atan2(p.x,p.z))>radius+.001,`${o.name} shows through ${topId} over ${bottomId} at vertex ${i}`);checked++;
-      }});
+      }}});
     assert.ok(checked>50,`${topId}/${bottomId} checked ${checked}`);disposeObject(outfit);
     }
     disposeObject(topOutfit);
@@ -686,4 +689,22 @@ test('a top worn over another: the cardigan over a slim top, which shows in the 
   pick.value=under;pick.dispatchEvent(new dom.window.Event('change'));assert.equal(app.getRecipe().underTopId,under);
   d.getElementById('save').click();assert.equal(JSON.parse(dom.window.localStorage.getItem('fashiongirly.plush-looks.v1'))[0].underTopId,under);
   app.dispose();dom.window.close();
+});
+
+test('crystal jeans: a grid of crystals over the front panels only, clear of the waistband, with plain back and full-length legs',()=>{
+  const id='crystal-straight-jeans-v1';assert.equal(cleanRecipe({bottomId:id}).bottomId,id);
+  const outfit=makeOutfit({bottomId:id});outfit.updateMatrixWorld(true);
+  const grid=outfit.getObjectByName('crystal-grid');assert.ok(grid?.isInstancedMesh);assert.ok(grid.count>5000,`${grid.count} crystals`);
+  // Each crystal sits in its own dark setting, which keeps the grid readable at a distance.
+  assert.equal(outfit.getObjectByName('crystal-settings')?.count,grid.count);
+  const m=new T.Matrix4(),p=new T.Vector3(),wb=GARMENTS[id].build.waistband;let left=0,right=0,low=Infinity;
+  for(let k=0;k<grid.count;k++){grid.getMatrixAt(k,m);p.setFromMatrixPosition(m);
+    assert.ok(p.z>0,`crystal ${k} on the back`);assert.ok(p.y<wb.y-wb.h/2,`crystal ${k} on the waistband`);if(p.x<0)right++;else left++;low=Math.min(low,p.y);}
+  // Both legs are covered evenly, down toward the hem.
+  assert.ok(Math.abs(left-right)<grid.count*.05,`left ${left} right ${right}`);assert.ok(low<.2,`lowest crystal at ${low}`);
+  for(const name of ['coin-pocket-stitch','leather-patch','back-patch-pocket','abrasion'])assert.ok(outfit.getObjectByName(name),name);
+  let shoeTop=-Infinity;outfit.traverse(o=>{if(o.name==='loafer')shoeTop=Math.max(shoeTop,new T.Box3().setFromObject(o).max.y);});
+  const legs=[];outfit.traverse(o=>{if(o.name==='jeans-leg')legs.push(o);});
+  assert.ok(Math.min(...legs.map(l=>new T.Box3().setFromObject(l).min.y))<shoeTop*.6,'full length, down over the shoes');
+  disposeObject(outfit);
 });

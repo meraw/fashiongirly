@@ -26,6 +26,7 @@ export const MANGO_BLACK_JEANS_ID = 'mango-washed-black-v1';
 export const BERSHKA_GREY_ID = 'bershka-grey-wide-leg-v1';
 export const TOMMY_CARPENTER_ID = 'tommy-remastered-carpenter-v1';
 export const ZARA_CARGO_ID = 'zara-cargo-joggers-v1';
+export const CRYSTAL_JEANS_ID = 'crystal-straight-jeans-v1';
 export const GARMENTS = Object.freeze({
   [BRONZE_TOP_ID]: {
     slot: 'top',
@@ -526,6 +527,42 @@ export const GARMENTS = Object.freeze({
       sidePocket: { top: .93, bottom: .63, span: [-.38, .58], flap: .055 },
       seamEnd: .245,
       centreBack: [[0, 1.25], [0, 1.1], [0, .985]],
+    },
+  },
+  [CRYSTAL_JEANS_ID]: {
+    slot: 'bottom',
+    id: CRYSTAL_JEANS_ID, name: 'Crystal-embellished straight jeans', family: 'straight-jeans', version: 1,
+    status: 'reference-study-awaiting-visual-review', brandAsProvided: 'not visible in the screenshots',
+    source: { note: 'user supplied five phone screenshots of a product gallery (front on model, back on model, styled front, front flat lay, waist close-up) and asked to notice the embellishments' },
+    referenceViews: ['front on model', 'back on model', 'styled front', 'front flat lay', 'front waist close-up'],
+    details: ['high rise', 'straight legs, full length, resting on the shoes', 'light vintage blue wash, darker round the fly, slightly paler on the thighs', 'tiny crystals set in a square grid over the whole front of both legs and hips; the waistband and the back are plain', 'tan topstitching, silver button and rivets', 'coin pocket with a small worn patch on the wearer\'s right', 'back yoke, plain patch pockets and a tan leather patch on the wearer\'s right'],
+    material: { construction: 'rigid denim', composition: 'not visible in the supplied screenshots', finish: 'light vintage wash with crystal embellishment' },
+    fit: { silhouette: 'straight', rise: 'high', length: 'full, resting on the shoes', adjustment: 'fixed authored fit for review' },
+    uncertainties: ['the crystals are larger and wider-spaced than the real ones (about 2.5 times), so they stay visible at the app\'s size', 'folds are procedural', 'the leather patch carries no lettering'],
+    authoring: { texture: 'crystal-jeans-denim.js: flat-lit seamless swatch from the plain back of the legs; the crystals are modelled, not painted', runtimeGeneration: false, sourcePhotosBundled: 'fabric swatch only' },
+    build: {
+      template: 'jeans', legName: 'jeans-leg', fallback: [104, 121, 137],
+      crotch: { top: 1.12, y: .95 }, uvScale: [5, 2],
+      tiles: { small: [4, 1.4], legs: [1, 1], hips: [1, 1] },
+      hips: [[1.31, .264, .168], [1.2, .274, .186], [1.1, .288, .196], [1.02, .296, .198], [.97, .298, .19], [.935, .24, .1]],
+      // Straight legs to the floor, resting on the shoes.
+      legs: [[1.03, .15, .18, .135], [.95, .156, .178, .152], [.75, .158, .176, .16], [.55, .158, .175, .163], [.35, .159, .176, .165], [.18, .16, .177, .166], [.06, .161, .178, .167]],
+      hem: 'rests-on-shoe', folds: { base: .004, low: .009, stack: .008 }, gradient: [.82, .26], whiskers: .35, thighFade: .12,
+      waistband: { y: 1.285, rx: .266, rz: .17, h: .05 },
+      loops: [-2.6, -1.5, -.62, .62, 1.5, 2.6, Math.PI],
+      button: { colour: '#c9ccd0' }, thread: '#b8935e', rivetColour: '#c9ccd0',
+      fly: [[.036, 1.26], [.038, 1.13], [.022, 1.085], [0, 1.075]],
+      frontPocket: { type: 'scoop', line: [[.15, 1.26], [.165, 1.21], [.2, 1.18], [.262, 1.165]] },
+      coinPocket: { outline: [[-.236, 1.255], [-.19, 1.255], [-.194, 1.2], [-.233, 1.2], [-.236, 1.255]] },
+      abrasions: [[-.222, 1.215, .026], [-.208, 1.198, .018]],
+      rivets: [[.152, 1.255], [.262, 1.17]],
+      // The embellishment: crystals in a square grid over the front panels, clear of the seams.
+      crystals: { spacing: .012, size: .0042, lift: .0008, margin: .12, above: .03, colour: '#f2f6fc', glow: '#4c5866', setting: '#465a76' },
+      seamEnd: .1,
+      backYoke: [[.27, 1.235], [.14, 1.205], [.004, 1.185]],
+      backPocket: { x: .12, outline: [[-.07, 1.175], [.07, 1.175], [.066, 1.05], [0, 1.025], [-.066, 1.05]], stitchBelow: 1.12 },
+      centreBack: [[.004, 1.185], [.004, 1.08], [0, .99]],
+      labelPatch: { name: 'leather-patch', size: [.072, .04, .005], colour: '#b08a5e', position: [-.08, 1.288, -(.17 + .004)], rotationY: Math.PI + .3 },
     },
   },
   // Shoes.
