@@ -527,3 +527,26 @@ test('cuffs and sleeve ends never cut through her mittens or thumbs',()=>{
   }
   disposeObject(doll);
 });
+
+test('Zara cargo trousers: gathered elastic waist with a drawstring, flap cargo pockets, cuffed ankles and no jeans hardware',()=>{
+  const id='zara-cargo-joggers-v1';assert.equal(cleanRecipe({bottomId:id}).bottomId,id);
+  const doll=makeDoll(),outfit=makeOutfit({bottomId:id});doll.updateMatrixWorld(true);outfit.updateMatrixWorld(true);
+  const all=name=>{const found=[];outfit.traverse(o=>{if(o.name===name)found.push(o);});return found;},centre=o=>new T.Box3().setFromObject(o).getCenter(new T.Vector3());
+  for(const name of ['shank-button','belt-loop','fly-stitch','rivet','back-patch-pocket','coin-pocket-stitch'])assert.equal(all(name).length,0,`no ${name}`);
+  assert.equal(all('cargo-flap').length,2);assert.equal(all('side-patch-pocket').length,2);assert.equal(all('slant-pocket-stitch').length,2);
+  // The drawstring hangs at the front with a metal tip on each end.
+  const cords=all('drawstring');assert.equal(cords.length,2);assert.equal(all('drawstring-tip').length,2);for(const c of cords)assert.ok(centre(c).z>0,'drawstring at the front');
+  // The waistband is gathered: its radius ripples round the waist.
+  const wb=outfit.getObjectByName('jeans-waistband').geometry.attributes.position;let lo=Infinity,hi=0;
+  for(let i=0;i<wb.count;i++){const r=Math.hypot(wb.getX(i)/.254,wb.getZ(i)/.167);lo=Math.min(lo,r);hi=Math.max(hi,r);}assert.ok(hi-lo>.04,`gathers ${hi-lo}`);
+  // Cuffed at the ankle, above the shoes, with her legs and socks covered down to the hem.
+  const legs=all('jeans-leg');let shoeTop=-Infinity;outfit.traverse(o=>{if(o.name==='loafer')shoeTop=Math.max(shoeTop,new T.Box3().setFromObject(o).max.y);});
+  const hem=Math.min(...legs.map(l=>new T.Box3().setFromObject(l).min.y));assert.ok(hem>shoeTop&&hem<.26*.76,'ankle length, above the shoes');
+  const ray=new T.Raycaster(),p=new T.Vector3(),origin=new T.Vector3();let checked=0;
+  doll.traverse(o=>{if(o.name!=='leg'&&o.name!=='sock')return;const pos=o.geometry.attributes.position;
+    for(let i=0;i<pos.count;i++){p.fromBufferAttribute(pos,i).applyMatrix4(o.matrixWorld);if(p.y<hem+.004||p.y>.95*.76)continue;
+      const leg=legs.find(l=>Math.sign(centre(l).x)===Math.sign(p.x)),c=centre(leg);origin.set(c.x,p.y,0);const r=p.distanceTo(origin);if(r<.005)continue;
+      ray.set(origin,p.clone().sub(origin).normalize().applyAxisAngle(new T.Vector3(0,1,0),1e-4));const h=ray.intersectObject(leg,false)[0];
+      assert.ok(h&&h.distance>r+.001,`${o.name} vertex ${i} shows through the cargo leg`);checked++;}});
+  assert.ok(checked>200);disposeObject(doll);disposeObject(outfit);
+});
