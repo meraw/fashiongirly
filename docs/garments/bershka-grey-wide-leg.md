@@ -1,6 +1,6 @@
 # Wardrobe item: Bershka grey wide-leg jeans
 
-Authored 8 October 2026. Status: first interpretation awaiting the user's visual review. Eighth piece from the user's wardrobe list, built on the shared jeans template.
+Authored 8 October 2026. Status: first interpretation awaiting the user's visual review. A piece from the user's wardrobe list, built on the shared jeans template.
 
 ## Source and reference reading
 
@@ -42,7 +42,7 @@ The studio light warms and brightens the denim, so the swatch is set cooler and 
 
 ## Checks
 
-- `npm test`: 27 passing. A new test checks the pockets, rivets, yoke and label, full length over the shoes, that the legs stay apart, and that the middle of each thigh is paler than its sides. It fails without the centre fade. The layering test covers this pair under every waist-covering top automatically.
+- `npm test`: 28 passing after merging the tops chat's pointelle jumper. A new test checks the pockets, rivets, yoke and label, full length over the shoes, that the legs stay apart, and that the middle of each thigh is paler than its sides. It fails without the centre fade. The layering test covers this pair under every waist-covering top automatically.
 - `npm run build` succeeds.
 - Rendered in headless Chromium from the front and back without a top; compared side by side with the flat lay and back photos. The user has not yet seen it.
 
