@@ -80,6 +80,13 @@ The user wants to add their whole wardrobe, **one item at a time**, reviewing ea
 
 Each new kind of garment needs its slot the first time it appears. Top and bottom slots exist. Dresses, outerwear and shoes each still need a slot with layering rules. Button-downs need collar, placket and button details; hoodies need a hood that clears her large head and hair.
 
+Shoes are a third parallel lane (see [AGENTS.md](../AGENTS.md)), agreed with the user on 8 October 2026. No pair has been supplied yet. The plan, to carry out with the first pair so it can be checked against a real shoe:
+
+- Move the classic loafers out of `makeDoll` into the outfit as the built-in `shoesId: 'classic'`, so they can be swapped like the classic tops and jeans. Her face, body and socks stay unchanged. The Levi's '94 test reads the loafer's height from the doll and moves with it.
+- Each catalog shoe declares `slot: 'shoes'` and a footprint (toe, heel, upper height, platform) that bottoms read. The floor-length jeans (`hem: 'rests-on-shoe'` in `makeJeans()`) currently assume the loafer's shape. They should rest on whatever shoe she wears, and cropped jeans must clear a boot shaft.
+- Platforms and heels raise her. This needs a decision: lift the whole doll, or keep her body fixed and let the shoe sit under it.
+- Judge every pair from the side as well as the front and back, because shoes are mostly seen below a hem.
+
 Items added so far:
 
 1. [Mango windowpane jumper](garments/mango-windowpane-jumper.md). First version: the user found it awkward (balloon-like rather than boxy) and the check a different pattern. Revised; the user then sent the next item without further comment on the revision.
