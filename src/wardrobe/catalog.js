@@ -4,6 +4,7 @@ export const MARIKOO_WINDBREAKER_ID = 'marikoo-two-tone-windbreaker-v1';
 export const DESIGUAL_LEATHER_JACKET_ID = 'desigual-black-faux-leather-jacket-v1';
 // Shoes: built-in loafers are 'classic'; catalog shoes fill the 'shoes' slot.
 export const BUFFALO_ASPHA_ID = 'buffalo-aspha-mid-olive-v1';
+export const DM_COW_SLIDE_ID = 'dr-martens-cow-slide-v1';
 export const BRONZE_TOP_ID = 'desigual-bronze-mesh-v1';
 export const LILAC_TOP_ID = 'lilac-portrait-mockneck-v1';
 export const CROCHET_TOP_ID = 'desigual-crochet-flowers-v1';
@@ -486,6 +487,33 @@ export const GARMENTS = Object.freeze({
       },
     },
   },
+  [DM_COW_SLIDE_ID]: {
+    slot: 'shoes',
+    id: DM_COW_SLIDE_ID, name: 'Dr. Martens cow print platform slides', family: 'platform-slide-sandal', version: 1,
+    status: 'reference-study-awaiting-visual-review', brandAsProvided: 'Dr. Martens',
+    source: { note: 'user supplied five phone screenshots of a shop gallery (images 1, 3, 4, 5 and 7 of 7): side, front three-quarter pair, back pair, top pair, toe close-up; no model name visible' },
+    referenceViews: ['inner side', 'front three-quarter', 'back', 'top', 'toe close-up'],
+    details: ['open-toe, open-back slide', 'two wide crossed straps of black-and-white cow print pony hair, edged in black leather piping', 'thin black leather cords crossing over them in an X', 'black leather instep strap with a large silver buckle on the outer side', 'black suede footbed with the AirWair logo', 'black leather welt band with fine grooves and yellow welt stitching', 'chunky sculpted outsole in smoky translucent black: toe and heel blocks, a ribbed block and mountain peaks along the side, the tread lifting under the arch'],
+    material: { construction: 'pony-hair print leather and smooth leather straps on a moulded platform', composition: 'not visible in the supplied screenshots', finish: 'cow print pony hair, matte leather, slightly glossy translucent outsole' },
+    fit: { silhouette: 'chunky platform slide', platform: 'footbed about a fifth of the sole length high; raises her by the part above her normal foot level', adjustment: 'fixed authored fit for review' },
+    uncertainties: ['cow-print patches are procedural, not traced from the photos', 'footbed logo and buckle lettering are not reproduced', 'her bare feet are soft felt ovals like her mittens, with no toes', 'outsole sculpting simplified to blocks, a ribbed block and a row of peaks'],
+    authoring: { texture: 'procedural cowPrint() in src/doll/model.js', runtimeGeneration: false, sourcePhotosBundled: false },
+    // Construction for makePlatformSlide() in src/doll/model.js, in outfit units (x is widened by 1.06 and y squashed by .76).
+    build: {
+      template: 'platform-slide', cx: .16, baseFoot: .11, restCap: .26,
+      colours: { outsole: '#2d2c2f', leather: '#1d1c1e', footbed: '#2c2829', stitch: '#d9a21e', skin: '#dfb195', buckle: '#c7cacd' },
+      plan: { front: .35, back: -.15, halfWidth: .12, nFront: 3.4, nBack: 2.8, heelNarrow: .12, toeNarrow: .15 },
+      // Heights from the side photo: outsole, welt band (grooves, stitching) and leather top layer up to the footbed.
+      sole: { outsole: .081, welt: { grooves: [.088, .095], stitch: .103, top: .111 }, footbed: .138, top: .138, heelTop: .138, lugs: 26, archGap: .02 },
+      // Her bare foot as one smooth shape: slices [y, front, back, halfWidth] from just under the footbed up into her leg,
+      // with a soft rounded toe and heel (nFront, nBack); instepTop is the highest point straps drape over.
+      foot: { nFront: 2.5, nBack: 2.2, instepTop: .275, rows: [[.13, .29, -.115, .082], [.148, .312, -.128, .093], [.168, .31, -.132, .095], [.188, .282, -.13, .091], [.208, .22, -.122, .084], [.23, .14, -.108, .075], [.255, .085, -.092, .066], [.285, .055, -.072, .055], [.33, .045, -.06, .05], [.44, .045, -.06, .05]] },
+      // Straps as [z at the inner edge, z at the outer edge, width, gap above her foot]; cords as [z inner, z outer, gap].
+      cowBands: [[.27, .15, .11, .008], [.13, .25, .11, .016]],
+      cords: [[.29, .1, .024], [.1, .29, .024]],
+      instep: { z: [.1, .085], width: .068, gap: .01, buckleAt: .8 },
+    },
+  },
   // Outerwear.
   [MARIKOO_WINDBREAKER_ID]: {
     slot: 'outerwear',
@@ -542,11 +570,12 @@ export const GARMENTS = Object.freeze({
     referenceViews: ['front on model', 'front on model, arms crossed', 'front flat lay', 'back on model', 'full length'],
     details: ['glossy black faux leather with a fine crinkle', 'pointed shirt collar on a stand', 'silver metal centre zip to the collar', 'front yoke seam across the chest with a panel seam down from it to each pocket', 'a horizontal zip pocket on each side above a flap pocket with a box pleat and a silver snap', 'wide black rib-knit hem band', 'set-in sleeves, ruched above leather cuffs with a buttoned tab', 'centre back seam and two long curved back panel seams', 'printed logo lining (seen at the collar)'],
     material: { construction: 'faux leather (coated fabric) with a rib-knit hem band', composition: 'not visible in the supplied screenshots', finish: 'glossy, crinkled' },
-    fit: { silhouette: 'cropped, fairly fitted', length: 'waist, ending in the rib band', sleeve: 'long, set-in, ruched above the cuff', wear: 'zipped closed: the user wears outerwear closed unless it is designed to be worn open', adjustment: 'fixed authored fit for review' },
-    layering: { closed: true, coversTopSleeves: true, coversWaistband: true },
+    fit: { silhouette: 'cropped, fairly fitted', length: 'waist, ending in the rib band', sleeve: 'long, set-in, ruched above the cuff', wear: 'the user often wears it open; it can also be zipped closed', adjustment: 'fitted on her, easing out only where the layers under it need room' },
+    // Worn open by default (the user's habit), or zipped closed. Closed, it covers the shirt collar like the windbreaker.
+    layering: { closed: true, canOpen: true, openByDefault: true, coversTopSleeves: true, coversWaistband: true },
     styling: {
       observed: { palette: ['black', 'silver hardware'], pattern: 'plain; texture from the crinkled gloss and the seams', silhouette: 'cropped waist-length jacket with a point collar', coverage: 'torso to the waist and arms to the wrist; longer tops show below it', material: 'glossy faux leather, rib-knit band' },
-      user: { wear: 'zipped closed, or not worn' },
+      user: { wear: 'often worn open; sometimes zipped closed', fit: 'a great, fitted cut on the user' },
       inferred: { warmth: 'light to medium layer: a coated shell, lining unknown beyond the collar', weather: 'cool, dry or breezy days', unknown: ['waterproofing', 'lining and padding', 'fibre composition'] },
     },
     uncertainties: ['the side panels under the arms in the flat lay may be a different (matte) material; built all in leather', 'the logo lining is not modelled', 'the crinkle is drawn procedurally, not copied', 'the cuff tab position is read from one photo'],
@@ -556,21 +585,24 @@ export const GARMENTS = Object.freeze({
       template: 'leather-zip-jacket',
       colours: { leather: '#19191e', rib: '#0e0e10', stitch: '#1f1f22', metal: '#77777c' },
       leather: { roughness: .5, clearcoat: .7, clearcoatRoughness: .25, crinkle: .45, tiles: { body: [18, 7], sleeve: [7, 5], trim: [3, 3] } },
+      // Its own fitted size on her (over her body and slim tops). It eases out by at least `gap` over anything worn under it.
+      fit: { gap: .009 },
       body: {
-        rows: [[1.955, .138, .13], [1.93, .139, .131], [1.9, .146, .135], [1.875, .205, .162], [1.84, .27, .205], [1.8, .318, .236], [1.75, .343, .252], [1.65, .352, .262], [1.5, .354, .268], [1.4, .356, .272], [1.3, .358, .276], [1.24, .356, .275], [1.215, .35, .268], [1.2, .345, .262]],
-        overSkirt: [[1.955, .138, .13], [1.93, .139, .131], [1.9, .146, .135], [1.875, .205, .162], [1.84, .27, .205], [1.8, .318, .236], [1.75, .343, .252], [1.65, .352, .262], [1.5, .354, .268], [1.4, .358, .274], [1.3, .364, .282], [1.24, .366, .282], [1.215, .364, .278], [1.2, .36, .274]],
-        hem: 1.13, band: .07, bandRadius: [.338, .254], bandOverSkirt: [.355, .268], ribs: 110,
-        gathers: 18, gatherDepth: .006, gatherHeight: .06, crease: .006,
+        rows: [[1.955, .135, .128], [1.93, .136, .129], [1.9, .143, .133], [1.875, .2, .158], [1.84, .262, .195], [1.8, .302, .216], [1.75, .318, .224], [1.65, .318, .226], [1.5, .314, .226], [1.4, .312, .226], [1.3, .31, .226], [1.24, .306, .224], [1.215, .301, .22], [1.2, .296, .216]],
+        hem: 1.13, band: .07, bandRadius: [.294, .212], ribs: 110,
+        gathers: 18, gatherDepth: .006, gatherHeight: .06, crease: .005,
         collarBase: 1.875, collarTop: 1.955,
       },
-      collar: { gap: .1, spread: .3, foldFront: 1.93, foldBack: 1.97, dropFront: .18, dropBack: .1, lift: .014 },
+      // Worn open, each front edge hangs at this x by height (outfit units).
+      open: { edge: [[1.955, .07], [1.875, .085], [1.75, .105], [1.5, .115], [1.13, .115]] },
+      collar: { gap: .1, gapOpen: .02, spread: .3, foldFront: 1.93, foldBack: 1.97, dropFront: .18, dropBack: .1, lift: .014 },
       front: { yoke: 1.73, yokeTo: .3, panelX: .17 },
       pockets: { x0: .09, x1: .3, zip: { y: 1.53, height: .03 }, flap: { top: 1.485, height: .042, point: .008 }, bottom: 1.27, pleat: .018 },
       back: { panel: [[.13, 1.87], [.18, 1.65], [.2, 1.45], [.18, 1.22]] },
       zip: { width: .009 },
       sleeve: {
-        rows: [[.045, .132, .124], [0, .15, .142], [-.1, .153, .146], [-.25, .149, .142], [-.38, .142, .136], [-.46, .135, .129], [-.505, .128, .122]],
-        cuff: [-.5, -.568], cuffRadius: [.122, .119], ruche: [-.28, -.49], rucheDepth: .03, rucheFreq: 70,
+        rows: [[.045, .114, .108], [0, .126, .12], [-.1, .128, .122], [-.25, .125, .12], [-.38, .122, .118], [-.46, .121, .117], [-.505, .12, .117]],
+        cuff: [-.5, -.568], cuffRadius: [.121, .118], ruche: [-.28, -.49], rucheDepth: .02, rucheFreq: 70,
       },
     },
   },

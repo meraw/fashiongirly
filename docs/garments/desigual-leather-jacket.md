@@ -1,6 +1,6 @@
 # Wardrobe item: Desigual black faux-leather jacket
 
-Authored 8 October 2026. Status: first version, awaiting the user's visual review. Second piece of outerwear, added by the outerwear chat.
+Authored 8 October 2026. Status: second version, awaiting the user's visual review. The user found the first version bloated on the doll, though the real jacket has a great fit, and said they often wear it open. Second piece of outerwear, added by the outerwear chat.
 
 ## Source and reference reading
 
@@ -28,13 +28,31 @@ Features read from the screenshots:
 
 Measured colours (flat lay): leather averages about RGB 40, 40, 43 (glossy panels up to about 59, 59, 65, with highlights near 90); rib band 17, 17, 17.
 
-## Implementation
+## How the user wears it
+
+The user often wears this jacket open, and sometimes zipped. It is the first piece of outerwear with a “Wear it open” setting; it starts open when chosen, and the setting is saved with looks. The windbreaker stays closed-only.
+
+## Revision after the user's first review
+
+The user said the first version looked bloated on the doll, while the real jacket has a great fit. The cause: it was sized once, wide and deep enough to go over the chunkiest jumper and the skirt, so it was inflated over everything. Its sleeves (about 0.15 round) were also far wider than her arm needs, since the top's sleeves are hidden inside them anyway.
+
+The second version:
+
+- **Fits to what is under it.** It is built at its own slim fit on her (about 0.31 by 0.23 at the chest, close to the slim tops). It eases out, height by height, only where the layers worn under it need room, with a 0.009 gap (`easeOver()` in `src/doll/outerwear.js`). Over the silver cable jumper it stays slim; over the plaid jumper or the skirt it grows just enough. The rib band does the same, with a little extra room for its ribs. Points covered by the jacket's sleeves, and the open front, are not counted.
+- **Slimmer sleeves.** About 0.125 round, fitted to her arm, still clearing her thumbs at the cuff.
+- **Worn open.**
+  - The fronts hang apart, with their edges at a set x by height, about 0.07 at the neck and 0.115 at the chest and hem. The fronts move outward most near their edges.
+  - The collar spreads with them.
+  - The zip becomes two halves along turned leather facings, with the slider left at the hem on her right.
+  - The rib band parts at the same edges.
+  - The classic shirt's collar stays out, as it would.
+
 
 Catalog ID `desigual-black-faux-leather-jacket-v1` (slot `outerwear`). It is built by `makeLeatherJacket()` in `src/doll/outerwear.js` from its catalog `build` spec (template `leather-zip-jacket`). Worn zipped closed, as the user wears outerwear.
 
-- **Shared jacket code.** The windbreaker's body, surface placement and centre zip moved into shared helpers, `jacketBody()` and `centreZip()`, used by both templates. This is additive: the windbreaker renders pixel-identical to its approved version (front, turn and back compared).
+- **Shared jacket code.** The windbreaker's body, surface placement and centre zip moved into shared helpers, `jacketBody()` and `centreZip()`, used by both templates. `jacketBody()` takes two optional settings, which the windbreaker does not use: fitting to the layers under it, and an open front. This is additive: the windbreaker renders pixel-identical to its approved version (front, turn and back compared after each change).
 - **Leather.** A tileable crinkle, drawn locally as a height field. It drives a normal map that is shared by the leather and its glossy coat (clearcoat), so highlights break up along the creases the way they do in the photos. Separate repeats keep the crinkle the same size on the body, sleeves and small pieces. A first version with large, deep cells read as crocodile or crazy paving, so it was made much finer and softer.
-- **Shape.** A fitted body from the collar stand down to a matte rib band at 1.13–1.20 (waist length), with broad soft creases instead of gathers. Over the skirt, the lower body and band sit out a little.
+- **Shape.** A fitted body from the collar stand down to a matte rib band at 1.13–1.20 (waist length), with broad soft creases instead of gathers. It eases over the layers under it (see the revision above).
 - **Point collar.** A leaf folded over the stand that lies on her shoulders and chest. Its front ends are cut to points either side of the zip, reaching down to about 1.78, below her chin, so the collar reads from the front. It has a rolled fold, edges and topstitching. Her hair hides it at the back.
 - **Seams.** Each seam is a slight ridge with a row of tonal topstitching: the front yoke, the two front panel seams, the centre back and the two curved back panels.
 - **Pockets.** On each side, a leather welt with a short silver zip and its pull at the inner end. Below it, a patch pocket with box-pleat stitching, under a flap with a slight point and a silver snap.
@@ -46,10 +64,12 @@ Catalog ID `desigual-black-faux-leather-jacket-v1` (slot `outerwear`). It is bui
 
 It uses the same rules as the windbreaker: closed, hides the top's sleeves, closes over the shirt collar and covers the skirt's bow. Being cropped at the waist, it lets longer tops show below its band; the lilac top's hem shows as a thin line.
 
-Under this slimmer jacket, the pointelle jumper's raglan seams poked through near the underarm: those seams are drawn on the jumper's body, not inside its hidden sleeves. Easing the jacket's upper sleeve slightly fixed it. No code in the tops was changed.
+Under the first version, the pointelle jumper's raglan seams poked through near the underarm: they are drawn on the jumper's body, not inside its hidden sleeves. With fitting, the jacket now eases over them wherever its sleeves don't cover them. No code in the tops was changed.
 
 ## Checks
 
+- The coverage test now builds each outfit's own jacket, because a fitted jacket depends on what is under it. It runs open and closed, and with and without the skirt, skipping only the open front. It caught three problems with the open version, each fixed: a sheet stretched across the opening (an angle wrap-around), the band's open ends sitting further out than the fronts' edges, and the band's ribs dipping over the bronze top's hem.
+- A new test checks the open setting: only outerwear designed for it opens, the zip halves and facings, nothing spanning the opening, the shirt collar out when open and covered when zipped, and the jacket easing out over a chunky jumper but not over a slim one. The UI test checks the toggle: off and disabled for the windbreaker, on by default for this jacket, and saved.
 - The outerwear tests now cover any jacket. They find the covering surfaces and cuffs by tags on the meshes rather than by name. They run for both jackets:
   - every top, bottom and the skirt is covered
   - the top's sleeves are hidden and its body stays on
@@ -73,4 +93,4 @@ Under this slimmer jacket, the pointelle jumper's raglan seams poked through nea
 - The logo lining is not modelled.
 - In the flat lay, the side panels under the arms may be a matte material; here they are leather.
 - The crinkle is procedural and does not copy the photo's creases. The cuff tab's position is read from one photo.
-- On her short, wide torso the pockets sit close to the sleeves, so from straight in front the outer ends of the pockets are partly behind her arms.
+- On her short, wide torso the pockets sit close to the sleeves. Worn open, the fronts move outward and the pockets sit mostly at her sides: they show from a turn, less from straight in front.
