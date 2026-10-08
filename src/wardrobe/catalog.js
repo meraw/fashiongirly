@@ -2,6 +2,7 @@
 export const BRONZE_TOP_ID = 'desigual-bronze-mesh-v1';
 export const LILAC_TOP_ID = 'lilac-portrait-mockneck-v1';
 export const CROCHET_TOP_ID = 'desigual-crochet-flowers-v1';
+export const PLAID_JUMPER_ID = 'mango-plaid-jumper-v1';
 export const GARMENTS = Object.freeze({
   [BRONZE_TOP_ID]: {
     id: BRONZE_TOP_ID,
@@ -15,6 +16,7 @@ export const GARMENTS = Object.freeze({
     material: { construction: 'fine stretch mesh', finish: 'metallic flecks', opaqueBands: 'black' },
     fit: { silhouette: 'close to doll body', sleeve: 'tapered', hem: 'hip', adjustment: 'fixed authored fit for first review' },
     exclusions: ['striped-shirt', 'knit-sweater'],
+    layering: { coversWaistband: true },
     uncertainties: ['exact sleeve characters are not transcribed', 'generated artwork is interpretive', 'same front-facing motif is reused on back', 'side seam alignment and physical transparency need visual review'],
     authoring: { texture: 'bronze-atlas.js', runtimeGeneration: false, sourcePhotosBundled: false },
   },
@@ -26,6 +28,7 @@ export const GARMENTS = Object.freeze({
     material: { construction: 'textured fabric; exact fibre unconfirmed', finish: 'subtle metallic back sheen' },
     fit: { silhouette: 'close to doll body', sleeve: 'tapered with cuff gathers', hem: 'lower hip', adjustment: 'fixed authored fit for review' },
     exclusions: ['striped-shirt','knit-sweater'],
+    layering: { coversWaistband: true },
     uncertainties: ['portrait and floral artwork are interpretive', 'physical material and brand are not established from pictures', 'exact seam placement and print scale need visual review'],
     authoring: { texture: 'lilac-atlas.js', runtimeGeneration: false, sourcePhotosBundled: false },
   },
@@ -40,5 +43,19 @@ export const GARMENTS = Object.freeze({
     exclusions: ['striped-shirt','knit-sweater'],
     uncertainties: ['motif layout is a procedural repeat, not a stitch-for-stitch copy', 'upper back and back neckline are hidden by hair in the back photo', 'dropped shoulders and the ladder seams at shoulder and sleeve are not modelled', 'scallops do not follow individual motif edges'],
     authoring: { texture: 'procedural crochetData() in src/doll/model.js, drawn locally when first worn', runtimeGeneration: false, sourcePhotosBundled: false },
+  },
+  [PLAID_JUMPER_ID]: {
+    id: PLAID_JUMPER_ID, name: 'Brushed windowpane jumper', family: 'oversized-knit-jumper', version: 1,
+    status: 'reference-study-awaiting-visual-review', brandAsProvided: 'Mango',
+    source: { page: 'https://www.zalando.ie/mango-jumper-light-blue-zir03dt4f-001.html', note: 'page blocked automated fetching; user supplied phone screenshots of 7 product photos' },
+    referenceViews: ['front on model', 'front full length', 'knit close-up', 'back on model', 'sleeve and hem close-up', 'front flat lay', 'crouching side'],
+    details: ['large windowpane check knitted in (jacquard), not printed', 'wide bands of diagonal hatching in rust-brown and grey-taupe', 'thin pale-blue lines through bands and cream windows', 'brushed fuzzy cream ground', 'ribbed crew neck', 'deep ribbed hem band', 'ribbed cuffs gathering full sleeves', 'oversized boxy body with dropped shoulders'],
+    material: { construction: 'heavy brushed jacquard knit', composition: 'not visible in the supplied screenshots', finish: 'soft halo' },
+    fit: { silhouette: 'oversized, boxy', sleeve: 'full, gathered into ribbed cuffs', hem: 'hip, deep rib band', adjustment: 'fixed authored fit for review' },
+    wear: { userNote: 'rarely worn: oversized and very warm for the local climate' },
+    exclusions: ['striped-shirt','knit-sweater'],
+    layering: { coversWaistband: true },
+    uncertainties: ['check scale and band order are an interpretation of the photos', 'fibre composition is unknown', 'the shirt collar and cuffs in the photos are styling, not part of the jumper'],
+    authoring: { texture: 'procedural plaidData() in src/doll/model.js, drawn locally when first worn', runtimeGeneration: false, sourcePhotosBundled: false },
   },
 });

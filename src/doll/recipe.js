@@ -1,4 +1,4 @@
-import { BRONZE_TOP_ID, LILAC_TOP_ID, CROCHET_TOP_ID, GARMENTS } from '../wardrobe/catalog.js';
+import { BRONZE_TOP_ID, LILAC_TOP_ID, CROCHET_TOP_ID, PLAID_JUMPER_ID, GARMENTS } from '../wardrobe/catalog.js';
 export const DEFAULT = Object.freeze({ sweater: '#bf303e', trousers: '#283c59', sleeve: .74, hem: .3, barrel: .78, knit: true, shirt: true, skirt: false, skirtColour: '#bd9bc8', topId: 'classic' });
 export const SWATCHES = [['Tomato', '#bf303e'], ['Butter', '#ead391'], ['Lilac', '#bd9bc8'], ['Cobalt', '#315cb3'], ['Moss', '#74804b'], ['Cream', '#f0e3cb']];
 export function cleanRecipe(value = {}) {
@@ -28,6 +28,7 @@ export function editRecipe(current, sentence) {
 }
 
 export const OUTFITS = [
+  { name: 'Windowpane jumper study', note: 'Reference study: brushed oversized jumper with a knitted-in rust, taupe and pale-blue check and deep ribbing. The check is drawn from the photos, not copied.', recipe: { ...DEFAULT, topId: PLAID_JUMPER_ID, knit: false, shirt: false, trousers: '#283c59', barrel: .35 } },
   { name: 'Crochet flower study', note: 'Reference study: joined crochet flowers, open lace, a filet neckband and scalloped edges. The motif repeat is drawn from the photos, not copied.', recipe: { ...DEFAULT, topId: CROCHET_TOP_ID, knit: false, shirt: false, trousers: '#d9cbb2', barrel: .3 } },
   { name: 'Lilac portrait study', note: 'Portrait and floral front, silvery back, navy patterned sleeves and a raised collar. Artwork is an interpretation of the references.', recipe: { ...DEFAULT, topId: LILAC_TOP_ID, knit: false, shirt: false, trousers: '#39363b', barrel: .12 } },
   { name: 'Bronze mesh study', note: 'Reference study: fitted mesh, bronze stripes and Buddha print. Sleeve artwork is approximate.', recipe: { ...DEFAULT, topId: BRONZE_TOP_ID, knit: false, shirt: false, trousers: '#39363b', barrel: .2 } },
