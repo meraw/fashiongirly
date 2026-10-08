@@ -94,7 +94,8 @@ export function makeDoll() {
   oval(root,[0,1.9,0],[.1,.17,.09],skin,'neck');
   for(const side of [-1,1]){
     oval(root,[side*.16,.69,0],[.092,.49,.094],under,'leg');
-    const arm=oval(root,[side*.305,1.53,0],[.09,.27,.09],skin,'arm');arm.rotation.z=side*.22;
+    // The arm starts below the top of the body so the shoulder slopes into it.
+    const arm=oval(root,[side*.307,1.51,0],[.09,.25,.09],skin,'arm');arm.rotation.z=side*.22;
     const hand=oval(root,[side*.37,1.245,.025],[.077,.093,.068],skin,'tiny-mitten');hand.rotation.z=side*.16;
     oval(root,[side*.322,1.265,.07],[.031,.042,.032],skin,'mitten-thumb',20);
     const sock=cloth('#ecdcac','knit');oval(root,[side*.16,.25,.02],[.106,.14,.107],sock,'sock');
@@ -130,11 +131,21 @@ function referenceMaterial(atlas, panel, lilac=false) {
   const alpha=new T.DataTexture(data,size,size,T.RGBAFormat);alpha.needsUpdate=true;mat.alphaMap=alpha;mat.alphaTest=.4;
   return mat;
 }
+function roundSleeveCap(sleeve,side,top,depth=.19,drop=.085,pull=.2){
+  // Ease the outer top of a sleeve down and in, so the shoulder curves into the arm instead of ending in a corner.
+  const p=sleeve.geometry.attributes.position,c=Math.cos(sleeve.rotation.y),s=Math.sin(sleeve.rotation.y);
+  for(let i=0;i<p.count;i++){
+    const x=p.getX(i),y=p.getY(i),z=p.getZ(i),r=Math.hypot(x,z);if(y<top-depth||r<1e-6)continue;
+    const outward=Math.max(0,side*(x*c+z*s)/r),d=outward*Math.min(1,(y-top+depth)/depth),k=1-pull*d*d;
+    p.setXYZ(i,x*k,y-drop*d*d,z*k);
+  }
+  p.needsUpdate=true;sleeve.geometry.computeVertexNormals();
+}
 function makeReferenceTop(atlas, id=BRONZE_TOP_ID) {
   const lilac=id===LILAC_TOP_ID,hem=lilac?1.10:1.18;
   const top=new T.Group();top.name=id;
   const bodyMaterial=referenceMaterial(atlas,'body',lilac),binding=cloth(lilac?'#67516d':'#191817');
-  const body=shell(top,[[1.91,.109,.099],[1.86,.185,.129],[1.79,.263,.173],[1.65,.279,.183],[1.49,.272,.183],[1.34,.262,.177],[hem,lilac?.29:.277,lilac?.197:.184]],bodyMaterial,'reference-top-body',64);
+  const body=shell(top,[[1.91,.109,.099],[1.875,.17,.122],[1.83,.228,.152],[1.775,.265,.175],[1.65,.279,.183],[1.49,.272,.183],[1.34,.262,.177],[hem,lilac?.29:.277,lilac?.197:.184]],bodyMaterial,'reference-top-body',64);
   // Project each half separately: one upright motif on front and one on back.
   const uv=body.geometry.attributes.uv,p=body.geometry.attributes.position;
   for(let i=0;i<uv.count;i++){
@@ -157,6 +168,7 @@ function makeReferenceTop(atlas, id=BRONZE_TOP_ID) {
     const arm=new T.Group();arm.position.set(side*.242,1.815,0);arm.rotation.z=side*.22;
     const mat=referenceMaterial(atlas,side<0?'left':'right',lilac);
     const sleeve=shell(arm,[[.025,.098,.10],[-.04,.112,.108],[-.16,.107,.101],[-.28,.104,.099],[-.40,.096,.091],[-.49,.078,.08],[-.525,.077,.079]],mat,'reference-fitted-sleeve',48);
+    roundSleeveCap(sleeve,side,.025);
     const suv=sleeve.geometry.attributes.uv,sp=sleeve.geometry.attributes.position;
     for(let i=0;i<suv.count;i++)suv.setY(i,Math.max(0,Math.min(1,(sp.getY(i)+.525)/.55)));
     suv.needsUpdate=true;
@@ -228,7 +240,7 @@ function makeCrochetTop(id=CROCHET_TOP_ID){
   const top=new T.Group();top.name=id;
   // Cropped just above the skirt waistband so either bottom can be worn underneath.
   const pixels=crochetData(),edge=cloth('#d6c8a8'),hem=1.285,depth=.026;
-  const body=shell(top,[[1.815,.235,.17],[1.78,.272,.186],[1.70,.287,.198],[1.55,.29,.205],[1.40,.29,.212],[1.32,.29,.22],[hem,.29,.226]],yarnMaterial(yarnTexture(pixels,1,.68)),'crochet-body',96);
+  const body=shell(top,[[1.815,.235,.17],[1.775,.266,.183],[1.71,.284,.196],[1.55,.29,.205],[1.40,.29,.212],[1.32,.29,.22],[hem,.29,.226]],yarnMaterial(yarnTexture(pixels,1,.68)),'crochet-body',96);
   const drop=scallop(body,hem,.035,depth,12);mapByHeight(body,hem-depth,1.815);
   scallopTrim(top,hem,.291,.227,drop,edge,'scalloped-hem-trim');
   shell(top,[[1.878,.158,.134],[1.848,.198,.152],[1.815,.235,.17]],yarnMaterial(yarnTexture(filetData(),7,1)),'filet-neckband',96);
@@ -238,6 +250,7 @@ function makeCrochetTop(id=CROCHET_TOP_ID){
     // Five motifs around the sleeve; the repeat's seam is turned to the inner back of the arm.
     const sleeve=shell(arm,[[.03,.108,.108],[-.04,.122,.116],[-.16,.12,.114],[-.28,.122,.116],[-.40,.125,.119],[-.50,.131,.125],[-.60,.136,.13]],yarnMaterial(yarnTexture(pixels,5/9,.75)),'crochet-flared-sleeve',64);
     sleeve.rotation.y=-side*Math.PI*.6;
+    roundSleeveCap(sleeve,side,.03);
     const cuff=scallop(sleeve,-.60,.03,.022,7);mapByHeight(sleeve,-.622,.03);
     scallopTrim(sleeve,-.60,.137,.131,cuff,edge,'scalloped-cuff-trim');
     top.add(arm);

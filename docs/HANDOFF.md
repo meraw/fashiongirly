@@ -9,7 +9,7 @@ Read [PRODUCT_BRIEF.md](PRODUCT_BRIEF.md) for the product's intent and agreed co
 ## Current implementation
 
 - Static JavaScript app with Three.js 0.180.0; no runtime AI or service API calls.
-- Procedural doll and a separate replaceable wardrobe group. The cute face and revised compact body are the current visual baseline.
+- Procedural doll and a separate replaceable wardrobe group. The cute face and revised compact body are the current visual baseline. The shoulders were softened on user request: arms start slightly lower (`makeDoll`), and `roundSleeveCap()` curves the outer top of every reference-top sleeve.
 - Knit sweater, striped shirt, barrel jeans, and optional pleated skirt over jeans with a ribbon.
 - Three authored outfits: Tomato mischief, Butter club, Garden party crasher, plus one study preset per reference top. These are presets, not a generative stylist.
 - Sweater and denim colours, sweater sleeve volume and hem, trouser volume, and layer toggles.
@@ -47,7 +47,9 @@ The user supplied front and back pictures of a detailed Desigual bronze mesh top
 
 Latest feedback: the user says the top looks very good apart from two elbow holes. Arm/sleeve intersections were confirmed and corrected by re-centring the sleeves and adding local elbow clearance, with a regression test. The user subsequently said “This is really nice” and requested a second reference garment. The back currently reuses the front-facing motif, and sleeve glyphs are approximate. Preserve these limitations in future handoffs. The second garment is now the lilac portrait mock neck, inferred from two pictures without a written feature list. Its separate front/back materials, raised collar, longer hem and patterned sleeves are implemented; review [its record](garments/lilac-portrait.md) and gather visual feedback next.
 
-The third garment is the Desigual blue crochet flower sweater, authored from a product page link rather than attached pictures. See [its record](garments/crochet-flowers.md); it also awaits the user's visual feedback. Its renders were only checked by the authoring chat in headless Chromium.
+The third garment is the Desigual blue crochet flower sweater, authored from a product page link rather than attached pictures. See [its record](garments/crochet-flowers.md); it also awaits the user's visual feedback. Its renders were only checked by the authoring chat in headless Chromium. The user liked it and reported the garments render okay with occasional issues.
+
+Latest feedback: the doll's shoulders looked far too square. The cause was mostly the fitted tops: a flat shoulder shelf and open sleeve tops rising above it. The arms were also attached as high as the top of the body, which prevented rounding the sleeves without exposing the arm. Fix: arm tops lowered slightly (hands and elbows unchanged), softer shoulder rows on the bronze, lilac and crochet bodies, and rounded sleeve caps. The sleeve test now checks clearance over the whole upper arm and that each sleeve's outer top sits below its inner top. Awaiting the user's visual review. A small dark shape at the lilac top's hem predates this change and is not yet investigated.
 
 ## Garment intake from links
 

@@ -70,7 +70,7 @@ test('reference garment keeps its identity, mapped details and layer exclusions'
   d.getElementById('save').click();assert.equal(JSON.parse(dom.window.localStorage.getItem('fashiongirly.plush-looks.v1'))[0].topId,'desigual-bronze-mesh-v1');
   app.dispose();dom.window.close();
 });
-test('reference sleeves enclose both elbows with clearance',()=>{
+test('reference sleeves cover the upper arm with clearance and round over the shoulder',()=>{
   for(const topId of Object.keys(GARMENTS)){
   const doll=makeDoll(),outfit=makeOutfit({topId});
   doll.updateMatrixWorld(true);outfit.updateMatrixWorld(true);
@@ -82,13 +82,18 @@ test('reference sleeves enclose both elbows with clearance',()=>{
     const arm=arms[side],sleeve=sleeves[side],vertices=arm.geometry.attributes.position;
     for(let i=0;i<vertices.count;i+=2){
       point.fromBufferAttribute(vertices,i).applyMatrix4(arm.matrixWorld);sleeve.worldToLocal(point);
-      if(point.y<-.44||point.y>-.14)continue;
-      origin.set(0,point.y,0);sleeve.localToWorld(origin);sleeve.localToWorld(point);
+      if(point.y<-.44)continue;
+      // Above the sleeve's top ring, aim from the axis at the top so the rounded cap is checked too.
+      origin.set(0,Math.min(point.y,0),0);sleeve.localToWorld(origin);sleeve.localToWorld(point);
       const radius=point.distanceTo(origin);if(radius<.01)continue;
       ray.set(origin,point.clone().sub(origin).normalize());
       const hit=ray.intersectObject(sleeve,false)[0];
-      assert.ok(hit&&hit.distance>radius+.002,`Arm ${side} protrudes at vertex ${i}`);checked++;
+      assert.ok(hit&&hit.distance>radius+.002,`${topId}: arm ${side} protrudes at vertex ${i}`);checked++;
     }
+    // The outer top of the sleeve sits well below the inner top: no square shoulder corner.
+    const p=sleeve.geometry.attributes.position,c=Math.cos(sleeve.rotation.y),sn=Math.sin(sleeve.rotation.y),sign=side?1:-1;let outer=-Infinity,inner=-Infinity;
+    for(let i=0;i<p.count;i++){const x=p.getX(i),z=p.getZ(i),r=Math.hypot(x,z),o=sign*(x*c+z*sn)/r;if(o>.95)outer=Math.max(outer,p.getY(i));if(o<-.95)inner=Math.max(inner,p.getY(i));}
+    assert.ok(inner-outer>.06,`${topId}: sleeve ${side} shoulder is not rounded (${(inner-outer).toFixed(3)})`);
   }
   assert.ok(checked>100);disposeObject(doll);disposeObject(outfit);
   }
