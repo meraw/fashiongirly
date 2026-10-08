@@ -1,5 +1,6 @@
 import * as T from 'three';
 import { cleanRecipe } from './recipe.js';
+import { makeOuterwear } from './outerwear.js';
 import { BRONZE_TOP_ID, LILAC_TOP_ID, CROCHET_TOP_ID, PLAID_JUMPER_ID, STRIPE_JUMPER_ID, POINTELLE_FLOWER_ID, SILVER_CABLE_ID, LACROIX_FLOWER_ID, GARMENTS } from '../wardrobe/catalog.js';
 // Body and wardrobe share one toy proportion system; the face stays unscaled.
 const BODY_HEIGHT = .76;
@@ -1216,7 +1217,7 @@ export function makeOutfit(raw, atlas=null) {
     positions.needsUpdate=true;panel.geometry.computeVertexNormals();
     ring(skirt,1.238,.294,.221,satin,'skirt-waistband',.04);
     // A top that covers the waistband hides the bow, which would otherwise poke through its hem.
-    if(!GARMENTS[state.topId]?.layering?.coversWaistband){
+    if(!GARMENTS[state.topId]?.layering?.coversWaistband&&!GARMENTS[state.outerwearId]?.layering?.coversWaistband){
     const ribbon=cloth(state.skirtColour);
     for(const side of [-1,1]){
       const loop=oval(skirt,[.22+side*.042,1.208,.193],[.052,.026,.019],ribbon,'ribbon-loop');loop.rotation.z=side*.35;
@@ -1225,6 +1226,16 @@ export function makeOutfit(raw, atlas=null) {
     oval(skirt,[.22,1.208,.219],[.019,.021,.013],ribbon,'ribbon-knot');
     }
   }
+  // Outerwear goes over every other layer. A closed jacket's elastic cuffs gather tighter than the sleeves under it, so
+  // those sleeves are hidden inside it rather than pushing through. Every top builds its sleeves in arm groups tilted with
+  // her arms; only those groups are hidden.
+  const outer=makeOuterwear(state.outerwearId,state.skirt);
+  if(outer){
+    if(GARMENTS[state.outerwearId].layering?.coversTopSleeves)for(const layer of root.children)layer.traverse(o=>{if(o.isGroup&&o.rotation.z!==0&&o.children.some(c=>c.isMesh&&/sleeve/.test(c.name)))o.visible=false;});
+    // Zipped to the chin, it also closes over the striped shirt's collar points.
+    if(GARMENTS[state.outerwearId].layering?.closed)root.traverse(o=>{if(o.name==='shirt-collar')o.visible=false;});
+    root.add(outer);
+  }
   // Materials that were not used in the selected layers are not retained.
   const used=new Set();root.traverse(o=>{if(o.material)used.add(o.material);});
   for(const mat of [shirt,stripe,denim,knit,stitch])if(!used.has(mat)){mat.bumpMap?.dispose();mat.dispose();}
@@ -1232,4 +1243,5 @@ export function makeOutfit(raw, atlas=null) {
   return root;
 }
 export function disposeObject(root) { const geometries=new Set(),materials=new Set(),textures=new Set();root.traverse(o=>{if(o.geometry)geometries.add(o.geometry);if(o.material)for(const m of Array.isArray(o.material)?o.material:[o.material])materials.add(m);});for(const m of materials)for(const value of Object.values(m))if(value?.isTexture)textures.add(value);geometries.forEach(g=>g.dispose());textures.forEach(t=>t.dispose());materials.forEach(m=>m.dispose()); }
-
+// Shared builders for garments made in their own modules (outerwear.js).
+export { V, random, weave, solid, put, oval, curve, shell, ringShell, ribbon, ribbed, roundSleeveCap };

@@ -1,7 +1,8 @@
 import { DEFAULT_HAIR_ID, cleanHairId } from '../hair/catalog.js';
 import { BRONZE_TOP_ID, LILAC_TOP_ID, CROCHET_TOP_ID, PLAID_JUMPER_ID, STRIPE_JUMPER_ID, POINTELLE_FLOWER_ID, SILVER_CABLE_ID, LACROIX_FLOWER_ID, BARREL_JEANS_ID, DAVINIA_JEANS_ID, LEVIS_94_ID, TOMMY_MOM_ID, STRADIVARIUS_RELAXED_ID, MANGO_BLACK_JEANS_ID, BERSHKA_GREY_ID, GARMENTS } from '../wardrobe/catalog.js';
 import { BUFFALO_ASPHA_ID } from '../wardrobe/catalog.js';
-export const DEFAULT = Object.freeze({ sweater: '#bf303e', trousers: '#283c59', sleeve: .74, hem: .3, barrel: .78, knit: true, shirt: true, skirt: false, skirtColour: '#bd9bc8', topId: 'classic', bottomId: 'classic', shoesId: 'classic', hairId: DEFAULT_HAIR_ID });
+import { MARIKOO_WINDBREAKER_ID } from '../wardrobe/catalog.js';
+export const DEFAULT = Object.freeze({ sweater: '#bf303e', trousers: '#283c59', sleeve: .74, hem: .3, barrel: .78, knit: true, shirt: true, skirt: false, skirtColour: '#bd9bc8', topId: 'classic', bottomId: 'classic', shoesId: 'classic', outerwearId: 'none', hairId: DEFAULT_HAIR_ID });
 export const SWATCHES = [['Tomato', '#bf303e'], ['Butter', '#ead391'], ['Lilac', '#bd9bc8'], ['Cobalt', '#315cb3'], ['Moss', '#74804b'], ['Cream', '#f0e3cb']];
 export function cleanRecipe(value = {}) {
   const v = value && typeof value === 'object' ? value : {};
@@ -13,6 +14,7 @@ export function cleanRecipe(value = {}) {
   if (GARMENTS[v.topId]?.slot==='top') result.topId=v.topId;
   if (GARMENTS[v.bottomId]?.slot==='bottom') result.bottomId=v.bottomId;
   if (GARMENTS[v.shoesId]?.slot==='shoes') result.shoesId=v.shoesId;
+  if (GARMENTS[v.outerwearId]?.slot==='outerwear') result.outerwearId=v.outerwearId;
   if(result.topId!== 'classic'){result.knit=false;result.shirt=false;}
   return result;
 }
@@ -50,6 +52,7 @@ export const OUTFITS = [
   { name: 'Crochet flower study', note: 'Reference study: joined crochet flowers, open lace, a filet neckband and scalloped edges. The motif repeat is drawn from the photos, not copied.', recipe: { ...DEFAULT, topId: CROCHET_TOP_ID, knit: false, shirt: false, trousers: '#d9cbb2', barrel: .3 } },
   { name: 'Lilac portrait study', note: 'Portrait and floral front, silvery back, navy patterned sleeves and a raised collar. Artwork is an interpretation of the references.', recipe: { ...DEFAULT, topId: LILAC_TOP_ID, knit: false, shirt: false, trousers: '#39363b', barrel: .12 } },
   { name: 'Bronze mesh study', note: 'Reference study: fitted mesh, bronze stripes and Buddha print. Sleeve artwork is approximate.', recipe: { ...DEFAULT, topId: BRONZE_TOP_ID, knit: false, shirt: false, trousers: '#39363b', barrel: .2 } },
+  { name: 'Marikoo windbreaker study', note: 'Reference study: a slate-blue windbreaker zipped closed, with an ecru yoke ending in a V at the front, the hood down, drawcords, snap welt pockets and elastic hem and cuffs.', recipe: { ...DEFAULT, topId: CROCHET_TOP_ID, bottomId: TOMMY_MOM_ID, outerwearId: MARIKOO_WINDBREAKER_ID, knit: false, shirt: false } },
   { name: 'Buffalo boots study', note: 'Reference study: chunky olive platform boots with deep lugs, a quilted padded collar, Buffalo logo tape on the heel and tongue, and webbing details, worn with the cropped Davinia jeans so the whole boot shows. Colours measured from the product photos.', recipe: { ...DEFAULT, topId: PLAID_JUMPER_ID, bottomId: DAVINIA_JEANS_ID, shoesId: BUFFALO_ASPHA_ID, knit: false, shirt: false } },
   { name: 'Tomato mischief', note: 'A cropped red knit, lilac pleats over indigo jeans. The unexpected layer does the talking.', recipe: { ...DEFAULT, hem: .12, sleeve: .9, skirt: true } },
   { name: 'Butter club', note: 'Butter yellow, washed denim and a peeking striped shirt. Big sleeves, a neat little crop.', recipe: { ...DEFAULT, sweater: '#ead391', trousers: '#71899b', sleeve: 1, hem: .08, barrel: .5 } },
