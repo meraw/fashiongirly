@@ -121,6 +121,7 @@ LOAFER_REST.reach=.3;
 function makeShoes(id='classic',tape=null){
   const spec=GARMENTS[id]?.slot==='shoes'?GARMENTS[id].build:null;
   if(spec?.template==='lug-boot')return makeLugBoot(id,spec,tape);
+  if(spec?.template==='platform-slide')return makePlatformSlide(id,spec);
   const shoes=new T.Group();shoes.name='shoes';shoes.userData.rest=LOAFER_REST;
   const leather=solid('#64362e',.37),sole=solid('#312829',.85),stitch=solid('#c4a26e');
   for(const side of [-1,1]){
@@ -276,6 +277,109 @@ function makeLugBoot(id,spec,tape=null){
   rest.inside=(side,x,y,z)=>y>=yBase&&y<=yTopMax+.12&&inside(x-side*cx,z,Math.min(y,yTopMax),y>K.side-.03?.045:.036)<=1;
   return boots;
 }
+function cowPrint(seed=5){
+  // Pony-hair cow print: crisp, irregular black patches of mixed sizes, from large splotches to small spots, on white,
+  // with a fine hair grain. Each patch is a cluster of overlapping blobs with a slightly ragged edge.
+  const size=256,data=new Uint8Array(size*size*4),r=random(seed),blobs=[];
+  for(let k=0;k<34;k++){const big=r()<.3,cx=r()*size,cy=r()*size,rad=big?9+r()*7:2.5+r()*4,n=big?6:2;
+    for(let j=0;j<n;j++)blobs.push([cx+(r()-.5)*rad*2,cy+(r()-.5)*rad*1.4,rad*(.5+r()*.5)]);}
+  for(let y=0;y<size;y++)for(let x=0;x<size;x++){let f=0;
+    for(const [bx,by,br] of blobs){let dx=Math.abs(x-bx),dy=Math.abs(y-by);dx=Math.min(dx,size-dx);dy=Math.min(dy,size-dy);if(dx>br*3||dy>br*3)continue;f+=Math.exp(-(dx*dx+dy*dy)/(br*br));}
+    f+=.18*Math.sin(x*.9+Math.sin(y*.7)*2)*Math.sin(y*.8);
+    const ink=Math.min(1,Math.max(0,(f-.5)*10)),grain=(r()-.5)*12+Math.sin(x*1.7+y*.4)*4,v=240*(1-ink)+26*ink+grain,i=(y*size+x)*4;
+    data[i]=Math.max(0,Math.min(255,v));data[i+1]=Math.max(0,Math.min(255,v-1));data[i+2]=Math.max(0,Math.min(255,v-3));data[i+3]=255;}
+  const tex=new T.DataTexture(data,size,size,T.RGBAFormat);tex.wrapS=tex.wrapT=T.RepeatWrapping;tex.colorSpace=T.SRGBColorSpace;tex.needsUpdate=true;return tex;
+}
+function makePlatformSlide(id,spec){
+  // An open slide: chunky layered sole, straps over the forefoot, and her bare felt foot and ankle, since they show.
+  const slides=new T.Group();slides.name='shoes';slides.userData.garmentId=id;
+  const C=spec.colours,S=spec.sole,P=spec.plan,F=spec.foot,cx=spec.cx,bed=S.footbed;
+  const smooth=(e0,e1,x)=>{const t=Math.min(1,Math.max(0,(x-e0)/(e1-e0)));return t*t*(3-2*t);};
+  const outsole=new T.MeshPhysicalMaterial({color:C.outsole,roughness:.42,clearcoat:.35,clearcoatRoughness:.5,side:T.DoubleSide});
+  const leather=new T.MeshStandardMaterial({color:C.leather,roughness:.5,side:T.DoubleSide}),suede=new T.MeshStandardMaterial({color:C.footbed,roughness:1,side:T.DoubleSide}),yellow=solid(C.stitch,.7);
+  const cow=new T.MeshPhysicalMaterial({map:cowPrint(),roughness:.85,sheen:.6,sheenColor:new T.Color('#ffffff'),sheenRoughness:.5,side:T.DoubleSide});
+  const skin=cloth(C.skin),metal=new T.MeshStandardMaterial({color:C.buckle,metalness:.9,roughness:.28});
+  // Sole outline: centred between heel and toe, square-ish toe, narrower heel.
+  const zc=(P.front+P.back)/2,hl=(P.front-P.back)/2;
+  const outline=(a,off=0)=>{const s=Math.sin(a),c=Math.cos(a),n=c>0?P.nFront:P.nBack,narrow=1-P.heelNarrow*Math.max(0,-c)-P.toeNarrow*Math.max(0,c)**2;
+    const x=P.halfWidth*narrow*Math.sign(s)*Math.abs(s)**(2/n),z=hl*Math.sign(c)*Math.abs(c)**(2/n),r=Math.hypot(x,z)||1,k=(r+off)/r;return [x*k,zc+z*k];};
+  const halfWidthAt=z=>{const q=Math.min(1,Math.abs((z-zc)/hl)),n=z>zc?P.nFront:P.nBack,c=Math.sign(z-zc)*q**(n/2);return P.halfWidth*(1-P.heelNarrow*Math.max(0,-c)-P.toeNarrow*Math.max(0,c)**2)*(1-q**n)**(1/n);};
+  const insideSole=(dx,z,grow=0)=>{const q=(z-zc)/(hl+grow),n=q>0?P.nFront:P.nBack,narrow=1-(q<0?P.heelNarrow*Math.abs(q)**(n/2):P.toeNarrow*Math.abs(q)**n);return Math.abs(dx/(P.halfWidth*narrow+grow))**n+Math.abs(q)**n;};
+  // Her foot: soft overlapping ovals like her mittens (forefoot, instep, heel, ankle), standing on the footbed.
+  // Her bare foot is one smooth surface, like a felt sock-foot: horizontal slices (rows [y, front, back, halfWidth])
+  // smoothed through the rows, from a rounded edge on the footbed, over the instep and a soft toe, up into the ankle.
+  const FR=F.rows,footAt=y=>{let k=0;while(k<FR.length-2&&y>FR[k+1][0])k++;const t=Math.min(1,Math.max(0,(y-FR[k][0])/(FR[k+1][0]-FR[k][0]))),r=i=>FR[Math.max(0,Math.min(FR.length-1,i))];
+    return [1,2,3].map(c=>{const p0=r(k-1)[c],p1=r(k)[c],p2=r(k+1)[c],p3=r(k+2)[c];return .5*(2*p1+(-p0+p2)*t+(2*p0-5*p1+4*p2-p3)*t*t+(-p0+3*p1-3*p2+p3)*t*t*t);});};
+  const footPlan=(y,a)=>{const [f,b,w]=footAt(y),s=Math.sin(a),c=Math.cos(a),n=c>0?F.nFront:F.nBack,zc=(f+b)/2,hl=(f-b)/2;return [w*Math.sign(s)*Math.abs(s)**(2/n),zc+hl*Math.sign(c)*Math.abs(c)**(2/n)];};
+  const insideFoot=(dx,z,y,grow=0)=>{const [f,b,w]=footAt(y),zc=(f+b)/2,q=(z-zc)/((f-b)/2+grow),n=q>0?F.nFront:F.nBack;return Math.abs(dx/(w+grow))**n+Math.abs(q)**n;};
+  // Height of the top of her foot (grown by gap all round) at a point, up to the instep (not the ankle), or -Infinity.
+  const footTop=(side,x,z,gap=0)=>{const dx=x-side*cx,y0=FR[0][0],step=.004;if(insideFoot(dx,z,F.instepTop,gap)<=1)return F.instepTop+gap;
+    // Scan down from the instep (the toe's rounded tip reaches further forward than the foot's base), then refine.
+    for(let y=F.instepTop-step;y>=y0;y-=step)if(insideFoot(dx,z,y,gap)<=1){let lo=y,hi=y+step;for(let i=0;i<14;i++){const m=(lo+hi)/2;if(insideFoot(dx,z,m,gap)<=1)lo=m;else hi=m;}return lo+gap;}
+    return -Infinity;};
+  const N=480,angles=Array.from({length:N+1},(_,i)=>i/N*Math.PI*2),perim=[0];
+  for(let i=1;i<=N;i++){const [x0,z0]=outline(angles[i-1]),[x1,z1]=outline(angles[i]);perim.push(perim[i-1]+Math.hypot(x1-x0,z1-z0));}
+  const lugPeriod=perim[N]/S.lugs;
+  // Sculpted outsole: the wall is recessed except for the toe block, the heel block, a ribbed block under the arch and a
+  // row of mountain peaks along the forefoot; the tread lifts clear of the ground under the arch.
+  const proud=(z,y,side)=>{const t=(z-P.back)/(P.front-P.back);
+    if(t>.8||t<.32&&y<S.outsole-.012-.02*Math.max(0,(t-.1)/.22))return 1;
+    if(t>.36&&t<.47)return y>.012&&y<S.outsole-.012?.6+.4*Math.cos(t*170):0;
+    if(t>.5&&t<.78){const saw=Math.abs(((t-.5)/.07)%1-.5);return y<.02+.032*(1-2*saw)?1:0;}
+    return 0;};
+  const archLift=z=>{const t=(z-P.back)/(P.front-P.back);return S.archGap*smooth(.3,.33,t)*(1-smooth(.47,.5,t));};
+  const ring=(side,y,offFn)=>angles.map((a,i)=>{const [x0,z0]=outline(a),[x,z]=outline(a,offFn(i,z0));return [side*cx+x,y+(y<.03?archLift(z0)*(1-y/.03):0),z];});
+  for(const side of [-1,1]){
+    const lug=(i,y)=>{const g=Math.abs((perim[i]/lugPeriod)%1-.5),half=.18*Math.max(0,1-y/.02);return g<half?-.012*smooth(half,half*.5,g):0;};
+    const rows=[[0,()=>.002],[.004,(i)=>.008+lug(i,.004)],[.012,(i)=>.008+lug(i,.012)],[.02,()=>.008]];
+    for(let k=1;k<=10;k++){const y=.02+(S.outsole-.02)*k/10,flare=.008*(1-k/10);rows.push([y,(i,z)=>{const p=proud(z,y,side);return -.02*(1-p)+flare*p;}]);}
+    const outsoleRings=rows.map(([y,f])=>ring(side,y,f));ringShell(slides,outsoleRings,outsole,'slide-outsole');
+    // Welt: black leather band standing proud, with fine horizontal grooves and yellow stitching.
+    const W=S.welt,weltRows=[[S.outsole,.0],[S.outsole+.003,.004],...W.grooves.flatMap(g=>[[g-.002,.004],[g,.001],[g+.002,.004]]),[W.top-.003,.004],[W.top,.0]];
+    ringShell(slides,weltRows.map(([y,o])=>ring(side,y,()=>o)),leather,'slide-welt');
+    curve(slides,angles.filter((_,i)=>i%2===0).map(a=>{const [x,z]=outline(a,.0055);return [side*cx+x,W.stitch,z];}),.0024,yellow,'welt-stitch');
+    // Top layer: leather-wrapped platform with a rounded edge, then the suede footbed set just inside it.
+    ringShell(slides,[[W.top,0],[bed-.012,-.002],[bed-.003,-.006],[bed,-.013]].map(([y,o])=>ring(side,y,()=>o)),leather,'slide-platform');
+    const rim=ring(side,bed,()=>-.013),centre=[side*cx,bed-.002,zc];
+    ringShell(slides,[rim,rim.map(([x,y,z])=>[centre[0]+(x-centre[0])*.02,bed-.002,centre[2]+(z-centre[2])*.02])],suede,'footbed');
+    // Bare foot and ankle.
+    const footRings=[];for(let j=0;j<=44;j++){const y=FR[0][0]+(FR[FR.length-1][0]-FR[0][0])*(j/44)**1.6,ring=[];for(let i=0;i<=96;i++){const [x,z]=footPlan(y,i/96*Math.PI*2);ring.push([side*cx+x,y,z]);}footRings.push(ring);}
+    ringShell(slides,footRings,skin,'bare-foot');
+    // Straps are wide panels draped over her foot from one sole edge to the other, a little clear of it (a dome that
+    // hugs her foot and comes down onto the footbed at the sides). Each runs diagonally, from z0 at the inner edge to
+    // z1 at the outer edge; t runs across its width.
+    const dome=(x,z,gap)=>Math.max(bed+.003,footTop(side,x,z,gap));
+    const strapPoint=(z0,z1,w,gap,u,t)=>{const z=z0+(z1-z0)*u+t*w/2,hw=halfWidthAt(z)*.97,x=side*cx+side*(2*u-1)*hw;return [x,dome(x,z,gap),z];};
+    const panel=(z0,z1,w,gap,mat,name,piping=true)=>{const nu=40,nt=8,pos=[],uv=[],idx=[];
+      for(let i=0;i<=nu;i++)for(let j=0;j<=nt;j++){pos.push(...strapPoint(z0,z1,w,gap,i/nu,j/nt*2-1));uv.push(i/nu*2.4,(j/nt-.5)*w*8+(z0+z1)*3);}
+      for(let i=0;i<nu;i++)for(let j=0;j<nt;j++){const a=i*(nt+1)+j,b=a+nt+1;if(side<0)idx.push(a,b,a+1,a+1,b,b+1);else idx.push(a,a+1,b,a+1,b+1,b);}
+      const geo=new T.BufferGeometry();geo.setAttribute('position',new T.Float32BufferAttribute(pos,3));geo.setAttribute('uv',new T.Float32BufferAttribute(uv,2));geo.setIndex(idx);geo.computeVertexNormals();put(slides,geo,mat,name);
+      if(piping)for(const t of [-1,1])curve(slides,Array.from({length:nu+1},(_,i)=>strapPoint(z0,z1,w,gap+.002,i/nu,t)),.0038,leather,'strap-piping');};
+    for(const [z0,z1,w,gap] of spec.cowBands)panel(z0,z1,w,gap,cow,'cow-strap');
+    for(const [z0,z1,gap] of spec.cords)curve(slides,Array.from({length:41},(_,i)=>strapPoint(z0,z1,0,gap,i/40,0)),.0036,leather,'strap-cord');
+    // Instep strap in black leather, with a silver buckle high on the outer side.
+    const I=spec.instep;panel(I.z[0],I.z[1],I.width,I.gap,leather,'instep-strap',false);
+    const u=I.buckleAt,bp=V(...strapPoint(I.z[0],I.z[1],0,I.gap+.004,u,0)),bq=V(...strapPoint(I.z[0],I.z[1],0,I.gap+.004,u+.02,0)),along=bq.clone().sub(bp).normalize(),out=V(side*along.y,-side*along.x,0);if(out.y<0)out.negate();
+    const frame=new T.Shape();frame.moveTo(-.028,-.02);frame.lineTo(.028,-.02);frame.lineTo(.028,.02);frame.lineTo(-.028,.02);frame.closePath();
+    const hole=new T.Path();hole.moveTo(-.02,-.012);hole.lineTo(-.02,.012);hole.lineTo(.02,.012);hole.lineTo(.02,-.012);hole.closePath();frame.holes.push(hole);
+    const buckle=put(slides,new T.ExtrudeGeometry(frame,{depth:.004,bevelEnabled:true,bevelThickness:.0015,bevelSize:.0015,bevelSegments:2}),metal,'buckle');
+    buckle.position.copy(bp);buckle.up.copy(along);buckle.lookAt(bp.clone().add(out));
+    oval(slides,bp.clone().addScaledVector(out,.004).toArray(),[.003,.014,.003],metal,'buckle-prong',8);
+  }
+  // Lift: the footbed is higher than where her foot normally stands, so she and her clothes rise by the difference.
+  const lift=slides.userData.lift=Math.max(0,bed-spec.baseFoot);slides.userData.bareFeet=true;
+  // Long hems rest on the straps and footbed (heights in her lifted clothes' frame) and fall to the floor beside them.
+  const strapTop=(side,x,z)=>{const t=footTop(side,x,z,.035);return z>Math.min(...spec.instep.z)-spec.instep.width&&z<P.front-.03&&t>0?t+.008:bed+.006;};
+  const rest=slides.userData.rest=(side,x,z)=>{const dx=x-side*cx;
+    if(insideSole(dx,z)<=1)return Math.min(strapTop(side,x,z),spec.restCap)-lift;
+    const fall=.07;if(insideSole(dx,z,fall)>1)return null;let lo=0,hi=fall;for(let i=0;i<14;i++){const m=(lo+hi)/2;if(insideSole(dx,z,m)<=1)hi=m;else lo=m;}
+    const t=1-hi/fall;return .06-lift+(bed+.006-.06)*t*t;};
+  rest.floor=.06-lift;rest.reach=.4-lift;
+  rest.inside=(side,x,y,z)=>{const Y=y+lift;return insideSole(x-side*cx,z,.03)<=1&&Y<strapTop(side,x,z)+.01&&Y>=0;};
+  return slides;
+}
+// Raises the doll to stand on the shoes she wears and hides her socks when they would show. Call after building an outfit.
+export function fitDoll(doll,outfit){doll.position.y=(outfit.userData.lift||0)*BODY_HEIGHT;doll.traverse(o=>{if(o.name==='sock')o.visible=!outfit.userData.bareFeet;});}
 function sleeve(group,side,volume,mat) {
   const sleeveGroup=new T.Group();sleeveGroup.position.set(side*.245,1.81,0);sleeveGroup.rotation.z=side*.22;
   const radius=.103+volume*.035;
@@ -1089,7 +1193,8 @@ function makeJeans(id,spec,swatch=null,rest=LOAFER_REST){
     // upper, elsewhere it reaches the floor.
     const reach=rest.reach||.3;
     if(spec.hem==='rests-on-shoe')for(let i=0;i<p.count;i++){const y=p.getY(i);if(y>reach)continue;
-      const floor=rest(side,p.getX(i),p.getZ(i))??.06,t=Math.min(1,(reach-y)/(reach-.06));p.setY(i,Math.max(y,y+(floor-.06)*t));}
+      // On shoes that raise her, the floor sits below her clothes' own frame (rest.floor), so the hem can reach down to it.
+      const floor=rest(side,p.getX(i),p.getZ(i))??(rest.floor??.06),t=Math.min(1,(reach-y)/(reach-.06)),moved=y+(floor-.06)*t;p.setY(i,floor<.06?moved:Math.max(y,moved));}
     // Over a taller shoe (a boot shaft, its laces and collar) the hem tents gradually around the leg rather than
     // stepping up, and the leg bows out just enough to clear the shoe.
     if(spec.hem==='rests-on-shoe'&&rest.inside){const n=97,lift=Array.from({length:p.count},(_,i)=>p.getY(i)-restY[i]);
@@ -1382,6 +1487,9 @@ export function makeOutfit(raw, atlas=null) {
   // Materials that were not used in the selected layers are not retained.
   const used=new Set();root.traverse(o=>{if(o.material)used.add(o.material);});
   for(const mat of [shirt,stripe,denim,knit,stitch])if(!used.has(mat)){mat.bumpMap?.dispose();mat.dispose();}
+  // Shoes that raise her lift everything she wears except themselves; fitDoll() raises her body to match.
+  const lift=shoes.userData.lift||0;if(lift)for(const child of root.children)if(child!==shoes)child.position.y+=lift;
+  root.userData.lift=lift;root.userData.bareFeet=!!shoes.userData.bareFeet;
   root.scale.set(BODY_WIDTH,BODY_HEIGHT,1);
   return root;
 }
