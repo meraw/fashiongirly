@@ -1,4 +1,6 @@
 // Authored wardrobe entries. These describe assets, not runtime AI requests.
+// Outerwear: none by default ('none'); catalog coats and jackets fill the 'outerwear' slot.
+export const MARIKOO_WINDBREAKER_ID = 'marikoo-two-tone-windbreaker-v1';
 // Shoes: built-in loafers are 'classic'; catalog shoes fill the 'shoes' slot.
 export const BUFFALO_ASPHA_ID = 'buffalo-aspha-mid-olive-v1';
 export const DM_COW_SLIDE_ID = 'dr-martens-cow-slide-v1';
@@ -17,6 +19,7 @@ export const TOMMY_MOM_ID = 'tommy-ultra-high-mom-v1';
 export const STRADIVARIUS_RELAXED_ID = 'stradivarius-relaxed-v1';
 export const MANGO_BLACK_JEANS_ID = 'mango-washed-black-v1';
 export const BERSHKA_GREY_ID = 'bershka-grey-wide-leg-v1';
+export const TOMMY_CARPENTER_ID = 'tommy-remastered-carpenter-v1';
 export const GARMENTS = Object.freeze({
   [BRONZE_TOP_ID]: {
     slot: 'top',
@@ -383,6 +386,49 @@ export const GARMENTS = Object.freeze({
       labelPatch: { name: 'woven-label', size: [.032, .02, .003], colour: '#d8d6d0', position: [-.06, 1.21, -(.175 + .004)], rotationY: Math.PI + .25 },
     },
   },
+  [TOMMY_CARPENTER_ID]: {
+    slot: 'bottom',
+    id: TOMMY_CARPENTER_ID, name: 'Tommy Jeans Remastered carpenter jeans', family: 'carpenter-jeans', version: 1,
+    status: 'reference-study-awaiting-visual-review', brandAsProvided: 'Tommy Jeans',
+    source: { note: 'user supplied five phone screenshots of an ASOS listing (Tommy Jeans Remastered carpenter jeans in black wash): front on model twice, side close-up, waist close-up, back' },
+    referenceViews: ['front on model', 'side close-up', 'front on model (full)', 'front waist close-up', 'back on model'],
+    details: ['mid rise', 'relaxed wide straight legs, full length on the model (the user wears them narrower, at the ankle)', 'even black wash', 'white double contrast topstitching throughout', 'large carpenter patch panels over the front hips, from the waistband to the crotch, under the scoop pockets', 'big utility patch pockets on both outer thighs, a red, white and navy flag badge on the wearer\'s left one', 'hammer loop on the wearer\'s right thigh', 'silver button and rivets', 'back yoke, patch pockets, a red, white and navy tape across the wearer\'s right back pocket', 'tonal grey flag patch on the back waistband'],
+    material: { construction: 'rigid denim', composition: 'not visible in the supplied screenshots', finish: 'black wash' },
+    fit: { silhouette: 'relaxed straight, carpenter', rise: 'mid', length: 'ankle', adjustment: 'narrower and ankle length, as the user wears them (the photos show wide, full-length legs)' },
+    uncertainties: ['folds are procedural', 'badges and patches are colour blocks without lettering', 'no coin pocket was visible in the screenshots', 'the fly bar tacks are not modelled'],
+    authoring: { texture: 'tommy-carpenter-denim.js: flat-lit seamless swatch processed from the waist close-up, keeping its brightness detail only (the dark photo carries compression colour blotches)', runtimeGeneration: false, sourcePhotosBundled: 'fabric swatch only' },
+    build: {
+      template: 'jeans', legName: 'jeans-leg', fallback: [11, 10, 14],
+      // The swatch comes from a zoomed close-up, so it repeats often to keep the twill at the photo's scale.
+      crotch: { top: 1.19, y: .95 }, uvScale: [12, 4.1],
+      tiles: { small: [7.5, 2.6], legs: [1, 1], hips: [1, 1] },
+      hips: [[1.26, .26, .171], [1.16, .278, .19], [1.05, .294, .198], [.97, .304, .19], [.935, .25, .11]],
+      // Relaxed straight legs, narrower than the photos' wide look, ending at her ankle above the shoes (as the user wears them).
+      legs: [[1.03, .15, .178, .13], [.95, .154, .176, .152], [.75, .155, .172, .16], [.55, .152, .167, .162], [.38, .148, .162, .163], [.24, .145, .159, .163]],
+      hem: 'ankle', folds: { base: .004, low: .009 }, gradient: [.9, .15], whiskers: 0,
+      waistband: { y: 1.235, rx: .262, rz: .173, h: .05 },
+      loops: [-2.7, -1.45, -.55, .55, 1.45, 2.7, Math.PI],
+      button: { colour: '#c9ccd0' }, thread: '#b4b2b8', rivetColour: '#c9ccd0',
+      // White double topstitching, as on the Mango pair.
+      doubleSeams: true, hemStitch: .022,
+      fly: [[.034, 1.208], [.036, 1.115], [.02, 1.075], [0, 1.065]],
+      frontPocket: { type: 'scoop', line: [[.13, 1.209], [.15, 1.17], [.195, 1.14], [.262, 1.125]] },
+      // Carpenter panels over the front hips, from the waistband to the crotch, stitched along their inner and lower edges.
+      frontPanel: { outline: [[.112, 1.21], [.255, 1.21], [.258, 1.06], [.255, .985], [.15, .952]],
+        stitch: [[[.118, 1.21], [.137, 1.08], [.155, .958], [.2, .974], [.255, .991]], [[.125, 1.21], [.144, 1.08], [.16, .965], [.2, .981], [.255, .998]]] },
+      // Utility pockets on both outer thighs, wrapping from behind the side seam toward the front.
+      sidePocket: { top: .9, bottom: .6, span: [-.4, .5], badge: { side: 1, y: .8, t: .22 }, hammerLoop: { side: -1, t: 0, above: .045, below: .02 } },
+      rivets: [[.135, 1.205], [.262, 1.13]],
+      seamEnd: .245,
+      backYoke: [[.268, 1.207], [.14, 1.187], [.004, 1.167]],
+      backPocket: { x: .122, outline: [[-.074, 1.153], [.074, 1.153], [.07, 1.025], [0, .997], [-.07, 1.025]], stitchBelow: 1.095,
+        // Diagonal tape across the wearer's right pocket: navy, white and red stripes, from its lower outer edge upward.
+        tape: { side: -1, line: [[.09, 1.1], [.01, .95]], stripes: [['#1c2747', .013], ['#f2f2f0', .013], ['#c8202f', .013]] } },
+      centreBack: [[.004, 1.167], [.004, 1.07], [0, .985]],
+      labelPatch: { name: 'flag-patch', size: [.075, .045, .005], colour: '#2b2b30', position: [-.08, 1.238, -(.173 + .004)], rotationY: Math.PI + .3,
+        blocks: [[-.034, .0, 0, .02, '#6b6b72'], [0, .0, .034, .02, '#45454c']] },
+    },
+  },
   // Shoes.
   [BUFFALO_ASPHA_ID]: {
     slot: 'shoes',
@@ -441,6 +487,54 @@ export const GARMENTS = Object.freeze({
       cowBands: [[.27, .15, .11, .008], [.13, .25, .11, .016]],
       cords: [[.29, .1, .024], [.1, .29, .024]],
       instep: { z: [.1, .085], width: .068, gap: .01, buckleAt: .8 },
+    },
+  },
+  // Outerwear.
+  [MARIKOO_WINDBREAKER_ID]: {
+    slot: 'outerwear',
+    id: MARIKOO_WINDBREAKER_ID, name: 'Marikoo two-tone hooded windbreaker', family: 'zip-hooded-windbreaker', version: 1,
+    status: 'reference-study-awaiting-visual-review', brandAsProvided: 'Marikoo',
+    source: { note: 'user supplied seven phone screenshots of a product gallery: front, back and side on a model, front and back flat lays (zipped), a zipped flat lay with the hood up, and the open jacket showing its lining' },
+    referenceViews: ['front on model', 'back on model', 'side on model, open', 'front flat lay', 'back flat lay', 'front flat lay, collar close', 'inside'],
+    details: ['slate-blue shell with an ecru yoke over the shoulders and upper sleeves', 'front yoke ends in a shallow V pointing down to the zip; across the back it ends straight, as a stitched flap', 'yoke colour ends diagonally on the sleeves, higher outside than underneath', 'gunmetal coil zip from hem to the top of the stand collar', 'hood worn down, blue outside with ecru lining, ecru drawcords with blue-and-white tips', 'vertical welt pockets low on each front, each closed by two white snaps', 'elastic gathered hem band and cuffs; the body and sleeves blouse into them', 'embroidered blue script on the yoke at her left chest', 'round white rubber badge on the upper left sleeve', 'small woven labels on the hood and low on the back'],
+    material: { construction: 'woven windbreaker shell, jersey-lined body', composition: 'not visible in the supplied screenshots', finish: 'matte with a soft sheen' },
+    fit: { silhouette: 'boxy and relaxed, dropped shoulders', length: 'hip, just below the waistband', sleeve: 'long and relaxed, gathered at the wrist', wear: 'zipped closed: the user wears outerwear closed unless it is designed to be worn open', adjustment: 'fixed authored fit for review' },
+    // A closed jacket covers the top's sleeves and the skirt's bow.
+    layering: { closed: true, coversTopSleeves: true, coversWaistband: true },
+    // For choosing outfits later. Observed: seen in the photos; user: the user's own words; inferred: read from the
+    // construction, not stated anywhere.
+    styling: {
+      observed: { palette: ['slate blue', 'ecru'], pattern: 'colour-blocked: ecru yoke ending in a V at the front', silhouette: 'boxy hip-length blouson, dropped shoulders', coverage: 'torso and arms to the wrist; neck when zipped; hood (modelled down)', material: 'woven windbreaker shell with a grey jersey lining in the body' },
+      user: { wear: 'zipped closed, or not worn' },
+      inferred: { warmth: 'light layer: unpadded shell and a thin lining', weather: 'mild, breezy or cool days; the hood suits light showers', unknown: ['waterproofing', 'fibre composition'] },
+    },
+    uncertainties: ['the embroidered script is suggested by small joined loops, not the brand lettering', 'the hood lies down on her back; her large head and hair hide its upper part and the collar', 'badge and labels carry no lettering', 'lining is not modelled beyond the collar and the hood edge'],
+    authoring: { texture: 'procedural colour layout and zip teeth drawn locally in src/doll/outerwear.js; colours measured from the photos', runtimeGeneration: false, sourcePhotosBundled: false },
+    // Construction for makeZipWindbreaker() in src/doll/outerwear.js, in outfit units. Body rows are [y, rx, rz] from the
+    // collar down; sleeve rows are along the arm from the shoulder.
+    build: {
+      template: 'zip-windbreaker', roughness: .78,
+      colours: { shell: '#31425a', yoke: '#c3c5b9', embroidery: '#5f82b4', stitch: '#3b4b61', snap: '#ecebe6', cord: '#e2e0d8', zip: '#5b5850', opening: '#222a35' },
+      body: {
+        rows: [[1.975, .13, .124], [1.935, .131, .125], [1.9, .14, .13], [1.875, .2, .16], [1.84, .268, .205], [1.8, .318, .24], [1.75, .345, .258], [1.65, .357, .27], [1.5, .36, .276], [1.35, .362, .28], [1.22, .362, .282], [1.16, .356, .277], [1.135, .346, .266], [1.118, .338, .258]],
+        overSkirt: [[1.975, .13, .124], [1.935, .131, .125], [1.9, .14, .13], [1.875, .2, .16], [1.84, .268, .205], [1.8, .318, .24], [1.75, .345, .258], [1.65, .357, .27], [1.5, .36, .276], [1.35, .365, .282], [1.22, .374, .288], [1.16, .376, .288], [1.135, .374, .282], [1.118, .37, .276]],
+        hem: 1.06, band: .06, bandRadius: [.336, .255], bandOverSkirt: [.372, .274], bandPuckers: 72,
+        gathers: 34, gatherDepth: .012, gatherHeight: .09,
+        collarBase: 1.89, collarTop: 1.975, collarRadius: [.13, .124],
+      },
+      // Colour layout, measured as fractions of the flat lays and placed on her short torso.
+      yoke: { frontCentre: 1.43, frontSide: 1.53, back: 1.55, backSeam: .035, collar: 1.89, sleeveOuter: -.11, sleeveInner: -.29,
+        script: { angle: .6, above: .012, width: .04, height: .022 } },
+      sleeve: {
+        rows: [[.05, .135, .126], [0, .152, .143], [-.1, .158, .15], [-.25, .156, .148], [-.38, .152, .145], [-.47, .146, .14], [-.51, .132, .127], [-.53, .121, .116]],
+        cuff: [-.522, -.575], cuffRadius: [.12, .118], cuffPuckers: 36, gathers: 14, gatherDepth: .02, gatherHeight: .08,
+        badge: { y: -.17, radius: .026 },
+      },
+      zip: { width: .016, stitch: .02 },
+      pockets: { x: .235, slant: 0, top: 1.36, bottom: 1.2, width: .04, snaps: [1.33, 1.235], snap: .0125 },
+      cords: { x: .05, top: 1.87, end: 1.7, drift: .01, radius: .0055 },
+      hood: { top: 1.88, bottom: 1.58, round: .07, halfWidth: .21, lift: .09, edge: .011, opening: { from: .25, rise: .05, out: .03, radius: .016 } },
+      backLabel: { x: .2 },
     },
   },
 });
