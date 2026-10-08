@@ -51,18 +51,19 @@ test('Buffalo boots: lug platform, padded collar, logo tabs and lacing, holding 
   assert.ok(checked>200,`checked ${checked}`);disposeObject(doll);disposeObject(outfit);
 });
 
-test('long jeans drape over every shoe, shorter ones sit on a boot collar, and narrow ones tuck in',()=>{
+test('jeans drape over every shoe or sit on a boot collar, and the classic jeans tuck in',()=>{
   const bottoms=['classic',...Object.keys(GARMENTS).filter(id=>GARMENTS[id].slot==='bottom')];
   for(const shoesId of shoes)for(const bottomId of bottoms){
     const outfit=makeOutfit({bottomId,shoesId});outfit.updateMatrixWorld(true);
     const build=GARMENTS[shoesId].build,boots=outfit.getObjectByName('shoes'),trousers=outfit.getObjectByName('trousers');let checked=0;
     const hem=GARMENTS[bottomId]?.build?.hem,top=Math.max(...Object.values(build.collar)),low=Math.min(...Object.values(build.collar));
-    if(GARMENTS[bottomId]?.build?.template==='jeans'&&hem!=='rests-on-shoe'&&GARMENTS[bottomId].build.legs.at(-1)[0]<top){
-      // A shorter hem that would end inside the boot sits on top of its padded collar instead.
+    if(GARMENTS[bottomId]?.build?.template==='jeans'&&trousers.userData.hemOnCollar){
+      // A shorter, slimmer leg whose hem would end inside the boot sits on top of its padded collar instead.
       const legs=named(trousers,GARMENTS[bottomId].build.legName);
       for(const leg of legs){const low=new T.Box3().setFromObject(leg).min.y/.76;assert.ok(low>Math.min(...Object.values(build.collar))+.017,`${bottomId} hem sits on the collar (${low.toFixed(3)})`);checked+=100;}
-    }else if(hem==='rests-on-shoe'){
-      // Where the trousers come down over the shoe, no part of it pokes through them.
+    }else if(GARMENTS[bottomId]?.build?.template==='jeans'){
+      // Where the trousers come down over the shoe (full length, or a wider ankle-length leg over a boot shaft), no
+      // part of it pokes through them.
       const legs=named(trousers,GARMENTS[bottomId].build.legName);
       eachVertex(boots,(p,o,i)=>{if(p.y/.76<.2)return;const leg=legs.find(l=>Math.sign(new T.Box3().setFromObject(l).getCenter(new T.Vector3()).x)===Math.sign(p.x));
         const c=cast([leg],new T.Box3().setFromObject(leg).getCenter(new T.Vector3()).x,p);if(!c)return;checked++;
@@ -74,7 +75,7 @@ test('long jeans drape over every shoe, shorter ones sit on a boot collar, and n
       const loafers=makeOutfit({bottomId});assert.ok(overlap(outfit)<=overlap(loafers)+.003,`${bottomId} legs pushed together over ${shoesId}`);disposeObject(loafers);
       // A full-length hem still comes down onto the platform: some of it rests below the top of the toe.
       let low=Infinity;for(const leg of legs)low=Math.min(low,new T.Box3().setFromObject(leg).min.y/.76);
-      assert.ok(low<build.sole.heelTop+.03,`${bottomId} hem reaches the platform`);
+      if(hem==='rests-on-shoe')assert.ok(low<build.sole.heelTop+.03,`${bottomId} hem reaches the platform`);
     }else{
       // Narrower legs (the classic barrel jeans) tuck into the boot shaft.
       const uppers=named(boots,'boot-upper');

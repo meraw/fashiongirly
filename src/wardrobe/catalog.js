@@ -6,11 +6,14 @@ export const LILAC_TOP_ID = 'lilac-portrait-mockneck-v1';
 export const CROCHET_TOP_ID = 'desigual-crochet-flowers-v1';
 export const PLAID_JUMPER_ID = 'mango-plaid-jumper-v1';
 export const STRIPE_JUMPER_ID = 'bershka-asymmetric-stripe-jumper-v1';
+export const POINTELLE_FLOWER_ID = 'cream-pointelle-flower-jumper-v1';
 export const BARREL_JEANS_ID = 'topshop-barrel-jeans-v1';
 export const DAVINIA_JEANS_ID = 'desigual-davinia-jeans-v1';
 export const LEVIS_94_ID = 'levis-94-wide-leg-v1';
 export const TOMMY_MOM_ID = 'tommy-ultra-high-mom-v1';
 export const STRADIVARIUS_RELAXED_ID = 'stradivarius-relaxed-v1';
+export const MANGO_BLACK_JEANS_ID = 'mango-washed-black-v1';
+export const BERSHKA_GREY_ID = 'bershka-grey-wide-leg-v1';
 export const GARMENTS = Object.freeze({
   [BRONZE_TOP_ID]: {
     slot: 'top',
@@ -85,6 +88,20 @@ export const GARMENTS = Object.freeze({
     layering: { coversWaistband: true, bareShoulder: { side: 1, above: -.23 } },
     uncertainties: ['the back was not shown; its neckline and stripes are inferred', 'the flat lay and the worn photo disagree on which side sits lower; the worn photo is followed', 'stripe count is adapted to her short torso', 'the bare shoulder is a skin-coloured piece inside the jumper, because her body under clothes is cream felt'],
     authoring: { texture: 'procedural stripeKnitData() in src/doll/model.js, drawn locally when first worn', runtimeGeneration: false, sourcePhotosBundled: false },
+  },
+  [POINTELLE_FLOWER_ID]: {
+    slot: 'top',
+    id: POINTELLE_FLOWER_ID, name: 'Cream pointelle flower jumper', family: 'boxy-openwork-knit-jumper', version: 1,
+    status: 'reference-study-awaiting-visual-review', brandAsProvided: null,
+    source: { note: "the user's own jumper, photographed flat on the floor from the front and the back; the user could not find the product online" },
+    referenceViews: ['front flat on the floor', 'back flat on the floor'],
+    details: ['cream openwork knit: bands of two staggered eyelet rows between raised horizontal ridges', 'eight raised embroidered flowers scattered over the front only: six raspberry petals with a darker centre, two dark green leaves above each, so the flowers hang', 'wide boat neckline', 'raglan seams from the neckline to the underarms', 'boxy body about as long as it is wide, ending at the hip', 'long wide straight sleeves', 'narrow plain bands with small scallops at the neckline, hem and sleeve ends'],
+    material: { construction: 'fine openwork (pointelle) knit', composition: 'not known', finish: 'matte cotton-like yarn' },
+    fit: { silhouette: 'boxy, relaxed', sleeve: 'long, wide and straight', hem: 'hip, narrow scalloped band', neckline: 'wide boat neck', adjustment: 'fixed authored fit for review' },
+    exclusions: ['striped-shirt','knit-sweater'],
+    layering: { coversWaistband: true },
+    uncertainties: ['eyelet spacing is coarser than the real knit so it reads at the doll\'s size', 'flower placement is measured from the front photo and adapted to her short torso', 'the front photo has a cool colour cast; colours aim between the two photos', 'her body under clothes is cream felt, so skin is drawn inside the jumper to show through the eyelets'],
+    authoring: { texture: 'procedural pointelleData() in src/doll/model.js; flowers are small raised shapes', runtimeGeneration: false, sourcePhotosBundled: false },
   },
   [BARREL_JEANS_ID]: {
     slot: 'bottom',
@@ -262,6 +279,78 @@ export const GARMENTS = Object.freeze({
       backPocket: { x: .122, outline: [[-.074, 1.128], [.074, 1.128], [.07, 1.0], [0, .972], [-.07, 1.0]], stitchBelow: 1.07 },
       centreBack: [[.004, 1.142], [.004, 1.05], [0, .985]],
       labelPatch: { name: 'paper-patch', size: [.06, .032, .004], colour: '#d9c8a6', position: [-.065, 1.21, -(.175 + .004)], rotationY: Math.PI + .25 },
+    },
+  },
+  [MANGO_BLACK_JEANS_ID]: {
+    slot: 'bottom',
+    id: MANGO_BLACK_JEANS_ID, name: 'Mango washed black jeans', family: 'relaxed-straight-jeans', version: 1,
+    status: 'reference-study-awaiting-visual-review', brandAsProvided: 'Mango (MNG Denim)',
+    source: { note: 'user supplied five eBay listing photos (the pair is old): back flat lay on a wooden floor (twice), front waist close-ups and a front flat lay on grey carpet' },
+    referenceViews: ['back flat lay', 'front waist close-up', 'front pocket close-up', 'front flat lay'],
+    details: ['high rise', 'relaxed straight legs tapering slightly to an ankle-length hem', 'charcoal washed black with a mottled stone-wash, paler on thighs and seams', 'five-pocket front with copper rivets and a silver button', 'plain back patch pockets with a short dart above each instead of a yoke', 'black leather patch on the back waistband', 'light grey double topstitching on the seams, pockets, fly, waistband and hem, with paler bleached seams'],
+    material: { construction: 'rigid denim', composition: 'not visible in the supplied photos', finish: 'stone-washed black' },
+    fit: { silhouette: 'relaxed straight, slight taper', rise: 'high', length: 'ankle', adjustment: 'fixed authored fit for review' },
+    uncertainties: ['folds are procedural', 'photos are flash-lit or warm-lit listing photos; colour aims between them', 'patch carries no lettering'],
+    authoring: { texture: 'mango-denim.js: flat-lit seamless swatch processed from the front flat lay', runtimeGeneration: false, sourcePhotosBundled: 'fabric swatch only' },
+    build: {
+      template: 'jeans', legName: 'jeans-leg', fallback: [53, 56, 58],
+      // The stone-wash speckle is fine in the photos: the swatch repeats about seven times around the leg.
+      crotch: { top: 1.12, y: .95 }, uvScale: [7, 6.4],
+      tiles: { small: [6, 2.8], legs: [1, 1], hips: [1, 1] },
+      hips: [[1.31, .264, .168], [1.2, .274, .186], [1.1, .288, .196], [1.02, .296, .198], [.97, .298, .19], [.935, .24, .1]],
+      // Relaxed and straight, tapering slightly to an ankle-length hem above the shoes.
+      legs: [[1.03, .15, .18, .135], [.95, .155, .178, .15], [.8, .153, .173, .158], [.6, .146, .166, .162], [.42, .141, .159, .162], [.24, .137, .155, .162]],
+      hem: 'ankle', folds: { base: .004, low: .008 }, gradient: [.9, .14], whiskers: .1, thighFade: .08,
+      waistband: { y: 1.285, rx: .266, rz: .17, h: .05 },
+      loops: [-2.6, -1.5, -.62, .62, 1.5, 2.6, Math.PI],
+      // The pair's recognisable light grey double topstitching, with paler bleached seams (roping) and a stitched hem.
+      button: { colour: '#c9ccd0' }, thread: '#787676', stitchScale: 1.3, doubleSeams: true, roping: 2.6, hemStitch: .014, dartsStitched: true,
+      fly: [[.036, 1.26], [.038, 1.13], [.022, 1.085], [0, 1.075]],
+      frontPocket: { type: 'scoop', line: [[.15, 1.26], [.165, 1.21], [.2, 1.18], [.262, 1.165]] },
+      coinPocket: { outline: [[-.236, 1.255], [-.19, 1.255], [-.194, 1.2], [-.233, 1.2], [-.236, 1.255]] },
+      rivets: [[.152, 1.255], [.262, 1.17], [-.19, 1.252]],
+      seamEnd: .245,
+      // Pockets sit high, as in the back photo, with a short dart running down to each.
+      backDarts: [[.11, 1.259], [.115, 1.228]],
+      backPocket: { x: .12, outline: [[-.068, 1.222], [.068, 1.222], [.064, 1.11], [0, 1.085], [-.064, 1.11]], stitchBelow: 1.2 },
+      centreBack: [[.004, 1.26], [.004, 1.1], [0, 1.0]],
+      labelPatch: { name: 'leather-patch', size: [.072, .04, .005], colour: '#1c1b1c', position: [-.08, 1.288, -(.17 + .004)], rotationY: Math.PI + .3 },
+    },
+  },
+  [BERSHKA_GREY_ID]: {
+    slot: 'bottom',
+    id: BERSHKA_GREY_ID, name: 'Bershka grey wide-leg jeans', family: 'wide-leg-jeans', version: 1,
+    status: 'reference-study-awaiting-visual-review', brandAsProvided: 'Bershka',
+    source: { note: 'user supplied five phone screenshots of the product gallery: front close-up and full front on model, back on model, waist close-up, front flat lay' },
+    referenceViews: ['front on model (close)', 'front on model', 'back on model', 'waist close-up', 'front flat lay'],
+    details: ['low to mid rise', 'wide straight legs, full length, resting on the shoes', 'mid grey wash with a fine crinkled texture', 'bleached paler panels down the middle of each thigh and knee, darker sides and hem', 'strong pale whiskers across the hips and upper thighs, front and back', 'silver button and rivets, tonal grey stitching', 'plain back patch pockets'],
+    material: { construction: 'rigid denim', composition: 'not visible in the supplied screenshots', finish: 'grey wash with whiskers and fade' },
+    fit: { silhouette: 'wide leg', rise: 'low to mid', length: 'full, resting on the shoes', adjustment: 'fixed authored fit for review' },
+    uncertainties: ['folds are procedural', 'whisker and fade placement is an interpretation of the photos', 'label lettering not reproduced'],
+    authoring: { texture: 'bershka-grey-denim.js: flat-lit seamless swatch processed from the flat lay; fade and whiskers are shaded on the geometry', runtimeGeneration: false, sourcePhotosBundled: 'fabric swatch only' },
+    build: {
+      template: 'jeans', legName: 'jeans-leg', fallback: [61, 64, 65],
+      crotch: { top: 1.18, y: .95 }, uvScale: [5, 2.7],
+      tiles: { small: [4, 1.8], legs: [1, 1], hips: [1, 1] },
+      hips: [[1.235, .256, .172], [1.14, .276, .193], [1.04, .294, .198], [.97, .306, .19], [.935, .25, .11]],
+      legs: [[1.03, .15, .18, .13], [.95, .158, .181, .154], [.75, .166, .184, .168], [.55, .172, .187, .174], [.35, .178, .19, .18], [.18, .183, .193, .185], [.06, .186, .196, .188]],
+      hem: 'rests-on-shoe', folds: { base: .005, low: .011, stack: .01 },
+      // The wash: darker toward the hem, bleached panels down each thigh and knee, and strong whiskers across the hips.
+      gradient: [.6, .5], whiskers: 1.3,
+      whiskerLines: { top: 1.16, count: 6, spacing: .034, width: .012, lo: .93, hi: 1.2, back: true },
+      centreFade: { strength: 1.5, width: 2.4, peak: .72, reach: .5 },
+      waistband: { y: 1.21, rx: .258, rz: .175, h: .05 },
+      loops: [-2.7, -1.45, -.55, .55, 1.45, 2.7, Math.PI],
+      button: { colour: '#c9ccd0' }, thread: '#8b8986',
+      fly: [[.034, 1.183], [.036, 1.09], [.02, 1.05], [0, 1.04]],
+      frontPocket: { type: 'scoop', line: [[.15, 1.184], [.165, 1.14], [.2, 1.112], [.262, 1.1]] },
+      coinPocket: { outline: [[-.236, 1.18], [-.19, 1.18], [-.194, 1.128], [-.233, 1.128], [-.236, 1.18]] },
+      rivets: [[.152, 1.18], [.262, 1.105]],
+      seamEnd: .1,
+      backYoke: [[.268, 1.182], [.14, 1.162], [.004, 1.142]],
+      backPocket: { x: .122, outline: [[-.074, 1.128], [.074, 1.128], [.07, 1.0], [0, .972], [-.07, 1.0]], stitchBelow: 1.07 },
+      centreBack: [[.004, 1.142], [.004, 1.05], [0, .985]],
+      labelPatch: { name: 'woven-label', size: [.032, .02, .003], colour: '#d8d6d0', position: [-.06, 1.21, -(.175 + .004)], rotationY: Math.PI + .25 },
     },
   },
   // Shoes.

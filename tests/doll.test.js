@@ -347,3 +347,77 @@ test('Stradivarius relaxed jeans: plain five-pocket, wide full-length legs resti
   const [l,r]=legs.map(leg=>new T.Box3().setFromObject(leg)).sort((a,b)=>a.min.x-b.min.x);assert.ok(l.max.x<=r.min.x+.03,'legs stay apart');
   disposeObject(doll);disposeObject(outfit);
 });
+
+test('pointelle flower jumper: openwork, scalloped edges, raglan seams and eight flowers on the front only',()=>{
+  const id='cream-pointelle-flower-jumper-v1',recipe=cleanRecipe({topId:id,knit:true,shirt:true});
+  assert.equal(recipe.knit,false);assert.equal(recipe.shirt,false);
+  const outfit=makeOutfit({topId:id});outfit.updateMatrixWorld(true);
+  for(const name of ['pointelle-body','scalloped-neckband','scalloped-hem-band','skin-under-openwork'])assert.ok(outfit.getObjectByName(name),name);
+  const count=name=>{let n=0;outfit.traverse(o=>{if(o.name===name)n++;});return n;};
+  assert.equal(count('scalloped-cuff'),2);assert.equal(count('raglan-seam'),4);assert.equal(count('embroidered-flower'),8);
+  // Flowers sit on the front of the body, spread across it.
+  const xs=[];outfit.traverse(o=>{if(o.name!=='embroidered-flower')return;const p=o.getWorldPosition(new T.Vector3());assert.ok(p.z>.1,'flower on the front');xs.push(p.x);});
+  assert.ok(Math.min(...xs)<-.1&&Math.max(...xs)>.1,'flowers on both sides of the front');
+  // Eyelets: a real share of the knit is open, and the edges are solid.
+  const body=outfit.getObjectByName('pointelle-body'),pixels=body.material.map.image.data;let open=0;
+  for(let i=3;i<pixels.length;i+=4)if(!pixels[i])open++;const fraction=open/(pixels.length/4);
+  assert.ok(fraction>.06&&fraction<.3,`openwork fraction ${fraction}`);assert.ok(body.material.alphaTest>0);
+  assert.equal(outfit.getObjectByName('scalloped-hem-band').material.map,null);
+  // Scallops: the hem's lower edge rises and falls.
+  const hp=outfit.getObjectByName('scalloped-hem-band').geometry.attributes.position;let low=Infinity,high=-Infinity;
+  for(let i=0;i<hp.count;i++){const y=hp.getY(i);if(y<1.16){low=Math.min(low,y);high=Math.max(high,y);}}
+  assert.ok(high-low>.005,'hem is scalloped');
+  disposeObject(outfit);
+  // The skin seen through the eyelets stays inside every pair of jeans, so it never shows over them. (Low-rise pairs end
+  // below it, so not every pair overlaps it.)
+  let overlaps=0;
+  for(const bottomId of ['classic',...Object.keys(GARMENTS).filter(b=>GARMENTS[b].slot==='bottom')]){
+    const dressed=makeOutfit({topId:id,bottomId});dressed.updateMatrixWorld(true);
+    const hips=[];dressed.getObjectByName('trousers').traverse(o=>{if(['jeans-hips','jeans-waistband','frayed-waistband'].includes(o.name))hips.push(o);});
+    const skin=dressed.getObjectByName('skin-under-openwork').children[0],pos=skin.geometry.attributes.position,ray=new T.Raycaster(),p=new T.Vector3();let checked=0;
+    for(let i=0;i<pos.count;i+=3){p.fromBufferAttribute(pos,i).applyMatrix4(skin.matrixWorld);if(p.y/.76>1.4)continue;const r=Math.hypot(p.x,p.z);if(r<.01)continue;
+      ray.set(new T.Vector3(0,p.y,0),new T.Vector3(p.x,0,p.z).normalize().applyAxisAngle(new T.Vector3(0,1,0),1e-4));
+      const hit=ray.intersectObjects(hips,false)[0];if(!hit)continue;assert.ok(hit.distance>r,`skin shows over ${bottomId} at vertex ${i}`);checked++;}
+    if(checked)overlaps++;disposeObject(dressed);
+  }
+  assert.ok(overlaps>=3,`skin checked against ${overlaps} bottoms`);
+});
+
+test('Mango washed black jeans: high rise, back darts instead of a yoke, ankle length',()=>{
+  const id='mango-washed-black-v1';assert.equal(cleanRecipe({bottomId:id}).bottomId,id);
+  const doll=makeDoll(),outfit=makeOutfit({bottomId:id});doll.updateMatrixWorld(true);outfit.updateMatrixWorld(true);
+  const count=name=>{let n=0;outfit.traverse(o=>{if(o.name===name)n++;});return n;};
+  assert.equal(count('back-dart'),2);assert.equal(count('back-yoke'),0,'darts instead of a yoke');
+  assert.equal(count('rivet'),6);assert.ok(outfit.getObjectByName('leather-patch'));assert.equal(count('back-patch-pocket'),2);
+  const legs=[];outfit.traverse(o=>{if(o.name==='jeans-leg')legs.push(o);});
+  let shoeTop=-Infinity;outfit.traverse(o=>{if(o.name==='loafer')shoeTop=Math.max(shoeTop,new T.Box3().setFromObject(o).max.y);});
+  const hem=Math.min(...legs.map(l=>new T.Box3().setFromObject(l).min.y));assert.ok(hem>shoeTop&&hem<.26*.76,'ankle length, above the shoes');
+  // Her legs and socks stay covered down to the hem.
+  const ray=new T.Raycaster(),p=new T.Vector3(),origin=new T.Vector3();let checked=0;
+  doll.traverse(o=>{if(o.name!=='leg'&&o.name!=='sock')return;const pos=o.geometry.attributes.position;
+    for(let i=0;i<pos.count;i++){p.fromBufferAttribute(pos,i).applyMatrix4(o.matrixWorld);if(p.y<hem+.004||p.y>.95*.76)continue;
+      const leg=legs.find(l=>Math.sign(new T.Box3().setFromObject(l).getCenter(new T.Vector3()).x)===Math.sign(p.x));
+      const c=new T.Box3().setFromObject(leg).getCenter(new T.Vector3());origin.set(c.x,p.y,0);const r=p.distanceTo(origin);if(r<.005)continue;
+      ray.set(origin,p.clone().sub(origin).normalize().applyAxisAngle(new T.Vector3(0,1,0),1e-4));const h=ray.intersectObject(leg,false)[0];
+      assert.ok(h&&h.distance>r+.001,`${o.name} vertex ${i} shows through the Mango leg`);checked++;}});
+  assert.ok(checked>200);disposeObject(doll);disposeObject(outfit);
+});
+
+test('Bershka grey jeans: whiskers and pale thigh panels, wide full-length legs resting on the shoes',()=>{
+  const id='bershka-grey-wide-leg-v1';assert.equal(cleanRecipe({bottomId:id}).bottomId,id);
+  const doll=makeDoll(),outfit=makeOutfit({bottomId:id});doll.updateMatrixWorld(true);outfit.updateMatrixWorld(true);
+  const count=name=>{let n=0;outfit.traverse(o=>{if(o.name===name)n++;});return n;};
+  assert.equal(count('back-patch-pocket'),2);assert.equal(count('rivet'),4);
+  for(const name of ['back-yoke','woven-label','scoop-pocket-stitch','coin-pocket-stitch'])assert.ok(outfit.getObjectByName(name),name);
+  const legs=[];outfit.traverse(o=>{if(o.name==='jeans-leg')legs.push(o);});assert.equal(legs.length,2);
+  let shoeTop=-Infinity;outfit.traverse(o=>{if(o.name==='loafer')shoeTop=Math.max(shoeTop,new T.Box3().setFromObject(o).max.y);});
+  assert.ok(Math.min(...legs.map(l=>new T.Box3().setFromObject(l).min.y))<shoeTop*.6,'full length, down over the shoes');
+  const [l,r]=legs.map(leg=>new T.Box3().setFromObject(leg)).sort((a,b)=>a.min.x-b.min.x);assert.ok(l.max.x<=r.min.x+.03,'legs stay apart');
+  // The wash: the middle of each thigh, front and back, is paler than the side seams.
+  for(const leg of legs){const pos=leg.geometry.attributes.position,col=leg.geometry.attributes.color,band=[];
+    for(let i=0;i<pos.count;i++)if(pos.getY(i)>.6&&pos.getY(i)<.85)band.push(i);
+    const cx=band.reduce((s,i)=>s+pos.getX(i),0)/band.length,mid=[],side=[];
+    for(const i of band){const a=Math.atan2(pos.getX(i)-cx,Math.abs(pos.getZ(i)));(Math.abs(a)<.35?mid:Math.abs(a)>1.3?side:[]).push(col.getX(i));}
+    const mean=v=>v.reduce((s,x)=>s+x,0)/v.length;assert.ok(mean(mid)>mean(side)*1.25,`pale thigh panel ${mean(mid)} vs ${mean(side)}`);}
+  disposeObject(doll);disposeObject(outfit);
+});

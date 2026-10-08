@@ -37,20 +37,20 @@ The user said the first version was “completely shapeless; they don't look lik
 Each pair of shoes now reports `rest(side, x, z)`: the height at which a hem resting on it lies at that point. The loafers keep the exact formula `makeJeans()` used before, now moved into `makeShoes()`. `makeJeans()` takes this function instead of assuming the loafer. These were the only bottoms-lane edits; they were needed so long jeans could sit on any shoe:
 
 - For boots, a full-length hem (`hem: 'rests-on-shoe'`) settles partway up the vamp (`restCap`), falls away to the floor just beyond the platform instead of stepping down, and tents gradually around the leg. Above the hem, the leg bows out just enough to clear the boot shaft, laces, collar and tabs (`rest.inside`).
-- The Levi's '94 and Stradivarius tests now read the loafer's height from the outfit instead of the doll.
+- The Levi's '94, Stradivarius and Bershka grey tests now read the loafer's height from the outfit instead of the doll.
 - The side seams and frayed hem follow a hem that has moved up onto a boot collar.
-- Catalog jeans whose hem would end inside the boot (the cropped Davinia and the ankle-length Tommy mom jeans) sit on top of the padded collar instead, gathering a little above it, with the pull tabs standing up outside them (`rest.collar`). An attempt to take them over the shaft made slim legs balloon. The classic barrel jeans tuck into the shaft.
+- Catalog jeans whose hem would end inside the boot sit on top of the padded collar when their cut fits round it (the cropped Davinia, the ankle-length Tommy and Mango washed black), following the collar's curve and gathering a little above it, with the pull tabs standing up outside them (`rest.collar`, `rest.collarAt`). The decision is made once from the cut, so both legs agree. A wider ankle-length leg would go over the boot shaft like a long leg. Their side seams, fray and hem stitching follow the raised hem. An attempt to take slim legs over the shaft made them balloon. The classic barrel jeans tuck into the shaft.
 
 ## Checks
 
-- `npm test`: 29 passing. A new `tests/shoes.test.js` checks four things:
+- `npm test`: 32 passing. A new `tests/shoes.test.js` checks four things:
   - The slot: only shoes fill it, and the loafers moved from the doll to the outfit.
   - The boots: their details, platform thickness, lugs, feet kept apart, and her socks and lower legs inside the boots.
   - Layering, for every bottom with every catalog shoe: full-length jeans drape over the shoe without any part poking through, without pushing the legs together more than the loafers do, and still reach the platform; shorter jeans sit on the collar; the classic jeans stay inside the boot shaft.
   - The UI: selector, saving and the study preset.
 - The draping check was confirmed to fail with the draping switched off.
 - `npm run build` succeeds.
-- Rendered in headless Chromium (software WebGL) from the front three-quarter, both sides, the back and full length, and compared with the product photos. Also rendered with every pair of jeans (Levi's '94, Topshop barrel, Stradivarius, Davinia, Tommy and classic). The real app page loads the preset and switches shoes without errors. The user has not yet seen it, and nothing has been checked on a device.
+- Rendered in headless Chromium (software WebGL) from the front three-quarter, both sides, the back and full length, and compared with the product photos. Also rendered with every pair of jeans (Levi's '94, Topshop barrel, Stradivarius, Bershka grey, Davinia, Tommy, Mango washed black and classic). The real app page loads the preset and switches shoes without errors. The user has not yet seen it, and nothing has been checked on a device.
 
 ## Known differences
 
