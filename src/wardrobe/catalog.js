@@ -281,11 +281,20 @@ export const GARMENTS = Object.freeze({
     build: {
       template: 'lug-boot', cx: .168,
       colours: { upper: '#514e3f', sole: '#44463e', thread: '#7a6b52', piping: '#2a271f', webbing: '#6e604d', lace: '#47422f', eyelet: '#3b3a37', lining: '#2f2c24' },
-      sole: { top: .108, heelTop: .132, heelFrom: -.02, lugTop: .046, groove: .066, flare: .013, toeLift: .026, lugs: 21 },
-      upper: [[.108, .312, -.148, .128], [.13, .316, -.149, .129], [.155, .3, -.148, .128], [.18, .268, -.145, .128], [.21, .235, -.141, .127], [.24, .205, -.137, .127], [.27, .183, -.134, .127], [.3, .165, -.133, .128], [.32, .155, -.133, .125], [.345, .148, -.135, .12]],
-      nFront: 2.7, nBack: 2.1, restCap: .23, collarRoll: .017, quilt: [.27, .305],
-      eyelets: [.2, .222, .244, .31, .332], loops: [.266, .288], laceHalfWidth: .046,
-      heelTab: { width: .056, from: .17, above: .085 }, tongueTab: { width: .046, above: .05 },
+      sole: { top: .112, heelTop: .15, heelFrom: -.03, rand: .15, lugTop: .05, groove: .074, flare: .02, toeLift: .03, lugs: 24, lugDepth: .026 },
+      // A long, low toe; the lacing climbs diagonally to an ankle shaft. Measured as proportions of the side photos.
+      upper: [[.112, .44, -.16, .13], [.13, .445, -.162, .131], [.15, .43, -.165, .13], [.165, .4, -.165, .13], [.18, .355, -.164, .129], [.2, .31, -.162, .13], [.225, .265, -.158, .128], [.25, .228, -.155, .127], [.28, .198, -.15, .126], [.31, .175, -.145, .126], [.335, .155, -.138, .124], [.36, .14, -.132, .108], [.385, .132, -.13, .104]],
+      collar: { front: .365, side: .345, back: .385 },
+      nFront: 2.3, nBack: 2, heelNarrow: .12, toeNarrow: .22, restCap: .22, collarRoll: .017, quilt: [.035, .07],
+      eyelets: [.195, .215, .235, .33, .35], loops: [.265, .297], laceHalfWidth: .044,
+      heelTab: { width: .056, from: .18, above: .08 }, tongueTab: { width: .046, above: .045 },
+      // Side overlay, window, straps and vamp seam as [z, y] paths along each side.
+      sides: {
+        arch: [[-.115, .165], [-.01, .2], [.09, .243], [.15, .27], [.19, .29]],
+        window: [[0, .15], [.02, .18], [.12, .186], [.2, .15], [.225, .122]],
+        straps: [[[.025, .128], [.07, .178]], [[.105, .125], [.15, .176]]],
+        vamp: [[.265, .2], [.285, .16], [.3, .122]],
+      },
     },
   },
 });

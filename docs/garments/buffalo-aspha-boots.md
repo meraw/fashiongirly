@@ -1,6 +1,6 @@
 # Wardrobe item: Buffalo Aspha olive platform boots
 
-Authored 8 October 2026. Status: first interpretation awaiting the user's visual review. First pair of shoes from the user's wardrobe list, and the first item in the shoe slot, added by the shoes lane (see [AGENTS.md](../../AGENTS.md)).
+Authored 8 October 2026. Status: second version awaiting the user's visual review. The user found the first version “completely shapeless; they don't look like boots”. First pair of shoes from the user's wardrobe list, and the first item in the shoe slot, added by the shoes lane (see [AGENTS.md](../../AGENTS.md)).
 
 ## Source and reference reading
 
@@ -22,11 +22,15 @@ Catalog ID `buffalo-aspha-mid-olive-v1` (slot `shoes`), built by `makeLugBoot()`
 
 - **Shoe slot.** `shoesId` joins the recipe (default `'classic'`). The classic loafers moved out of `makeDoll()` into the outfit via `makeShoes()`; her socks stay part of the doll. With loafers, renders of the default outfit and of every catalog pair of jeans are pixel-identical to `main`.
 - **Height.** The platform is built inside her existing foot height: she is not raised, and the sole stands on the floor. The user was asked whether platforms should raise her but had not answered, so this is a reversible default.
-- **Upper.** Built from horizontal slices whose front recedes up the lacing (`upper` rows: height, front, back, half-width), with a squarer toe and a rounder heel. It encloses her socks with clearance, and narrows a little toward the collar so the two legs of wide jeans have room between her feet.
-- **Sole.** Flared from the upper's base outline, with 21 wedge-shaped lug gaps, a ledge, a groove, a heel cup that rises toward the back, and a lifted toe.
+- **Upper.** Built from horizontal slices (`upper` rows: height, front, back, half-width), proportioned from the side photos: a long, low toe (the boot is about twice as long as it is tall), lacing that climbs diagonally from near the toe to the collar, and an ankle shaft that narrows toward the top. Each slice is centred between its front and back, narrows at the toe (`toeNarrow`) and at the heel of the foot (`heelNarrow`). The collar is not level: it rises to the heel tab, dips over the ankle bones and lifts toward the tongue (`collar`). The upper encloses her socks with clearance.
+- **Sole.** Flared well beyond the upper, with 24 deep wedge-shaped lug gaps, a ledge, a groove, a tall heel block that steps down under the forefoot, a rubber toe bumper rising round the toe, and a lifted toe. A dark welt line separates upper and sole.
 - **Details.** Padded collar roll and lining; collar puffed between its quilting rows; heel tab and tongue tab in logo tape; tongue with tape and a badge; eyelets, webbing loops, crossed laces and a small bow; side piping, window straps, vamp and eyestay stitching.
 - **Tape texture.** `src/wardrobe/buffalo-tape.js` is a 128 × 768 WebP drawn locally from the back photo (grey band, darker grey lettering set in Inter ExtraBold, black and taupe woven edges). It is a redrawing, not a crop of the photo, and the lettering is not Buffalo's own typeface.
 - **Colour, by measurement.** In the side photos, plain nubuck measures about RGB 75, 69, 53 and the sole about 70, 68, 57. The first render was too brown and dark (66, 56, 42). After two adjustments the side render measures 73, 66, 51 on the upper and 68, 67, 56 on the sole. Nubuck mottling is a gentle multiplier around 1, so it doesn't shift the average.
+
+## Revision after the user's first review
+
+The user said the first version was “completely shapeless; they don't look like boots”. Comparing a render with the side photo showed why: the boot was nearly as tall as it was long, with straight round walls, a level collar and an even sole rim, so it read as a bucket on a tray. The second version follows the photo's proportions instead: the toe was lengthened (from 0.31 to 0.44 in outfit units ahead of the ankle), lowered and narrowed; the lacing became a long diagonal from near the toe; the shaft now tapers to hug the ankle; the collar is shaped; the sole got the stepped heel block, toe bumper, deeper lugs and a wider ledge; and laces and eyelets were enlarged so they read from the side. Side details are now placed by length along the boot and height, measured from the side photo, instead of by angle.
 
 ## Layering with bottoms (changes in the bottoms lane)
 
@@ -50,8 +54,8 @@ Each pair of shoes now reports `rest(side, x, z)`: the height at which a hem res
 
 ## Known differences
 
-- Her toy foot is shorter and wider than a real foot, so the toe is stubbier and the lacing starts closer to the toe than in the photos.
-- The heel-cup step in the sole is softer than in the photos, and the lugs are evenly spaced.
+- Her toy foot is wider than a real foot, so the toe is broader than in the photos.
+- The lugs are evenly spaced, and the step from heel block to forefoot is softer than in the photos.
 - The quilting is drawn as stitch lines with a slight puff, not as deep channels.
 - The tongue badge, side-window label and embossed “Buffalo” script on the sole carry no lettering. The tape lettering is redrawn.
 - Laces are round cords, not flat laces.
