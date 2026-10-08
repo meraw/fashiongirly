@@ -886,22 +886,27 @@ function makeLacroixSweater(id=LACROIX_FLOWER_ID,overSkirt=false){
 // Tommy Hilfiger green cable sweater: rope cables in plain wool, so the pattern is all relief. One tile is one cable column
 // for one twist; its height drives both the bump and a baked shading (grooves darker, ridges lighter).
 // Darker than the photographed wool: exposure, tone mapping and sheen lift these values.
-const CABLE_GREEN=[12,62,38],CABLE_PITCH=.14;
+const CABLE_GREEN=[11,56,35],CABLE_PITCH=.14;
 let cablePixels=null;
 function cableKnitData(){
   if(cablePixels)return cablePixels;
-  const w=128,h=192,colour=new Uint8Array(w*h*4),height=new Uint8Array(w*h*4),rand=random(31);
+  const w=128,h=192,colour=new Uint8Array(w*h*4),height=new Uint8Array(w*h*4),field=new Float32Array(w*h),rand=random(31);
   for(let y=0;y<h;y++)for(let x=0;x<w;x++){
-    // Across the tile: a rope cable in the middle, a narrow purl trough either side. Along it: one twist, a leaning oval
-    // that pinches in where it tucks under the next one, with a crisp crease there, so each twist reads as its own lens.
-    // Fine stitch columns run through everything.
-    const s=(x+.5)/w*2-1,t=(y+.5)/h,d=((t+s*.32)%1+1)%1,bulge=Math.pow(Math.sin(Math.PI*d),.35),halfWidth=.84*(.62+.38*bulge),across=Math.abs(s)/halfWidth;
-    let v=across<1?.22+.68*bulge*Math.sqrt(1-across*across):.1+.06*Math.max(0,1-(Math.abs(s)-halfWidth)/.1);
-    if(across<1&&(d<.035||d>.985))v=.08;
-    v+=.035*Math.cos(Math.PI*2*x/(w/10));
-    const i=(y*w+x)*4,heather=1+(rand()-.5)*.14,shade=(.45+.8*v)*heather;
+    // Across the tile: a rope cable filling almost the whole column, with only a thin, shallow groove either side, as in
+    // the photos. Along it: one twist, a leaning oval with a wide, flat top that pinches in a little where it tucks under
+    // the next one, with a fine crease there. Fine stitch columns run through everything.
+    const s=(x+.5)/w*2-1,t=(y+.5)/h,d=((t+s*.32)%1+1)%1,bulge=Math.pow(Math.sin(Math.PI*d),.3),halfWidth=.93*(.84+.16*bulge),across=Math.abs(s)/halfWidth;
+    let v=across<1?.42+.5*bulge*Math.pow(1-Math.pow(across,4),.5):.26;
+    if(across<1&&(d<.025||d>.99))v=.24;
+    field[y*w+x]=v+.035*Math.cos(Math.PI*2*x/(w/10));
+  }
+  for(let y=0;y<h;y++)for(let x=0;x<w;x++){
+    // Lit from the upper left, as in the photos: each twist's upper edge catches the light and its lower edge falls into
+    // soft shadow, and the thin grooves between columns stay visible.
+    const v=field[y*w+x],slopeY=field[((y+3)%h)*w+x]-field[((y-3+h)%h)*w+x],slopeX=field[y*w+(x+3)%w]-field[y*w+(x-3+w)%w];
+    const i=(y*w+x)*4,heather=1+(rand()-.5)*.14,shade=(.62+.5*v-.7*slopeY+.5*slopeX)*heather;
     for(let k=0;k<3;k++)colour[i+k]=Math.max(0,Math.min(255,CABLE_GREEN[k]*shade));colour[i+3]=255;
-    height[i]=height[i+1]=height[i+2]=Math.round(v*255);height[i+3]=255;
+    height[i]=height[i+1]=height[i+2]=Math.round(Math.max(0,Math.min(1,v))*255);height[i+3]=255;
   }
   cablePixels={colour,height,w,h};return cablePixels;
 }

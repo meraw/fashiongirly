@@ -507,10 +507,11 @@ test('green cable sweater: rope cables in relief, raglan seams, a flag on her le
   const count=name=>{let n=0;outfit.traverse(o=>{if(o.name===name)n++;});return n;};
   assert.equal(count('raglan-seam'),4);assert.equal(count('ribbed-cuff'),2);assert.equal(count('flag-stripe'),3);
   const flag=outfit.getObjectByName('embroidered-flag').getWorldPosition(new T.Vector3());assert.ok(flag.x>.03&&flag.z>.1,'flag on her left chest');
-  // The cables are relief: the same tile drives the bump, with deep troughs and high ridges; sixteen columns round the body.
+  // The cables are relief: the same tile drives the bump; sixteen columns round the body. As in the photos (and at the
+  // user's request), the cables sit close together: the grooves between them are thin and shallow, never deep dark gaps.
   const body=outfit.getObjectByName('cable-knit-body'),bump=body.material.bumpMap;assert.ok(bump);assert.equal(body.material.map.repeat.x,16);
-  let low=0,high=0;const hd=bump.image.data;for(let i=0;i<hd.length;i+=4){if(hd[i]<40)low++;if(hd[i]>180)high++;}
-  const n=hd.length/4;assert.ok(low/n>.08&&high/n>.15,`troughs ${low/n}, ridges ${high/n}`);
+  let deep=0,groove=0,high=0;const hd=bump.image.data;for(let i=0;i<hd.length;i+=4){if(hd[i]<40)deep++;if(hd[i]<80)groove++;if(hd[i]>180)high++;}
+  const n=hd.length/4;assert.equal(deep,0,'no deep gaps');assert.ok(groove/n>.03&&groove/n<.15,`thin grooves ${groove/n}`);assert.ok(high/n>.4,`raised twists ${high/n}`);
   disposeObject(outfit);
   const skirted=makeOutfit({topId:id,skirt:true}),plain=makeOutfit({topId:id});
   const width=o=>new T.Box3().setFromObject(o.getObjectByName('ribbed-hem-band')).getSize(new T.Vector3()).x;
