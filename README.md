@@ -49,3 +49,7 @@ The renderer rebuilds only the outfit on a wardrobe edit. The doll's identity re
 `npm test` covers finite geometry and supported parameter extremes, layer toggles, silhouette changes, safe recipe handling, description editing, UI save/restore, and failed WebGL startup. It also preserves the earlier vector recipe tests. An offline geometry projection was inspected; it does not reproduce WebGL fabric shading. Browser/device QA remains outstanding.
 
 Data lives in this browser. Clearing browser storage removes drafts and saved looks. Weather, autonomous daily styling, arbitrary garment generation, reference-photo intake, real cloth physics, animation, and cloud sync are future work.
+
+### Playful outfit studies
+
+Three editable outfit ideas combine knit, denim, striped shirt and a new pleated skirt over jeans. The skirt is a separate procedural garment with a ribbon, saved with the rest of the recipe. These are authored styling presets, not an AI stylist or cloth simulation. The compact body and face remain unchanged.

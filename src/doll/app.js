@@ -1,4 +1,4 @@
-import { DEFAULT, SWATCHES, cleanRecipe, editRecipe } from './recipe.js';
+import { DEFAULT, SWATCHES, OUTFITS, cleanRecipe, editRecipe } from './recipe.js';
 const KEY='fashiongirly.plush-draft.v1', BOOK='fashiongirly.plush-looks.v1';
 export async function startStudio(doc=document, makeView) {
   const $=id=>doc.getElementById(id);let storage;
@@ -12,16 +12,23 @@ export async function startStudio(doc=document, makeView) {
   function schedule(){clearTimeout(timer);timer=setTimeout(apply,65);}
   function swatches(id,choices,key){$(id).replaceChildren(...choices.map(([name,color])=>{const b=doc.createElement('button');b.type='button';b.style.background=color;b.setAttribute('aria-label',name);b.dataset.color=color;b.onclick=()=>{recipe[key]=color;sync();apply();};return b;}));}
   swatches('sweater-colours',SWATCHES,'sweater');swatches('denim-colours',[['Indigo','#283c59'],['Washed blue','#71899b'],['Charcoal','#39363b'],['Ecru','#d9cbb2']],'trousers');
+  $('outfit-ideas').replaceChildren(...OUTFITS.map(look=>{
+    const button=doc.createElement('button');button.type='button';button.textContent=look.name;
+    button.onclick=()=>{recipe=cleanRecipe(look.recipe);sync();apply();message(look.note);};return button;
+  }));
   function sync(){
+    const selected=OUTFITS.find(look=>Object.keys(DEFAULT).every(key=>look.recipe[key]===recipe[key]));
+    $('outfit-title').textContent=selected?.name||'Her own little experiment.';
+    for(const button of $('outfit-ideas').children)button.setAttribute('aria-pressed',String(button.textContent===selected?.name));
     for(const key of ['sleeve','hem','barrel']){$(key).value=Math.round(recipe[key]*100);const value=recipe[key];$(`${key}-value`).textContent=key==='hem'?(value<.34?'Cropped':value>.66?'Longer':'At the waist'):value<.34?'A little':value>.66?'A lot':'In between';$(key).setAttribute('aria-valuetext',`${$(`${key}-value`).textContent}, ${Math.round(value*100)} percent`);}
-    for(const key of ['knit','shirt'])$(key).checked=recipe[key];
+    for(const key of ['knit','shirt','skirt'])$(key).checked=recipe[key];
     for(const [id,key] of [['sweater-colours','sweater'],['denim-colours','trousers']])for(const b of $(id).children)b.setAttribute('aria-pressed',String(b.dataset.color===recipe[key]));
     for(const id of ['sleeve','hem'])$(id).disabled=!recipe.knit;
     for(const b of $('sweater-colours').children)b.disabled=!recipe.knit;
     $('count').textContent=looks.length;
   }
   for(const key of ['sleeve','hem','barrel'])$(key).oninput=()=>{recipe[key]=Number($(key).value)/100;sync();schedule();};
-  for(const key of ['knit','shirt'])$(key).onchange=()=>{recipe[key]=$(key).checked;sync();apply();};
+  for(const key of ['knit','shirt','skirt'])$(key).onchange=()=>{recipe[key]=$(key).checked;sync();apply();};
   $('edit-form').onsubmit=e=>{e.preventDefault();const result=editRecipe(recipe,$('request').value);recipe=result.recipe;sync();apply();message(result.changes.length?`Changed: ${result.changes.join(', ')}. Only these supported details were interpreted.`:'I could not interpret that yet. Try “butter sweater, enormous sleeves, cropped”.');};
   $('reset').onclick=()=>{recipe=cleanRecipe(DEFAULT);sync();apply();message('Back to the original outfit.');};
   for(const b of doc.querySelectorAll('[data-angle]'))b.onclick=()=>{view?.turn(Number(b.dataset.angle));for(const other of doc.querySelectorAll('[data-angle]'))other.setAttribute('aria-pressed',String(other===b));};

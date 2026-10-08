@@ -4,10 +4,10 @@ import * as T from 'three';
 import { JSDOM } from 'jsdom';
 import { readFileSync } from 'node:fs';
 import { makeDoll, makeOutfit, disposeObject } from '../src/doll/model.js';
-import { DEFAULT, cleanRecipe, editRecipe } from '../src/doll/recipe.js';
+import { DEFAULT, OUTFITS, cleanRecipe, editRecipe } from '../src/doll/recipe.js';
 import { startStudio } from '../src/doll/app.js';
 test('doll and garment geometry stays finite for extreme supported silhouettes',()=>{
-  for(const state of [DEFAULT,{sleeve:0,hem:0,barrel:0},{sleeve:1,hem:1,barrel:1},{knit:false,shirt:false}]){
+  for(const state of [...OUTFITS.map(look=>look.recipe),DEFAULT,{sleeve:0,hem:0,barrel:0},{sleeve:1,hem:1,barrel:1},{knit:false,shirt:false}]){
     const model=new T.Group();model.add(makeDoll(),makeOutfit(state));let triangles=0;
     model.traverse(o=>{if(!o.geometry)return;const p=o.geometry.attributes.position;for(const n of p.array)assert.ok(Number.isFinite(n));triangles+=(o.geometry.index?.count||p.count)/3;});
     assert.ok(triangles>10000&&triangles<350000,`triangle budget: ${triangles}`);
@@ -38,4 +38,17 @@ test('UI applies a description, toggles clothing, saves and restores a look',asy
 test('3D startup failure leaves an actionable error',async()=>{
   const dom=new JSDOM(readFileSync('index.html','utf8'),{url:'https://example.com/'});const app=await startStudio(dom.window.document,()=>{throw new Error('WebGL unavailable');});
   assert.equal(dom.window.document.getElementById('view-error').hidden,false);assert.match(dom.window.document.getElementById('view-error').textContent,/WebGL/);app.dispose();dom.window.close();
+});
+
+test('curated outfits preserve editable layers through saving and restoring',async()=>{
+  const dom=new JSDOM(readFileSync('index.html','utf8'),{url:'https://example.com/'}),d=dom.window.document;
+  d.getElementById('lookbook').showModal=function(){this.open=true;};d.getElementById('lookbook').close=function(){this.open=false;};
+  const app=await startStudio(d,()=>({update(){},turn(){},dispose(){}}));
+  d.querySelector('#outfit-ideas button').click();
+  assert.equal(app.getRecipe().skirt,true);assert.equal(d.getElementById('skirt').checked,true);
+  const outfit=makeOutfit(app.getRecipe());assert.ok(outfit.getObjectByName('pleated-skirt'));disposeObject(outfit);
+  d.getElementById('save').click();d.getElementById('reset').click();assert.equal(app.getRecipe().skirt,false);
+  d.getElementById('lookbook-open').click();d.querySelector('.saved-row button').click();assert.equal(app.getRecipe().skirt,true);
+  assert.equal(editRecipe(app.getRecipe(),'remove the skirt').recipe.skirt,false);
+  app.dispose();dom.window.close();
 });

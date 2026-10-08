@@ -146,6 +146,26 @@ export function makeOutfit(raw) {
     const ribs=new T.Group();ribs.name='hem-ribs';sweater.add(ribs);
     for(let i=0;i<52;i++){const a=i/52*Math.PI*2;curve(ribs,[[Math.sin(a)*.29,hem-.004,Math.cos(a)*.212],[Math.sin(a)*.291,hem+.051,Math.cos(a)*.213]],.0027,knit,'rib');}
   }
+  if(state.skirt){
+    const skirt=new T.Group();skirt.name='layered-skirt';root.add(skirt);
+    const satin=cloth(state.skirtColour);satin.roughness=.7;satin.sheenRoughness=.6;
+    const panel=shell(skirt,[[1.24,.292,.219],[1.17,.317,.23],[1.02,.356,.253],[.85,.39,.273],[.79,.395,.277]],satin,'pleated-skirt',96);
+    const positions=panel.geometry.attributes.position;
+    for(let i=0;i<positions.count;i++){
+      const x=positions.getX(i),y=positions.getY(i),z=positions.getZ(i);
+      const a=Math.atan2(x/.395,z/.277),fall=Math.max(0,Math.min(1,(1.24-y)/.45));
+      const fold=1+Math.sin(a*14)*.028*fall;
+      positions.setXYZ(i,x*fold,y+Math.sin(a*3)*.009*fall,z*fold);
+    }
+    positions.needsUpdate=true;panel.geometry.computeVertexNormals();
+    ring(skirt,1.238,.294,.221,satin,'skirt-waistband',.04);
+    const ribbon=cloth(state.skirtColour);
+    for(const side of [-1,1]){
+      const loop=oval(skirt,[.22+side*.042,1.208,.193],[.052,.026,.019],ribbon,'ribbon-loop');loop.rotation.z=side*.35;
+      curve(skirt,[[.22,1.20,.206],[.22+side*.029,1.14,.226],[.22+side*.045,1.095,.239]],.009,ribbon,'ribbon-tail');
+    }
+    oval(skirt,[.22,1.208,.219],[.019,.021,.013],ribbon,'ribbon-knot');
+  }
   // Materials that were not used in the selected layers are not retained.
   const used=new Set();root.traverse(o=>{if(o.material)used.add(o.material);});
   for(const mat of [shirt,stripe,denim,knit,stitch])if(!used.has(mat)){mat.bumpMap?.dispose();mat.dispose();}
