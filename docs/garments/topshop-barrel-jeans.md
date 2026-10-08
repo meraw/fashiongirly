@@ -50,6 +50,20 @@ A first calibration matched the averages but also tried to match the photos' bri
 
 The wash is now a flat calibrated base (texel RGB 48, 61, 70) with a very faint fine grain and a twill line. A per-vertex gradient runs from slightly lighter at the hips (1.08) to darker at the hem (0.86). Rendered plain-denim areas measure 61, 75, 82 at the front and 63, 76, 83 at the back, against the photo's 61, 73, 80.
 
+## Rebuild: realism from shape, not paint
+
+The user found the flat version still not convincing (“if we can't do jeans the app doesn't work”). The underlying problem: the legs were perfect smooth tubes, so the denim read as plastic whatever its colour. In the photos, what reads as denim comes from shape. The fabric drapes in soft vertical folds and stacks where it rests on the shoe; wear is paler on raised areas and darker in hollows; seams and hem edges are paler (“roping”); whiskers fan out at the top of the thighs. Painting that variation into the texture had looked like ruffles; leaving it out looked like plastic. It now comes from geometry lit by the scene:
+
+- Drape: radial displacement of each leg, two soft angular waves drifting around the leg with height (following the twist), shallow at the hip and deeper toward the hem.
+- Stacking: rippled folds in the lowest part of the leg where the hem rests on the shoe.
+- Wear shading: per-vertex colour follows the same displacement (crests paler, hollows darker), plus paler roping along the twisting outseam and inseam and at the hem edge, faint whiskers at the front of the thighs, and the gentle hip-to-hem gradient.
+- Seams and knee darts are placed by casting onto the folded surface of their own leg, so they follow the folds.
+- Stitching is tonal (muted tan, thinner), as in the photos, instead of bright piping.
+- The texture is a flat calibrated colour with a fine speckle and twill line only.
+- The crotch curves back between the legs instead of ending in a ledge.
+
+Rendered plain denim measures 61, 74, 81 at the front, against the photo's 61, 73, 80.
+
 ## Layering fix found by this item
 
 A new test checks that every waist-covering top hides every bottom between its hem and the waist. It found that the built-in jeans' hips, waistband and button showed through the front of the **bronze mesh top** above its hem, a pre-existing issue; the new jeans' belt loops and suede patch also poked through. The bronze top's lower torso and hem binding now ease out over the trousers, as the lilac top's did on `main`. Its upper body, print and sleeves are unchanged.
@@ -62,7 +76,7 @@ A new test checks that every waist-covering top hides every bottom between its h
 
 ## Known differences
 
-- The denim colour is calibrated to the photos (see above). It has no whisker lines, and lacks the photos' fold shadows.
+- Folds are procedural and regular compared with real drape, and the scene's soft lighting gives less contrast than the photos.
 - Her seat is short, so the back pockets sit close to where the legs separate.
 - The hem rests on the shoe as a smooth lift, without stacked folds.
 - The suede patch carries no lettering.

@@ -325,7 +325,8 @@ function acidWashData(){
   // The base colour is calibrated so the rendered denim matches the photos' measured average.
   const S=256,data=new Uint8Array(S*S*4),rand=random(83),base=[48,61,70];
   for(let y=0;y<S;y++)for(let x=0;x<S;x++){
-    const grain=1+(rand()-.5)*.08,twill=((x+y)%4===0)?.95:1,i=(y*S+x)*4;
+    // Fine speckle like the yarn's own variation; no larger streaks or blotches.
+    const grain=1+(rand()-.5)*.2,twill=((x+y)%4===0)?.94:1,i=(y*S+x)*4;
     for(let k=0;k<3;k++)data[i+k]=Math.max(0,Math.min(255,base[k]*grain*twill));data[i+3]=255;
   }
   washPixels={data,w:S,h:S};return washPixels;
@@ -348,57 +349,80 @@ function makeBarrelJeans(id=BARREL_JEANS_ID){
   // Only the hips and legs carry the per-vertex fade; small pieces (pockets, flaps, loops) use the plain wash.
   const wash=(u=5,v=8,faded=false)=>{const map=yarnTexture(acidWashData(),u,v),twill=weave('denim');twill.repeat.set(14,14);
     return new T.MeshPhysicalMaterial({map,roughness:.95,bumpMap:twill,bumpScale:.006,side:T.DoubleSide,vertexColors:faded});};
-  // A faint gradient, as in the photos: slightly lighter at the hips, darker toward the hem.
-  const fade=mesh=>{const p=mesh.geometry.attributes.position,c=[];for(let i=0;i<p.count;i++){const f=.86+.22*Math.min(1,Math.max(0,(p.getY(i)-.06)/1.14));c.push(f,f,f);}mesh.geometry.setAttribute('color',new T.Float32BufferAttribute(c,3));return mesh;};
-  const denim=wash(),legDenim=wash(5,8,true),hipDenim=wash(8,2.2,true),thread=solid('#c99a5e',.75),fold=solid('#26303d',.9),metal=new T.MeshStandardMaterial({color:'#c9ccd0',metalness:.85,roughness:.3});
+  const denim=wash(),legDenim=wash(5,8,true),hipDenim=wash(8,2.2,true),thread=solid('#8f744f',.85),fold=solid('#26303d',.9),metal=new T.MeshStandardMaterial({color:'#c9ccd0',metalness:.85,roughness:.3});
   // Low rise, but with room below the waistband for the yoke and the large flap pockets.
   // The hips widen to meet the wide legs, so there is no step where the legs begin.
-  const hips=[[1.22,.255,.172],[1.13,.276,.193],[1.04,.292,.198],[.97,.302,.19]];
+  // At the crotch the hips curve back between the legs, so their lower edge sits recessed rather than as a ledge.
+  const hips=[[1.22,.255,.172],[1.13,.276,.193],[1.04,.292,.198],[.97,.3,.186],[.935,.25,.11]];
   // Wide and nearly straight, as in the flat lay: only a gentle outward curve at the knee, full length to the floor.
   const legRows=s=>[[1.03,.145,.185,s*.13],[.95,.158,.185,s*.158],[.75,.168,.188,s*.172],[.55,.172,.188,s*.176],[.35,.17,.186,s*.174],[.18,.167,.184,s*.17],[.06,.166,.183,s*.168]];
   const lerpRows=(rows,y)=>{for(let i=0;i<rows.length-1;i++){const a=rows[i],b=rows[i+1];if(y<=a[0]&&y>=b[0]){const t=(a[0]-y)/(a[0]-b[0]);return a.map((v,k)=>v+(b[k]-v)*t);}}return y>rows[0][0]?rows[0]:rows[rows.length-1];};
-  const body=[fade(shell(jeans,hips,hipDenim,'jeans-hips',64))];
+  const body=[shell(jeans,hips,hipDenim,'jeans-hips',64)];
   mapByHeight(body[0],.97,1.22);
   ring(jeans,1.195,.258,.175,denim,'jeans-waistband',.05);
-  for(const y of [1.172,1.218]){const pts=[];for(let k=0;k<=64;k++){const a=k/64*Math.PI*2;pts.push([Math.sin(a)*.26,y,Math.cos(a)*.177]);}curve(jeans,pts,.0024,thread,'waistband-stitch');}
+  for(const y of [1.172,1.218]){const pts=[];for(let k=0;k<=64;k++){const a=k/64*Math.PI*2;pts.push([Math.sin(a)*.26,y,Math.cos(a)*.177]);}curve(jeans,pts,.0017,thread,'waistband-stitch');}
   for(const a of [-2.7,-1.45,-.55,.55,1.45,2.7,Math.PI]){
     const loop=put(jeans,new T.BoxGeometry(.016,.056,.007),denim,'belt-loop');loop.position.set(Math.sin(a)*.262,1.195,Math.cos(a)*.18);loop.rotation.y=a;}
   oval(jeans,[0,1.195,.178],[.015,.015,.005],metal,'shank-button',16);
+  // Twisted legs: the outseam drifts toward the back on the way down, the inseam toward the front.
+  const twist=y=>Math.min(1,Math.max(0,(.97-y)/.85))*Math.PI/4,outAngle=(side,y)=>side*(Math.PI/2+twist(y)),inAngle=(side,y)=>-side*(Math.PI/2-twist(y));
+  // Real denim reads through its shape: wear is paler on raised folds and darker in hollows, seams and the hem
+  // are paler where the fabric rolls ("roping"), and faint whiskers fan out at the top of the thighs.
+  const angleGap=(a,b)=>Math.abs(Math.atan2(Math.sin(a-b),Math.cos(a-b)));
+  const whiskers=(x,y,z)=>{if(z<=0||y<.82||y>1.06)return 0;let w=0;for(let k=0;k<4;k++){const line=1.0-.035*k-.3*Math.max(0,Math.abs(x)-.04),gap=Math.abs(y-line);if(gap<.007)w=Math.max(w,(1-gap/.007)*Math.max(0,1-Math.abs(x)/.27));}return w;};
+  const shade=(mesh,wear,side=0)=>{const p=mesh.geometry.attributes.position,c=[];for(let i=0;i<p.count;i++){
+    const x=p.getX(i),y=mesh.userData.restY?.[i]??p.getY(i),z=p.getZ(i);let f=.86+.22*Math.min(1,Math.max(0,(y-.06)/1.14));
+    f*=1+9*(wear?.[i]||0)+.16*whiskers(x,y,z);
+    if(side){const cx=lerpRows(legRows(side),y)[3],a=Math.atan2(x-cx,z);f*=1+.13*Math.exp(-((angleGap(a,outAngle(side,y))/.1)**2))+.1*Math.exp(-((angleGap(a,inAngle(side,y))/.1)**2))+(y<.085?.1*(1-(y-.06)/.025):0);}
+    c.push(f,f,f);}mesh.geometry.setAttribute('color',new T.Float32BufferAttribute(c,3));return mesh;};
+  shade(body[0]);
+  const legs={};
   for(const side of [-1,1]){
-    const leg=fade(shell(jeans,legRows(side),legDenim,'barrel-leg',64));body.push(leg);
+    const leg=shell(jeans,legRows(side),legDenim,'barrel-leg',96);body.push(leg);legs[side]=leg;
+    const p=leg.geometry.attributes.position,wear=new Float32Array(p.count),restY=new Float32Array(p.count),r2=random(side>0?7:11),ph=[r2()*6.28,r2()*6.28,r2()*6.28];
+    for(let i=0;i<p.count;i++){
+      const x=p.getX(i),y=p.getY(i),z=p.getZ(i),cx=lerpRows(legRows(side),y)[3],dx=x-cx,r=Math.hypot(dx,z),a=Math.atan2(dx,z),low=Math.min(1,Math.max(0,(1-y)/.95));
+      // Drape: soft vertical folds that drift around the leg with height (following the twist), deeper toward the hem.
+      let d=(.005+.011*low*low)*(.6*Math.sin(5*a+ph[0]+side*2.2*y)+.4*Math.sin(9*a+ph[1]-side*1.4*y));
+      // Stacking: rippled folds where the long hem rests on the shoe.
+      if(y<.32)d+=.011*(1-y/.32)*Math.sin(y*70+2.5*Math.sin(2*a+ph[2]));
+      wear[i]=d;restY[i]=y;const k=(r+d)/r;p.setX(i,cx+dx*k);p.setZ(i,z*k);
+    }
     // The hem rests on the loafer: over the shoe it rises to sit on the upper, elsewhere it reaches the floor.
-    const p=leg.geometry.attributes.position;
     for(let i=0;i<p.count;i++){const y=p.getY(i);if(y>.3)continue;
       const fx=(p.getX(i)-side*.16)/.15,fz=(p.getZ(i)-.09)/.225,inside=1-fx*fx-fz*fz;
       const floor=inside>0?.105+.098*Math.sqrt(inside)+.012:.06,t=Math.min(1,(.3-y)/(.3-.06));p.setY(i,Math.max(y,y+(floor-.06)*t));}
-    p.needsUpdate=true;leg.geometry.computeVertexNormals();
+    p.needsUpdate=true;leg.geometry.computeVertexNormals();leg.userData.restY=restY;shade(leg,wear,side);
   }
   // Depth of the actual jeans surface at (x, y), front or back: measured on the built shells, so details sit on it.
   const caster=new T.Raycaster(),hit=new T.Vector3();
   const depth=(x,y,back=false)=>{caster.set(hit.set(x,y,back?-1:1),new T.Vector3(0,0,back?1:-1));const h=caster.intersectObjects(body,false)[0];return h?Math.abs(h.point.z):0;};
   const on=(pts,back=false,off=.004)=>pts.map(([x,y])=>[x,y,(back?-1:1)*(depth(x,y,back)+off)]);
-  curve(jeans,on([[.034,1.168],[.036,1.08],[.02,1.045],[0,1.035]]),.0024,thread,'fly-stitch');
+  // A point on a leg's folded surface at height y and angle a around the leg, found by casting in from outside
+  // against that leg only (an inner seam would otherwise land on the other leg).
+  const legPoint=(side,y,a,off=.003)=>{const cx=lerpRows(legRows(side),y)[3],dir=new T.Vector3(Math.sin(a),0,Math.cos(a));caster.set(new T.Vector3(cx,y,0).addScaledVector(dir,.6),dir.clone().negate());const h=caster.intersectObjects(y>.97?[body[0],legs[side]]:[legs[side]],false)[0];return h?h.point.addScaledVector(dir,off).toArray():[cx+dir.x*.17,y,dir.z*.17];};
+  curve(jeans,on([[.034,1.168],[.036,1.08],[.02,1.045],[0,1.035]]),.0017,thread,'fly-stitch');
   for(const side of [-1,1]){
-    curve(jeans,on([[side*.165,1.168],[side*.218,1.11],[side*.265,1.065]]),.0024,thread,'slant-pocket-stitch');
+    curve(jeans,on([[side*.165,1.168],[side*.218,1.11],[side*.265,1.065]]),.0017,thread,'slant-pocket-stitch');
     // Side seam: starts at the outer hip and twists toward the back on its way to the hem.
-    const seam=[[side*.278,1.12,0],[side*.284,1.04,0]];
-    for(let k=0;k<=10;k++){const y=.97-k*(.97-.12)/10,[,rx,rz,cx]=lerpRows(legRows(side),y),a=side*(Math.PI/2+(Math.PI/4)*(k/10));seam.push([cx+Math.sin(a)*rx*1.02,y,Math.cos(a)*rz*1.02]);}
-    curve(jeans,seam,.0026,thread,'twisted-side-seam');
+    const seam=[[side*.278,1.12,0],[side*.29,1.04,0]];
+    for(let k=0;k<=20;k++){const y=.97-k*(.97-.1)/20;seam.push(legPoint(side,y,outAngle(side,y)));}
+    curve(jeans,seam,.0018,thread,'twisted-side-seam');
     // The inseam twists the other way, toward the front.
-    const inseam=[];for(let k=0;k<=10;k++){const y=.95-k*(.95-.12)/10,[,rx,rz,cx]=lerpRows(legRows(side),y),a=-side*(Math.PI/2-(Math.PI/4)*(k/10));inseam.push([cx+Math.sin(a)*rx*1.02,y,Math.cos(a)*rz*1.02]);}
-    curve(jeans,inseam,.0026,thread,'twisted-inseam');
+    const inseam=[];for(let k=0;k<=20;k++){const y=.95-k*(.95-.1)/20;inseam.push(legPoint(side,y,inAngle(side,y)));}
+    curve(jeans,inseam,.0018,thread,'twisted-inseam');
     // Articulated knee: horizontal seams across the front and the back of each knee.
     for(const facing of [0,Math.PI]){
-    const dart=[];for(let k=0;k<=6;k++){const a=facing-side*.55+side*.65*k/6,[,rx,rz,cx]=lerpRows(legRows(side),.64);dart.push([cx+Math.sin(a)*rx*1.012,.64+.006*Math.sin(Math.PI*k/6),Math.cos(a)*rz*1.012]);}
-    curve(jeans,dart,.0042,fold,'knee-dart');curve(jeans,dart.map(([x,y,z])=>[x,y+.008,z*1.004]),.002,thread,'knee-dart-stitch');
+    const dart=[];for(let k=0;k<=8;k++)dart.push(legPoint(side,.64+.006*Math.sin(Math.PI*k/8),facing-side*.55+side*.65*k/8,.002));
+    curve(jeans,dart,.0042,fold,'knee-dart');curve(jeans,dart.map(([x,y,z],k)=>legPoint(side,y+.008,facing-side*.55+side*.65*k/8,.003)),.002,thread,'knee-dart-stitch');
     }
     // Back: yoke, patch pocket with a pointed buttoned flap.
-    curve(jeans,on([[side*.272,1.165],[side*.14,1.148],[side*.004,1.13]],true),.0026,thread,'back-yoke');
+    curve(jeans,on([[side*.272,1.165],[side*.14,1.148],[side*.004,1.13]],true),.0018,thread,'back-yoke');
     const px=side*.122,pocket=[[px-.076,1.11],[px+.076,1.11],[px+.073,.99],[px,.958],[px-.073,.99]];
     const shape=new T.Shape();pocket.forEach(([x,y],k)=>k?shape.lineTo(x,y):shape.moveTo(x,y));shape.closePath();
     const patch=put(jeans,subdivided(shape,3,true),denim,'back-patch-pocket');const pp=patch.geometry.attributes.position;
     for(let i=0;i<pp.count;i++)pp.setZ(i,-(depth(pp.getX(i),pp.getY(i),true)+.004));pp.needsUpdate=true;patch.geometry.computeVertexNormals();
-    curve(jeans,on([...pocket.slice(1),pocket[0]].map(([x,y])=>[x-(x-px)*.08,y+(y<1.05?.006:0)]),true,.006),.0024,thread,'pocket-stitch');
+    curve(jeans,on([...pocket.slice(1),pocket[0]].map(([x,y])=>[x-(x-px)*.08,y+(y<1.05?.006:0)]),true,.006),.0017,thread,'pocket-stitch');
     const flap=[[px-.082,1.128],[px+.082,1.128],[px+.08,1.084],[px,1.062],[px-.08,1.084]];
     const fshape=new T.Shape();flap.forEach(([x,y],k)=>k?fshape.lineTo(x,y):fshape.moveTo(x,y));fshape.closePath();
     const flapMesh=put(jeans,subdivided(fshape,3,true),denim,'pocket-flap');const fp=flapMesh.geometry.attributes.position;
@@ -406,7 +430,7 @@ function makeBarrelJeans(id=BARREL_JEANS_ID){
     curve(jeans,on([[px-.074,1.12],[px+.074,1.12],[px+.072,1.088],[px,1.07],[px-.072,1.088],[px-.074,1.12]],true,.011),.0022,thread,'flap-stitch');
     oval(jeans,[px,1.076,-(depth(px,1.076,true)+.013)],[.011,.011,.004],metal,'flap-button',16);
   }
-  curve(jeans,on([[.004,1.13],[.004,1.05],[0,.99]],true),.0026,thread,'centre-back-seam');
+  curve(jeans,on([[.004,1.13],[.004,1.05],[0,.99]],true),.0018,thread,'centre-back-seam');
   curve(jeans,on([[-.19,1.14],[-.07,1.137]],true,.005),.0028,fold,'welt-pocket');
   const leather=put(jeans,new T.BoxGeometry(.088,.05,.005),solid('#a87348',.95),'suede-patch');leather.position.set(.07,1.2,-(.177+.004));leather.rotation.y=Math.PI-.27;
   return jeans;
