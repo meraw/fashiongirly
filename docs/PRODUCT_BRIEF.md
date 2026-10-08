@@ -74,7 +74,7 @@ Agreed sequence:
 
 The destination is agreed; the exact interaction, weather source, location handling, refresh timing and closed-app/background behaviour remain design decisions. Do not promise background operation or silently introduce location access, a weather provider, credentials, or a runtime service. The initial no-API constraint still applies to the current phase. Keep weather input separate from local styling so it can be tested using supplied conditions before a live source is selected. Optional AI later should improve the same wardrobe operations, not become a prerequisite for outfit creation.
 
-All garment lanes should support this goal now:
+All garment work should support this goal now:
 - Keep pieces independently selectable by stable IDs, with reusable assets and explicit slot/layer compatibility; avoid baking a complete outfit into a garment or the doll.
 - Record useful styling facts as pieces are imported: silhouette/proportion, palette/pattern, material, coverage, relative warmth and known weather limitations, plus layering constraints. Extend existing garment records/metadata where suitable; a new central schema is not required in each lane.
 - Distinguish observed or user-provided facts from inferences and unknowns. Do not infer waterproofing or exact thermal performance from a photo, or block import because information is missing.

@@ -10,7 +10,7 @@ Read [PRODUCT_BRIEF.md](PRODUCT_BRIEF.md) for the product's intent and agreed co
 
 Weather-aware daily self-dressing is a core goal: she checks the weather and creates her own playful, daring outfit from the user's imported wardrobe, with hair chosen as part of the look. Finish wardrobe import first, then build that experience. Manual selectors and preset studies are the current construction/review tools, not the final goal.
 
-Every lane should retain independently selectable garments and record known styling, coverage/warmth and layer-compatibility information needed by later outfit selection. Mark unknowns rather than inventing weather performance. The current no-API phase remains in force; the weather source and daily/background behaviour are not yet chosen. The product brief now records the sequence and boundaries.
+Every chat should retain independently selectable garments and record known styling, coverage/warmth and layer-compatibility information needed by later outfit selection. Mark unknowns rather than inventing weather performance. The current no-API phase remains in force; the weather source and daily/background behaviour are not yet chosen. The product brief now records the sequence and boundaries.
 
 ## Current implementation
 
@@ -76,6 +76,8 @@ Fetching a page depends on both the environment's network settings and the shop.
 
 ## The user's wardrobe and how to add it
 
+Any chat adds whatever category the user tells it to; categories are no longer assigned to particular chats (the user's decision, 8 October 2026, because bottoms will run out sooner than tops). See [AGENTS.md](../AGENTS.md) for how parallel chats avoid conflicts.
+
 The user wants to add their whole wardrobe, **one item at a time**, reviewing each piece before the next. Their rough inventory (8 October 2026):
 
 - about a dozen sweaters/jumpers, some heavier than others
@@ -90,7 +92,7 @@ The user wants to add their whole wardrobe, **one item at a time**, reviewing ea
 
 Each new kind of garment needs its slot the first time it appears. Top, bottom, shoe and outerwear slots exist. Dresses still need a slot with layering rules. Button-downs need collar, placket and button details; hoodies need a hood that clears her large head and hair.
 
-Outerwear is a fourth parallel lane (see [AGENTS.md](../AGENTS.md)), agreed with the user on 8 October 2026. That chat owns the outerwear slot and its layering rules. The slot was built with the first jacket (see its record):
+The outerwear slot and its layering rules were built with the first jacket (see its record):
 
 - `outerwearId` (`'none'` by default, so existing looks and saved looks are unchanged; renders without outerwear are pixel-identical to before). Outerwear is worn over whichever top, bottoms and skirt are selected, and sits out over the skirt when one is worn.
 - How the user wears outerwear (8 October 2026): zipped or buttoned closed, or not at all. Build a piece open only when it looks good open or is designed to be worn open.
@@ -98,7 +100,7 @@ Outerwear is a fourth parallel lane (see [AGENTS.md](../AGENTS.md)), agreed with
 - Her large head and hair hide the collar and the top of a lowered hood; judge hoods from the back with the bun or a ponytail as well as the bob.
 - Adding more zip jackets: copy the Marikoo entry's `build` spec and adjust the rows, yoke layout and details. Coats with other closures (buttons, belts, longer lengths over the skirt) will need their own template in `outerwear.js`.
 
-Shoes are a third parallel lane (see [AGENTS.md](../AGENTS.md)), agreed with the user on 8 October 2026. The shoe slot was built with the first pair (see its record):
+The shoe slot was built with the first pair (see its record):
 
 - The classic loafers moved out of `makeDoll` into the outfit (`shoesId: 'classic'`). Her face, body and socks are unchanged, and outfits with loafers render pixel-identical to before.
 - Long jeans (`hem: 'rests-on-shoe'`) rest on whatever shoe she wears through `rest()`, and drape around boots through `rest.inside`. Shorter jeans whose hem would end inside a boot sit on its padded collar (`rest.collar`), and the classic jeans tuck into the shaft. `tests/shoes.test.js` checks every bottom with every shoe, so new pairs of jeans and new shoes are covered automatically.
