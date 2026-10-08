@@ -9,7 +9,7 @@ The user asked for hair as part of an outfit, keeping the doll's existing dark b
 - `hairId` is saved in each outfit recipe and browser draft. Old and invalid values fall back to `bob`.
 - Clothing presets preserve the chosen hairstyle. Restoring a saved look restores both hair and clothes. Reset restores the original outfit and bob.
 - Changing hair alone does not rebuild garments. No service/API requests or generated images are needed.
-- Hair is attached to the existing `doll-head`, so it follows its tilt. The existing fringe and flower remain part of her identity. Four named sets of original bob meshes are hidden while an alternative style is worn, then restored when returning to the bob.
+- Hair is attached to the existing `doll-head`, so it follows its tilt. The flower remains. All original bob meshes, including its swept fringe and fringe threads, are hidden while an alternative style is worn, then restored when returning to the bob. The user found the bob bangs awkward on the other styles, which now use their own open hairline.
 - Geometry is stylised sculpted hair, not strand simulation. Down styles have a centre-long V silhouette. Up styles gather the same dark hair into different shapes. No colour, face, body, sock or shoe changes are made.
 
 ## Ownership and integration

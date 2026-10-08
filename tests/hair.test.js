@@ -21,11 +21,12 @@ test('all hairstyles have finite bounded geometry and the long cut has a V hem',
 });
 test('switching styles preserves face/body and restores the original bob',()=>{
   const doll=makeDoll(),head=doll.getObjectByName('doll-head'),face=head.getObjectByName('felt-head'),body=doll.getObjectByName('plush-body');
+  const fringe=head.children.filter(o=>['swept-fringe','fringe-thread'].includes(o.name));assert.ok(fringe.length>0);
   const controller=createHairController(doll),faceGeometry=face.geometry,bodyMatrix=body.matrix.clone();
-  for(const h of HAIRSTYLES){controller.update(h.id);assert.equal(face.geometry,faceGeometry);assert.equal(face.visible,true);assert.ok(body.matrix.equals(bodyMatrix));assert.equal(head.children.filter(o=>o.name==='outfit-hair').length,h.id==='bob'?0:1);}
+  for(const h of HAIRSTYLES){controller.update(h.id);for(const o of fringe)assert.equal(o.visible,h.id==='bob',`${h.id}: bob fringe visibility`);assert.equal(face.geometry,faceGeometry);assert.equal(face.visible,true);assert.ok(body.matrix.equals(bodyMatrix));assert.equal(head.children.filter(o=>o.name==='outfit-hair').length,h.id==='bob'?0:1);}
   const current=head.getObjectByName('outfit-hair');let disposed=false;current.children[0].geometry.addEventListener('dispose',()=>disposed=true);
   controller.update('bob');assert.equal(disposed,true);assert.equal(head.getObjectByName('bob-back').visible,true);assert.equal(head.getObjectByName('hair-crown').visible,true);
-  controller.dispose();disposeObject(doll);
+  for(const o of fringe)assert.equal(o.visible,true);controller.update('high-bun');controller.dispose();for(const o of fringe)assert.equal(o.visible,true);disposeObject(doll);
 });
 test('hair selector saves and restores with looks and survives clothing preset changes',async()=>{
   const dom=new JSDOM(readFileSync('index.html','utf8'),{url:'https://example.com/'}),d=dom.window.document;

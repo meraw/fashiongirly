@@ -56,7 +56,7 @@ export function disposeHair(group){const mats=new Set();group.traverse(o=>{o.geo
 // Adapter: leave makeDoll, its body, and all garment builders untouched.
 export function createHairController(doll){
   const head=doll.getObjectByName('doll-head');if(!head)throw new Error('Hair requires the doll-head attachment point.');
-  const names=new Set(['bob-back','hair-crown','side-bob','hair-yarn']);const originals=head.children.filter(o=>names.has(o.name)).map(o=>[o,o.visible]);
+  const names=new Set(['bob-back','hair-crown','side-bob','hair-yarn','swept-fringe','fringe-thread']);const originals=head.children.filter(o=>names.has(o.name)).map(o=>[o,o.visible]);
   let current=null,selected=null;
   return {update(raw){const id=cleanHairId(raw);if(id===selected)return;const next=id==='bob'?null:makeHair(id);if(current){head.remove(current);disposeHair(current);}current=next;selected=id;for(const [o,visible] of originals)o.visible=id==='bob'?visible:false;if(current)head.add(current);},dispose(){if(current){head.remove(current);disposeHair(current);current=null;}for(const [o,visible] of originals)o.visible=visible;selected=null;}};
 }
