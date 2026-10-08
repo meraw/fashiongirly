@@ -78,7 +78,10 @@ export const GARMENTS = Object.freeze({
     // Construction for makeJeans() in src/doll/model.js. Rows are [y, rx, rz] (hips) and [y, rx, rz, cx] (legs).
     build: {
       template: 'jeans', legName: 'barrel-leg',
-      tiles: { small: [2.45, .66], legs: [4, 1], hips: [6, .26] },
+      // Hips flow into the legs at the crotch; hips and legs are mapped by distance along the fabric at the same denim
+      // scale as before (about 3.7 repeats per unit around, 1.03 per unit down), so their tiles are 1.
+      crotch: { top: 1.2, y: .95 }, uvScale: [3.7, 1.03],
+      tiles: { small: [2.45, .66], legs: [1, 1], hips: [1, 1] },
       hips: [[1.22, .255, .172], [1.13, .276, .193], [1.04, .292, .198], [.97, .3, .186], [.935, .25, .11]],
       legs: [[1.03, .145, .185, .13], [.95, .158, .185, .158], [.75, .168, .188, .172], [.55, .172, .188, .176], [.35, .17, .186, .174], [.18, .167, .184, .17], [.06, .166, .183, .168]],
       hem: 'rests-on-shoe', folds: { base: .005, low: .011, stack: .011 }, twist: Math.PI / 4, kneeSeams: .64,
@@ -111,10 +114,12 @@ export const GARMENTS = Object.freeze({
     authoring: { texture: 'desigual-davinia-denim.js: flat-lit seamless swatch processed from the product flat lay', runtimeGeneration: false, sourcePhotosBundled: 'fabric swatch only' },
     build: {
       template: 'jeans', legName: 'jeans-leg', fallback: [110, 123, 146], frayColour: '#d8dfe6',
-      tiles: { small: [2.8, .38], legs: [3, .4], hips: [7, .2] },
+      // Hips and legs are mapped by distance along the fabric (uvScale, repeats per unit), so their tiles are 1.
+      tiles: { small: [2.8, .38], legs: [1, 1], hips: [1, 1] },
       // Slim straight legs, taken in as far as the doll's legs allow; the hips blend into them at the crotch.
       hips: [[1.3, .262, .168], [1.2, .27, .184], [1.1, .28, .19], [1.02, .276, .178], [.97, .262, .162], [.935, .2, .085]],
-      legs: [[1.03, .128, .16, .125], [.95, .128, .155, .136], [.8, .118, .14, .148], [.6, .106, .124, .155], [.45, .101, .116, .157], [.34, .1, .112, .158]],
+      legs: [[1.12, .13, .165, .128], [1.03, .132, .162, .128], [.95, .128, .155, .136], [.8, .118, .14, .148], [.6, .106, .124, .155], [.45, .101, .116, .157], [.34, .1, .112, .158]],
+      crotch: { top: 1.1, y: .95 }, uvScale: [4, .66],
       hem: 'raw-crop', folds: { base: .002, low: .003 }, gradient: [.92, .12], whiskers: .1, thighFade: .1,
       waistband: { y: 1.275, rx: .264, rz: .17, h: .05, frayed: true },
       loops: [-2.6, -1.5, -.62, .62, 1.5, 2.6, Math.PI],

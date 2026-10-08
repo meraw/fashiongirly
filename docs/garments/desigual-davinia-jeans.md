@@ -1,6 +1,6 @@
 # Wardrobe item: Desigual Davinia heart jeans
 
-Authored 8 October 2026. Status: first interpretation awaiting user visual feedback. Third piece from the user's wardrobe list and the first built on the shared jeans template.
+Authored 8 October 2026. Status: crotch rebuilt after the user found it strange; awaiting their look at the fix. Third piece from the user's wardrobe list and the first built on the shared jeans template.
 
 ## Source and reference reading
 
@@ -31,6 +31,12 @@ Catalog ID `desigual-davinia-jeans-v1` (slot `bottom`).
 - Colour: photos measured RGB 157, 166, 182 (flat lay) and 164, 170, 185 (front on model). The first render was 179, 184, 194 (too light and grey); after recalibration the front render measures 165, 173, 187 and the back 158, 166, 182.
 - Details: frayed waistband threads, copper button and orange stitching, scoop pockets with double stitching, the coin pocket with a filled red heart and darker edge, four small abrasion patches, plain back patch pockets, V yoke, centre-back seam, leather patch, and a frayed raw hem.
 - Light folds only; no twist, knee seams or stacking.
+
+## Crotch construction
+
+The user found the first version strange at the crotch. The hips were one rounded shell and each leg a separate tube pushed up into it, so the hips' lower edge stood out past the slimmer legs: a pouch at the front, a ledge at the back and a step from the side. Pulling the hips in toward each leg's centre made a scooped dish with two lobes; flattening their depth still left a visible crease where the surfaces crossed.
+
+The template now builds the jeans as they are sewn (`build.crotch`). Above `crotch.top` the hips keep their rounded outline; below it, each ring's outline morphs into the outer edge of the two legs, reaching exactly that outline at `crotch.y`, where each leg tube begins on it. Nothing overlaps or crosses. The leg folds fade out just below the crotch so each leg's top edge meets the hips exactly, and the hips' bottom edge takes the legs' surface direction so the shading flows across the join. Denim is laid by distance along the fabric (`uvScale`) on both hips and legs; on the hips it follows the original rounded outline, so the pattern folds in with the fabric instead of shearing. Texture wraps fall on the centre-back seam and the inseams. One leg's surface initially faced inward (its rings ran the other way) and rendered darker; both legs' rings now run the same way.
 
 ## Checks
 

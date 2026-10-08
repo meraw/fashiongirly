@@ -79,6 +79,10 @@ The drape geometry and shape-derived shading are kept, with the wear shading red
 
 This is the first piece of a retailer's product photo bundled in the repository: a small processed fabric swatch, at the user's request. The other garments' textures are generated or drawn. If the repository is public, the user may want to consider this; the brief notes they may make it private later.
 
+## Crotch rebuilt with the Davinia fix
+
+When the user found the Davinia jeans strange at the crotch, the barrel jeans showed the same pouch, ledge and step. They were moved onto the same crotch construction (see the Davinia record): `crotch: { top: 1.2, y: .95 }` (a longer transition because these legs are fuller than the hips above them) and `uvScale: [3.7, 1.03]`, which keeps their previous denim scale. This changes only the hips and the top of the legs; the fingerprint recorded before the template refactor no longer applies.
+
 ## Layering fix found by this item
 
 A new test checks that every waist-covering top hides every bottom between its hem and the waist. It found that the built-in jeans' hips, waistband and button showed through the front of the **bronze mesh top** above its hem, a pre-existing issue; the new jeans' belt loops and suede patch also poked through. The bronze top's lower torso and hem binding now ease out over the trousers, as the lilac top's did on `main`. Its upper body, print and sleeves are unchanged.

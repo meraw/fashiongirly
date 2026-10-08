@@ -237,7 +237,8 @@ test('Davinia jeans: cropped slim legs clear her legs and socks, with their deta
     for(let i=0;i<pos.count;i++){p.fromBufferAttribute(pos,i).applyMatrix4(o.matrixWorld);if(p.y<hem+.004||p.y>.95*.76)continue;
       const leg=legs.find(l=>Math.sign(new T.Box3().setFromObject(l).getCenter(new T.Vector3()).x)===Math.sign(p.x));
       const c=new T.Box3().setFromObject(leg).getCenter(new T.Vector3());origin.set(c.x,p.y,0);const r=p.distanceTo(origin);if(r<.005)continue;
-      ray.set(origin,p.clone().sub(origin).normalize());const h=ray.intersectObject(leg,false)[0];
+      // Nudged off the leg's closing seam, where a ray along the shared edge can slip between its two triangles.
+      ray.set(origin,p.clone().sub(origin).normalize().applyAxisAngle(new T.Vector3(0,1,0),1e-4));const h=ray.intersectObject(leg,false)[0];
       assert.ok(h&&h.distance>r+.001,`${o.name} vertex ${i} shows through the Davinia leg`);checked++;}});
   assert.ok(checked>200,`checked ${checked}`);disposeObject(doll);disposeObject(outfit);
 });
