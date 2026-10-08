@@ -453,3 +453,21 @@ test('Bershka grey jeans: whiskers and pale thigh panels, wide full-length legs 
     const mean=v=>v.reduce((s,x)=>s+x,0)/v.length;assert.ok(mean(mid)>mean(side)*1.25,`pale thigh panel ${mean(mid)} vs ${mean(side)}`);}
   disposeObject(doll);disposeObject(outfit);
 });
+
+test('Tommy carpenter jeans: front panels, side pockets over the seams, badge, hammer loop and back-pocket tape on the right sides',()=>{
+  const id='tommy-remastered-carpenter-v1';assert.equal(cleanRecipe({bottomId:id}).bottomId,id);
+  const outfit=makeOutfit({bottomId:id});outfit.updateMatrixWorld(true);
+  const all=name=>{const found=[];outfit.traverse(o=>{if(o.name===name)found.push(o);});return found;},centre=o=>new T.Box3().setFromObject(o).getCenter(new T.Vector3());
+  assert.equal(all('carpenter-panel').length,2);assert.equal(all('side-patch-pocket').length,2);assert.equal(all('back-patch-pocket').length,2);
+  // The flag badge is on the wearer's left side pocket, the hammer loop on the right, the striped tape on the right back pocket.
+  const [badge]=all('side-pocket-badge'),[loop]=all('hammer-loop');assert.ok(centre(badge).x>0,'badge on the left thigh');assert.ok(centre(loop).x<0,'hammer loop on the right thigh');
+  const tape=all('pocket-tape');assert.equal(tape.length,3,'navy, white and red stripes');
+  const pocket=all('back-patch-pocket').find(o=>centre(o).x<0),pb=new T.Box3().setFromObject(pocket);
+  for(const t of tape){const b=new T.Box3().setFromObject(t),c=centre(t);assert.ok(c.x<0&&c.z<0,'tape on the right back pocket');
+    assert.ok(b.min.x>=pb.min.x-.002&&b.max.x<=pb.max.x+.002&&b.min.y>=pb.min.y-.002&&b.max.y<=pb.max.y+.002,'tape trimmed to the pocket');}
+  // Each side pocket sits outside the side seam's stitching it covers.
+  for(const side of [-1,1]){const p=all('side-patch-pocket').find(o=>Math.sign(centre(o).x)===side),seams=all('side-seam').filter(o=>Math.sign(centre(o).x)===side),pb2=new T.Box3().setFromObject(p);
+    let seamOut=0;for(const s of seams){const pos=s.geometry.attributes.position;for(let i=0;i<pos.count;i++){const y=pos.getY(i);if(y>pb2.min.y+.02&&y<pb2.max.y-.02)seamOut=Math.max(seamOut,Math.abs(pos.getX(i)));}}
+    assert.ok(seamOut>0,'seam passes under the pocket');assert.ok(Math.max(Math.abs(pb2.min.x),Math.abs(pb2.max.x))>seamOut+.002,'pocket covers the seam');}
+  disposeObject(outfit);
+});

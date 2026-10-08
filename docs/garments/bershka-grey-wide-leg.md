@@ -1,6 +1,6 @@
 # Wardrobe item: Bershka grey wide-leg jeans
 
-Authored 8 October 2026. Status: first interpretation awaiting the user's visual review. A piece from the user's wardrobe list, built on the shared jeans template.
+Authored 8 October 2026. Status: first interpretation; the user sent the next pair without commenting on it. A piece from the user's wardrobe list, built on the shared jeans template.
 
 ## Source and reference reading
 
