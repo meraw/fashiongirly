@@ -81,7 +81,7 @@ Under the first version, the pointelle jumper's raglan seams poked through near 
   - that the collar points reach her chest
   - the cropped hem
   - build time (about 120 ms after the first build)
-- `npm test`: 49 passing after merging `main`; `npm run build` succeeds.
+- `npm test`: 52 passing after merging `main` (the coverage test takes about 70 seconds); `npm run build` succeeds.
 - Rendered in headless Chromium:
   - from the front, a turn, the side and the back, with close-ups at twice the resolution
   - over the classic layers, the plaid jumper with the skirt, and the lilac top with the Mango black jeans, boots and long hair
