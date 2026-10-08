@@ -1,0 +1,1 @@
+Before opening or updating a PR: fetch the latest main, rebase this branch onto it, resolve any conflicts, and confirm the project still builds and runs. Only push once the branch is conflict-free. In the PR description, list any conflicts you resolved and which side you kept. If a conflict involves two features changing the same behaviour, stop and ask me instead of choosing.
