@@ -61,7 +61,7 @@ test('reference sleeves cover the upper arm with clearance and round over the sh
   doll.updateMatrixWorld(true);outfit.updateMatrixWorld(true);
   const arms=[],sleeves=[];
   doll.traverse(o=>{if(o.name==='arm')arms.push(o);});
-  outfit.traverse(o=>{if(['reference-fitted-sleeve','crochet-flared-sleeve','knit-jumper-sleeve','knit-polo-sleeve'].includes(o.name))sleeves.push(o);});
+  outfit.traverse(o=>{if(['reference-fitted-sleeve','crochet-flared-sleeve','knit-jumper-sleeve','knit-polo-sleeve','mesh-shirt-sleeve'].includes(o.name))sleeves.push(o);});
   const ray=new T.Raycaster(),point=new T.Vector3(),origin=new T.Vector3();let checked=0;
   for(let side=0;side<2;side++){
     const arm=arms[side],sleeve=sleeves[side],vertices=arm.geometry.attributes.position,bare=GARMENTS[topId].layering?.bareShoulder;
