@@ -70,7 +70,7 @@ Catalog ID `marikoo-two-tone-windbreaker-v1` (slot `outerwear`). It is built by 
 
 ## Checks
 
-- `npm test`: 45 passing after merging `main` (which added the tops chat's Lacroix sweater; the jacket's coverage test includes it). The new `tests/outerwear.test.js` checks:
+- `npm test`: 46 passing after merging `main`, which added the tops chat's Lacroix sweater and the bottoms chat's carpenter jeans. The jacket's coverage test includes both. The new `tests/outerwear.test.js` checks:
   - the slot validation, and that looks without outerwear are unchanged
   - the parts: zip, pockets and snaps, cords, hood, cuffs, badge and labels
   - the colour layout: the V at the front, the straight back, the blue collar and the script on her left chest
