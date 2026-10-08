@@ -76,8 +76,9 @@ export const GARMENTS = Object.freeze({
     material: { construction: 'medium-weight slub knit', composition: 'not visible in the supplied screenshots', finish: 'matte, flecked yarn' },
     fit: { silhouette: 'relaxed, boxy', sleeve: 'long and straight into deep ribbed cuffs', hem: 'high hip, deep rib band', neckline: 'off her left shoulder', adjustment: 'fixed authored fit for review' },
     exclusions: ['striped-shirt','knit-sweater'],
-    // The bare shoulder is deliberate: her left arm shows above the neckline. Sleeve-local height above which the arm is uncovered.
-    layering: { coversWaistband: true, bareShoulder: { side: 1, above: -.17 } },
+    // The bare shoulder is deliberate: her left arm shows above the neckline, and the body (not the sleeve) covers it just
+    // below. Sleeve-local height above which the sleeve alone does not cover that arm.
+    layering: { coversWaistband: true, bareShoulder: { side: 1, above: -.23 } },
     uncertainties: ['the back was not shown; its neckline and stripes are inferred', 'the flat lay and the worn photo disagree on which side sits lower; the worn photo is followed', 'stripe count is adapted to her short torso', 'the bare shoulder is a skin-coloured piece inside the jumper, because her body under clothes is cream felt'],
     authoring: { texture: 'procedural stripeKnitData() in src/doll/model.js, drawn locally when first worn', runtimeGeneration: false, sourcePhotosBundled: false },
   },

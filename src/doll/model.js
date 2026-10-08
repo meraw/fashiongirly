@@ -365,29 +365,49 @@ function trimToEdge(mesh,segments,toBody,edge){
   }
   p.needsUpdate=true;mesh.geometry.computeVertexNormals();
 }
+// Her left arm, from makeDoll(): an oval .09 wide and .25 tall centred at (.307, 1.51), tilted out by .22.
+// Returns how far a horizontal ray from her centre line, at height y and angle a, travels before leaving the arm (0 if it misses).
+function leftArmExit(y,a){
+  const c=Math.cos(.22),s=Math.sin(.22),dx=Math.sin(a),dz=Math.cos(a),px=-.307,py=y-1.51;
+  // Into the arm's own frame: x' = x cos + y sin, y' = -x sin + y cos.
+  const ox=px*c+py*s,oy=-px*s+py*c,vx=dx*c,vy=-dx*s;
+  const A=(vx/.09)**2+(vy/.25)**2+(dz/.09)**2,B=2*(ox*vx/.0081+oy*vy/.0625),C=(ox/.09)**2+(oy/.25)**2-1,D=B*B-4*A*C;
+  return D<0?0:Math.max(0,(-B+Math.sqrt(D))/(2*A));
+}
+const SHOULDER_ROWS=[[1.885,.06,.05],[1.86,.13,.09],[1.82,.2,.122],[1.77,.24,.14],[1.70,.262,.152],[1.62,.27,.158]];
+function shoulderRadius(y,a){
+  // Radius of the skin piece (SHOULDER_ROWS) at height y in direction a.
+  const rows=SHOULDER_ROWS;let k=0;while(k<rows.length-2&&rows[k+1][0]>y)k++;
+  const t=Math.max(0,Math.min(1,(rows[k][0]-y)/(rows[k][0]-rows[k+1][0]))),rx=rows[k][1]+(rows[k+1][1]-rows[k][1])*t,rz=rows[k][2]+(rows[k+1][2]-rows[k][2])*t;
+  return 1/Math.hypot(Math.sin(a)/rx,Math.cos(a)/rz);
+}
 function makeStripeJumper(id=STRIPE_JUMPER_ID,overSkirt=false){
   const top=new T.Group();top.name=id;
   const rib=woolMaterial(null),hem=1.16,band=.12,flare=overSkirt?[.338,.252]:[.305,.226],skin=cloth('#dfb195');rib.color.set('#d4cbb6');
   // Her body under clothes is cream felt; this skin piece is what shows above the neckline.
-  // On her bare left side it slopes out over the top of the arm, so no gap shows inside the sleeve's edge.
-  const shoulder=shell(top,[[1.885,.06,.05],[1.86,.13,.09],[1.82,.2,.122],[1.77,.24,.14],[1.70,.262,.152],[1.62,.27,.158]],skin,'bare-shoulder-skin',48);
-  const sp0=shoulder.geometry.attributes.position;
-  for(let n=0;n<sp0.count;n++){const x=sp0.getX(n),y=sp0.getY(n);if(x<=0)continue;const r=Math.hypot(x,sp0.getZ(n)),lift=Math.max(0,Math.min(1,(y-1.64)/.1))*Math.max(0,Math.min(1,(1.88-y)/.06));sp0.setX(n,x*(1+.32*lift*(x/r)**2));}
-  sp0.needsUpdate=true;shoulder.geometry.computeVertexNormals();
+  shell(top,SHOULDER_ROWS,skin,'bare-shoulder-skin',48);
   const knit=()=>{const m=woolMaterial(yarnTexture(stripeKnitData(),1,1));m.bumpMap.repeat.set(5,1.6);m.bumpScale=.012;return m;};
   const body=shell(top,[[1.89,.114,.108],[1.85,.2,.15],[1.81,.27,.19],[1.76,.3,.208],[1.6,.306,.214],[1.4,.31,.222],[hem+band+.012,overSkirt?.336:.312,overSkirt?.25:.228],[hem+band,flare[0],flare[1]]],knit(),'stripe-jumper-body',96);
-  // Where the sleeve takes over from the body on her left, the body's edge drops inside the sleeve, so the neckline runs
-  // on along the sleeve's top instead of looping out behind her arm.
-  trimToEdge(body,96,v=>v,(x,z)=>{const t=Math.max(0,Math.min(1,(x-.17)/.1));return stripeNeckline(x,z)-.1*t*t*(3-2*t);});
+  // One neckline, cut from the body alone. Near it the knit settles onto her shoulders, and on her left the body wraps over
+  // the top of her arm (a dropped shoulder slipping down), so the edge simply runs lower on that side and the sleeve starts
+  // below it.
+  const bp=body.geometry.attributes.position;
+  for(let n=0;n<bp.count;n++){
+    const x=bp.getX(n),y=bp.getY(n),z=bp.getZ(n),r=Math.hypot(x,z);if(r<1e-6)continue;
+    const a=Math.atan2(x,z),below=stripeNeckline(x,z)-y,under=Math.max(shoulderRadius(y,a),leftArmExit(y,a))+.014;
+    const settle=Math.max(0,Math.min(1,(.16-below)/.08)),wrap=Math.max(0,Math.min(1,(.24-below)/.06));
+    let target=r+(Math.min(r,under)-r)*settle;if(x>0)target=Math.max(target,r+(Math.max(r,leftArmExit(y,a)+.014)-r)*wrap);
+    bp.setX(n,x*target/r);bp.setZ(n,z*target/r);
+  }
+  bp.needsUpdate=true;
+  trimToEdge(body,96,v=>v,stripeNeckline);
   // Stripes follow the neckline's slant near the top and level out by mid-chest.
-  const centre=stripeNeckline(0,1),uv=body.geometry.attributes.uv,bp=body.geometry.attributes.position;
+  const centre=stripeNeckline(0,1),uv=body.geometry.attributes.uv;
   for(let n=0;n<uv.count;n++){const x=bp.getX(n),y=bp.getY(n),z=bp.getZ(n),w=Math.max(0,Math.min(1,(y-1.42)/(centre-1.42)));
     uv.setXY(n,uv.getX(n)*5,(centre-y+w*(stripeNeckline(x,z)-centre))/STRIPE_PITCH+.5);}
   uv.needsUpdate=true;
-  // A narrow plain edge finishes the neckline. On her left the sleeve's own edge takes over, so the body's edge stops
-  // where it drops inside the sleeve.
-  const lip=[...Array(97).keys()].filter(n=>bp.getX(n)<.18),gap=lip.findIndex((n,k)=>k&&n!==lip[k-1]+1);
-  curve(top,[...lip.slice(gap),...lip.slice(0,gap)].map(n=>[bp.getX(n)*1.01,bp.getY(n)+.003,bp.getZ(n)*1.01]),.0075,rib,'neckline-edge');
+  // A narrow plain edge finishes the neckline all the way round.
+  curve(top,Array.from({length:97},(_,n)=>[bp.getX(n)*1.012,bp.getY(n)+.003,bp.getZ(n)*1.012]),.0075,rib,'neckline-edge');
   // The band tucks just inside the body's lower edge, so the body blouses over it.
   ribbed(shell(top,[[hem+band+.012,flare[0]-.008,flare[1]-.006],[hem+band/2,flare[0]-.004,flare[1]-.003],[hem,flare[0]-.006,flare[1]-.004]],rib,'ribbed-hem-band',128),72,.012);
   for(const side of [-1,1]){
@@ -396,18 +416,16 @@ function makeStripeJumper(id=STRIPE_JUMPER_ID,overSkirt=false){
     const sleeve=shell(arm,[[.03,.124,.12],[-.06,.132,.127],[-.2,.133,.128],[-.33,.13,.126],[-.42,.122,.118],[-.455,.108,.104]],knit(),'knit-jumper-sleeve',64);
     roundSleeveCap(sleeve,side,.03);
     if(side>0){
-      // The neckline runs on across this sleeve's top, and the edge hugs her upper arm instead of standing away from it.
-      // Her arm is an oval .25 tall and .09 wide whose top sits just below this sleeve's top; follow its narrowing dome.
-      trimToEdge(sleeve,64,v=>v.applyMatrix4(arm.matrix),stripeNeckline);
-      const q=sleeve.geometry.attributes.position;
-      const armRadius=y=>.09*Math.sqrt(Math.max(0,1-((y+.314)/.25)**2));
-      for(let j=0;j<6;j++)for(let i=0;i<=64;i++){const n=j*65+i,r=Math.hypot(q.getX(n),q.getZ(n)),k=1+(Math.min(1,Math.max(.05,armRadius(q.getY(n))+.014)/r)-1)*(1-j/6);q.setX(n,q.getX(n)*k);q.setZ(n,q.getZ(n)*k);}
+      // On her left the sleeve starts under the body's wrapped shoulder: it is cut below the neckline and its top is
+      // gathered onto the arm, then it widens to the same straight sleeve as on her right.
+      trimToEdge(sleeve,64,v=>v.applyMatrix4(arm.matrix),(x,z)=>stripeNeckline(x,z)-.07);
+      const q=sleeve.geometry.attributes.position,armRadius=y=>.09*Math.sqrt(Math.max(0,1-((y+.314)/.25)**2));
+      for(let j=0;j<12;j++)for(let i=0;i<=64;i++){const n=j*65+i,r=Math.hypot(q.getX(n),q.getZ(n)),t=j/12,k=1+(Math.min(1,Math.max(.05,armRadius(q.getY(n))+.006)/r)-1)*(1-t*t*(3-2*t));q.setX(n,q.getX(n)*k);q.setZ(n,q.getZ(n)*k);}
       q.needsUpdate=true;sleeve.geometry.computeVertexNormals();
     }
     const suv=sleeve.geometry.attributes.uv,sp=sleeve.geometry.attributes.position;
     for(let n=0;n<suv.count;n++)suv.setXY(n,suv.getX(n)*3,(centre-1.815-sp.getY(n))/STRIPE_PITCH+.5);
     suv.needsUpdate=true;
-    if(side>0)curve(arm,Array.from({length:65},(_,n)=>[sp.getX(n)*1.02,sp.getY(n)+.003,sp.getZ(n)*1.02]),.0075,rib,'neckline-edge');
     ribbed(shell(arm,[[-.44,.1,.096],[-.5,.099,.096],[-.575,.099,.096]],rib,'ribbed-cuff',64),36,.03);
     top.add(arm);
   }

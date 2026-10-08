@@ -101,7 +101,7 @@ test('reference sleeves cover the upper arm with clearance and round over the sh
     for(let i=0;i<vertices.count;i+=2){
       point.fromBufferAttribute(vertices,i).applyMatrix4(arm.matrixWorld);sleeve.worldToLocal(point);
       if(point.y<-.44)continue;
-      // An off-the-shoulder top leaves the top of that arm bare by design.
+      // An off-the-shoulder top leaves the top of that arm bare or covered by its body; its own test checks that arm.
       if(bare?.side===(side?1:-1)&&point.y>bare.above)continue;
       // Above the sleeve's top ring, aim from the axis at the top so the rounded cap is checked too.
       origin.set(0,Math.min(point.y,0),0);sleeve.localToWorld(origin);sleeve.localToWorld(point);
@@ -277,13 +277,15 @@ test('off-shoulder stripe jumper bares only her left shoulder and keeps its stri
   let right=-Infinity,left=Infinity;for(let i=0;i<=96;i++){const x=p.getX(i),y=p.getY(i);if(x<-.1)right=Math.max(right,y);if(x>.1&&p.getZ(i)>0)left=Math.min(left,y);}
   assert.ok(right-left>.12,`neckline slant ${(right-left).toFixed(3)}`);
   // Her left arm shows above the sleeve; her right arm is covered right up to the shoulder.
+  // The body wraps over the top of her left arm and the sleeve starts below it; together they cover all but the very top.
   const ray=new T.Raycaster(),point=new T.Vector3(),origin=new T.Vector3(),arms=[],sleeves=[];
   doll.traverse(o=>{if(o.name==='arm')arms.push(o);});outfit.traverse(o=>{if(o.name==='knit-jumper-sleeve')sleeves.push(o);});
   const bare=[0,0];
   for(let side=0;side<2;side++){const arm=arms[side],sleeve=sleeves[side],v=arm.geometry.attributes.position;
-    for(let i=0;i<v.count;i+=2){point.fromBufferAttribute(v,i).applyMatrix4(arm.matrixWorld);sleeve.worldToLocal(point);if(point.y<-.44)continue;
+    for(let i=0;i<v.count;i+=2){point.fromBufferAttribute(v,i).applyMatrix4(arm.matrixWorld);sleeve.worldToLocal(point);if(point.y<-.44)continue;const y=point.y;
       origin.set(0,Math.min(point.y,0),0);sleeve.localToWorld(origin);sleeve.localToWorld(point);const r=point.distanceTo(origin);if(r<.01)continue;
-      ray.set(origin,point.clone().sub(origin).normalize());const hit=ray.intersectObject(sleeve,false)[0];if(!(hit&&hit.distance>r+.002))bare[side]++;}}
+      ray.set(origin,point.clone().sub(origin).normalize());const covered=ray.intersectObjects([sleeve,body],false).some(h=>h.distance>r+.002);
+      if(!covered){bare[side]++;assert.ok(y>-.13,`arm ${side} uncovered below the neckline at ${y.toFixed(3)}`);}}}
   assert.equal(bare[0],0,'right shoulder covered');assert.ok(bare[1]>10,'left shoulder bare');
   disposeObject(doll);disposeObject(outfit);
   // The band hugs the jeans, or sits out over the skirt; the bow stays hidden either way.
