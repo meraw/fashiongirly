@@ -1,3 +1,5 @@
+import { mountHairControls } from '../hair/controls.js';
+import { hairName } from '../hair/catalog.js';
 import { DEFAULT, SWATCHES, OUTFITS, cleanRecipe, editRecipe } from './recipe.js';
 const KEY='fashiongirly.plush-draft.v1', BOOK='fashiongirly.plush-looks.v1';
 export async function startStudio(doc=document, makeView) {
@@ -12,15 +14,17 @@ export async function startStudio(doc=document, makeView) {
   function schedule(){clearTimeout(timer);timer=setTimeout(apply,65);}
   function swatches(id,choices,key){$(id).replaceChildren(...choices.map(([name,color])=>{const b=doc.createElement('button');b.type='button';b.style.background=color;b.setAttribute('aria-label',name);b.dataset.color=color;b.onclick=()=>{recipe[key]=color;sync();apply();};return b;}));}
   swatches('sweater-colours',SWATCHES,'sweater');swatches('denim-colours',[['Indigo','#283c59'],['Washed blue','#71899b'],['Charcoal','#39363b'],['Ecru','#d9cbb2']],'trousers');
+  const hairControls=mountHairControls(doc,id=>{recipe.hairId=id;sync();apply();message(`${hairName(id)} — saved with this outfit.`);});
   $('outfit-ideas').replaceChildren(...OUTFITS.map(look=>{
     const button=doc.createElement('button');button.type='button';button.textContent=look.name;
-    button.onclick=()=>{recipe=cleanRecipe(look.recipe);sync();apply();message(look.note);};return button;
+    button.onclick=()=>{recipe=cleanRecipe({...look.recipe,hairId:recipe.hairId});sync();apply();message(look.note);};return button;
   }));
   function sync(){
+    hairControls.sync(recipe.hairId);
     $('top-select').value=recipe.topId;$('bottom-select').value=recipe.bottomId;
     $('shoes-select').value=recipe.shoesId;
     for(const key of ['knit','shirt'])$(key).disabled=recipe.topId!=='classic';
-    const selected=OUTFITS.find(look=>Object.keys(DEFAULT).every(key=>look.recipe[key]===recipe[key]));
+    const selected=OUTFITS.find(look=>Object.keys(DEFAULT).filter(key=>key!=='hairId').every(key=>look.recipe[key]===recipe[key]));
     $('outfit-title').textContent=selected?.name||'Her own little experiment.';
     for(const button of $('outfit-ideas').children)button.setAttribute('aria-pressed',String(button.textContent===selected?.name));
     for(const key of ['sleeve','hem','barrel']){$(key).value=Math.round(recipe[key]*100);const value=recipe[key];$(`${key}-value`).textContent=key==='hem'?(value<.34?'Cropped':value>.66?'Longer':'At the waist'):value<.34?'A little':value>.66?'A lot':'In between';$(key).setAttribute('aria-valuetext',`${$(`${key}-value`).textContent}, ${Math.round(value*100)} percent`);}
@@ -45,12 +49,13 @@ export async function startStudio(doc=document, makeView) {
   function book(){
     const list=$('saved-list');list.replaceChildren();
     if(!looks.length){const p=doc.createElement('p');p.className='saved-empty';p.textContent='Save a little experiment with the heart. Your looks stay in this browser.';list.append(p);}
-    looks.forEach((look,i)=>{const row=doc.createElement('div');row.className='saved-row';const colours=doc.createElement('span');colours.className='saved-colours';for(const color of [look.sweater,look.trousers]){const dot=doc.createElement('i');dot.style.background=color;colours.append(dot);}const title=doc.createElement('span');title.textContent=`Little experiment ${looks.length-i}`;const wear=doc.createElement('button');wear.textContent='Wear';wear.onclick=()=>{recipe=cleanRecipe(look);sync();apply();$('lookbook').close();};const remove=doc.createElement('button');remove.textContent='Remove';remove.onclick=()=>{if(storeLooks(looks.filter((_,j)=>j!==i)))book();};row.append(colours,title,wear,remove);list.append(row);});
+    looks.forEach((look,i)=>{const row=doc.createElement('div');row.className='saved-row';const colours=doc.createElement('span');colours.className='saved-colours';for(const color of [look.sweater,look.trousers]){const dot=doc.createElement('i');dot.style.background=color;colours.append(dot);}const title=doc.createElement('span');title.textContent=`Little experiment ${looks.length-i} · ${hairName(look.hairId)}`;const wear=doc.createElement('button');wear.textContent='Wear';wear.onclick=()=>{recipe=cleanRecipe(look);sync();apply();$('lookbook').close();};const remove=doc.createElement('button');remove.textContent='Remove';remove.onclick=()=>{if(storeLooks(looks.filter((_,j)=>j!==i)))book();};row.append(colours,title,wear,remove);list.append(row);});
   }
   $('lookbook-open').onclick=()=>{book();$('lookbook').showModal();};$('lookbook-close').onclick=()=>$('lookbook').close();
   const showError=text=>{$('loading')?.remove();$('view-error').hidden=false;$('view-error').textContent=text;};
   $('stage').addEventListener('view-error',e=>showError(e.detail));sync();
   try {const factory=makeView || (await import('./view.js')).createDollView;view=await factory($('stage'),recipe);view.turn(-25);$('loading')?.remove();}
   catch(error){showError(error.message||'The 3D view could not load. Please reload and try again.');}
-  return {getRecipe:()=>cleanRecipe(recipe),dispose(){clearTimeout(timer);persist();view?.dispose();}};
+  return {getRecipe:()=>cleanRecipe(recipe),dispose(){clearTimeout(timer);persist();hairControls.dispose();view?.dispose();}};
 }
+

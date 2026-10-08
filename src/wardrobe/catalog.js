@@ -7,6 +7,7 @@ export const CROCHET_TOP_ID = 'desigual-crochet-flowers-v1';
 export const PLAID_JUMPER_ID = 'mango-plaid-jumper-v1';
 export const STRIPE_JUMPER_ID = 'bershka-asymmetric-stripe-jumper-v1';
 export const POINTELLE_FLOWER_ID = 'cream-pointelle-flower-jumper-v1';
+export const SILVER_CABLE_ID = 'desigual-silver-cable-jumper-v1';
 export const BARREL_JEANS_ID = 'topshop-barrel-jeans-v1';
 export const DAVINIA_JEANS_ID = 'desigual-davinia-jeans-v1';
 export const LEVIS_94_ID = 'levis-94-wide-leg-v1';
@@ -102,6 +103,19 @@ export const GARMENTS = Object.freeze({
     layering: { coversWaistband: true },
     uncertainties: ['eyelet spacing is coarser than the real knit so it reads at the doll\'s size', 'flower placement is measured from the front photo and adapted to her short torso', 'the front photo has a cool colour cast; colours aim between the two photos', 'her body under clothes is cream felt, so skin is drawn inside the jumper to show through the eyelets'],
     authoring: { texture: 'procedural pointelleData() in src/doll/model.js; flowers are small raised shapes', runtimeGeneration: false, sourcePhotosBundled: false },
+  },
+  [SILVER_CABLE_ID]: {
+    slot: 'top',
+    id: SILVER_CABLE_ID, name: 'Silver foil cable jumper', family: 'cropped-cable-knit-jumper', version: 1,
+    status: 'reference-study-awaiting-visual-review', brandAsProvided: 'Desigual',
+    source: { note: 'user supplied five phone screenshots of a Modivo listing (Desigual knit jumper): front and back on a model, a front close-up, a neckline close-up and a flat lay' },
+    referenceViews: ['front on model', 'back on model', 'front close-up', 'neckline close-up', 'front flat lay'],
+    details: ['black yarn coated with silver foil: raised stitches shine silver, grooves and gaps stay black', 'centre panel of fine twisted-stitch cables forming a diamond lattice, front and back', 'columns of twisted ribs and small rope cables either side of the panel', 'a large wavy cable down each sleeve, with black slits where its strands part', 'deep ribbed hem band, long ribbed cuffs and a ribbed crew neck, black in every groove', 'slim fit, cropped at the waist, set-in sleeves'],
+    material: { construction: 'cable knit', composition: 'not visible in the supplied screenshots', finish: 'metallic silver foil over black' },
+    fit: { silhouette: 'slim', sleeve: 'long and fitted, gathered into long ribbed cuffs', hem: 'cropped at the waist, deep rib band', adjustment: 'fixed authored fit for review' },
+    exclusions: ['striped-shirt','knit-sweater'],
+    uncertainties: ['the lattice and cables are drawn procedurally, not stitch for stitch', 'the exact order of the narrow columns beside the panel is simplified', 'silver is shaded with the studio lights only; there is no reflected environment'],
+    authoring: { texture: 'procedural silverKnitData() in src/doll/model.js, drawn locally when first worn', runtimeGeneration: false, sourcePhotosBundled: false },
   },
   [BARREL_JEANS_ID]: {
     slot: 'bottom',

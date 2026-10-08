@@ -43,7 +43,7 @@ Each pair of shoes now reports `rest(side, x, z)`: the height at which a hem res
 
 ## Checks
 
-- `npm test`: 32 passing. A new `tests/shoes.test.js` checks four things:
+- `npm test`: 38 passing. A new `tests/shoes.test.js` checks four things:
   - The slot: only shoes fill it, and the loafers moved from the doll to the outfit.
   - The boots: their details, platform thickness, lugs, feet kept apart, and her socks and lower legs inside the boots.
   - Layering, for every bottom with every catalog shoe: full-length jeans drape over the shoe without any part poking through, without pushing the legs together more than the loafers do, and still reach the platform; shorter jeans sit on the collar; the classic jeans stay inside the boot shaft.

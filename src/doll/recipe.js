@@ -1,10 +1,11 @@
-import { BRONZE_TOP_ID, LILAC_TOP_ID, CROCHET_TOP_ID, PLAID_JUMPER_ID, STRIPE_JUMPER_ID, POINTELLE_FLOWER_ID, BARREL_JEANS_ID, DAVINIA_JEANS_ID, LEVIS_94_ID, TOMMY_MOM_ID, STRADIVARIUS_RELAXED_ID, MANGO_BLACK_JEANS_ID, BERSHKA_GREY_ID, GARMENTS } from '../wardrobe/catalog.js';
+import { DEFAULT_HAIR_ID, cleanHairId } from '../hair/catalog.js';
+import { BRONZE_TOP_ID, LILAC_TOP_ID, CROCHET_TOP_ID, PLAID_JUMPER_ID, STRIPE_JUMPER_ID, POINTELLE_FLOWER_ID, SILVER_CABLE_ID, BARREL_JEANS_ID, DAVINIA_JEANS_ID, LEVIS_94_ID, TOMMY_MOM_ID, STRADIVARIUS_RELAXED_ID, MANGO_BLACK_JEANS_ID, BERSHKA_GREY_ID, GARMENTS } from '../wardrobe/catalog.js';
 import { BUFFALO_ASPHA_ID } from '../wardrobe/catalog.js';
-export const DEFAULT = Object.freeze({ sweater: '#bf303e', trousers: '#283c59', sleeve: .74, hem: .3, barrel: .78, knit: true, shirt: true, skirt: false, skirtColour: '#bd9bc8', topId: 'classic', bottomId: 'classic', shoesId: 'classic' });
+export const DEFAULT = Object.freeze({ sweater: '#bf303e', trousers: '#283c59', sleeve: .74, hem: .3, barrel: .78, knit: true, shirt: true, skirt: false, skirtColour: '#bd9bc8', topId: 'classic', bottomId: 'classic', shoesId: 'classic', hairId: DEFAULT_HAIR_ID });
 export const SWATCHES = [['Tomato', '#bf303e'], ['Butter', '#ead391'], ['Lilac', '#bd9bc8'], ['Cobalt', '#315cb3'], ['Moss', '#74804b'], ['Cream', '#f0e3cb']];
 export function cleanRecipe(value = {}) {
   const v = value && typeof value === 'object' ? value : {};
-  const result = { ...DEFAULT };
+  const result = { ...DEFAULT, hairId: cleanHairId(v.hairId) };
   for (const key of ['sweater', 'trousers', 'skirtColour']) if (/^#[0-9a-f]{6}$/i.test(v[key] || '')) result[key] = v[key];
   for (const key of ['sleeve', 'hem', 'barrel']) if (Number.isFinite(v[key])) result[key] = Math.max(0, Math.min(1, v[key]));
   for (const key of ['knit', 'shirt', 'skirt']) if (typeof v[key] === 'boolean') result[key] = v[key];
@@ -41,6 +42,7 @@ export const OUTFITS = [
   { name: "Levi's '94 study", note: "Reference study: washed-black baggy wide-leg jeans pooling over the shoes, with frayed pocket edges, double-arc back stitching and a red tab. The denim is taken from the product photo.", recipe: { ...DEFAULT, topId: CROCHET_TOP_ID, bottomId: LEVIS_94_ID, knit: false, shirt: false } },
   { name: 'Davinia jeans study', note: 'Reference study: high-rise, slim straight light acid-wash jeans cropped at the ankle, with a frayed waistband, a red heart on the coin pocket and copper stitching. The denim is taken from the product photo.', recipe: { ...DEFAULT, topId: CROCHET_TOP_ID, bottomId: DAVINIA_JEANS_ID, knit: false, shirt: false } },
   { name: 'Barrel jeans study', note: 'Reference study: low-rise acid-wash barrel jeans with knee darts, twisted side seams and flap back pockets, worn with the cropped crochet top. The wash is drawn, not copied.', recipe: { ...DEFAULT, topId: CROCHET_TOP_ID, bottomId: BARREL_JEANS_ID, knit: false, shirt: false } },
+  { name: 'Silver cable study', note: 'Reference study: a cropped cable knit coated in silver foil, black in every groove, with a diamond lattice down the front, big wavy sleeve cables and long ribbed cuffs. The knit is drawn from the photos, not copied.', recipe: { ...DEFAULT, topId: SILVER_CABLE_ID, knit: false, shirt: false, bottomId: MANGO_BLACK_JEANS_ID } },
   { name: 'Pointelle flower study', note: 'Reference study: a boxy cream openwork jumper with raglan sleeves, a wide boat neck, scalloped edges and raised raspberry flowers on the front. The knit and flowers are drawn from the photos, not copied.', recipe: { ...DEFAULT, topId: POINTELLE_FLOWER_ID, knit: false, shirt: false, bottomId: LEVIS_94_ID } },
   { name: 'Off-shoulder stripe study', note: 'Reference study: ecru slub knit with dark green stripes, slipping off her left shoulder, with a deep ribbed hem and cuffs. The stripes are drawn from the photos, not copied.', recipe: { ...DEFAULT, topId: STRIPE_JUMPER_ID, knit: false, shirt: false, bottomId: DAVINIA_JEANS_ID } },
   { name: 'Windowpane jumper study', note: 'Reference study: brushed oversized jumper with a knitted-in rust, taupe and pale-blue check and deep ribbing. The check is drawn from the photos, not copied.', recipe: { ...DEFAULT, topId: PLAID_JUMPER_ID, knit: false, shirt: false, trousers: '#283c59', barrel: .35 } },
@@ -52,3 +54,4 @@ export const OUTFITS = [
   { name: 'Butter club', note: 'Butter yellow, washed denim and a peeking striped shirt. Big sleeves, a neat little crop.', recipe: { ...DEFAULT, sweater: '#ead391', trousers: '#71899b', sleeve: 1, hem: .08, barrel: .5 } },
   { name: 'Garden party crasher', note: 'Cobalt knit, moss skirt and ecru jeans. Two strong colours, grounded by a pale trouser.', recipe: { ...DEFAULT, sweater: '#315cb3', trousers: '#d9cbb2', skirtColour: '#74804b', skirt: true, shirt: false, hem: .18, barrel: .25 } },
 ];
+
