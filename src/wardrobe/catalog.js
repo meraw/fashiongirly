@@ -16,6 +16,7 @@ export const TOMMY_MOM_ID = 'tommy-ultra-high-mom-v1';
 export const STRADIVARIUS_RELAXED_ID = 'stradivarius-relaxed-v1';
 export const MANGO_BLACK_JEANS_ID = 'mango-washed-black-v1';
 export const BERSHKA_GREY_ID = 'bershka-grey-wide-leg-v1';
+export const TOMMY_CARPENTER_ID = 'tommy-remastered-carpenter-v1';
 export const GARMENTS = Object.freeze({
   [BRONZE_TOP_ID]: {
     slot: 'top',
@@ -380,6 +381,49 @@ export const GARMENTS = Object.freeze({
       backPocket: { x: .122, outline: [[-.074, 1.128], [.074, 1.128], [.07, 1.0], [0, .972], [-.07, 1.0]], stitchBelow: 1.07 },
       centreBack: [[.004, 1.142], [.004, 1.05], [0, .985]],
       labelPatch: { name: 'woven-label', size: [.032, .02, .003], colour: '#d8d6d0', position: [-.06, 1.21, -(.175 + .004)], rotationY: Math.PI + .25 },
+    },
+  },
+  [TOMMY_CARPENTER_ID]: {
+    slot: 'bottom',
+    id: TOMMY_CARPENTER_ID, name: 'Tommy Jeans Remastered carpenter jeans', family: 'carpenter-jeans', version: 1,
+    status: 'reference-study-awaiting-visual-review', brandAsProvided: 'Tommy Jeans',
+    source: { note: 'user supplied five phone screenshots of an ASOS listing (Tommy Jeans Remastered carpenter jeans in black wash): front on model twice, side close-up, waist close-up, back' },
+    referenceViews: ['front on model', 'side close-up', 'front on model (full)', 'front waist close-up', 'back on model'],
+    details: ['mid rise', 'relaxed wide straight legs, full length on the model (the user wears them narrower, at the ankle)', 'even black wash', 'white double contrast topstitching throughout', 'large carpenter patch panels over the front hips, from the waistband to the crotch, under the scoop pockets', 'big utility patch pockets on both outer thighs, a red, white and navy flag badge on the wearer\'s left one', 'hammer loop on the wearer\'s right thigh', 'silver button and rivets', 'back yoke, patch pockets, a red, white and navy tape across the wearer\'s right back pocket', 'tonal grey flag patch on the back waistband'],
+    material: { construction: 'rigid denim', composition: 'not visible in the supplied screenshots', finish: 'black wash' },
+    fit: { silhouette: 'relaxed straight, carpenter', rise: 'mid', length: 'ankle', adjustment: 'narrower and ankle length, as the user wears them (the photos show wide, full-length legs)' },
+    uncertainties: ['folds are procedural', 'badges and patches are colour blocks without lettering', 'no coin pocket was visible in the screenshots', 'the fly bar tacks are not modelled'],
+    authoring: { texture: 'tommy-carpenter-denim.js: flat-lit seamless swatch processed from the waist close-up, keeping its brightness detail only (the dark photo carries compression colour blotches)', runtimeGeneration: false, sourcePhotosBundled: 'fabric swatch only' },
+    build: {
+      template: 'jeans', legName: 'jeans-leg', fallback: [11, 10, 14],
+      // The swatch comes from a zoomed close-up, so it repeats often to keep the twill at the photo's scale.
+      crotch: { top: 1.19, y: .95 }, uvScale: [12, 4.1],
+      tiles: { small: [7.5, 2.6], legs: [1, 1], hips: [1, 1] },
+      hips: [[1.26, .26, .171], [1.16, .278, .19], [1.05, .294, .198], [.97, .304, .19], [.935, .25, .11]],
+      // Relaxed straight legs, narrower than the photos' wide look, ending at her ankle above the shoes (as the user wears them).
+      legs: [[1.03, .15, .178, .13], [.95, .154, .176, .152], [.75, .155, .172, .16], [.55, .152, .167, .162], [.38, .148, .162, .163], [.24, .145, .159, .163]],
+      hem: 'ankle', folds: { base: .004, low: .009 }, gradient: [.9, .15], whiskers: 0,
+      waistband: { y: 1.235, rx: .262, rz: .173, h: .05 },
+      loops: [-2.7, -1.45, -.55, .55, 1.45, 2.7, Math.PI],
+      button: { colour: '#c9ccd0' }, thread: '#b4b2b8', rivetColour: '#c9ccd0',
+      // White double topstitching, as on the Mango pair.
+      doubleSeams: true, hemStitch: .022,
+      fly: [[.034, 1.208], [.036, 1.115], [.02, 1.075], [0, 1.065]],
+      frontPocket: { type: 'scoop', line: [[.13, 1.209], [.15, 1.17], [.195, 1.14], [.262, 1.125]] },
+      // Carpenter panels over the front hips, from the waistband to the crotch, stitched along their inner and lower edges.
+      frontPanel: { outline: [[.112, 1.21], [.255, 1.21], [.258, 1.06], [.255, .985], [.15, .952]],
+        stitch: [[[.118, 1.21], [.137, 1.08], [.155, .958], [.2, .974], [.255, .991]], [[.125, 1.21], [.144, 1.08], [.16, .965], [.2, .981], [.255, .998]]] },
+      // Utility pockets on both outer thighs, wrapping from behind the side seam toward the front.
+      sidePocket: { top: .9, bottom: .6, span: [-.4, .5], badge: { side: 1, y: .8, t: .22 }, hammerLoop: { side: -1, t: 0, above: .045, below: .02 } },
+      rivets: [[.135, 1.205], [.262, 1.13]],
+      seamEnd: .245,
+      backYoke: [[.268, 1.207], [.14, 1.187], [.004, 1.167]],
+      backPocket: { x: .122, outline: [[-.074, 1.153], [.074, 1.153], [.07, 1.025], [0, .997], [-.07, 1.025]], stitchBelow: 1.095,
+        // Diagonal tape across the wearer's right pocket: navy, white and red stripes, from its lower outer edge upward.
+        tape: { side: -1, line: [[.09, 1.1], [.01, .95]], stripes: [['#1c2747', .013], ['#f2f2f0', .013], ['#c8202f', .013]] } },
+      centreBack: [[.004, 1.167], [.004, 1.07], [0, .985]],
+      labelPatch: { name: 'flag-patch', size: [.075, .045, .005], colour: '#2b2b30', position: [-.08, 1.238, -(.173 + .004)], rotationY: Math.PI + .3,
+        blocks: [[-.034, .0, 0, .02, '#6b6b72'], [0, .0, .034, .02, '#45454c']] },
     },
   },
   // Shoes.
