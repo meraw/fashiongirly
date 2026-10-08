@@ -1,6 +1,6 @@
 # Wardrobe item: Mango washed black jeans
 
-Authored 8 October 2026. Status: first interpretation awaiting the user's visual review. Seventh piece from the user's wardrobe list, built on the shared jeans template.
+Authored 8 October 2026. Status: light double topstitching added at the user's request; the user then moved on to the next pair. Seventh piece from the user's wardrobe list, built on the shared jeans template.
 
 ## Source and reference reading
 

@@ -434,3 +434,22 @@ test('silver cable jumper: foil over black, cropped at the waist, clear of every
   }
   assert.ok(checked>200,`checked ${checked}`);
 });
+
+test('Bershka grey jeans: whiskers and pale thigh panels, wide full-length legs resting on the shoes',()=>{
+  const id='bershka-grey-wide-leg-v1';assert.equal(cleanRecipe({bottomId:id}).bottomId,id);
+  const doll=makeDoll(),outfit=makeOutfit({bottomId:id});doll.updateMatrixWorld(true);outfit.updateMatrixWorld(true);
+  const count=name=>{let n=0;outfit.traverse(o=>{if(o.name===name)n++;});return n;};
+  assert.equal(count('back-patch-pocket'),2);assert.equal(count('rivet'),4);
+  for(const name of ['back-yoke','woven-label','scoop-pocket-stitch','coin-pocket-stitch'])assert.ok(outfit.getObjectByName(name),name);
+  const legs=[];outfit.traverse(o=>{if(o.name==='jeans-leg')legs.push(o);});assert.equal(legs.length,2);
+  let shoeTop=-Infinity;doll.traverse(o=>{if(o.name==='loafer')shoeTop=Math.max(shoeTop,new T.Box3().setFromObject(o).max.y);});
+  assert.ok(Math.min(...legs.map(l=>new T.Box3().setFromObject(l).min.y))<shoeTop*.6,'full length, down over the shoes');
+  const [l,r]=legs.map(leg=>new T.Box3().setFromObject(leg)).sort((a,b)=>a.min.x-b.min.x);assert.ok(l.max.x<=r.min.x+.03,'legs stay apart');
+  // The wash: the middle of each thigh, front and back, is paler than the side seams.
+  for(const leg of legs){const pos=leg.geometry.attributes.position,col=leg.geometry.attributes.color,band=[];
+    for(let i=0;i<pos.count;i++)if(pos.getY(i)>.6&&pos.getY(i)<.85)band.push(i);
+    const cx=band.reduce((s,i)=>s+pos.getX(i),0)/band.length,mid=[],side=[];
+    for(const i of band){const a=Math.atan2(pos.getX(i)-cx,Math.abs(pos.getZ(i)));(Math.abs(a)<.35?mid:Math.abs(a)>1.3?side:[]).push(col.getX(i));}
+    const mean=v=>v.reduce((s,x)=>s+x,0)/v.length;assert.ok(mean(mid)>mean(side)*1.25,`pale thigh panel ${mean(mid)} vs ${mean(side)}`);}
+  disposeObject(doll);disposeObject(outfit);
+});
