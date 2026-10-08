@@ -37,7 +37,7 @@ Plain fabric in the flat lay measures about RGB 49, 52, 57, and 56, 58, 61 in th
 
 ## Checks
 
-- `npm test`: 47 passing after merging the outerwear chat's windbreaker. A new test checks:
+- `npm test`: 49 passing after merging the outerwear chat's windbreaker and the tops chat's green cable sweater. A new test checks:
   - none of the jeans hardware is present
   - the cargo flaps and pockets
   - the drawstring is at the front, with its tips

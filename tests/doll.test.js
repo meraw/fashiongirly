@@ -550,3 +550,33 @@ test('Zara cargo trousers: gathered elastic waist with a drawstring, flap cargo 
       assert.ok(h&&h.distance>r+.001,`${o.name} vertex ${i} shows through the cargo leg`);checked++;}});
   assert.ok(checked>200);disposeObject(doll);disposeObject(outfit);
 });
+
+test('green cable sweater: rope cables in relief, raglan seams, a flag on her left chest and deep ribbing',()=>{
+  const id='tommy-green-cable-sweater-v1',recipe=cleanRecipe({topId:id,knit:true,shirt:true});
+  assert.equal(recipe.knit,false);assert.equal(recipe.shirt,false);
+  const outfit=makeOutfit({topId:id});outfit.updateMatrixWorld(true);
+  for(const name of ['cable-knit-body','ribbed-hem-band','ribbed-crew-neck','embroidered-flag'])assert.ok(outfit.getObjectByName(name),name);
+  const count=name=>{let n=0;outfit.traverse(o=>{if(o.name===name)n++;});return n;};
+  assert.equal(count('raglan-seam'),4);assert.equal(count('ribbed-cuff'),2);assert.equal(count('flag-stripe'),3);
+  const flag=outfit.getObjectByName('embroidered-flag').getWorldPosition(new T.Vector3());assert.ok(flag.x>.03&&flag.z>.1,'flag on her left chest');
+  // The cables are relief: the same tile drives the bump; sixteen columns round the body. As in the photos (and at the
+  // user's request), the cables sit close together: the grooves between them are thin and shallow, never deep dark gaps.
+  const body=outfit.getObjectByName('cable-knit-body'),bump=body.material.bumpMap;assert.ok(bump);assert.equal(body.material.map.repeat.x,16);
+  let deep=0,groove=0,high=0;const hd=bump.image.data;for(let i=0;i<hd.length;i+=4){if(hd[i]<40)deep++;if(hd[i]<80)groove++;if(hd[i]>180)high++;}
+  const n=hd.length/4;assert.equal(deep,0,'no deep gaps');assert.ok(groove/n>.03&&groove/n<.15,`thin grooves ${groove/n}`);assert.ok(high/n>.4,`raised twists ${high/n}`);
+  disposeObject(outfit);
+  const skirted=makeOutfit({topId:id,skirt:true}),plain=makeOutfit({topId:id});
+  const width=o=>new T.Box3().setFromObject(o.getObjectByName('ribbed-hem-band')).getSize(new T.Vector3()).x;
+  assert.ok(width(skirted)>width(plain));assert.equal(skirted.getObjectByName('ribbon-knot'),undefined);
+  disposeObject(skirted);disposeObject(plain);
+});
+
+test('every top records styling facts for later outfit selection',()=>{
+  // Relative warmth (1 light to 4 very warm) with what it is based on; silhouette, palette, pattern, coverage and material.
+  for(const [id,g] of Object.entries(GARMENTS).filter(([,g])=>g.slot==='top')){
+    const st=g.styling;assert.ok(st,`${id} has styling facts`);
+    assert.ok([1,2,3,4].includes(st.warmth)&&/^(user|inferred)/.test(st.warmthBasis),`${id} warmth and its basis`);
+    for(const key of ['silhouette','pattern','material','weather'])assert.equal(typeof st[key],'string',`${id} ${key}`);
+    assert.ok(Array.isArray(st.palette)&&st.palette.length);assert.ok(st.coverage?.neck&&st.coverage?.sleeves&&st.coverage?.midriff,`${id} coverage`);
+  }
+});
