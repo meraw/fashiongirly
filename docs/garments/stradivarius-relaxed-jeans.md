@@ -1,6 +1,6 @@
 # Wardrobe item: Stradivarius relaxed jeans
 
-Authored 8 October 2026. Status: first interpretation awaiting the user's visual review. Sixth piece from the user's wardrobe list, built on the shared jeans template with no new template options.
+Authored 8 October 2026. Status: the user said they look great; colour adjusted to a greyer shade on their request. Sixth piece from the user's wardrobe list, built on the shared jeans template with no new template options.
 
 ## Source and reference reading
 
@@ -21,6 +21,7 @@ Catalog ID `stradivarius-relaxed-v1` (slot `bottom`), built by `makeJeans()` fro
 
 - Denim: a swatch from the front close-up (the left lower leg, inside its seams), processed with a narrow blur. Its variation is very small, as in the photos.
 - Colour: photos measured RGB 199, 211, 220 (close-up), 205, 216, 225 (front) and 197, 214, 228 (back); target about 200, 212, 222. The first render was 206, 211, 215 (grey and warm under the studio light); with a bluer swatch the front render measures 200, 210, 219.
+- Colour, user correction: the user said the pair looks great but their real jeans are closer to a greyer colour, and sent another photo of the same jeans (“D91 low wide-leg”), whose plain denim measures 208, 216, 224. The swatch was made lighter and greyer; the front render now measures 209, 214, 220, slightly greyer than that photo, as the user described.
 - Stitching: first pale cream, which read as white piping on such light denim; now a tonal blue-grey (`#9eaab6`).
 
 ## Checks

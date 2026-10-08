@@ -94,7 +94,7 @@ Items added so far:
 3. [Desigual Davinia heart jeans](garments/desigual-davinia-jeans.md). First pair on the shared jeans template (`makeJeans()` with a `build` spec in the catalog). The user found the crotch strange; it was rebuilt as sewn (hips morphing into the legs), applied to both pairs, and the user said it “looks better”. The user asked for “a few more jeans” next.
 4. [Levi's '94 baggy wide leg](garments/levis-94-wide-leg.md). Washed black wide legs with arc stitching, red tab and frayed pocket edges. Full length resting on the shoes, confirmed by the user (a brief shortening came from mixing it up with another pair); awaiting visual review.
 5. [Tommy ultra high rise mom jeans](garments/tommy-mom-jeans.md). Mid-wash, tapered to the ankle, with rivets, stitched pocket bars, badges and a flag patch. Its high waistband led to easing the bronze and lilac tops at the waist, a large speed-up of building jeans and of the tests, and a denim layout fix at the crotch for all pairs. Awaiting visual review.
-6. [Stradivarius relaxed jeans](garments/stradivarius-relaxed-jeans.md). Light bleached relaxed wide jeans pooling over the shoes; no new template options. Awaiting visual review.
+6. [Stradivarius relaxed jeans](garments/stradivarius-relaxed-jeans.md). Light bleached relaxed wide jeans pooling over the shoes; no new template options. The user said they look great and asked for a greyer colour, closer to their real pair; adjusted.
 
 Fit follows the user, not the product photos: when the user says a garment fits them differently (length, rise, looseness), build it that way and note it in the garment record.
 

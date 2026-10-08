@@ -223,7 +223,7 @@ export const GARMENTS = Object.freeze({
     uncertainties: ['folds are procedural', 'patch lettering not reproduced'],
     authoring: { texture: 'stradivarius-denim.js: flat-lit seamless swatch processed from the front close-up', runtimeGeneration: false, sourcePhotosBundled: 'fabric swatch only' },
     build: {
-      template: 'jeans', legName: 'jeans-leg', fallback: [140, 164, 192],
+      template: 'jeans', legName: 'jeans-leg', fallback: [154, 171, 192],
       crotch: { top: 1.18, y: .95 }, uvScale: [3.7, 1.03],
       tiles: { small: [2.45, .66], legs: [1, 1], hips: [1, 1] },
       hips: [[1.235, .256, .172], [1.14, .276, .193], [1.04, .294, .198], [.97, .306, .19], [.935, .25, .11]],
