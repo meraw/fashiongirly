@@ -85,7 +85,7 @@ Shoes are a third parallel lane (see [AGENTS.md](../AGENTS.md)), agreed with the
 
 - The classic loafers moved out of `makeDoll` into the outfit (`shoesId: 'classic'`). Her face, body and socks are unchanged, and outfits with loafers render pixel-identical to before.
 - Long jeans (`hem: 'rests-on-shoe'`) rest on whatever shoe she wears through `rest()`, and drape around boots through `rest.inside`. Shorter jeans whose hem would end inside a boot sit on its padded collar (`rest.collar`), and the classic jeans tuck into the shaft. `tests/shoes.test.js` checks every bottom with every shoe, so new pairs of jeans and new shoes are covered automatically.
-- Open decision: platforms are built inside her existing foot height, so she is not raised. The user was asked whether a heel or platform should make her taller and has not answered yet.
+- Height in shoes (decided with the user on 8 October 2026): she stays anchored to the floor and is never shrunk, and her head is not pinned. A shoe whose sole is thicker than her built-in foot raises the whole doll and everything she wears by the difference. The Buffalo platform fits inside her foot height, so it raises nothing. The lift itself is not built yet; add it with the first heel or taller platform.
 - Judge every pair from the side as well as the front and back, because shoes are mostly seen below a hem. Build boots to the product photo's side proportions (length about twice the height, a low toe, the lacing diagonal, a shaft that hugs the ankle); the first Buffalo version used her short toy foot and read as shapeless.
 - Adding more boots: copy the Buffalo entry's `build` spec and adjust the upper slices, sole and details; measure the upper and sole colours in the photos and in a render, as for denim.
 
