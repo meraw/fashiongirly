@@ -7,6 +7,7 @@ export const BARREL_JEANS_ID = 'topshop-barrel-jeans-v1';
 export const DAVINIA_JEANS_ID = 'desigual-davinia-jeans-v1';
 export const LEVIS_94_ID = 'levis-94-wide-leg-v1';
 export const TOMMY_MOM_ID = 'tommy-ultra-high-mom-v1';
+export const STRADIVARIUS_RELAXED_ID = 'stradivarius-relaxed-v1';
 export const GARMENTS = Object.freeze({
   [BRONZE_TOP_ID]: {
     slot: 'top',
@@ -208,6 +209,40 @@ export const GARMENTS = Object.freeze({
       centreBack: [[.004, 1.205], [.004, 1.1], [0, 1.0]],
       labelPatch: { name: 'flag-patch', size: [.08, .05, .005], colour: '#1c2747', position: [-.08, 1.338, -(.169 + .004)], rotationY: Math.PI + .3,
         blocks: [[-.038, .002, 0, .023, '#f2f2f0'], [0, .002, .038, .023, '#c8202f']] },
+    },
+  },
+  [STRADIVARIUS_RELAXED_ID]: {
+    slot: 'bottom',
+    id: STRADIVARIUS_RELAXED_ID, name: 'Stradivarius relaxed jeans', family: 'relaxed-wide-jeans', version: 1,
+    status: 'reference-study-awaiting-visual-review', brandAsProvided: 'Stradivarius',
+    source: { note: 'user supplied four phone screenshots of a Zalando listing (Stradivarius, Relaxed, Petite): front close-up, front and back on model, side close-up' },
+    referenceViews: ['front close-up', 'front on model', 'back on model', 'side close-up'],
+    details: ['low to mid rise', 'relaxed wide straight legs, full length, pooling on the floor', 'very light bleached blue wash with soft whiskers at the hips', 'classic five-pocket front: scoop pockets, coin pocket, copper rivets and button', 'pale tonal stitching', 'plain back patch pockets', 'small beige patch on the back waistband'],
+    material: { construction: 'rigid denim', composition: 'not visible in the supplied screenshots', finish: 'bleached light wash' },
+    fit: { silhouette: 'relaxed wide', rise: 'low to mid', length: 'full, pooling over the shoes', adjustment: 'fixed authored fit for review' },
+    uncertainties: ['folds are procedural', 'patch lettering not reproduced'],
+    authoring: { texture: 'stradivarius-denim.js: flat-lit seamless swatch processed from the front close-up', runtimeGeneration: false, sourcePhotosBundled: 'fabric swatch only' },
+    build: {
+      template: 'jeans', legName: 'jeans-leg', fallback: [154, 171, 192],
+      crotch: { top: 1.18, y: .95 }, uvScale: [3.7, 1.03],
+      tiles: { small: [2.45, .66], legs: [1, 1], hips: [1, 1] },
+      hips: [[1.235, .256, .172], [1.14, .276, .193], [1.04, .294, .198], [.97, .306, .19], [.935, .25, .11]],
+      // Relaxed wide straight legs, full length: the hem rests on the shoes and stacks a little.
+      legs: [[1.03, .148, .18, .13], [.95, .155, .18, .152], [.75, .162, .183, .166], [.55, .168, .186, .172], [.35, .174, .189, .178], [.18, .18, .193, .184], [.06, .184, .196, .188]],
+      hem: 'rests-on-shoe', folds: { base: .005, low: .012, stack: .01 },
+      gradient: [.9, .14], whiskers: .12, thighFade: .06,
+      waistband: { y: 1.21, rx: .258, rz: .175, h: .05 },
+      loops: [-2.7, -1.45, -.55, .55, 1.45, 2.7, Math.PI],
+      button: { colour: '#b57a55' }, thread: '#9eaab6',
+      fly: [[.034, 1.183], [.036, 1.09], [.02, 1.05], [0, 1.04]],
+      frontPocket: { type: 'scoop', line: [[.15, 1.184], [.165, 1.14], [.2, 1.112], [.262, 1.1]] },
+      coinPocket: { outline: [[-.236, 1.18], [-.19, 1.18], [-.194, 1.128], [-.233, 1.128], [-.236, 1.18]] },
+      rivets: [[.152, 1.18], [.262, 1.105]],
+      seamEnd: .1,
+      backYoke: [[.268, 1.182], [.14, 1.162], [.004, 1.142]],
+      backPocket: { x: .122, outline: [[-.074, 1.128], [.074, 1.128], [.07, 1.0], [0, .972], [-.07, 1.0]], stitchBelow: 1.07 },
+      centreBack: [[.004, 1.142], [.004, 1.05], [0, .985]],
+      labelPatch: { name: 'paper-patch', size: [.06, .032, .004], colour: '#d9c8a6', position: [-.065, 1.21, -(.175 + .004)], rotationY: Math.PI + .25 },
     },
   },
 });

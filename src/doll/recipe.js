@@ -1,4 +1,4 @@
-import { BRONZE_TOP_ID, LILAC_TOP_ID, CROCHET_TOP_ID, PLAID_JUMPER_ID, BARREL_JEANS_ID, DAVINIA_JEANS_ID, LEVIS_94_ID, TOMMY_MOM_ID, GARMENTS } from '../wardrobe/catalog.js';
+import { BRONZE_TOP_ID, LILAC_TOP_ID, CROCHET_TOP_ID, PLAID_JUMPER_ID, BARREL_JEANS_ID, DAVINIA_JEANS_ID, LEVIS_94_ID, TOMMY_MOM_ID, STRADIVARIUS_RELAXED_ID, GARMENTS } from '../wardrobe/catalog.js';
 export const DEFAULT = Object.freeze({ sweater: '#bf303e', trousers: '#283c59', sleeve: .74, hem: .3, barrel: .78, knit: true, shirt: true, skirt: false, skirtColour: '#bd9bc8', topId: 'classic', bottomId: 'classic' });
 export const SWATCHES = [['Tomato', '#bf303e'], ['Butter', '#ead391'], ['Lilac', '#bd9bc8'], ['Cobalt', '#315cb3'], ['Moss', '#74804b'], ['Cream', '#f0e3cb']];
 export function cleanRecipe(value = {}) {
@@ -32,6 +32,7 @@ export function editRecipe(current, sentence) {
 }
 
 export const OUTFITS = [
+  { name: 'Stradivarius relaxed study', note: 'Reference study: light bleached relaxed wide jeans pooling over the shoes, with copper rivets and plain back pockets. The denim is taken from the product photo.', recipe: { ...DEFAULT, topId: CROCHET_TOP_ID, bottomId: STRADIVARIUS_RELAXED_ID, knit: false, shirt: false } },
   { name: 'Tommy mom jeans study', note: 'Reference study: ultra high rise mid-wash mom jeans tapering to the ankle, with copper rivets, stitched bars across the back pockets and a flag patch. The denim is taken from the product photo.', recipe: { ...DEFAULT, topId: CROCHET_TOP_ID, bottomId: TOMMY_MOM_ID, knit: false, shirt: false } },
   { name: "Levi's '94 study", note: "Reference study: washed-black baggy wide-leg jeans pooling over the shoes, with frayed pocket edges, double-arc back stitching and a red tab. The denim is taken from the product photo.", recipe: { ...DEFAULT, topId: CROCHET_TOP_ID, bottomId: LEVIS_94_ID, knit: false, shirt: false } },
   { name: 'Davinia jeans study', note: 'Reference study: high-rise, slim straight light acid-wash jeans cropped at the ankle, with a frayed waistband, a red heart on the coin pocket and copper stitching. The denim is taken from the product photo.', recipe: { ...DEFAULT, topId: CROCHET_TOP_ID, bottomId: DAVINIA_JEANS_ID, knit: false, shirt: false } },

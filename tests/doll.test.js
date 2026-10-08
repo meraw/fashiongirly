@@ -299,3 +299,17 @@ test('Tommy mom jeans: ultra high rise, tapered to the ankle, with rivets, pocke
       assert.ok(h&&h.distance>r+.001,`${o.name} vertex ${i} shows through the Tommy leg`);checked++;}});
   assert.ok(checked>200);disposeObject(doll);disposeObject(outfit);
 });
+
+test('Stradivarius relaxed jeans: plain five-pocket, wide full-length legs resting on the shoes',()=>{
+  const id='stradivarius-relaxed-v1';assert.equal(cleanRecipe({bottomId:id}).bottomId,id);
+  const doll=makeDoll(),outfit=makeOutfit({bottomId:id});doll.updateMatrixWorld(true);outfit.updateMatrixWorld(true);
+  const count=name=>{let n=0;outfit.traverse(o=>{if(o.name===name)n++;});return n;};
+  assert.equal(count('rivet'),4);assert.equal(count('back-patch-pocket'),2);
+  for(const name of ['scoop-pocket-stitch','coin-pocket-stitch','paper-patch'])assert.ok(outfit.getObjectByName(name),name);
+  for(const name of ['pocket-flap','arcuate-stitch','pocket-tab','pocket-bar-stitch'])assert.equal(count(name),0,`plain back pockets: no ${name}`);
+  const legs=[];outfit.traverse(o=>{if(o.name==='jeans-leg')legs.push(o);});
+  let shoeTop=-Infinity;doll.traverse(o=>{if(o.name==='loafer')shoeTop=Math.max(shoeTop,new T.Box3().setFromObject(o).max.y);});
+  assert.ok(Math.min(...legs.map(l=>new T.Box3().setFromObject(l).min.y))<shoeTop*.6,'full length, down over the shoes');
+  const [l,r]=legs.map(leg=>new T.Box3().setFromObject(leg)).sort((a,b)=>a.min.x-b.min.x);assert.ok(l.max.x<=r.min.x+.03,'legs stay apart');
+  disposeObject(doll);disposeObject(outfit);
+});

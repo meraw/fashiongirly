@@ -15,7 +15,7 @@ Read [PRODUCT_BRIEF.md](PRODUCT_BRIEF.md) for the product's intent and agreed co
 - Sweater and denim colours, sweater sleeve volume and hem, trouser volume, and layer toggles.
 - Bounded text parser, turn controls, draft persistence and a 24-look browser lookbook.
 - Earlier vector implementation retained at `illustration.html`.
-- Twenty-three tests were passing and the static build succeeded at this handoff. Geometry and UI checks do not establish visual quality; full device/WebGL appearance and performance still require review.
+- Twenty-four tests were passing and the static build succeeded at this handoff. Geometry and UI checks do not establish visual quality; full device/WebGL appearance and performance still require review.
 
 ## Code landmarks
 
@@ -31,7 +31,7 @@ Read [PRODUCT_BRIEF.md](PRODUCT_BRIEF.md) for the product's intent and agreed co
 | `scripts/build.mjs` | Static build including local Three.js dependencies |
 | `.github/workflows/pages.yml` | Manually dispatched Pages deployment |
 
-The current flat recipe is not a garment database. It holds colours, bounded numeric controls and layer booleans for the procedural study. Eight catalog entries now exist. Each declares a `slot`. Tops are selected by `topId`: `desigual-bronze-mesh-v1` and `lilac-portrait-mockneck-v1` use fitted geometry and bundled generated textures; `desigual-crochet-flowers-v1` and `mango-plaid-jumper-v1` use their own geometry and textures drawn procedurally in `model.js`. A catalog `layering.coversWaistband` flag hides the skirt's ribbon bow under tops whose hem covers the waist. Bottoms are selected by `bottomId`: `topshop-barrel-jeans-v1`, `desigual-davinia-jeans-v1`, `levis-94-wide-leg-v1` and `tommy-ultra-high-mom-v1` replace the built-in jeans. All catalog jeans are built by `makeJeans()` from a `build` spec in their catalog entry, each with a denim swatch processed from its own product photo. `cleanRecipe()` only accepts IDs from the matching slot. The skirt and shoes are still built-in procedural pieces; dresses, outerwear and shoes have no slot yet. There is no general import pipeline, fitting rig or automatic reference reconstruction yet.
+The current flat recipe is not a garment database. It holds colours, bounded numeric controls and layer booleans for the procedural study. Nine catalog entries now exist. Each declares a `slot`. Tops are selected by `topId`: `desigual-bronze-mesh-v1` and `lilac-portrait-mockneck-v1` use fitted geometry and bundled generated textures; `desigual-crochet-flowers-v1` and `mango-plaid-jumper-v1` use their own geometry and textures drawn procedurally in `model.js`. A catalog `layering.coversWaistband` flag hides the skirt's ribbon bow under tops whose hem covers the waist. Bottoms are selected by `bottomId`: `topshop-barrel-jeans-v1`, `desigual-davinia-jeans-v1`, `levis-94-wide-leg-v1`, `tommy-ultra-high-mom-v1` and `stradivarius-relaxed-v1` replace the built-in jeans. All catalog jeans are built by `makeJeans()` from a `build` spec in their catalog entry, each with a denim swatch processed from its own product photo. `cleanRecipe()` only accepts IDs from the matching slot. The skirt and shoes are still built-in procedural pieces; dresses, outerwear and shoes have no slot yet. There is no general import pipeline, fitting rig or automatic reference reconstruction yet.
 
 ## Latest decisions
 
@@ -94,6 +94,7 @@ Items added so far:
 3. [Desigual Davinia heart jeans](garments/desigual-davinia-jeans.md). First pair on the shared jeans template (`makeJeans()` with a `build` spec in the catalog). The user found the crotch strange; it was rebuilt as sewn (hips morphing into the legs), applied to both pairs, and the user said it “looks better”. The user asked for “a few more jeans” next.
 4. [Levi's '94 baggy wide leg](garments/levis-94-wide-leg.md). Washed black wide legs with arc stitching, red tab and frayed pocket edges. Full length resting on the shoes, confirmed by the user (a brief shortening came from mixing it up with another pair); awaiting visual review.
 5. [Tommy ultra high rise mom jeans](garments/tommy-mom-jeans.md). Mid-wash, tapered to the ankle, with rivets, stitched pocket bars, badges and a flag patch. Its high waistband led to easing the bronze and lilac tops at the waist, a large speed-up of building jeans and of the tests, and a denim layout fix at the crotch for all pairs. Awaiting visual review.
+6. [Stradivarius relaxed jeans](garments/stradivarius-relaxed-jeans.md). Light bleached relaxed wide jeans pooling over the shoes; no new template options. The user said they look great and asked for a greyer colour, closer to their real pair; adjusted.
 
 Fit follows the user, not the product photos: when the user says a garment fits them differently (length, rise, looseness), build it that way and note it in the garment record.
 
