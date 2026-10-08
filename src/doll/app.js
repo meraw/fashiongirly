@@ -25,6 +25,8 @@ export async function startStudio(doc=document, makeView) {
     $('top-select').value=recipe.topId;$('bottom-select').value=recipe.bottomId;
     $('shoes-select').value=recipe.shoesId;
     $('outerwear-select').value=recipe.outerwearId;
+    // Only a top that can be worn over another (a cardigan) takes a top under it.
+    $('under-select').value=recipe.underTopId;$('under-select').disabled=!GARMENTS[recipe.topId]?.layering?.overTop;
     $('outerwear-open').checked=recipe.outerwearOpen;$('outerwear-open').disabled=!GARMENTS[recipe.outerwearId]?.layering?.canOpen;
     for(const key of ['knit','shirt'])$(key).disabled=recipe.topId!=='classic';
     const selected=OUTFITS.find(look=>Object.keys(DEFAULT).filter(key=>key!=='hairId').every(key=>look.recipe[key]===recipe[key]));
@@ -41,7 +43,8 @@ export async function startStudio(doc=document, makeView) {
   }
   for(const key of ['sleeve','hem','barrel'])$(key).oninput=()=>{recipe[key]=Number($(key).value)/100;sync();schedule();};
   for(const key of ['knit','shirt','skirt'])$(key).onchange=()=>{recipe[key]=$(key).checked;sync();apply();};
-  $('top-select').onchange=()=>{recipe=cleanRecipe({...recipe,topId:$('top-select').value,knit:$('top-select').value==='classic',shirt:$('top-select').value==='classic'});sync();apply();message(recipe.topId==='classic'?'Classic layers restored.':'Reference top selected. Its fit and print are fixed for this first review.');};
+  $('top-select').onchange=()=>{recipe=cleanRecipe({...recipe,topId:$('top-select').value,underTopId:recipe.underTopId,knit:$('top-select').value==='classic',shirt:$('top-select').value==='classic'});sync();apply();message(recipe.topId==='classic'?'Classic layers restored.':'Reference top selected. Its fit and print are fixed for this first review.');};
+  $('under-select').onchange=()=>{recipe=cleanRecipe({...recipe,underTopId:$('under-select').value});sync();apply();message(recipe.underTopId==='none'?'Worn on its own, over her skin.':'A top underneath: it shows in the opening, and its sleeves stay inside.');};
   $('bottom-select').onchange=()=>{recipe=cleanRecipe({...recipe,bottomId:$('bottom-select').value});sync();apply();message(recipe.bottomId==='classic'?'Classic jeans restored.':'Reference jeans selected. Their fit and wash are fixed for this first review.');};
   $('shoes-select').onchange=()=>{recipe=cleanRecipe({...recipe,shoesId:$('shoes-select').value});sync();apply();message(recipe.shoesId==='classic'?'Classic loafers restored.':'Reference shoes selected. Their fit and colour are fixed for this first review.');};
   // Each piece of outerwear starts the way it is usually worn: open only if it is designed to be worn open.

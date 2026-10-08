@@ -1,8 +1,8 @@
 import { DEFAULT_HAIR_ID, cleanHairId } from '../hair/catalog.js';
-import { BRONZE_TOP_ID, LILAC_TOP_ID, CROCHET_TOP_ID, PLAID_JUMPER_ID, STRIPE_JUMPER_ID, POINTELLE_FLOWER_ID, SILVER_CABLE_ID, LACROIX_FLOWER_ID, TOMMY_CABLE_ID, TOMMY_STRIPE_POLO_ID, BARREL_JEANS_ID, DAVINIA_JEANS_ID, LEVIS_94_ID, TOMMY_MOM_ID, STRADIVARIUS_RELAXED_ID, MANGO_BLACK_JEANS_ID, BERSHKA_GREY_ID, TOMMY_CARPENTER_ID, ZARA_CARGO_ID, GARMENTS } from '../wardrobe/catalog.js';
+import { BRONZE_TOP_ID, LILAC_TOP_ID, CROCHET_TOP_ID, PLAID_JUMPER_ID, STRIPE_JUMPER_ID, POINTELLE_FLOWER_ID, SILVER_CABLE_ID, LACROIX_FLOWER_ID, TOMMY_CABLE_ID, PETIT_BATEAU_CARDIGAN_ID, TOMMY_STRIPE_POLO_ID, BARREL_JEANS_ID, DAVINIA_JEANS_ID, LEVIS_94_ID, TOMMY_MOM_ID, STRADIVARIUS_RELAXED_ID, MANGO_BLACK_JEANS_ID, BERSHKA_GREY_ID, TOMMY_CARPENTER_ID, ZARA_CARGO_ID, GARMENTS } from '../wardrobe/catalog.js';
 import { BUFFALO_ASPHA_ID, DM_COW_SLIDE_ID } from '../wardrobe/catalog.js';
 import { MARIKOO_WINDBREAKER_ID, DESIGUAL_LEATHER_JACKET_ID } from '../wardrobe/catalog.js';
-export const DEFAULT = Object.freeze({ sweater: '#bf303e', trousers: '#283c59', sleeve: .74, hem: .3, barrel: .78, knit: true, shirt: true, skirt: false, skirtColour: '#bd9bc8', topId: 'classic', bottomId: 'classic', shoesId: 'classic', outerwearId: 'none', outerwearOpen: false, hairId: DEFAULT_HAIR_ID });
+export const DEFAULT = Object.freeze({ sweater: '#bf303e', trousers: '#283c59', sleeve: .74, hem: .3, barrel: .78, knit: true, shirt: true, skirt: false, skirtColour: '#bd9bc8', topId: 'classic', bottomId: 'classic', shoesId: 'classic', underTopId: 'none', outerwearId: 'none', outerwearOpen: false, hairId: DEFAULT_HAIR_ID });
 export const SWATCHES = [['Tomato', '#bf303e'], ['Butter', '#ead391'], ['Lilac', '#bd9bc8'], ['Cobalt', '#315cb3'], ['Moss', '#74804b'], ['Cream', '#f0e3cb']];
 export function cleanRecipe(value = {}) {
   const v = value && typeof value === 'object' ? value : {};
@@ -15,6 +15,9 @@ export function cleanRecipe(value = {}) {
   if (GARMENTS[v.bottomId]?.slot==='bottom') result.bottomId=v.bottomId;
   if (GARMENTS[v.shoesId]?.slot==='shoes') result.shoesId=v.shoesId;
   if (GARMENTS[v.outerwearId]?.slot==='outerwear') result.outerwearId=v.outerwearId;
+  // A top worn over another top (a cardigan, say) may have a slim top under it; anything else falls back to none.
+  const under=GARMENTS[v.underTopId];
+  if (GARMENTS[result.topId]?.layering?.overTop && under?.slot==='top' && under.layering?.underTop && v.underTopId!==result.topId) result.underTopId=v.underTopId;
   // Only outerwear that is designed to be worn open can be (the user wears coats closed otherwise).
   result.outerwearOpen=v.outerwearOpen===true&&!!GARMENTS[result.outerwearId]?.layering?.canOpen;
   if(result.topId!== 'classic'){result.knit=false;result.shirt=false;}
@@ -48,6 +51,7 @@ export const OUTFITS = [
   { name: "Levi's '94 study", note: "Reference study: washed-black baggy wide-leg jeans pooling over the shoes, with frayed pocket edges, double-arc back stitching and a red tab. The denim is taken from the product photo.", recipe: { ...DEFAULT, topId: CROCHET_TOP_ID, bottomId: LEVIS_94_ID, knit: false, shirt: false } },
   { name: 'Davinia jeans study', note: 'Reference study: high-rise, slim straight light acid-wash jeans cropped at the ankle, with a frayed waistband, a red heart on the coin pocket and copper stitching. The denim is taken from the product photo.', recipe: { ...DEFAULT, topId: CROCHET_TOP_ID, bottomId: DAVINIA_JEANS_ID, knit: false, shirt: false } },
   { name: 'Barrel jeans study', note: 'Reference study: low-rise acid-wash barrel jeans with knee darts, twisted side seams and flap back pockets, worn with the cropped crochet top. The wash is drawn, not copied.', recipe: { ...DEFAULT, topId: CROCHET_TOP_ID, bottomId: BARREL_JEANS_ID, knit: false, shirt: false } },
+  { name: 'Striped cardigan study', note: 'Reference study: a cream fisherman rib cardigan buttoned over bare skin, with navy stripes on the lower body and forearms, a deep V and five cream buttons. The knit is drawn from the photos, not copied.', recipe: { ...DEFAULT, topId: PETIT_BATEAU_CARDIGAN_ID, knit: false, shirt: false, bottomId: 'classic', trousers: '#71899b', barrel: .3 } },
   { name: 'Green cable study', note: 'Reference study: a forest green wool sweater with rope cables all over, raglan sleeves, deep ribbing and a little flag on the chest. The cables are drawn from the photos, not copied.', recipe: { ...DEFAULT, topId: TOMMY_CABLE_ID, knit: false, shirt: false, bottomId: 'classic', trousers: '#d9cbb2', barrel: .4 } },
   { name: 'Lacroix flower study', note: 'Reference study: a fuzzy olive sweater painted with a giant violet flower front and back, a white peony and forearm flowers, by Christian Lacroix for Desigual. The flowers are painted from the photos, not copied.', recipe: { ...DEFAULT, topId: LACROIX_FLOWER_ID, knit: false, shirt: false, bottomId: MANGO_BLACK_JEANS_ID } },
   { name: 'Silver cable study', note: 'Reference study: a cropped cable knit coated in silver foil, black in every groove, with a diamond lattice down the front, big wavy sleeve cables and long ribbed cuffs. The knit is drawn from the photos, not copied.', recipe: { ...DEFAULT, topId: SILVER_CABLE_ID, knit: false, shirt: false, bottomId: MANGO_BLACK_JEANS_ID } },
