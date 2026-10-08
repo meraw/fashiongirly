@@ -69,3 +69,24 @@ test('reference garment keeps its identity, mapped details and layer exclusions'
   d.getElementById('save').click();assert.equal(JSON.parse(dom.window.localStorage.getItem('fashiongirly.plush-looks.v1'))[0].topId,'desigual-bronze-mesh-v1');
   app.dispose();dom.window.close();
 });
+test('reference sleeves enclose both elbows with clearance',()=>{
+  const doll=makeDoll(),outfit=makeOutfit({topId:'desigual-bronze-mesh-v1'});
+  doll.updateMatrixWorld(true);outfit.updateMatrixWorld(true);
+  const arms=[],sleeves=[];
+  doll.traverse(o=>{if(o.name==='arm')arms.push(o);});
+  outfit.traverse(o=>{if(o.name==='reference-fitted-sleeve')sleeves.push(o);});
+  const ray=new T.Raycaster(),point=new T.Vector3(),origin=new T.Vector3();let checked=0;
+  for(let side=0;side<2;side++){
+    const arm=arms[side],sleeve=sleeves[side],vertices=arm.geometry.attributes.position;
+    for(let i=0;i<vertices.count;i+=2){
+      point.fromBufferAttribute(vertices,i).applyMatrix4(arm.matrixWorld);sleeve.worldToLocal(point);
+      if(point.y<-.44||point.y>-.14)continue;
+      origin.set(0,point.y,0);sleeve.localToWorld(origin);sleeve.localToWorld(point);
+      const radius=point.distanceTo(origin);if(radius<.01)continue;
+      ray.set(origin,point.clone().sub(origin).normalize());
+      const hit=ray.intersectObject(sleeve,false)[0];
+      assert.ok(hit&&hit.distance>radius+.002,`Arm ${side} protrudes at vertex ${i}`);checked++;
+    }
+  }
+  assert.ok(checked>100);disposeObject(doll);disposeObject(outfit);
+});

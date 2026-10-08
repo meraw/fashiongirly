@@ -143,9 +143,10 @@ function makeReferenceTop(atlas) {
   ring(top,1.904,.112,.103,binding,'bound-crew-neck',.033);
   ring(top,1.188,.279,.187,binding,'fine-top-hem',.018);
   for(const side of [-1,1]){
-    const arm=new T.Group();arm.position.set(side*.235,1.815,0);arm.rotation.z=side*.22;
+    // Centre the fitted sleeve on the doll arm and retain elbow clearance.
+    const arm=new T.Group();arm.position.set(side*.242,1.815,0);arm.rotation.z=side*.22;
     const mat=referenceMaterial(atlas,side<0?'left':'right');
-    const sleeve=shell(arm,[[.025,.098,.10],[-.04,.112,.108],[-.16,.107,.101],[-.28,.096,.093],[-.40,.086,.086],[-.49,.078,.08],[-.525,.077,.079]],mat,'reference-fitted-sleeve',48);
+    const sleeve=shell(arm,[[.025,.098,.10],[-.04,.112,.108],[-.16,.107,.101],[-.28,.104,.099],[-.40,.096,.091],[-.49,.078,.08],[-.525,.077,.079]],mat,'reference-fitted-sleeve',48);
     const suv=sleeve.geometry.attributes.uv,sp=sleeve.geometry.attributes.position;
     for(let i=0;i<suv.count;i++)suv.setY(i,Math.max(0,Math.min(1,(sp.getY(i)+.525)/.55)));
     suv.needsUpdate=true;

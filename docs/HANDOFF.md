@@ -15,7 +15,7 @@ Read [PRODUCT_BRIEF.md](PRODUCT_BRIEF.md) for the product's intent and agreed co
 - Sweater and denim colours, sweater sleeve volume and hem, trouser volume, and layer toggles.
 - Bounded text parser, turn controls, draft persistence and a 24-look browser lookbook.
 - Earlier vector implementation retained at `illustration.html`.
-- Thirteen tests were passing and the static build succeeded at this handoff. Geometry and UI checks do not establish visual quality; full device/WebGL appearance and performance still require review.
+- Fourteen tests were passing and the static build succeeded at this handoff. Geometry and UI checks do not establish visual quality; full device/WebGL appearance and performance still require review.
 
 ## Code landmarks
 
@@ -45,7 +45,7 @@ The current flat recipe is not a garment database. It holds colours, bounded num
 
 The user supplied front and back pictures of a detailed Desigual bronze mesh top. Its first implementation is available via the top selector and “Bronze mesh study” preset. Review [the garment record](garments/bronze-mesh.md), then get feedback on recognition and fit on the doll. Do not ask for the first reference again unless the actual pictures are needed and unavailable in the new chat.
 
-Next: refine this garment based on visual feedback, especially print scale, sleeves, mesh, seams and layering clearance. The back currently reuses the front-facing motif, and sleeve glyphs are approximate. Preserve these limitations in future handoffs. Do not expand the wardrobe before reviewing this test.
+Latest feedback: the user says the top looks very good apart from two elbow holes. Arm/sleeve intersections were confirmed and corrected by re-centring the sleeves and adding local elbow clearance, with a regression test. Next: visually confirm this correction while preserving the approved overall appearance. The back currently reuses the front-facing motif, and sleeve glyphs are approximate. Preserve these limitations in future handoffs. Do not expand the wardrobe before reviewing this test.
 
 ## Operational notes
 

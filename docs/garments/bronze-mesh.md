@@ -1,6 +1,6 @@
 # Reference test: Desigual bronze mesh top
 
-Status: first implementation, awaiting visual review. Authored 8 October 2026.
+Status: user likes the first implementation apart from elbow holes; sleeve clearance correction awaits visual confirmation. Authored 8 October 2026.
 
 ## Source and observed construction
 
@@ -21,7 +21,7 @@ Visible features: close-fitting long sleeves, a black bound crew neck, horizonta
 
 The generated atlas initially depicted the back of a Buddha in its top-right region, which is incorrect for the supplied back photo. That region is not used. The front-facing top-left motif is mapped to both the front and back of the garment. Their exact differences are not yet reconstructed.
 
-The print and sleeve symbols are interpretive generated artwork, not exact extracted artwork or verified text. The texture's flat layout was inspected. Physical transparency, glitter response, side seams, print scale and sleeve orientation still need review on the rendered doll. A visually recognisable result has not yet been accepted by the user. Geometry and UI tests do not establish fidelity.
+The print and sleeve symbols are interpretive generated artwork, not exact extracted artwork or verified text. The texture's flat layout was inspected. Physical transparency, glitter response, side seams, print scale and sleeve orientation still need review on the rendered doll. User feedback: “There are two strange holes at the elbow, but it looks very good besides that.” Geometry analysis found arm vertices penetrating both fitted sleeves around the elbow. The sleeves were re-centred and given local clearance; a raycast regression test now checks that the elbow surfaces remain inside the sleeves. Print and materials were preserved. Geometry and UI tests do not establish fidelity.
 
 ## Authoring and automation boundary
 
