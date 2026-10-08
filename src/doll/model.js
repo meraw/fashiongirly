@@ -1,7 +1,9 @@
 import * as T from 'three';
 import { cleanRecipe } from './recipe.js';
 import { makeOuterwear } from './outerwear.js';
-import { BRONZE_TOP_ID, LILAC_TOP_ID, CROCHET_TOP_ID, PLAID_JUMPER_ID, STRIPE_JUMPER_ID, POINTELLE_FLOWER_ID, SILVER_CABLE_ID, LACROIX_FLOWER_ID, TOMMY_CABLE_ID, PETIT_BATEAU_CARDIGAN_ID, GARMENTS } from '../wardrobe/catalog.js';
+import { levelCaster } from './level-caster.js';
+import { BRONZE_TOP_ID, LILAC_TOP_ID, CROCHET_TOP_ID, PLAID_JUMPER_ID, STRIPE_JUMPER_ID, POINTELLE_FLOWER_ID, SILVER_CABLE_ID, LACROIX_FLOWER_ID, TOMMY_CABLE_ID, PETIT_BATEAU_CARDIGAN_ID, TOMMY_STRIPE_POLO_ID, GARMENTS } from '../wardrobe/catalog.js';
+import { makeKnitPolo } from './polo.js';
 // Body and wardrobe share one toy proportion system; the face stays unscaled.
 const BODY_HEIGHT = .76;
 const BODY_WIDTH = 1.06;
@@ -1379,17 +1381,19 @@ function makeJeans(id,spec,swatch=null,rest=LOAFER_REST){
     hn.needsUpdate=true;
   }
   // Depth of the actual jeans surface at (x, y), front or back: measured on the built shells, so details sit on it.
-  const caster=new T.Raycaster(),hit=new T.Vector3();
+  // Every ray here is level, so each set of shells gets a levelCaster (same hits as a Raycaster, much faster).
+  const casters=new Map(),hit=new T.Vector3(),cast=(meshes,origin,dir)=>{const key=meshes.map(m=>m.id).join();
+    if(!casters.has(key))casters.set(key,levelCaster(meshes));return casters.get(key)(origin,dir);};
   // Cached: patches repeat the same corners many times, and each measurement is a ray against the whole surface.
   const depthCache=new Map(),down=new T.Vector3(),
     depth=(x,y,back=false)=>{const key=Math.round(x*4000)+':'+Math.round(y*4000)+(back?'b':'f');let d=depthCache.get(key);
-      if(d===undefined){caster.set(hit.set(x,y,back?-1:1),down.set(0,0,back?1:-1));const h=caster.intersectObjects(body,false)[0];d=h?Math.abs(h.point.z):0;depthCache.set(key,d);}return d;};
+      if(d===undefined){const h=cast(body,hit.set(x,y,back?-1:1),down.set(0,0,back?1:-1));d=h?Math.abs(h.point.z):0;depthCache.set(key,d);}return d;};
   // Extra points along a long stitched line, so once projected it follows the surface between its corners.
   const dense=(pts,step=.012)=>pts.flatMap(([x,y],k)=>{if(!k)return [[x,y]];const [x0,y0]=pts[k-1],n=Math.max(1,Math.ceil(Math.hypot(x-x0,y-y0)/step));return Array.from({length:n},(_,j)=>[x0+(x-x0)*(j+1)/n,y0+(y-y0)*(j+1)/n]);});
   const on=(pts,back=false,off=.004)=>pts.map(([x,y])=>[x,y,(back?-1:1)*(depth(x,y,back)+off)]);
   // A point on a leg's folded surface at height y and angle a around the leg, found by casting in from outside
   // against that leg only (an inner seam would otherwise land on the other leg).
-  const legPoint=(side,y,a,off=.003)=>{const cx=lerpRows(legRows(side),y)[3],dir=new T.Vector3(Math.sin(a),0,Math.cos(a));caster.set(new T.Vector3(cx,y,0).addScaledVector(dir,.6),dir.clone().negate());const h=caster.intersectObjects(y>(spec.crotch?spec.crotch.y:.97)?[body[0],legs[side]]:[legs[side]],false)[0];return h?h.point.addScaledVector(dir,off).toArray():[cx+dir.x*.17,y,dir.z*.17];};
+  const legPoint=(side,y,a,off=.003)=>{const cx=lerpRows(legRows(side),y)[3],dir=new T.Vector3(Math.sin(a),0,Math.cos(a));const h=cast(y>(spec.crotch?spec.crotch.y:.97)?[body[0],legs[side]]:[legs[side]],new T.Vector3(cx,y,0).addScaledVector(dir,.6),dir.clone().negate());return h?h.point.addScaledVector(dir,off).toArray():[cx+dir.x*.17,y,dir.z*.17];};
   // A flat outline projected onto the jeans surface, subdivided so it follows the curve.
   const patchOn=(outline,name,back,off,material=denim)=>{const shape=new T.Shape();outline.forEach(([x,y],k)=>k?shape.lineTo(x,y):shape.moveTo(x,y));shape.closePath();
     // Pocket-sized patches need fine subdivision to follow the curve; small ones (heart, scuffs) need little.
@@ -1410,7 +1414,7 @@ function makeJeans(id,spec,swatch=null,rest=LOAFER_REST){
     // Scoop pocket: a curved opening from the waistband down to the side seam, with a second row of stitching.
     if(fp.type==='scoop')for(const inset of [0,.007])curve(jeans,on(fp.line.map(([x,y],k)=>[side*(x+inset*(k?1:.4)),y+inset*(k===fp.line.length-1?-1:0)])),.0017*sw,thread,'scoop-pocket-stitch');
     // Side seam: starts at the outer hip and runs to the hem (twisting toward the back when the spec twists the legs).
-    const hipPoint=(y,a,off=.003)=>{const dir=new T.Vector3(Math.sin(a),0,Math.cos(a));caster.set(new T.Vector3(0,y,0).addScaledVector(dir,.8),dir.clone().negate());const h=caster.intersectObject(body[0],false)[0];return h?h.point.addScaledVector(dir,off).toArray():[dir.x*.27,y,dir.z*.18];};
+    const hipPoint=(y,a,off=.003)=>{const dir=new T.Vector3(Math.sin(a),0,Math.cos(a));const h=cast([body[0]],new T.Vector3(0,y,0).addScaledVector(dir,.8),dir.clone().negate());return h?h.point.addScaledVector(dir,off).toArray():[dir.x*.27,y,dir.z*.18];};
     const seam=spec.crotch?Array.from({length:7},(_,k)=>{const y=spec.waistband.y-spec.waistband.h/2-k*(spec.waistband.y-spec.waistband.h/2-.98)/6;return hipPoint(y,side*Math.PI/2);}):spec.sideSeamTop.map(([x,y])=>[side*x,y,0]);
     const legTop=spec.crotch?spec.crotch.y-.003:.97;
     const seamEnd=hemTop>hemY?Math.max(spec.seamEnd,hemTop+.01):spec.seamEnd;for(let k=0;k<=20;k++){const y=legTop-k*(legTop-seamEnd)/20;seam.push(legPoint(side,y,outAngle(side,y)));}
@@ -1584,6 +1588,7 @@ export function makeOutfit(raw, atlas=null) {
   const makeTop=id=>id===CROCHET_TOP_ID?makeCrochetTop():id===PLAID_JUMPER_ID?makePlaidJumper(id,state.skirt):id===STRIPE_JUMPER_ID?makeStripeJumper(id,state.skirt)
     :id===POINTELLE_FLOWER_ID?makePointelleJumper(id,state.skirt):id===SILVER_CABLE_ID?makeSilverCableJumper():id===LACROIX_FLOWER_ID?makeLacroixSweater(id,state.skirt)
     :id===TOMMY_CABLE_ID?makeTommyCableSweater(id,state.skirt):id===PETIT_BATEAU_CARDIGAN_ID?makeStripedCardigan(id,state.skirt)
+    :id===TOMMY_STRIPE_POLO_ID?makeKnitPolo(id)
     :makeReferenceTop(atlas?.isTexture?atlas:atlas?.[id],id);
   if(state.topId!=='classic')root.add(makeTop(state.topId));
   // A top that can be worn over another top (layering.overTop, such as a cardigan) may have a slim top under it
@@ -1646,8 +1651,8 @@ export function makeOutfit(raw, atlas=null) {
   const outerwear=GARMENTS[state.outerwearId];
   if(outerwear?.slot==='outerwear'){
     if(outerwear.layering?.coversTopSleeves)for(const layer of root.children)layer.traverse(o=>{if(o.isGroup&&o.rotation.z!==0&&o.children.some(c=>c.isMesh&&/sleeve/.test(c.name)))o.visible=false;});
-    // Zipped to the chin, it also closes over the striped shirt's collar points.
-    if(outerwear.layering?.closed&&!state.outerwearOpen)root.traverse(o=>{if(o.name==='shirt-collar')o.visible=false;});
+    // Zipped to the chin, it also closes over the striped shirt's collar points and a polo's collar.
+    if(outerwear.layering?.closed&&!state.outerwearOpen)root.traverse(o=>{if(o.name==='shirt-collar'||o.name.startsWith('polo-collar'))o.visible=false;});
     const outer=makeOuterwear(state.outerwearId,state.skirt,{under:root,open:state.outerwearOpen});
     if(outer)root.add(outer);
   }
@@ -1662,4 +1667,4 @@ export function makeOutfit(raw, atlas=null) {
 }
 export function disposeObject(root) { const geometries=new Set(),materials=new Set(),textures=new Set();root.traverse(o=>{if(o.geometry)geometries.add(o.geometry);if(o.material)for(const m of Array.isArray(o.material)?o.material:[o.material])materials.add(m);});for(const m of materials)for(const value of Object.values(m))if(value?.isTexture)textures.add(value);geometries.forEach(g=>g.dispose());textures.forEach(t=>t.dispose());materials.forEach(m=>m.dispose()); }
 // Shared builders for garments made in their own modules (outerwear.js).
-export { V, random, weave, solid, put, oval, curve, shell, ringShell, ribbon, ribbed, roundSleeveCap };
+export { V, random, weave, solid, put, oval, curve, shell, ringShell, ribbon, ribbed, roundSleeveCap, surfaceProbe, trimToEdge };

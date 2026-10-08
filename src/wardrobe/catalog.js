@@ -16,6 +16,7 @@ export const SILVER_CABLE_ID = 'desigual-silver-cable-jumper-v1';
 export const LACROIX_FLOWER_ID = 'desigual-lacroix-flower-sweater-v1';
 export const TOMMY_CABLE_ID = 'tommy-green-cable-sweater-v1';
 export const PETIT_BATEAU_CARDIGAN_ID = 'petit-bateau-striped-cardigan-v1';
+export const TOMMY_STRIPE_POLO_ID = 'tommy-stripe-knit-polo-v1';
 export const BARREL_JEANS_ID = 'topshop-barrel-jeans-v1';
 export const DAVINIA_JEANS_ID = 'desigual-davinia-jeans-v1';
 export const LEVIS_94_ID = 'levis-94-wide-leg-v1';
@@ -183,6 +184,22 @@ export const GARMENTS = Object.freeze({
     styling: { silhouette: 'oversized, boxy, mid-thigh length', palette: ['cream', 'navy'], pattern: 'wide navy stripes on the lower body and forearms', coverage: { neck: 'deep V, skin showing', sleeves: 'long', midriff: 'covered' }, material: 'chunky fisherman rib knit', warmth: 3, warmthBasis: 'inferred: chunky knit, open V-neck', weather: 'cool days; the V leaves the chest open' },
     uncertainties: ['buttons are plain cream discs', 'the badge is a plain navy oval', 'the rib is drawn as texture and bump, not separate ridges', 'worn over the blue sleeveless top needs a rule for layering two tops, not yet built'],
     authoring: { texture: 'procedural fishermanRibData() in src/doll/model.js, drawn locally when first worn', runtimeGeneration: false, sourcePhotosBundled: false },
+  },
+  [TOMMY_STRIPE_POLO_ID]: {
+    slot: 'top',
+    id: TOMMY_STRIPE_POLO_ID, name: 'Navy stripe knit polo', family: 'short-sleeve-knit-polo', version: 1,
+    status: 'reference-study-awaiting-visual-review', brandAsProvided: 'Tommy Hilfiger',
+    source: { note: 'user supplied four phone screenshots of a product gallery: front on a model, back on a model, a close-up of the neckline and a flat lay' },
+    referenceViews: ['front on model', 'back on model', 'neckline close-up', 'front flat lay'],
+    details: ['fine-gauge knit in navy and off-white horizontal stripes, navy about 60% of each repeat', 'navy knit polo collar with spread points', 'short navy placket with four off-white buttons; worn with the top one open', 'white script monogram on her left chest, level with the bottom button', 'short set-in sleeves ending above the elbow in narrow navy rib bands', 'small metal flag tab on the left sleeve band', 'navy ribbed hem band', 'slim fit, ending at the waist over high-rise jeans'],
+    material: { construction: 'fine-gauge knit', composition: 'not visible in the supplied screenshots', finish: 'smooth, matte' },
+    fit: { silhouette: 'slim, fitted', sleeve: 'short, close to the arm, rib band above the elbow', hem: 'waist, narrow rib band', adjustment: 'fixed authored fit for review' },
+    exclusions: ['striped-shirt','knit-sweater'],
+    // Where the sleeve fabric ends (sleeve-local height, used by the shared sleeve test): below it the rib band, then her bare arm.
+    layering: { bareArmBelow: -.18 },
+    uncertainties: ['about eleven stripe repeats from hem band to neck on her short torso, where the photos show about ten to thirteen', 'the monogram is a drawn suggestion of the script, not the brand\'s lettering', 'the sleeve flag is a simple three-colour tab', 'worn with the top button open, as on the model; the flat lay is fully buttoned'],
+    styling: { silhouette: 'slim, waist length', palette: ['navy', 'off-white'], pattern: 'even horizontal Breton-style stripes with a navy collar, placket and bands', coverage: { neck: 'polo collar, top button open', sleeves: 'short', midriff: 'covered to the waist' }, material: 'fine-gauge knit, composition unknown', warmth: 1, warmthBasis: 'inferred: fine knit with short sleeves', weather: 'mild to warm days; layers under a jacket' },
+    authoring: { texture: 'procedural stripeData() in src/doll/polo.js, drawn locally when first worn', runtimeGeneration: false, sourcePhotosBundled: false },
   },
   [BARREL_JEANS_ID]: {
     slot: 'bottom',

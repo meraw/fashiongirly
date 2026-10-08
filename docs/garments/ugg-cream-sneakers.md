@@ -35,7 +35,7 @@ The user found the soles convincing but the ankle far too loose: her leg came ou
 
 ## Checks
 
-- `npm test`: 55 passing. A new test checks:
+- `npm test`: 57 passing. A new test checks:
   - the sneaker's parts, and that the boot-only parts are absent;
   - the eyelet count;
   - that the collar sits well below her sock tops and she is not raised;
