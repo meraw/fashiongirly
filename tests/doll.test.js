@@ -402,3 +402,35 @@ test('Mango washed black jeans: high rise, back darts instead of a yoke, ankle l
       assert.ok(h&&h.distance>r+.001,`${o.name} vertex ${i} shows through the Mango leg`);checked++;}});
   assert.ok(checked>200);disposeObject(doll);disposeObject(outfit);
 });
+
+test('silver cable jumper: foil over black, cropped at the waist, clear of every waistband',()=>{
+  const id='desigual-silver-cable-jumper-v1',recipe=cleanRecipe({topId:id,knit:true,shirt:true});
+  assert.equal(recipe.knit,false);assert.equal(recipe.shirt,false);
+  const outfit=makeOutfit({topId:id});outfit.updateMatrixWorld(true);
+  for(const name of ['silver-cable-body','ribbed-hem-band','ribbed-crew-neck'])assert.ok(outfit.getObjectByName(name),name);
+  let cuffs=0;outfit.traverse(o=>{if(o.name==='ribbed-cuff')cuffs++;});assert.equal(cuffs,2);
+  // Mostly silver, dark only in grooves and gaps (as in the photo, the body's grooves are dark grey and its gaps black);
+  // metallic, with the same knit driving the bump.
+  const body=outfit.getObjectByName('silver-cable-body'),px=body.material.map.image.data;let dark=0,bright=0,black=0;
+  for(let i=0;i<px.length;i+=4){const l=(px[i]+px[i+1]+px[i+2])/3;if(l<90)dark++;if(l<30)black++;if(l>120)bright++;}
+  const n=px.length/4;assert.ok(bright/n>.6&&dark/n>.03&&dark/n<.25&&black>0,`silver ${bright/n}, dark ${dark/n}, black ${black}`);
+  assert.ok(body.material.metalness>.3);assert.ok(body.material.bumpMap);
+  disposeObject(outfit);
+  // Cropped: it ends above the skirt, whose bow stays visible.
+  const skirted=makeOutfit({topId:id,skirt:true});skirted.updateMatrixWorld(true);assert.ok(skirted.getObjectByName('ribbon-knot'));
+  const hem=new T.Box3().setFromObject(skirted.getObjectByName('ribbed-hem-band')).min.y/.76;assert.ok(hem>1.24&&hem<1.3,`hem at ${hem}`);
+  disposeObject(skirted);
+  // Every waistband that reaches above the hem passes inside the band.
+  const ray=new T.Raycaster(),p=new T.Vector3(),axis=new T.Vector3(0,1,0);let checked=0;
+  for(const bottomId of ['classic',...Object.keys(GARMENTS).filter(b=>GARMENTS[b].slot==='bottom')]){
+    const dressed=makeOutfit({topId:id,bottomId,skirt:bottomId==='classic'});dressed.updateMatrixWorld(true);
+    const cover=[dressed.getObjectByName('silver-cable-body'),dressed.getObjectByName('ribbed-hem-band')],seen=new Map();
+    for(const layer of ['trousers','layered-skirt'].map(name=>dressed.getObjectByName(name)).filter(Boolean))layer.traverse(o=>{if(!o.geometry)return;const pos=o.geometry.attributes.position;
+      for(let i=0;i<pos.count;i++){p.fromBufferAttribute(pos,i).applyMatrix4(o.matrixWorld);const y=p.y/.76;if(y<hem+.006||y>1.4)continue;
+        const r=Math.hypot(p.x,p.z),a=Math.atan2(p.x,p.z),key=Math.round(y/.002)+':'+Math.round(a/(Math.PI/180));
+        if(!seen.has(key)){ray.set(new T.Vector3(0,p.y,0),new T.Vector3(Math.sin(a),0,Math.cos(a)).applyAxisAngle(axis,1e-5));seen.set(key,ray.intersectObjects(cover,false)[0]?.distance||0);}
+        assert.ok(seen.get(key)>r+.001,`${o.name} pokes through the band over ${bottomId} at vertex ${i}`);checked++;}});
+    disposeObject(dressed);
+  }
+  assert.ok(checked>200,`checked ${checked}`);
+});
