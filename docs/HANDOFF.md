@@ -15,7 +15,7 @@ Read [PRODUCT_BRIEF.md](PRODUCT_BRIEF.md) for the product's intent and agreed co
 - Sweater and denim colours, sweater sleeve volume and hem, trouser volume, and layer toggles.
 - Bounded text parser, turn controls, draft persistence and a 24-look browser lookbook.
 - Earlier vector implementation retained at `illustration.html`.
-- Sixteen tests were passing and the static build succeeded at this handoff. Geometry and UI checks do not establish visual quality; full device/WebGL appearance and performance still require review.
+- Seventeen tests were passing and the static build succeeded at this handoff. Geometry and UI checks do not establish visual quality; full device/WebGL appearance and performance still require review.
 
 ## Code landmarks
 
@@ -49,7 +49,7 @@ Latest feedback: the user says the top looks very good apart from two elbow hole
 
 The third garment is the Desigual blue crochet flower sweater, authored from a product page link rather than attached pictures. See [its record](garments/crochet-flowers.md); it also awaits the user's visual feedback. Its renders were only checked by the authoring chat in headless Chromium. The user liked it and reported the garments render okay with occasional issues.
 
-Latest feedback: the doll's shoulders looked far too square. The cause was mostly the fitted tops: a flat shoulder shelf and open sleeve tops rising above it. The arms were also attached as high as the top of the body, which prevented rounding the sleeves without exposing the arm. Fix: arm tops lowered slightly (hands and elbows unchanged), softer shoulder rows on the bronze, lilac and crochet bodies, and rounded sleeve caps. The sleeve test now checks clearance over the whole upper arm and that each sleeve's outer top sits below its inner top. Awaiting the user's visual review. A small dark shape at the lilac top's hem predates this change and is not yet investigated.
+Latest feedback: the doll's shoulders looked far too square. The cause was mostly the fitted tops: a flat shoulder shelf and open sleeve tops rising above it. The arms were also attached as high as the top of the body, which prevented rounding the sleeves without exposing the arm. Fix: arm tops lowered slightly (hands and elbows unchanged), softer shoulder rows on the bronze, lilac and crochet bodies, and rounded sleeve caps. The sleeve test now checks clearance over the whole upper arm and that each sleeve's outer top sits below its inner top. Awaiting the user's visual review. The trousers showing through the lilac hem were fixed separately; see the lilac hem correction below.
 
 ## Garment intake from links
 
@@ -68,3 +68,8 @@ Fetching a page depends on both the environment's network settings and the shop.
 - Deployment is separate from committing. Pages requires the repository setting and a manual workflow run; no live deployment is established by this handoff.
 - Reference concept images are not in the repo. Do not assume access to prior chat attachments or scratch paths. Request the image again when exact comparison is necessary.
 - Update this handoff when capabilities or the next milestone change. Record actual checks and distinguish visual approval from passing tests.
+
+
+## Latest lilac hem correction
+
+The user reported trousers showing through both lower sides of the lilac shirt. The lower torso and hem now ease over the trouser hips and seams; a regression check covers narrow, medium and wide jeans. Visual confirmation is next. The crochet sweater added in another chat is preserved.

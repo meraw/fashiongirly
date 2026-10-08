@@ -145,7 +145,7 @@ function makeReferenceTop(atlas, id=BRONZE_TOP_ID) {
   const lilac=id===LILAC_TOP_ID,hem=lilac?1.10:1.18;
   const top=new T.Group();top.name=id;
   const bodyMaterial=referenceMaterial(atlas,'body',lilac),binding=cloth(lilac?'#67516d':'#191817');
-  const body=shell(top,[[1.91,.109,.099],[1.875,.17,.122],[1.83,.228,.152],[1.775,.265,.175],[1.65,.279,.183],[1.49,.272,.183],[1.34,.262,.177],[hem,lilac?.29:.277,lilac?.197:.184]],bodyMaterial,'reference-top-body',64);
+  const body=shell(top,[[1.91,.109,.099],[1.875,.17,.122],[1.83,.228,.152],[1.775,.265,.175],[1.65,.279,.183],[1.49,.272,.183],...(lilac?[[1.34,.275,.192],[1.25,.302,.224],[1.16,.319,.237],[hem,.325,.241]]:[[1.34,.262,.177],[hem,.277,.184]])],bodyMaterial,'reference-top-body',64);
   // Project each half separately: one upright motif on front and one on back.
   const uv=body.geometry.attributes.uv,p=body.geometry.attributes.position;
   for(let i=0;i<uv.count;i++){
@@ -162,7 +162,7 @@ function makeReferenceTop(atlas, id=BRONZE_TOP_ID) {
     for(let i=0;i<40;i++){const a=i/40*Math.PI*2;curve(top,[[Math.sin(a)*.108,1.91,Math.cos(a)*.104],[Math.sin(a)*.105,1.963,Math.cos(a)*.101]],.0018,binding,'collar-rib');}
   }
   ring(top,1.904,.112,.103,binding,'bound-crew-neck',.033);
-  ring(top,hem+.008,lilac?.292:.279,lilac?.20:.187,binding,'fine-top-hem',.018);
+  ring(top,hem+.008,lilac?.326:.279,lilac?.243:.187,binding,'fine-top-hem',.018);
   for(const side of [-1,1]){
     // Centre the fitted sleeve on the doll arm and retain elbow clearance.
     const arm=new T.Group();arm.position.set(side*.242,1.815,0);arm.rotation.z=side*.22;
@@ -319,3 +319,4 @@ export function makeOutfit(raw, atlas=null) {
   return root;
 }
 export function disposeObject(root) { const geometries=new Set(),materials=new Set(),textures=new Set();root.traverse(o=>{if(o.geometry)geometries.add(o.geometry);if(o.material)for(const m of Array.isArray(o.material)?o.material:[o.material])materials.add(m);});for(const m of materials)for(const value of Object.values(m))if(value?.isTexture)textures.add(value);geometries.forEach(g=>g.dispose());textures.forEach(t=>t.dispose());materials.forEach(m=>m.dispose()); }
+
