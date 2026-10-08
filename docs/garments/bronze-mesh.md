@@ -1,6 +1,6 @@
 # Reference test: Desigual bronze mesh top
 
-Status: user likes the first implementation apart from elbow holes; sleeve clearance correction awaits visual confirmation. Authored 8 October 2026.
+Status: user responded “This is really nice” after the sleeve-clearance correction and requested another garment. Authored 8 October 2026.
 
 ## Source and observed construction
 

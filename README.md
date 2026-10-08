@@ -6,7 +6,7 @@ A tiny living fashion doll with a playful wardrobe. The current homepage is a **
 
 Read the [product brief](docs/PRODUCT_BRIEF.md) for the intended experience, approved visual direction, reference-based garment creation, individual fit requirements, and no-API-first constraint. Read the [working handoff](docs/HANDOFF.md) for what exists, what is still planned, and where to resume. [AGENTS.md](AGENTS.md) points coding assistants to these documents.
 
-The first reference garment is now a [Desigual bronze mesh top](docs/garments/bronze-mesh.md). Select “Bronze mesh study” to review its fitted geometry and generated print. The user likes its overall appearance; a correction for elbow clipping is awaiting visual confirmation.
+The first reference garment is now a [Desigual bronze mesh top](docs/garments/bronze-mesh.md). Select “Bronze mesh study” to review its fitted geometry and generated print. The user liked the corrected result. A second [lilac portrait mock neck](docs/garments/lilac-portrait.md) now has a separate front and back, raised collar, and navy patterned sleeves; choose “Lilac portrait study” to review it.
 
 ## Current milestone
 

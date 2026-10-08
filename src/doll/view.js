@@ -1,11 +1,15 @@
 import * as T from 'three';
+import { LILAC_ATLAS } from '../wardrobe/lilac-atlas.js';
+import { BRONZE_TOP_ID, LILAC_TOP_ID } from '../wardrobe/catalog.js';
 import { BRONZE_ATLAS } from '../wardrobe/bronze-atlas.js';
 import { makeDoll, makeOutfit, disposeObject } from './model.js';
 export async function createDollView(host, recipe) {
-  const atlas=await new T.TextureLoader().loadAsync(BRONZE_ATLAS);atlas.colorSpace=T.SRGBColorSpace;
+  const atlas={};
+  try { for(const [id,data] of [[BRONZE_TOP_ID,BRONZE_ATLAS],[LILAC_TOP_ID,LILAC_ATLAS]]){atlas[id]=await new T.TextureLoader().loadAsync(data);atlas[id].colorSpace=T.SRGBColorSpace;} }
+  catch(error){Object.values(atlas).forEach(t=>t.dispose());throw error;}
   let renderer;
   try { renderer=new T.WebGLRenderer({antialias:true,alpha:true}); }
-  catch { atlas.dispose();throw new Error('This device could not start the 3D view. Try a browser with WebGL 2 enabled.'); }
+  catch { Object.values(atlas).forEach(t=>t.dispose());throw new Error('This device could not start the 3D view. Try a browser with WebGL 2 enabled.'); }
   renderer.setPixelRatio(Math.min(devicePixelRatio || 1,2));renderer.setClearColor(0x000000,0);renderer.outputColorSpace=T.SRGBColorSpace;
   renderer.toneMapping=T.ACESFilmicToneMapping;renderer.toneMappingExposure=1.2;renderer.shadowMap.enabled=true;renderer.shadowMap.type=T.PCFSoftShadowMap;
   renderer.domElement.setAttribute('aria-label','Dressable 3D doll. Drag to turn her, or use the view buttons.');renderer.domElement.setAttribute('role','img');
@@ -30,6 +34,6 @@ export async function createDollView(host, recipe) {
   return {
     update(next){const replacement=makeOutfit(next,atlas);model.remove(outfit);disposeObject(outfit);outfit=replacement;model.add(outfit);render();},
     turn(degrees){target=degrees*Math.PI/180;angle=target;render();},
-    dispose(){if(closed)return;closed=true;cancelAnimationFrame(frame);observer.disconnect();renderer.domElement.removeEventListener('pointerdown',down);renderer.domElement.removeEventListener('pointermove',move);renderer.domElement.removeEventListener('pointerup',up);renderer.domElement.removeEventListener('pointercancel',up);renderer.domElement.removeEventListener('webglcontextlost',lost);disposeObject(model);atlas.dispose();disposeObject(floor);key.shadow.map?.dispose();renderer.dispose();renderer.domElement.remove();},
+    dispose(){if(closed)return;closed=true;cancelAnimationFrame(frame);observer.disconnect();renderer.domElement.removeEventListener('pointerdown',down);renderer.domElement.removeEventListener('pointermove',move);renderer.domElement.removeEventListener('pointerup',up);renderer.domElement.removeEventListener('pointercancel',up);renderer.domElement.removeEventListener('webglcontextlost',lost);disposeObject(model);Object.values(atlas).forEach(t=>t.dispose());disposeObject(floor);key.shadow.map?.dispose();renderer.dispose();renderer.domElement.remove();},
   };
 }

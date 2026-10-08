@@ -49,7 +49,7 @@ Intended workflow:
 
 Reference images inform the asset. The intended display is a dressable garment, not a product-photo cutout pasted onto the character. Texture maps or procedural materials may still be legitimate parts of a garment asset. Unseen construction details need another view or an explicitly acknowledged interpretation.
 
-The user believes reference-based reconstruction is practical from previous game-building experience and expects us to test it concretely. Do not dismiss the workflow; also do not claim fidelity before showing the result. The first actual reference is now the Desigual bronze mesh top, supplied in front and back views. The user likes the first implementation apart from elbow holes, for which a sleeve-clearance correction is now awaiting confirmation; see [the garment record](garments/bronze-mesh.md).
+The user believes reference-based reconstruction is practical from previous game-building experience and expects us to test it concretely. Do not dismiss the workflow; also do not claim fidelity before showing the result. The first actual reference is now the Desigual bronze mesh top, supplied in front and back views. After an elbow-clearance correction the user said “This is really nice” and requested a second garment; see [the garment record](garments/bronze-mesh.md).
 
 ## Local first; no runtime AI API requirement
 

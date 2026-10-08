@@ -70,7 +70,8 @@ test('reference garment keeps its identity, mapped details and layer exclusions'
   app.dispose();dom.window.close();
 });
 test('reference sleeves enclose both elbows with clearance',()=>{
-  const doll=makeDoll(),outfit=makeOutfit({topId:'desigual-bronze-mesh-v1'});
+  for(const topId of ['desigual-bronze-mesh-v1','lilac-portrait-mockneck-v1']){
+  const doll=makeDoll(),outfit=makeOutfit({topId});
   doll.updateMatrixWorld(true);outfit.updateMatrixWorld(true);
   const arms=[],sleeves=[];
   doll.traverse(o=>{if(o.name==='arm')arms.push(o);});
@@ -89,4 +90,20 @@ test('reference sleeves enclose both elbows with clearance',()=>{
     }
   }
   assert.ok(checked>100);disposeObject(doll);disposeObject(outfit);
+  }
+});
+
+test('lilac top has distinct front/back materials and its own collar, without mesh cutouts',()=>{
+  const atlas=new T.DataTexture(new Uint8Array([255,255,255,255]),1,1);
+  const id='lilac-portrait-mockneck-v1',recipe=cleanRecipe({topId:id}),outfit=makeOutfit(recipe,{[id]:atlas});
+  assert.equal(recipe.topId,id);assert.equal(recipe.knit,false);assert.ok(outfit.getObjectByName('ribbed-mock-neck'));
+  const body=outfit.getObjectByName('reference-top-body');assert.equal(body.material.length,2);assert.equal(body.geometry.groups.length,2);
+  assert.ok(body.material[0].map.offset.x<body.material[1].map.offset.x);
+  for(const mat of body.material){assert.equal(mat.alphaMap,null);assert.equal(mat.alphaTest,0);}
+  const pos=body.geometry.attributes.position,index=body.geometry.index;
+  for(const group of body.geometry.groups)for(let i=group.start;i<group.start+group.count;i+=3){
+    const z=pos.getZ(index.getX(i))+pos.getZ(index.getX(i+1))+pos.getZ(index.getX(i+2));
+    assert.ok(group.materialIndex===0?z>=0:z<0);
+  }
+  disposeObject(outfit);atlas.dispose();
 });

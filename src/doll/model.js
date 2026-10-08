@@ -1,6 +1,6 @@
 import * as T from 'three';
 import { cleanRecipe } from './recipe.js';
-import { BRONZE_TOP_ID } from '../wardrobe/catalog.js';
+import { BRONZE_TOP_ID, LILAC_TOP_ID } from '../wardrobe/catalog.js';
 // Body and wardrobe share one toy proportion system; the face stays unscaled.
 const BODY_HEIGHT = .76;
 const BODY_WIDTH = 1.06;
@@ -114,11 +114,12 @@ function sleeve(group,side,volume,mat) {
   shell(sleeveGroup,[[.035,.087,.105],[0,radius*.95,radius],[-.08,radius*1.17,radius*1.12],[-.2,radius*1.13,radius*1.09],[-.33,radius*1.1,radius*1.06],[-.44,.086,.09],[-.48,.076,.083]],mat,'balloon-sleeve');
   ring(sleeveGroup,-.475,.077,.084,mat,'knit-cuff',.08);group.add(sleeveGroup);
 }
-function referenceMaterial(atlas, panel) {
+function referenceMaterial(atlas, panel, lilac=false) {
   const map=atlas?.clone()||null;
-  if(map){map.repeat.set(.496,.496);map.offset.set(panel==='right'?.502:.002,panel==='body'?.502:.002);map.needsUpdate=true;}
+  if(map){map.repeat.set(.496,.496);map.offset.set((panel==='right'||panel==='back')?.502:.002,(panel==='body'||panel==='back')?.502:.002);map.needsUpdate=true;}
   const detail=weave('denim');detail.repeat.set(9,9);
   const mat=new T.MeshPhysicalMaterial({color:map?'#ffffff':'#664732',map,roughness:.64,metalness:.26,sheen:.35,sheenColor:new T.Color('#a38150'),bumpMap:detail,bumpScale:.0018,side:T.DoubleSide});
+  if(lilac){mat.metalness=panel==='back'?.32:.08;mat.roughness=panel==='back'?.5:.78;mat.sheenColor.set('#b4a0c2');return mat;}
   // Fine mesh pinholes; black bands remain opaque. Separate from painted colour.
   const size=256,data=new Uint8Array(size*size*4);
   for(let y=0;y<size;y++)for(let x=0;x<size;x++){
@@ -129,27 +130,40 @@ function referenceMaterial(atlas, panel) {
   const alpha=new T.DataTexture(data,size,size,T.RGBAFormat);alpha.needsUpdate=true;mat.alphaMap=alpha;mat.alphaTest=.4;
   return mat;
 }
-function makeReferenceTop(atlas) {
-  const top=new T.Group();top.name=BRONZE_TOP_ID;
-  const bodyMaterial=referenceMaterial(atlas,'body'),binding=cloth('#191817');
-  const body=shell(top,[[1.91,.109,.099],[1.86,.185,.129],[1.79,.263,.173],[1.65,.279,.183],[1.49,.272,.183],[1.34,.262,.177],[1.18,.277,.184]],bodyMaterial,'reference-top-body',64);
+function makeReferenceTop(atlas, id=BRONZE_TOP_ID) {
+  const lilac=id===LILAC_TOP_ID,hem=lilac?1.10:1.18;
+  const top=new T.Group();top.name=id;
+  const bodyMaterial=referenceMaterial(atlas,'body',lilac),binding=cloth(lilac?'#67516d':'#191817');
+  const body=shell(top,[[1.91,.109,.099],[1.86,.185,.129],[1.79,.263,.173],[1.65,.279,.183],[1.49,.272,.183],[1.34,.262,.177],[hem,lilac?.29:.277,lilac?.197:.184]],bodyMaterial,'reference-top-body',64);
   // Project each half separately: one upright motif on front and one on back.
   const uv=body.geometry.attributes.uv,p=body.geometry.attributes.position;
   for(let i=0;i<uv.count;i++){
     const x=p.getX(i),z=p.getZ(i),y=p.getY(i);
-    uv.setXY(i,Math.max(.003,Math.min(.997,.5+(z>=0?x:-x)/.56)),Math.max(0,Math.min(1,(y-1.18)/.73)));
+    uv.setXY(i,Math.max(.003,Math.min(.997,.5+(z>=0?x:-x)/.56)),Math.max(0,Math.min(1,(y-hem)/(1.91-hem))));
   }
   uv.needsUpdate=true;
+  if(lilac){
+    const front=[],back=[],index=body.geometry.index;
+    for(let i=0;i<index.count;i+=3){const a=index.getX(i),b=index.getX(i+1),c=index.getX(i+2);(p.getZ(a)+p.getZ(b)+p.getZ(c)>=0?front:back).push(a,b,c);}
+    body.geometry.setIndex([...front,...back]);body.geometry.clearGroups();body.geometry.addGroup(0,front.length,0);body.geometry.addGroup(front.length,back.length,1);
+    body.material=[bodyMaterial,referenceMaterial(atlas,'back',true)];
+    shell(top,[[1.968,.105,.10],[1.942,.107,.101],[1.90,.112,.104]],binding,'ribbed-mock-neck');
+    for(let i=0;i<40;i++){const a=i/40*Math.PI*2;curve(top,[[Math.sin(a)*.108,1.91,Math.cos(a)*.104],[Math.sin(a)*.105,1.963,Math.cos(a)*.101]],.0018,binding,'collar-rib');}
+  }
   ring(top,1.904,.112,.103,binding,'bound-crew-neck',.033);
-  ring(top,1.188,.279,.187,binding,'fine-top-hem',.018);
+  ring(top,hem+.008,lilac?.292:.279,lilac?.20:.187,binding,'fine-top-hem',.018);
   for(const side of [-1,1]){
     // Centre the fitted sleeve on the doll arm and retain elbow clearance.
     const arm=new T.Group();arm.position.set(side*.242,1.815,0);arm.rotation.z=side*.22;
-    const mat=referenceMaterial(atlas,side<0?'left':'right');
+    const mat=referenceMaterial(atlas,side<0?'left':'right',lilac);
     const sleeve=shell(arm,[[.025,.098,.10],[-.04,.112,.108],[-.16,.107,.101],[-.28,.104,.099],[-.40,.096,.091],[-.49,.078,.08],[-.525,.077,.079]],mat,'reference-fitted-sleeve',48);
     const suv=sleeve.geometry.attributes.uv,sp=sleeve.geometry.attributes.position;
     for(let i=0;i<suv.count;i++)suv.setY(i,Math.max(0,Math.min(1,(sp.getY(i)+.525)/.55)));
     suv.needsUpdate=true;
+    if(lilac){
+      for(let i=0;i<sp.count;i++){const y=sp.getY(i);if(y<-.34&&y>-.51){const amount=1+.035*Math.sin((y+.51)/.17*Math.PI*6)*Math.sin((y+.51)/.17*Math.PI);sp.setX(i,sp.getX(i)*amount);sp.setZ(i,sp.getZ(i)*amount);}}
+      sp.needsUpdate=true;sleeve.geometry.computeVertexNormals();
+    }
     ring(arm,-.515,.079,.081,binding,'fine-sleeve-hem',.018);
     top.add(arm);
   }
@@ -170,7 +184,7 @@ export function makeOutfit(raw, atlas=null) {
     curve(trousers,[[side*.075,1.18,.176],[side*.13,1.08,.17],[side*.23,1.06,.13]],.0025,stitch,'jean-pocket-seam');
   }
   oval(trousers,[0,1.205,.187],[.019,.019,.01],solid('#bca16a'),'waist-button');
-  if(state.topId===BRONZE_TOP_ID)root.add(makeReferenceTop(atlas));
+  if(state.topId!== 'classic')root.add(makeReferenceTop(atlas?.isTexture?atlas:atlas?.[state.topId],state.topId));
   if(state.shirt){
     const layer=new T.Group();layer.name='shirt';root.add(layer);
     shell(layer,[[1.8,.22,.145],[1.69,.267,.174],[1.43,.284,.185],[1.19,.288,.198],[1.145,.265,.19]],shirt,'shirt-body');

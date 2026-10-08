@@ -15,7 +15,7 @@ Read [PRODUCT_BRIEF.md](PRODUCT_BRIEF.md) for the product's intent and agreed co
 - Sweater and denim colours, sweater sleeve volume and hem, trouser volume, and layer toggles.
 - Bounded text parser, turn controls, draft persistence and a 24-look browser lookbook.
 - Earlier vector implementation retained at `illustration.html`.
-- Fourteen tests were passing and the static build succeeded at this handoff. Geometry and UI checks do not establish visual quality; full device/WebGL appearance and performance still require review.
+- Fifteen tests were passing and the static build succeeded at this handoff. Geometry and UI checks do not establish visual quality; full device/WebGL appearance and performance still require review.
 
 ## Code landmarks
 
@@ -31,7 +31,7 @@ Read [PRODUCT_BRIEF.md](PRODUCT_BRIEF.md) for the product's intent and agreed co
 | `scripts/build.mjs` | Static build including local Three.js dependencies |
 | `.github/workflows/pages.yml` | Manually dispatched Pages deployment |
 
-The current flat recipe is not a garment database. It holds colours, bounded numeric controls and layer booleans for the procedural study. A first catalog entry now exists for `desigual-bronze-mesh-v1`, selected by `topId`. It uses fitted geometry and a bundled generated texture. The other pieces still use the flat recipe. There is no general import pipeline, fitting rig or automatic reference reconstruction yet.
+The current flat recipe is not a garment database. It holds colours, bounded numeric controls and layer booleans for the procedural study. Two catalog entries now exist: `lilac-portrait-mockneck-v1` and the first entry for `desigual-bronze-mesh-v1`, selected by `topId`. It uses fitted geometry and a bundled generated texture. The other pieces still use the flat recipe. There is no general import pipeline, fitting rig or automatic reference reconstruction yet.
 
 ## Latest decisions
 
@@ -45,7 +45,7 @@ The current flat recipe is not a garment database. It holds colours, bounded num
 
 The user supplied front and back pictures of a detailed Desigual bronze mesh top. Its first implementation is available via the top selector and “Bronze mesh study” preset. Review [the garment record](garments/bronze-mesh.md), then get feedback on recognition and fit on the doll. Do not ask for the first reference again unless the actual pictures are needed and unavailable in the new chat.
 
-Latest feedback: the user says the top looks very good apart from two elbow holes. Arm/sleeve intersections were confirmed and corrected by re-centring the sleeves and adding local elbow clearance, with a regression test. Next: visually confirm this correction while preserving the approved overall appearance. The back currently reuses the front-facing motif, and sleeve glyphs are approximate. Preserve these limitations in future handoffs. Do not expand the wardrobe before reviewing this test.
+Latest feedback: the user says the top looks very good apart from two elbow holes. Arm/sleeve intersections were confirmed and corrected by re-centring the sleeves and adding local elbow clearance, with a regression test. The user subsequently said “This is really nice” and requested a second reference garment. The back currently reuses the front-facing motif, and sleeve glyphs are approximate. Preserve these limitations in future handoffs. The second garment is now the lilac portrait mock neck, inferred from two pictures without a written feature list. Its separate front/back materials, raised collar, longer hem and patterned sleeves are implemented; review [its record](garments/lilac-portrait.md) and gather visual feedback next.
 
 ## Operational notes
 
