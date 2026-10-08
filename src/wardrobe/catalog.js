@@ -9,6 +9,7 @@ export const DAVINIA_JEANS_ID = 'desigual-davinia-jeans-v1';
 export const LEVIS_94_ID = 'levis-94-wide-leg-v1';
 export const TOMMY_MOM_ID = 'tommy-ultra-high-mom-v1';
 export const STRADIVARIUS_RELAXED_ID = 'stradivarius-relaxed-v1';
+export const MANGO_BLACK_JEANS_ID = 'mango-washed-black-v1';
 export const GARMENTS = Object.freeze({
   [BRONZE_TOP_ID]: {
     slot: 'top',
@@ -260,6 +261,42 @@ export const GARMENTS = Object.freeze({
       backPocket: { x: .122, outline: [[-.074, 1.128], [.074, 1.128], [.07, 1.0], [0, .972], [-.07, 1.0]], stitchBelow: 1.07 },
       centreBack: [[.004, 1.142], [.004, 1.05], [0, .985]],
       labelPatch: { name: 'paper-patch', size: [.06, .032, .004], colour: '#d9c8a6', position: [-.065, 1.21, -(.175 + .004)], rotationY: Math.PI + .25 },
+    },
+  },
+  [MANGO_BLACK_JEANS_ID]: {
+    slot: 'bottom',
+    id: MANGO_BLACK_JEANS_ID, name: 'Mango washed black jeans', family: 'relaxed-straight-jeans', version: 1,
+    status: 'reference-study-awaiting-visual-review', brandAsProvided: 'Mango (MNG Denim)',
+    source: { note: 'user supplied five eBay listing photos (the pair is old): back flat lay on a wooden floor (twice), front waist close-ups and a front flat lay on grey carpet' },
+    referenceViews: ['back flat lay', 'front waist close-up', 'front pocket close-up', 'front flat lay'],
+    details: ['high rise', 'relaxed straight legs tapering slightly to an ankle-length hem', 'charcoal washed black with a mottled stone-wash, paler on thighs and seams', 'five-pocket front with copper rivets and a silver button', 'plain back patch pockets with a short dart above each instead of a yoke', 'black leather patch on the back waistband', 'light grey double topstitching on the seams, pockets, fly, waistband and hem, with paler bleached seams'],
+    material: { construction: 'rigid denim', composition: 'not visible in the supplied photos', finish: 'stone-washed black' },
+    fit: { silhouette: 'relaxed straight, slight taper', rise: 'high', length: 'ankle', adjustment: 'fixed authored fit for review' },
+    uncertainties: ['folds are procedural', 'photos are flash-lit or warm-lit listing photos; colour aims between them', 'patch carries no lettering'],
+    authoring: { texture: 'mango-denim.js: flat-lit seamless swatch processed from the front flat lay', runtimeGeneration: false, sourcePhotosBundled: 'fabric swatch only' },
+    build: {
+      template: 'jeans', legName: 'jeans-leg', fallback: [53, 56, 58],
+      // The stone-wash speckle is fine in the photos: the swatch repeats about seven times around the leg.
+      crotch: { top: 1.12, y: .95 }, uvScale: [7, 6.4],
+      tiles: { small: [6, 2.8], legs: [1, 1], hips: [1, 1] },
+      hips: [[1.31, .264, .168], [1.2, .274, .186], [1.1, .288, .196], [1.02, .296, .198], [.97, .298, .19], [.935, .24, .1]],
+      // Relaxed and straight, tapering slightly to an ankle-length hem above the shoes.
+      legs: [[1.03, .15, .18, .135], [.95, .155, .178, .15], [.8, .153, .173, .158], [.6, .146, .166, .162], [.42, .141, .159, .162], [.24, .137, .155, .162]],
+      hem: 'ankle', folds: { base: .004, low: .008 }, gradient: [.9, .14], whiskers: .1, thighFade: .08,
+      waistband: { y: 1.285, rx: .266, rz: .17, h: .05 },
+      loops: [-2.6, -1.5, -.62, .62, 1.5, 2.6, Math.PI],
+      // The pair's recognisable light grey double topstitching, with paler bleached seams (roping) and a stitched hem.
+      button: { colour: '#c9ccd0' }, thread: '#787676', stitchScale: 1.3, doubleSeams: true, roping: 2.6, hemStitch: .014, dartsStitched: true,
+      fly: [[.036, 1.26], [.038, 1.13], [.022, 1.085], [0, 1.075]],
+      frontPocket: { type: 'scoop', line: [[.15, 1.26], [.165, 1.21], [.2, 1.18], [.262, 1.165]] },
+      coinPocket: { outline: [[-.236, 1.255], [-.19, 1.255], [-.194, 1.2], [-.233, 1.2], [-.236, 1.255]] },
+      rivets: [[.152, 1.255], [.262, 1.17], [-.19, 1.252]],
+      seamEnd: .245,
+      // Pockets sit high, as in the back photo, with a short dart running down to each.
+      backDarts: [[.11, 1.259], [.115, 1.228]],
+      backPocket: { x: .12, outline: [[-.068, 1.222], [.068, 1.222], [.064, 1.11], [0, 1.085], [-.064, 1.11]], stitchBelow: 1.2 },
+      centreBack: [[.004, 1.26], [.004, 1.1], [0, 1.0]],
+      labelPatch: { name: 'leather-patch', size: [.072, .04, .005], colour: '#1c1b1c', position: [-.08, 1.288, -(.17 + .004)], rotationY: Math.PI + .3 },
     },
   },
 });
