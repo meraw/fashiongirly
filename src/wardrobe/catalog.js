@@ -500,7 +500,7 @@ export const GARMENTS = Object.freeze({
   [MARIKOO_WINDBREAKER_ID]: {
     slot: 'outerwear',
     id: MARIKOO_WINDBREAKER_ID, name: 'Marikoo two-tone hooded windbreaker', family: 'zip-hooded-windbreaker', version: 1,
-    status: 'reference-study-awaiting-visual-review', brandAsProvided: 'Marikoo',
+    status: 'user-approved', brandAsProvided: 'Marikoo',
     source: { note: 'user supplied seven phone screenshots of a product gallery: front, back and side on a model, front and back flat lays (zipped), a zipped flat lay with the hood up, and the open jacket showing its lining' },
     referenceViews: ['front on model', 'back on model', 'side on model, open', 'front flat lay', 'back flat lay', 'front flat lay, collar close', 'inside'],
     details: ['slate-blue shell with an ecru yoke over the shoulders and upper sleeves', 'front yoke ends in a shallow V pointing down to the zip; across the back it ends straight, as a stitched flap', 'yoke colour ends diagonally on the sleeves, higher outside than underneath', 'gunmetal coil zip from hem to the top of the stand collar', 'hood worn down, blue outside with ecru lining, ecru drawcords with blue-and-white tips', 'vertical welt pockets low on each front, each closed by two white snaps', 'elastic gathered hem band and cuffs; the body and sleeves blouse into them', 'embroidered blue script on the yoke at her left chest', 'round white rubber badge on the upper left sleeve', 'small woven labels on the hood and low on the back'],

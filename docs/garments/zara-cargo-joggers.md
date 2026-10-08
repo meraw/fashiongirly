@@ -1,6 +1,6 @@
 # Wardrobe item: Zara elastic-waist cargo trousers
 
-Authored 8 October 2026. Status: first interpretation awaiting the user's visual review. A piece from the user's wardrobe list and the first bottom that is not jeans; built on the shared jeans template, extended for it.
+Authored 8 October 2026. Status: the user said they “look fine”. A piece from the user's wardrobe list and the first bottom that is not jeans; built on the shared jeans template, extended for it.
 
 ## Source and reference reading
 
@@ -48,7 +48,7 @@ Plain fabric in the flat lay measures about RGB 49, 52, 57, and 56, 58, 61 in th
   - the layering test under every waist-covering top (the drawstring clears them all)
   - the shoe tests, with every pair of shoes
 - `npm run build` succeeds.
-- Rendered in headless Chromium from the front, side, back and a slight turn, without a top, under the crochet top and with the Lacroix sweater and Buffalo boots. Compared side by side with the flat lays. The user has not yet seen it.
+- Rendered in headless Chromium from the front, side, back and a slight turn, without a top, under the crochet top and with the Lacroix sweater and Buffalo boots. Compared side by side with the flat lays. The user saw these renders and said the trousers look fine.
 
 ## Known differences
 
