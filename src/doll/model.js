@@ -1,5 +1,8 @@
 import * as T from 'three';
 import { cleanRecipe } from './recipe.js';
+// Body and wardrobe share one toy proportion system; the face stays unscaled.
+const BODY_HEIGHT = .76;
+const BODY_WIDTH = 1.06;
 const V = (x,y,z) => new T.Vector3(x,y,z);
 function random(seed=13) { return () => { seed = (1664525 * seed + 1013904223) >>> 0; return seed / 4294967296; }; }
 function weave(kind) {
@@ -90,22 +93,24 @@ export function makeDoll() {
   oval(root,[0,1.9,0],[.1,.17,.09],skin,'neck');
   for(const side of [-1,1]){
     oval(root,[side*.16,.69,0],[.092,.49,.094],under,'leg');
-    const arm=oval(root,[side*.355,1.53,0],[.085,.29,.082],skin,'arm');arm.rotation.z=side*.36;
-    const hand=oval(root,[side*.46,1.25,.015],[.076,.1,.055],skin,'tiny-hand');hand.rotation.z=-side*.28;
-    for(let i=0;i<3;i++)oval(root,[side*(.435+i*.026),1.185-i*.002,.035],[.018,.045,.021],skin,'finger',16);
-    oval(root,[side*.403,1.26,.06],[.026,.054,.027],skin,'thumb',16);
+    const arm=oval(root,[side*.305,1.53,0],[.09,.27,.09],skin,'arm');arm.rotation.z=side*.22;
+    const hand=oval(root,[side*.37,1.245,.025],[.077,.093,.068],skin,'tiny-mitten');hand.rotation.z=side*.16;
+    oval(root,[side*.322,1.265,.07],[.031,.042,.032],skin,'mitten-thumb',20);
     const sock=cloth('#ecdcac','knit');oval(root,[side*.16,.25,.02],[.106,.14,.107],sock,'sock');
     const leather=solid('#64362e',.37), sole=solid('#312829',.85);
     oval(root,[side*.16,.105,.09],[.131,.089,.205],leather,'loafer');oval(root,[side*.16,.052,.09],[.136,.044,.21],sole,'shoe-sole');
     curve(root,[[side*.16-.093,.157,.135],[side*.16,.177,.16],[side*.16+.093,.157,.135]],.015,leather,'loafer-strap');
     curve(root,[[side*.16-.11,.11,.14],[side*.16-.06,.09,.267],[side*.16+.06,.09,.267],[side*.16+.11,.11,.14]],.003,solid('#c4a26e'),'shoe-stitch');
   }
-  root.add(makeHead());return root;
+  root.name='plush-body';root.scale.set(BODY_WIDTH,BODY_HEIGHT,1);
+  const doll=new T.Group();doll.name='living-doll';
+  const head=makeHead();head.position.y-=1.94*(1-BODY_HEIGHT);
+  doll.add(root,head);return doll;
 }
 function sleeve(group,side,volume,mat) {
-  const sleeveGroup=new T.Group();sleeveGroup.position.set(side*.245,1.81,0);sleeveGroup.rotation.z=side*.35;
-  const radius=.098+volume*.065;
-  shell(sleeveGroup,[[.035,.087,.105],[0,radius*.95,radius],[-.08,radius*1.17,radius*1.12],[-.2,radius*1.3,radius*1.19],[-.33,radius*1.2,radius*1.12],[-.44,.086,.09],[-.48,.076,.083]],mat,'balloon-sleeve');
+  const sleeveGroup=new T.Group();sleeveGroup.position.set(side*.245,1.81,0);sleeveGroup.rotation.z=side*.22;
+  const radius=.103+volume*.035;
+  shell(sleeveGroup,[[.035,.087,.105],[0,radius*.95,radius],[-.08,radius*1.17,radius*1.12],[-.2,radius*1.13,radius*1.09],[-.33,radius*1.1,radius*1.06],[-.44,.086,.09],[-.48,.076,.083]],mat,'balloon-sleeve');
   ring(sleeveGroup,-.475,.077,.084,mat,'knit-cuff',.08);group.add(sleeveGroup);
 }
 export function makeOutfit(raw) {
@@ -116,10 +121,10 @@ export function makeOutfit(raw) {
   shell(trousers,[[1.23,.252,.177],[1.15,.272,.194],[1.05,.267,.19],[.96,.235,.176]],denim,'jeans-hips');
   ring(trousers,1.22,.254,.181,denim,'jeans-waistband',.065);
   for(const side of [-1,1]){
-    const width=.108+state.barrel*.072;
-    shell(trousers,[[1.04,.139,.18,side*.133],[.96,width*.99,.181,side*.148],[.82,width*1.17,.18,side*.181],[.62,width*1.1,.158,side*.183],[.43,width*.85,.13,side*.172],[.29,.111,.11,side*.16]],denim,'barrel-leg');
+    const width=.112+state.barrel*.038;
+    shell(trousers,[[1.04,.139,.18,side*.133],[.96,width*.99,.181,side*.148],[.82,width*1.08,.17,side*.162],[.62,width*1.06,.158,side*.165],[.43,width*.85,.13,side*.172],[.29,.111,.11,side*.16]],denim,'barrel-leg');
     ring(trousers,.3,.113,.113,denim,'jean-cuff',.065,side*.16);
-    curve(trousers,[[side*.24,1.16,.135],[side*.3,.97,.105],[side*(.181+width*.95),.8,.07],[side*(.183+width*.92),.62,.064],[side*.27,.32,.06]],.0025,stitch,'jean-side-seam');
+    curve(trousers,[[side*.24,1.16,.135],[side*.3,.97,.105],[side*(.162+width*.95),.8,.07],[side*(.165+width*.92),.62,.064],[side*.27,.32,.06]],.0025,stitch,'jean-side-seam');
     curve(trousers,[[side*.075,1.18,.176],[side*.13,1.08,.17],[side*.23,1.06,.13]],.0025,stitch,'jean-pocket-seam');
   }
   oval(trousers,[0,1.205,.187],[.019,.019,.01],solid('#bca16a'),'waist-button');
@@ -144,6 +149,7 @@ export function makeOutfit(raw) {
   // Materials that were not used in the selected layers are not retained.
   const used=new Set();root.traverse(o=>{if(o.material)used.add(o.material);});
   for(const mat of [shirt,stripe,denim,knit,stitch])if(!used.has(mat)){mat.bumpMap?.dispose();mat.dispose();}
+  root.scale.set(BODY_WIDTH,BODY_HEIGHT,1);
   return root;
 }
 export function disposeObject(root) { const geometries=new Set(),materials=new Set(),textures=new Set();root.traverse(o=>{if(o.geometry)geometries.add(o.geometry);if(o.material)for(const m of Array.isArray(o.material)?o.material:[o.material])materials.add(m);});for(const m of materials)for(const value of Object.values(m))if(value?.isTexture)textures.add(value);geometries.forEach(g=>g.dispose());textures.forEach(t=>t.dispose());materials.forEach(m=>m.dispose()); }

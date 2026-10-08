@@ -8,7 +8,7 @@ export function createDollView(host, recipe) {
   renderer.toneMapping=T.ACESFilmicToneMapping;renderer.toneMappingExposure=1.2;renderer.shadowMap.enabled=true;renderer.shadowMap.type=T.PCFSoftShadowMap;
   renderer.domElement.setAttribute('aria-label','Dressable 3D doll. Drag to turn her, or use the view buttons.');renderer.domElement.setAttribute('role','img');
   renderer.domElement.style.touchAction='pan-y';host.append(renderer.domElement);
-  const scene=new T.Scene(),camera=new T.PerspectiveCamera(31,1,.1,30);camera.position.set(0,1.61,6.2);camera.lookAt(0,1.43,0);
+  const scene=new T.Scene(),camera=new T.PerspectiveCamera(31,1,.1,30);camera.position.set(0,1.35,5.3);camera.lookAt(0,1.2,0);
   scene.add(new T.HemisphereLight('#fff7e7','#b5a8aa',2.8));
   const key=new T.DirectionalLight('#fff3de',3.5);key.position.set(-2,4,4);key.castShadow=true;key.shadow.mapSize.set(1024,1024);Object.assign(key.shadow.camera,{left:-2,right:2,top:3,bottom:-1,near:.1,far:10});key.shadow.normalBias=.022;key.shadow.bias=-.0002;scene.add(key);
   const fill=new T.DirectionalLight('#e9e7ff',1.4);fill.position.set(3,2,2);scene.add(fill);
@@ -18,7 +18,7 @@ export function createDollView(host, recipe) {
   let angle=-.12,target=angle,frame=null,closed=false,drag=null;
   const draw=()=>{frame=null;if(closed)return;model.rotation.y=angle;renderer.render(scene,camera);};
   const render=()=>{if(!closed&&frame==null)frame=requestAnimationFrame(draw);};
-  const resize=()=>{const width=Math.max(1,host.clientWidth),height=Math.max(1,host.clientHeight);renderer.setSize(width,height);camera.aspect=width/height;camera.position.z=camera.aspect<.65?7.2:6.2;camera.updateProjectionMatrix();render();};
+  const resize=()=>{const width=Math.max(1,host.clientWidth),height=Math.max(1,host.clientHeight);renderer.setSize(width,height);camera.aspect=width/height;camera.position.z=camera.aspect<.65?6.2:5.3;camera.updateProjectionMatrix();render();};
   const observer=new ResizeObserver(resize);observer.observe(host);resize();
   const down=e=>{if(e.button!==0)return;drag={x:e.clientX,y:e.clientY,angle};renderer.domElement.setPointerCapture(e.pointerId);};
   const move=e=>{if(!drag)return;if(Math.abs(e.clientY-drag.y)>Math.abs(e.clientX-drag.x)+15)return;angle=drag.angle+(e.clientX-drag.x)*.012;target=angle;render();};

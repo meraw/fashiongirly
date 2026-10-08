@@ -11,7 +11,7 @@ test('doll and garment geometry stays finite for extreme supported silhouettes',
     const model=new T.Group();model.add(makeDoll(),makeOutfit(state));let triangles=0;
     model.traverse(o=>{if(!o.geometry)return;const p=o.geometry.attributes.position;for(const n of p.array)assert.ok(Number.isFinite(n));triangles+=(o.geometry.index?.count||p.count)/3;});
     assert.ok(triangles>10000&&triangles<350000,`triangle budget: ${triangles}`);
-    const box=new T.Box3().setFromObject(model);assert.ok(box.max.y>2.7&&box.max.y<3);assert.ok(box.min.y>-.01);disposeObject(model);
+    const box=new T.Box3().setFromObject(model);assert.ok(box.max.y>2.25&&box.max.y<2.55);assert.ok(box.min.y>-.01);disposeObject(model);
   }
 });
 test('wardrobe layers toggle independently and shape settings affect bounds',()=>{
