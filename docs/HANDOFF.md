@@ -22,7 +22,7 @@ Every chat should retain independently selectable garments and record known styl
 - Sweater and denim colours, sweater sleeve volume and hem, trouser volume, and layer toggles.
 - Bounded text parser, turn controls, draft persistence and a 24-look browser lookbook.
 - Earlier vector implementation retained at `illustration.html`.
-- Fifty-eight tests were passing and the static build succeeded at this handoff. Geometry and UI checks do not establish visual quality; full device/WebGL appearance and performance still require review.
+- Sixty tests were passing and the static build succeeded at this handoff. Geometry and UI checks do not establish visual quality; full device/WebGL appearance and performance still require review.
 
 ## Code landmarks
 
@@ -34,12 +34,15 @@ Every chat should retain independently selectable garments and record known styl
 | `src/doll/view.js` | Three.js rendering, camera, turn interaction and lifecycle |
 | `src/doll/boot.js` | Entry point and page lifecycle |
 | `src/doll/studio.css`, `index.html` | Studio interface |
-| `tests/doll.test.js` | Geometry bounds, layer edits, UI persistence and error handling |
+| `tests/doll.test.js` | Geometry bounds, layer edits, UI persistence and error handling, sleeves and cuffs of every top over her arms and hands |
+| `tests/tops.test.js` | Each reference top, and tops over the skirt, the trousers and each other |
+| `tests/bottoms.test.js` | Bottom slot, each pair of jeans or trousers, and every waist-covering top over every bottom |
 | `src/doll/outerwear.js` | Outerwear builders (zip windbreaker template) and their colour layouts |
 | `src/doll/polo.js` | Knit polo builder (stripe knit, polo collar, open placket, short sleeves) |
-| `tests/outerwear.test.js` | Outerwear slot, windbreaker construction, coverage of every top, bottom and the skirt, arms inside its sleeves, selector |
+| `tests/outerwear.test.js` | Outerwear slot, each jacket's construction, coverage of every top, arms inside its sleeves, selector |
+| `tests/outerwear-bottoms.test.js` | Outerwear coverage of every bottom and the skirt (the coverage check is shared in `tests/outerwear-coverage.js`) |
 | `tests/shoes.test.js` | Shoe slot, boot construction, how every bottom layers with every shoe, shoe selector |
-| `src/doll/level-caster.js` | `levelCaster()`: the same nearest hit as a three.js Raycaster for level rays, much faster; used by `makeJeans()` and the layering tests (`tests/level-caster.test.js`) |
+| `src/doll/level-caster.js` | `levelCaster()`: the same hit as a three.js Raycaster for level rays, much faster, optionally around a vertical axis the rays start from; used by `makeJeans()`, `surfaceProbe()` and the layering tests (`tests/level-caster.test.js`) |
 | `scripts/build.mjs` | Static build including local Three.js dependencies |
 | `.github/workflows/pages.yml` | Manually dispatched Pages deployment |
 
@@ -103,7 +106,7 @@ The outerwear slot and its layering rules were built with the first jacket (see 
 
 - `outerwearId` (`'none'` by default, so existing looks and saved looks are unchanged; renders without outerwear are pixel-identical to before). Outerwear is worn over whichever top, bottoms and skirt are selected, and sits out over the skirt when one is worn.
 - How the user wears outerwear (8 October 2026): zipped or buttoned closed, or not at all. Build a piece open only when it looks good open or is designed to be worn open. The leather jacket is one the user often wears open: it has a “Wear it open” setting and starts open.
-- A closed jacket hides the top's sleeves (its gathered cuffs are tighter than any top's sleeve), closes over the classic shirt's collar points and covers the skirt's bow. `tests/outerwear.test.js` checks every outer layer against every top, every bottom and the skirt, and that her arms and hands stay inside its sleeves, so new tops, bottoms and jackets are covered automatically.
+- A closed jacket hides the top's sleeves (its gathered cuffs are tighter than any top's sleeve), closes over the classic shirt's collar points and covers the skirt's bow. `tests/outerwear.test.js` and `tests/outerwear-bottoms.test.js` check every outer layer against every top, every bottom and the skirt, and that her arms and hands stay inside its sleeves, so new tops, bottoms and jackets are covered automatically.
 - Her large head and hair hide the collar and the top of a lowered hood; judge hoods from the back with the bun or a ponytail as well as the bob.
 - Adding more zip jackets: copy the Marikoo entry's `build` spec and adjust the rows, yoke layout and details. Coats with other closures (buttons, belts, longer lengths over the skirt) will need their own template in `outerwear.js`.
 
@@ -150,7 +153,7 @@ Lessons from these reviews: calibrate colour by measurement, not by eye. Sample 
 ## Operational notes
 
 - Run `npm ci`, `npm test`, and `npm run build`; use `npm run dev` for local development with Node 22+.
-- Keep the tests quick, since every chat runs them before every push: the checks that try every bottom with every shoe or top grow with each new garment. When many level rays test the same meshes, use `levelCaster()` instead of a new `Raycaster` per ray (8 October 2026: the jeans-over-shoes test went from about 160s to 17s, and an outfit with catalog jeans builds in about 0.2s instead of 0.9s, with the same geometry, which also makes the app quicker to respond).
+- Keep the tests quick, since every chat runs them before every push: the checks that try every bottom with every shoe or top grow with each new garment. When many level rays test the same meshes, use `levelCaster()` instead of a new `Raycaster` per ray (8 October 2026: the jeans-over-shoes test went from about 160s to 17s, and an outfit with catalog jeans builds in about 0.2s instead of 0.9s, with the same geometry, which also makes the app quicker to respond). For rays from her centre line or a leg's centre, pass that line as `axis`, so each ray tests only the triangles at its height and angle; `faces: 'both'` and the farthest hit match the coverage tests' own surface measurements. Generated textures that are the same every time (the knit and denim weave, the cow print) are drawn once and shared (`cachedPixels()`). Node runs a few test files at once, so the slowest file sets the total: put a long new test in the file of its kind (tops, bottoms, shoes, outerwear), and split a file when it grows past the others. With these, `npm test` went from about 2m45s to under a minute on the same day.
 - The built application bundles rendering dependencies. An in-chat preview may load Three.js from a CDN; that is a preview convenience, not an AI API or the deployed app's dependency strategy.
 - Saving in the full app uses browser local storage. Inline chat previews have used in-memory storage and are not evidence of durable lookbook persistence.
 - Deployment is separate from committing. Pages requires the repository setting and a manual workflow run; no live deployment is established by this handoff.
