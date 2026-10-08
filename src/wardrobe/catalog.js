@@ -434,17 +434,13 @@ export const GARMENTS = Object.freeze({
       plan: { front: .35, back: -.15, halfWidth: .12, nFront: 3.4, nBack: 2.8, heelNarrow: .12, toeNarrow: .15 },
       // Heights from the side photo: outsole, welt band (grooves, stitching) and leather top layer up to the footbed.
       sole: { outsole: .081, welt: { grooves: [.088, .095], stitch: .103, top: .111 }, footbed: .138, top: .138, heelTop: .138, lugs: 26, archGap: .02 },
-      // Her bare foot as overlapping ovals: at [x from the sole centre, y, z] with radii.
-      foot: [
-        { name: 'bare-foot', at: [0, .168, .125], r: [.094, .042, .2] },
-        { name: 'bare-instep', at: [0, .19, .035], r: [.086, .068, .12] },
-        { name: 'bare-heel', at: [0, .172, -.05], r: [.078, .048, .085] },
-        { name: 'bare-ankle', at: [0, .28, -.035], r: [.058, .15, .062] },
-      ],
+      // Her bare foot as one smooth shape: slices [y, front, back, halfWidth] from just under the footbed up into her leg,
+      // with a soft rounded toe and heel (nFront, nBack); instepTop is the highest point straps drape over.
+      foot: { nFront: 2.5, nBack: 2.2, instepTop: .275, rows: [[.13, .29, -.115, .082], [.148, .312, -.128, .093], [.168, .31, -.132, .095], [.188, .282, -.13, .091], [.208, .22, -.122, .084], [.23, .14, -.108, .075], [.255, .085, -.092, .066], [.285, .055, -.072, .055], [.33, .045, -.06, .05], [.44, .045, -.06, .05]] },
       // Straps as [z at the inner edge, z at the outer edge, width, gap above her foot]; cords as [z inner, z outer, gap].
       cowBands: [[.27, .15, .11, .008], [.13, .25, .11, .016]],
       cords: [[.29, .1, .024], [.1, .29, .024]],
-      instep: { z: [.06, .04], width: .075, gap: .01, buckleAt: .8 },
+      instep: { z: [.1, .085], width: .068, gap: .01, buckleAt: .8 },
     },
   },
 });

@@ -97,15 +97,15 @@ test('jeans drape over every shoe or sit on a boot collar, and the classic jeans
 test('Dr. Martens slides: platform raises her, bare feet with the straps clear of them, and her socks hidden',()=>{
   const spec=GARMENTS[DM_COW_SLIDE_ID].build,outfit=makeOutfit({shoesId:DM_COW_SLIDE_ID,bottomId:'desigual-davinia-jeans-v1'}),doll=makeDoll();fitDoll(doll,outfit);
   doll.updateMatrixWorld(true);outfit.updateMatrixWorld(true);const shoesGroup=outfit.getObjectByName('shoes');
-  for(const name of ['slide-outsole','slide-welt','welt-stitch','slide-platform','footbed','cow-strap','strap-piping','strap-cord','instep-strap','buckle','bare-foot','bare-ankle'])assert.ok(shoesGroup.getObjectByName(name),name);
+  for(const name of ['slide-outsole','slide-welt','welt-stitch','slide-platform','footbed','cow-strap','strap-piping','strap-cord','instep-strap','buckle','bare-foot'])assert.ok(shoesGroup.getObjectByName(name),name);
   // Anchored to the floor: the sole stands on it, and she and her clothes rise by the footbed's height above her normal foot.
   const lift=spec.sole.footbed-spec.baseFoot;assert.ok(lift>.02);assert.ok(Math.abs(outfit.userData.lift-lift)<1e-9);
   assert.ok(Math.abs(new T.Box3().setFromObject(shoesGroup).min.y)<.002,'sole on the floor');
   assert.ok(Math.abs(doll.position.y-lift*.76)<1e-9,'doll raised');assert.ok(Math.abs(outfit.getObjectByName('trousers').position.y-lift)<1e-9,'clothes raised');
   let socks=0;doll.traverse(o=>{if(o.name==='sock'){socks++;assert.equal(o.visible,false);}});assert.equal(socks,2);
   // Her raised legs end inside her bare ankles, and the feet stand on the footbed.
-  const ankles=named(shoesGroup,'bare-ankle');let legBottom=Infinity;doll.traverse(o=>{if(o.name==='leg')legBottom=Math.min(legBottom,new T.Box3().setFromObject(o).min.y);});
-  for(const a of ankles){const b=new T.Box3().setFromObject(a);assert.ok(b.min.y<legBottom&&b.max.y>legBottom+.04,'ankle reaches up into the leg');}
+  const feet=named(shoesGroup,'bare-foot');assert.equal(feet.length,2,'one smooth foot each');let legBottom=Infinity;doll.traverse(o=>{if(o.name==='leg')legBottom=Math.min(legBottom,new T.Box3().setFromObject(o).min.y);});
+  for(const f of feet){const b=new T.Box3().setFromObject(f);assert.ok(b.min.y<legBottom&&b.max.y>legBottom+.04,'ankle reaches up into the leg');}
   for(const f of named(shoesGroup,'bare-foot'))assert.ok(Math.abs(new T.Box3().setFromObject(f).min.y/.76-spec.sole.footbed)<.03,'foot on the footbed');
   // The straps clear her foot: no foot vertex lies above a strap at the same place.
   const straps=[...named(shoesGroup,'cow-strap'),...named(shoesGroup,'instep-strap')],ray=new T.Raycaster();let checked=0;

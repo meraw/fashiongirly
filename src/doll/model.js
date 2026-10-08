@@ -305,7 +305,17 @@ function makePlatformSlide(id,spec){
   const halfWidthAt=z=>{const q=Math.min(1,Math.abs((z-zc)/hl)),n=z>zc?P.nFront:P.nBack,c=Math.sign(z-zc)*q**(n/2);return P.halfWidth*(1-P.heelNarrow*Math.max(0,-c)-P.toeNarrow*Math.max(0,c)**2)*(1-q**n)**(1/n);};
   const insideSole=(dx,z,grow=0)=>{const q=(z-zc)/(hl+grow),n=q>0?P.nFront:P.nBack,narrow=1-(q<0?P.heelNarrow*Math.abs(q)**(n/2):P.toeNarrow*Math.abs(q)**n);return Math.abs(dx/(P.halfWidth*narrow+grow))**n+Math.abs(q)**n;};
   // Her foot: soft overlapping ovals like her mittens (forefoot, instep, heel, ankle), standing on the footbed.
-  const footTop=(side,x,z)=>{let top=-Infinity;for(const o of F){const dx=(x-side*cx-o.at[0])/o.r[0],dz=(z-o.at[2])/o.r[2],q=1-dx*dx-dz*dz;if(q>0)top=Math.max(top,o.at[1]+o.r[1]*Math.sqrt(q));}return top;};
+  // Her bare foot is one smooth surface, like a felt sock-foot: horizontal slices (rows [y, front, back, halfWidth])
+  // smoothed through the rows, from a rounded edge on the footbed, over the instep and a soft toe, up into the ankle.
+  const FR=F.rows,footAt=y=>{let k=0;while(k<FR.length-2&&y>FR[k+1][0])k++;const t=Math.min(1,Math.max(0,(y-FR[k][0])/(FR[k+1][0]-FR[k][0]))),r=i=>FR[Math.max(0,Math.min(FR.length-1,i))];
+    return [1,2,3].map(c=>{const p0=r(k-1)[c],p1=r(k)[c],p2=r(k+1)[c],p3=r(k+2)[c];return .5*(2*p1+(-p0+p2)*t+(2*p0-5*p1+4*p2-p3)*t*t+(-p0+3*p1-3*p2+p3)*t*t*t);});};
+  const footPlan=(y,a)=>{const [f,b,w]=footAt(y),s=Math.sin(a),c=Math.cos(a),n=c>0?F.nFront:F.nBack,zc=(f+b)/2,hl=(f-b)/2;return [w*Math.sign(s)*Math.abs(s)**(2/n),zc+hl*Math.sign(c)*Math.abs(c)**(2/n)];};
+  const insideFoot=(dx,z,y,grow=0)=>{const [f,b,w]=footAt(y),zc=(f+b)/2,q=(z-zc)/((f-b)/2+grow),n=q>0?F.nFront:F.nBack;return Math.abs(dx/(w+grow))**n+Math.abs(q)**n;};
+  // Height of the top of her foot (grown by gap all round) at a point, up to the instep (not the ankle), or -Infinity.
+  const footTop=(side,x,z,gap=0)=>{const dx=x-side*cx,y0=FR[0][0],step=.004;if(insideFoot(dx,z,F.instepTop,gap)<=1)return F.instepTop+gap;
+    // Scan down from the instep (the toe's rounded tip reaches further forward than the foot's base), then refine.
+    for(let y=F.instepTop-step;y>=y0;y-=step)if(insideFoot(dx,z,y,gap)<=1){let lo=y,hi=y+step;for(let i=0;i<14;i++){const m=(lo+hi)/2;if(insideFoot(dx,z,m,gap)<=1)lo=m;else hi=m;}return lo+gap;}
+    return -Infinity;};
   const N=480,angles=Array.from({length:N+1},(_,i)=>i/N*Math.PI*2),perim=[0];
   for(let i=1;i<=N;i++){const [x0,z0]=outline(angles[i-1]),[x1,z1]=outline(angles[i]);perim.push(perim[i-1]+Math.hypot(x1-x0,z1-z0));}
   const lugPeriod=perim[N]/S.lugs;
@@ -332,11 +342,12 @@ function makePlatformSlide(id,spec){
     const rim=ring(side,bed,()=>-.013),centre=[side*cx,bed-.002,zc];
     ringShell(slides,[rim,rim.map(([x,y,z])=>[centre[0]+(x-centre[0])*.02,bed-.002,centre[2]+(z-centre[2])*.02])],suede,'footbed');
     // Bare foot and ankle.
-    for(const o of F)oval(slides,[side*cx+o.at[0],o.at[1],o.at[2]],o.r,skin,o.name);
+    const footRings=[];for(let j=0;j<=44;j++){const y=FR[0][0]+(FR[FR.length-1][0]-FR[0][0])*(j/44)**1.6,ring=[];for(let i=0;i<=96;i++){const [x,z]=footPlan(y,i/96*Math.PI*2);ring.push([side*cx+x,y,z]);}footRings.push(ring);}
+    ringShell(slides,footRings,skin,'bare-foot');
     // Straps are wide panels draped over her foot from one sole edge to the other, a little clear of it (a dome that
     // hugs her foot and comes down onto the footbed at the sides). Each runs diagonally, from z0 at the inner edge to
     // z1 at the outer edge; t runs across its width.
-    const dome=(x,z,gap)=>{let top=bed+.003;for(const o of F){if(o.name==='bare-ankle')continue;const rx=o.r[0]+gap,ry=o.r[1]+gap,rz=o.r[2]+gap,dx=(x-side*cx-o.at[0])/rx,dz=(z-o.at[2])/rz,q=1-dx*dx-dz*dz;if(q>0)top=Math.max(top,o.at[1]+ry*Math.sqrt(q));}return top;};
+    const dome=(x,z,gap)=>Math.max(bed+.003,footTop(side,x,z,gap));
     const strapPoint=(z0,z1,w,gap,u,t)=>{const z=z0+(z1-z0)*u+t*w/2,hw=halfWidthAt(z)*.97,x=side*cx+side*(2*u-1)*hw;return [x,dome(x,z,gap),z];};
     const panel=(z0,z1,w,gap,mat,name,piping=true)=>{const nu=40,nt=8,pos=[],uv=[],idx=[];
       for(let i=0;i<=nu;i++)for(let j=0;j<=nt;j++){pos.push(...strapPoint(z0,z1,w,gap,i/nu,j/nt*2-1));uv.push(i/nu*2.4,(j/nt-.5)*w*8+(z0+z1)*3);}
@@ -357,7 +368,7 @@ function makePlatformSlide(id,spec){
   // Lift: the footbed is higher than where her foot normally stands, so she and her clothes rise by the difference.
   const lift=slides.userData.lift=Math.max(0,bed-spec.baseFoot);slides.userData.bareFeet=true;
   // Long hems rest on the straps and footbed (heights in her lifted clothes' frame) and fall to the floor beside them.
-  const strapTop=(side,x,z)=>{const t=footTop(side,x,z);return z>spec.instep.z[1]-.03&&z<P.front-.05&&t>0?t+.03:bed+.006;};
+  const strapTop=(side,x,z)=>{const t=footTop(side,x,z,.035);return z>Math.min(...spec.instep.z)-spec.instep.width&&z<P.front-.03&&t>0?t+.008:bed+.006;};
   const rest=slides.userData.rest=(side,x,z)=>{const dx=x-side*cx;
     if(insideSole(dx,z)<=1)return Math.min(strapTop(side,x,z),spec.restCap)-lift;
     const fall=.07;if(insideSole(dx,z,fall)>1)return null;let lo=0,hi=fall;for(let i=0;i<14;i++){const m=(lo+hi)/2;if(insideSole(dx,z,m)<=1)hi=m;else lo=m;}
