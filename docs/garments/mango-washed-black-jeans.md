@@ -26,7 +26,7 @@ Catalog ID `mango-washed-black-v1` (slot `bottom`), built by `makeJeans()` with 
 
 ## Checks
 
-- `npm test`: 25 passing. A new test checks the back darts (and no yoke), rivets, patch and pockets, ankle length above the shoes, and that her legs and socks stay covered. The layering test covers this pair under every waist-covering top automatically.
+- `npm test`: 26 passing after merging the tops chat's stripe jumper. A new test checks the back darts (and no yoke), rivets, patch and pockets, ankle length above the shoes, and that her legs and socks stay covered. The layering test covers this pair under every waist-covering top automatically.
 - `npm run build` succeeds.
 - Rendered in headless Chromium from four angles, without a top, and under every top and the skirt; compared side by side with the flat lay and back photos. The user has not yet seen it.
 
