@@ -1,6 +1,6 @@
 import * as T from 'three';
 import { cleanRecipe } from './recipe.js';
-import { BRONZE_TOP_ID, LILAC_TOP_ID, CROCHET_TOP_ID, PLAID_JUMPER_ID, STRIPE_JUMPER_ID, GARMENTS } from '../wardrobe/catalog.js';
+import { BRONZE_TOP_ID, LILAC_TOP_ID, CROCHET_TOP_ID, PLAID_JUMPER_ID, STRIPE_JUMPER_ID, POINTELLE_FLOWER_ID, GARMENTS } from '../wardrobe/catalog.js';
 // Body and wardrobe share one toy proportion system; the face stays unscaled.
 const BODY_HEIGHT = .76;
 const BODY_WIDTH = 1.06;
@@ -432,6 +432,93 @@ function makeStripeJumper(id=STRIPE_JUMPER_ID,overSkirt=false){
   }
   return top;
 }
+// Cream pointelle jumper with raised flowers: the knit and the flower layout are read from the user's photos.
+// Darker than the photographed yarn: exposure, tone mapping and sheen lift these values.
+const POINTELLE={cream:[214,208,188],petal:'#76384e',centre:'#4f1f30',leaf:'#253f42'};
+const POINTELLE_PITCH=.056;
+let pointellePixels=null;
+function pointelleData(){
+  if(pointellePixels)return pointellePixels;
+  // One repeat down, eight eyelets across: plain knit, an eyelet row, plain, an offset eyelet row, plain, then a raised ridge.
+  const w=128,h=48,data=new Uint8Array(w*h*4),rand=random(71);
+  const rows=[[10,0],[23,8]];
+  for(let y=0;y<h;y++)for(let x=0;x<w;x++){
+    let shade=.97+.03*Math.cos(x/w*Math.PI*32),open=false;
+    for(const [cy,off] of rows){const dx=((x-off)%16+16)%16-8,dy=y-cy,d=Math.hypot(dx/3.2,dy/4);if(d<1)open=true;else if(d<1.7)shade*=.86+.14*(d-1)/.7;}
+    // The ridge: light along its top, shadowed underneath.
+    if(y>=33&&y<42)shade*=y<36?1.06:y>39?.86:1;
+    const i=(y*w+x)*4,grain=(rand()-.5)*8;
+    for(let k=0;k<3;k++)data[i+k]=Math.max(0,Math.min(255,POINTELLE.cream[k]*shade+grain));data[i+3]=open?0:255;
+  }
+  pointellePixels={data,w,h};return pointellePixels;
+}
+function waveEdge(mesh,edgeY,band,depth,count,up){
+  // Small knitted scallops along one edge of a band: the edge rises and falls, fading to nothing across the band.
+  const p=mesh.geometry.attributes.position;
+  for(let i=0;i<p.count;i++){const y=p.getY(i),t=1-Math.min(1,Math.abs(y-edgeY)/band),a=Math.atan2(p.getX(i),p.getZ(i));
+    p.setY(i,y+(up?1:-1)*depth*t*Math.abs(Math.sin(a*count/2)));}
+  p.needsUpdate=true;mesh.geometry.computeVertexNormals();
+}
+// Flowers measured on the front photo, as fractions of the body's width (from her right) and of its length (from the neckline).
+const POINTELLE_FLOWERS=[[.14,.30],[.68,.33],[.31,.49],[.77,.53],[.49,.62],[.21,.66],[.68,.81],[.31,.84]];
+function makePointelleJumper(id=POINTELLE_FLOWER_ID,overSkirt=false){
+  const top=new T.Group();top.name=id;
+  const band=woolMaterial(null),hem=1.145,edge=.03,flare=overSkirt?[.338,.252]:[.316,.232],skin=cloth('#dfb195');band.color.set('#d8d1bf');
+  // Her body under clothes is cream felt; skin drawn just outside it shows through the eyelets and at the boat neck.
+  // Below the shoulders it follows her body (an oval .27 by .165 centred at 1.45), staying inside every pair of jeans.
+  // It sits in its own group: it is her, not part of the jumper's covering surface.
+  const under=new T.Group();under.name='skin-under-openwork';top.add(under);
+  shell(under,[...SHOULDER_ROWS,[1.5,.272,.166],[1.42,.268,.163],[1.34,.254,.154],[1.25,.236,.145]],skin,'skin-under-openwork',48);
+  const knit=()=>{const m=woolMaterial(yarnTexture(pointelleData(),1,1));m.alphaTest=.5;m.bumpMap.repeat.set(9,4);m.bumpScale=.008;return m;};
+  // Boxy, about as long as it is wide; the wide boat neck rests on her shoulders.
+  const bodyTop=1.85,body=shell(top,[[bodyTop,.178,.128],[1.82,.25,.18],[1.77,.3,.207],[1.6,.31,.215],[1.4,.314,.224],[hem+edge+.012,overSkirt?.336:.316,overSkirt?.25:.23],[hem+edge,flare[0],flare[1]]],knit(),'pointelle-body',96);
+  const uv=body.geometry.attributes.uv,bp=body.geometry.attributes.position;
+  for(let n=0;n<uv.count;n++)uv.setXY(n,uv.getX(n)*9,(bodyTop-bp.getY(n))/POINTELLE_PITCH);
+  uv.needsUpdate=true;
+  // Narrow plain bands finished with small scallops.
+  const neck=ribbed(shell(top,[[bodyTop+.026,.172,.122],[bodyTop+.012,.175,.125],[bodyTop-.004,.18,.13]],band,'scalloped-neckband',192),96,.006);
+  waveEdge(neck,bodyTop+.026,.02,.007,44,true);
+  const hemBand=ribbed(shell(top,[[hem+edge+.008,flare[0]-.003,flare[1]-.002],[hem+edge/2,flare[0]-.002,flare[1]-.001],[hem,flare[0]-.002,flare[1]-.001]],band,'scalloped-hem-band',192),96,.006);
+  waveEdge(hemBand,hem,.025,.008,56,false);
+  for(const side of [-1,1]){
+    const arm=new T.Group();arm.position.set(side*.242,1.815,0);arm.rotation.z=side*.22;
+    // Long, wide, straight raglan sleeves.
+    const sleeve=shell(arm,[[.03,.126,.121],[-.06,.136,.13],[-.2,.139,.133],[-.33,.141,.135],[-.44,.142,.136],[-.505,.142,.136]],knit(),'knit-jumper-sleeve',64);
+    roundSleeveCap(sleeve,side,.03);
+    const suv=sleeve.geometry.attributes.uv,sp=sleeve.geometry.attributes.position;
+    for(let n=0;n<suv.count;n++)suv.setXY(n,suv.getX(n)*4,(.03-sp.getY(n))/POINTELLE_PITCH);
+    suv.needsUpdate=true;
+    const cuff=ribbed(shell(arm,[[-.498,.14,.134],[-.515,.141,.135],[-.532,.141,.135]],band,'scalloped-cuff',128),64,.008);
+    waveEdge(cuff,-.532,.02,.007,26,false);
+    top.add(arm);
+  }
+  // Raglan seams run from the neckline down to each underarm, front and back. They are laid on whichever surface is
+  // outermost, found by casting rays at the finished body and sleeves.
+  top.updateMatrixWorld(true);
+  const surfaces=[];top.traverse(o=>{if(o.name==='pointelle-body'||o.name==='knit-jumper-sleeve')surfaces.push(o);});
+  const ray=new T.Raycaster(),normal=new T.Vector3();
+  const onSurface=(x,y,front)=>{ray.set(V(x,y,front?1:-1),V(0,0,front?-1:1));const hit=ray.intersectObjects(surfaces,false)[0];if(!hit)return null;
+    normal.copy(hit.face.normal).transformDirection(hit.object.matrixWorld);if(normal.z*(front?1:-1)<0)normal.negate();return {point:hit.point,normal:normal.clone()};};
+  for(const front of [true,false])for(const side of [-1,1]){
+    const points=[];for(let k=0;k<=14;k++){const t=k/14,hit=onSurface(side*(.17+.13*t),bodyTop-.008-.22*t+.02*Math.sin(t*Math.PI),front);if(hit)points.push(hit.point.clone().addScaledVector(hit.normal,.003).toArray());}
+    if(points.length>3)curve(top,points,.0035,band,'raglan-seam');
+  }
+  // Raised embroidered flowers on the front only: six raspberry petals around a darker centre, two dark green leaves above.
+  // Each is built facing +z, then turned to the knit's surface and enlarged to the photo's size (about 6% of the body's
+  // width); the scale also undoes her body's squash so the flowers stay round.
+  const petal=solid(POINTELLE.petal,.9),centre=solid(POINTELLE.centre,.9),leaf=solid(POINTELLE.leaf,.85);
+  for(const [u,v] of POINTELLE_FLOWERS){
+    const hit=onSurface((u-.5)*.6,1.82-v*.58,true);if(!hit)continue;
+    const flower=new T.Group();flower.name='embroidered-flower';
+    for(let k=0;k<6;k++){const a=k/6*Math.PI*2+.3,m=oval(flower,[Math.cos(a)*.0095,Math.sin(a)*.0095-.004,0],[.0085,.0058,.003],petal,'flower-petal',16);m.rotation.z=a;}
+    oval(flower,[0,-.004,.002],[.0045,.0045,.003],centre,'flower-centre',12);
+    for(const s of [-1,1]){const m=oval(flower,[s*.0085,.018,.001],[.0085,.0032,.002],leaf,'flower-leaf',12);m.rotation.z=s*.35;}
+    oval(flower,[0,.011,.001],[.0018,.006,.002],leaf,'flower-stem',8);
+    flower.position.copy(hit.point).addScaledVector(hit.normal,.002);flower.lookAt(flower.position.clone().add(hit.normal));
+    flower.scale.set(1.5/BODY_WIDTH,1.5/BODY_HEIGHT,1.5);top.add(flower);
+  }
+  return top;
+}
 // Acid-wash barrel jeans: construction is read from the product photos.
 let washPixels=null;
 function acidWashData(base=[48,61,70]){
@@ -694,6 +781,7 @@ export function makeOutfit(raw, atlas=null) {
   if(state.topId===CROCHET_TOP_ID)root.add(makeCrochetTop());
   else if(state.topId===PLAID_JUMPER_ID)root.add(makePlaidJumper(PLAID_JUMPER_ID,state.skirt));
   else if(state.topId===STRIPE_JUMPER_ID)root.add(makeStripeJumper(STRIPE_JUMPER_ID,state.skirt));
+  else if(state.topId===POINTELLE_FLOWER_ID)root.add(makePointelleJumper(POINTELLE_FLOWER_ID,state.skirt));
   else if(state.topId!== 'classic')root.add(makeReferenceTop(atlas?.isTexture?atlas:atlas?.[state.topId],state.topId));
   if(state.shirt){
     const layer=new T.Group();layer.name='shirt';root.add(layer);
