@@ -421,9 +421,10 @@ export const GARMENTS = Object.freeze({
       sole: { outsole: .081, welt: { grooves: [.088, .095], stitch: .103, top: .111 }, footbed: .138, top: .138, heelTop: .138, lugs: 26, archGap: .02 },
       // Her bare foot as overlapping ovals: at [x from the sole centre, y, z] with radii.
       foot: [
-        { name: 'bare-foot', at: [0, .17, .11], r: [.07, .045, .19] },
-        { name: 'bare-instep', at: [0, .2, .035], r: [.062, .075, .1] },
-        { name: 'bare-ankle', at: [0, .28, -.035], r: [.054, .15, .058] },
+        { name: 'bare-foot', at: [0, .168, .125], r: [.094, .042, .2] },
+        { name: 'bare-instep', at: [0, .19, .035], r: [.086, .068, .12] },
+        { name: 'bare-heel', at: [0, .172, -.05], r: [.078, .048, .085] },
+        { name: 'bare-ankle', at: [0, .28, -.035], r: [.058, .15, .062] },
       ],
       // Straps as [z at the inner edge, z at the outer edge, width, gap above her foot]; cords as [z inner, z outer, gap].
       cowBands: [[.27, .15, .11, .008], [.13, .25, .11, .016]],
