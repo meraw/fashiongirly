@@ -15,7 +15,7 @@ Read [PRODUCT_BRIEF.md](PRODUCT_BRIEF.md) for the product's intent and agreed co
 - Sweater and denim colours, sweater sleeve volume and hem, trouser volume, and layer toggles.
 - Bounded text parser, turn controls, draft persistence and a 24-look browser lookbook.
 - Earlier vector implementation retained at `illustration.html`.
-- Twenty-one tests were passing and the static build succeeded at this handoff. Geometry and UI checks do not establish visual quality; full device/WebGL appearance and performance still require review.
+- Twenty-two tests were passing and the static build succeeded at this handoff. Geometry and UI checks do not establish visual quality; full device/WebGL appearance and performance still require review.
 
 ## Code landmarks
 
@@ -31,7 +31,7 @@ Read [PRODUCT_BRIEF.md](PRODUCT_BRIEF.md) for the product's intent and agreed co
 | `scripts/build.mjs` | Static build including local Three.js dependencies |
 | `.github/workflows/pages.yml` | Manually dispatched Pages deployment |
 
-The current flat recipe is not a garment database. It holds colours, bounded numeric controls and layer booleans for the procedural study. Six catalog entries now exist. Each declares a `slot`. Tops are selected by `topId`: `desigual-bronze-mesh-v1` and `lilac-portrait-mockneck-v1` use fitted geometry and bundled generated textures; `desigual-crochet-flowers-v1` and `mango-plaid-jumper-v1` use their own geometry and textures drawn procedurally in `model.js`. A catalog `layering.coversWaistband` flag hides the skirt's ribbon bow under tops whose hem covers the waist. Bottoms are selected by `bottomId`: `topshop-barrel-jeans-v1` and `desigual-davinia-jeans-v1` replace the built-in jeans. All catalog jeans are built by `makeJeans()` from a `build` spec in their catalog entry, each with a denim swatch processed from its own product photo. `cleanRecipe()` only accepts IDs from the matching slot. The skirt and shoes are still built-in procedural pieces; dresses, outerwear and shoes have no slot yet. There is no general import pipeline, fitting rig or automatic reference reconstruction yet.
+The current flat recipe is not a garment database. It holds colours, bounded numeric controls and layer booleans for the procedural study. Seven catalog entries now exist. Each declares a `slot`. Tops are selected by `topId`: `desigual-bronze-mesh-v1` and `lilac-portrait-mockneck-v1` use fitted geometry and bundled generated textures; `desigual-crochet-flowers-v1` and `mango-plaid-jumper-v1` use their own geometry and textures drawn procedurally in `model.js`. A catalog `layering.coversWaistband` flag hides the skirt's ribbon bow under tops whose hem covers the waist. Bottoms are selected by `bottomId`: `topshop-barrel-jeans-v1`, `desigual-davinia-jeans-v1` and `levis-94-wide-leg-v1` replace the built-in jeans. All catalog jeans are built by `makeJeans()` from a `build` spec in their catalog entry, each with a denim swatch processed from its own product photo. `cleanRecipe()` only accepts IDs from the matching slot. The skirt and shoes are still built-in procedural pieces; dresses, outerwear and shoes have no slot yet. There is no general import pipeline, fitting rig or automatic reference reconstruction yet.
 
 ## Latest decisions
 
@@ -84,7 +84,10 @@ Items added so far:
 
 1. [Mango windowpane jumper](garments/mango-windowpane-jumper.md). First version: the user found it awkward (balloon-like rather than boxy) and the check a different pattern. Revised; the user then sent the next item without further comment on the revision.
 2. [Topshop acid-wash barrel jeans](garments/topshop-barrel-jeans.md). Added the bottom slot; its layering test also found and fixed the bronze top clipping over trousers. Approved by the user (“Ok, that works”) after five revisions: straight floor-length fit, bolder details, drape and stacking geometry, and denim taken from the product photo as a processed swatch. The user still considers the jeans below the tops' quality overall and does not expect the shape to improve much further.
-3. [Desigual Davinia heart jeans](garments/desigual-davinia-jeans.md). First pair on the shared jeans template (`makeJeans()` with a `build` spec in the catalog). Awaiting the user's visual review. The user asked for “a few more jeans” next.
+3. [Desigual Davinia heart jeans](garments/desigual-davinia-jeans.md). First pair on the shared jeans template (`makeJeans()` with a `build` spec in the catalog). The user found the crotch strange; it was rebuilt as sewn (hips morphing into the legs), applied to both pairs, and the user said it “looks better”. The user asked for “a few more jeans” next.
+4. [Levi's '94 baggy wide leg](garments/levis-94-wide-leg.md). Washed black wide legs with arc stitching, red tab and frayed pocket edges. Full length resting on the shoes, confirmed by the user (a brief shortening came from mixing it up with another pair); awaiting visual review.
+
+Fit follows the user, not the product photos: when the user says a garment fits them differently (length, rise, looseness), build it that way and note it in the garment record.
 
 Adding more jeans: write a catalog entry with a `build` spec (copy the closest pair), take a denim swatch from the flat lay or the plainest leg area (`scripts`-free: crop inside the seams, divide by a heavy blur, calibrate, make seamless), measure plain-denim colour in the photos and in a render and adjust the swatch until they match, then add the swatch to `view.js`, the selector and a preset. The layering test picks up new bottoms automatically.
 

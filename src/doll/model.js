@@ -467,6 +467,11 @@ function makeJeans(id,spec,swatch=null){
   for(const side of [-1,1]){
     const fp=spec.frontPocket;
     if(fp.type==='slant')curve(jeans,on(fp.line.map(([x,y])=>[side*x,y])),.0017,thread,'slant-pocket-stitch');
+    if(fp.fray){
+      // Raw-edged pocket opening: short pale threads standing off the edge along its length.
+      const fray=solid(spec.frayColour||'#cdd7df',1),r=random(side>0?29:31),line=new T.CatmullRomCurve3(on(fp.line.map(([x,y])=>[side*x,y]),false,.004).map(q=>V(...q)));
+      for(let k=0;k<30;k++){const q=line.getPoint((k+r()*.6)/30),h=.002+r()*.004;curve(jeans,[q.toArray(),[q.x+side*(r()-.3)*.003,q.y+h,q.z+.001]],.0007,fray,'frayed-pocket-edge');}
+    }
     // Scoop pocket: a curved opening from the waistband down to the side seam, with a second row of stitching.
     if(fp.type==='scoop')for(const inset of [0,.007])curve(jeans,on(fp.line.map(([x,y],k)=>[side*(x+inset*(k?1:.4)),y+inset*(k===fp.line.length-1?-1:0)])),.0017,thread,'scoop-pocket-stitch');
     // Side seam: starts at the outer hip and runs to the hem (twisting toward the back when the spec twists the legs).
@@ -487,6 +492,21 @@ function makeJeans(id,spec,swatch=null){
     const bp=spec.backPocket,px=side*bp.x,pocket=bp.outline.map(([x,y])=>[px+x,y]);
     patchOn(pocket,'back-patch-pocket',true,.004);
     curve(jeans,on([...pocket.slice(1),pocket[0]].map(([x,y])=>[x-(x-px)*.08,y+(y<bp.stitchBelow?.006:0)]),true,.006),.0017,thread,'pocket-stitch');
+    if(bp.arcuate){
+      // Decorative double-needle stitching across the pocket: two wings dipping to a point at the centre.
+      const [w,y0,dip]=bp.arcuate,wing=[[-w,y0],[-w*.72,y0+.012],[-w*.38,y0+.004],[-w*.12,y0-dip*.6],[0,y0-dip]],arc=[...wing,...wing.slice(0,-1).reverse().map(([x,y])=>[-x,y])];
+      for(const off of [0,.0065])curve(jeans,on(arc.map(([x,y])=>[px+x,y-off]),true,.0055),.0026,solid(bp.arcuateColour||spec.thread,.9),'arcuate-stitch');
+    }
+    if(bp.tab&&side===bp.tab.side){
+      // Small woven tab sewn into the pocket's inner edge.
+      const tx=px-side*bp.tab.inset,ty=bp.tab.y,tab=put(jeans,new T.BoxGeometry(.013,.024,.004),solid(bp.tab.colour,.75),'pocket-tab');tab.position.set(tx,ty,-(depth(tx,ty,true)+.006));
+    }
+    for(const dx of bp.nicks||[]){
+      // Worn nicks along the pocket's top edge: a pale scuff with a few loose threads.
+      const nx=px+dx,top=bp.outline[0][1],fray=solid(spec.frayColour||'#cdd7df',1),r=random(Math.round((nx+1)*1000));
+      patchOn([[nx-.008,top-.004],[nx+.008,top-.004],[nx+.008,top+.001],[nx-.008,top+.001]],'pocket-nick',true,.0065,fray);
+      for(let k=0;k<4;k++){const x=nx-.006+k*.004,z=-(depth(x,top,true)+.0068);curve(jeans,[[x,top,z],[x+(r()-.5)*.003,top-.004-r()*.004,z-.001]],.0009,fray,'pocket-nick-thread');}
+    }
     if(bp.flap){
       patchOn(bp.flap.map(([x,y])=>[px+x,y]),'pocket-flap',true,.009);
       curve(jeans,on(bp.flapStitch.map(([x,y])=>[px+x,y]),true,.011),.0022,thread,'flap-stitch');
@@ -505,6 +525,11 @@ function makeJeans(id,spec,swatch=null){
   curve(jeans,on(spec.centreBack,true),.0018,thread,'centre-back-seam');
   if(spec.welt)curve(jeans,on(spec.welt,true,.005),.0028,fold,'welt-pocket');
   const lp=spec.labelPatch,leather=put(jeans,new T.BoxGeometry(...lp.size),solid(lp.colour,.95),lp.name);leather.position.set(...lp.position);leather.rotation.y=lp.rotationY;
+  if(lp.printColour){
+    // A printed border on the patch's outer face (no lettering or logo).
+    const [w,h,d]=lp.size,ink=solid(lp.printColour,.9);
+    for(const k of [.4,.33])curve(leather,[[-w*k,h*k,d/2+.0006],[w*k,h*k,d/2+.0006],[w*k,-h*k,d/2+.0006],[-w*k,-h*k,d/2+.0006],[-w*k,h*k,d/2+.0006]],.0011,ink,'patch-print');
+  }
   if(spec.hem==='raw-crop'){
     // Cropped raw hem: a pale frayed edge around each ankle.
     const fray=solid(spec.frayColour||'#cdd7df',1),r=random(23);

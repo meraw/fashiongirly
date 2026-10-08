@@ -5,6 +5,7 @@ export const CROCHET_TOP_ID = 'desigual-crochet-flowers-v1';
 export const PLAID_JUMPER_ID = 'mango-plaid-jumper-v1';
 export const BARREL_JEANS_ID = 'topshop-barrel-jeans-v1';
 export const DAVINIA_JEANS_ID = 'desigual-davinia-jeans-v1';
+export const LEVIS_94_ID = 'levis-94-wide-leg-v1';
 export const GARMENTS = Object.freeze({
   [BRONZE_TOP_ID]: {
     slot: 'top',
@@ -133,6 +134,42 @@ export const GARMENTS = Object.freeze({
       backPocket: { x: .12, outline: [[-.072, 1.15], [.072, 1.15], [.07, 1.03], [0, 1.0], [-.07, 1.03]], stitchBelow: 1.1 },
       centreBack: [[.004, 1.165], [.004, 1.07], [0, 1.0]],
       labelPatch: { name: 'leather-patch', size: [.07, .04, .005], colour: '#9b6a42', position: [-.07, 1.275, -(.17 + .004)], rotationY: Math.PI + .27 },
+    },
+  },
+  [LEVIS_94_ID]: {
+    slot: 'bottom',
+    id: LEVIS_94_ID, name: "Levi's '94 baggy wide leg", family: 'wide-leg-jeans', version: 1,
+    status: 'reference-study-awaiting-visual-review', brandAsProvided: "Levi's",
+    source: { note: "user supplied six product images (\"Levi's 94 Wide Leg\"; label reads The Baggy Wide Leg): back pocket close-up, front flat lay, front, back and side on model, full-length front" },
+    referenceViews: ['back pocket close-up', 'front flat lay', 'front on model', 'back on model', 'side on model', 'full-length front'],
+    details: ['low-to-mid rise', 'wide legs falling straight and widening slightly to the hem, full length pooling over the shoes', 'washed black faded to charcoal, faint whiskers across the upper thighs, visible twill', 'raw frayed edges on the front pocket openings', 'coin pocket, belt loops, dark metal button', 'back yoke, five-pocket back pockets with tonal double-arc stitching and frayed nicks on their tops', 'red tab on the wearer\'s right back pocket', 'tan printed patch on the back waistband'],
+    material: { construction: 'rigid denim', composition: 'not visible in the supplied images', finish: 'washed black' },
+    fit: { silhouette: 'wide leg', rise: 'low to mid', length: 'full, resting on the shoes (confirmed by the user)', adjustment: 'fixed authored fit for review' },
+    uncertainties: ['folds are procedural', 'photos disagree on brightness (studio lighting); colour aims between the flat lay and the model shots', 'patch and tab carry no lettering or logo'],
+    authoring: { texture: 'levis-94-denim.js: flat-lit seamless swatch processed from the product flat lay', runtimeGeneration: false, sourcePhotosBundled: 'fabric swatch only' },
+    build: {
+      template: 'jeans', legName: 'jeans-leg', fallback: [36, 36, 41], frayColour: '#5d595c',
+      crotch: { top: 1.18, y: .95 }, uvScale: [3.7, 1.03],
+      tiles: { small: [2.45, .66], legs: [1, 1], hips: [1, 1] },
+      hips: [[1.235, .256, .172], [1.14, .276, .193], [1.04, .294, .198], [.97, .306, .19], [.935, .25, .11]],
+      // Wide legs: straight from the hip and widening gently to the hem, full length, resting on the shoes (the user
+      // confirmed this length is right on them).
+      legs: [[1.03, .148, .18, .13], [.95, .155, .18, .152], [.75, .163, .183, .168], [.55, .171, .186, .176], [.35, .179, .19, .184], [.18, .186, .194, .19], [.06, .19, .197, .194]],
+      hem: 'rests-on-shoe', folds: { base: .005, low: .011, stack: .008 },
+      gradient: [.86, .22], whiskers: .15, thighFade: .1,
+      waistband: { y: 1.21, rx: .258, rz: .175, h: .05 },
+      loops: [-2.7, -1.45, -.55, .55, 1.45, 2.7, Math.PI],
+      button: { colour: '#4c4b4e' }, thread: '#4a4648',
+      fly: [[.034, 1.183], [.036, 1.09], [.02, 1.05], [0, 1.04]],
+      frontPocket: { type: 'slant', line: [[.15, 1.184], [.205, 1.178], [.245, 1.158], [.27, 1.115]], fray: true },
+      coinPocket: { outline: [[-.225, 1.183], [-.18, 1.181], [-.184, 1.135], [-.222, 1.137], [-.225, 1.183]] },
+      seamEnd: .1,
+      backYoke: [[.268, 1.182], [.14, 1.162], [.004, 1.142]],
+      backPocket: { x: .12, outline: [[-.07, 1.128], [.07, 1.128], [.066, 1.005], [0, .978], [-.066, 1.005]], stitchBelow: 1.07,
+        arcuate: [.052, 1.085, .03], arcuateColour: '#161416', nicks: [-.035, .02],
+        tab: { side: -1, inset: .066, y: 1.09, colour: '#c3262f' } },
+      centreBack: [[.004, 1.142], [.004, 1.05], [0, .985]],
+      labelPatch: { name: 'printed-patch', size: [.085, .052, .005], colour: '#c49a6c', printColour: '#9c4a3c', position: [-.07, 1.21, -(.175 + .004)], rotationY: Math.PI + .27 },
     },
   },
 });

@@ -81,7 +81,7 @@ This is the first piece of a retailer's product photo bundled in the repository:
 
 ## Crotch rebuilt with the Davinia fix
 
-When the user found the Davinia jeans strange at the crotch, the barrel jeans showed the same pouch, ledge and step. They were moved onto the same crotch construction (see the Davinia record): `crotch: { top: 1.2, y: .95 }` (a longer transition because these legs are fuller than the hips above them) and `uvScale: [3.7, 1.03]`, which keeps their previous denim scale. This changes only the hips and the top of the legs; the fingerprint recorded before the template refactor no longer applies.
+When the user found the Davinia jeans strange at the crotch, the barrel jeans showed the same pouch, ledge and step. They were moved onto the same crotch construction (see the Davinia record): `crotch: { top: 1.2, y: .95 }` (a longer transition because these legs are fuller than the hips above them) and `uvScale: [3.7, 1.03]`, which keeps their previous denim scale. This changes only the hips and the top of the legs; the fingerprint recorded before the template refactor no longer applies. The user saw the before and after and said it “looks better”.
 
 ## Layering fix found by this item
 
