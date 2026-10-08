@@ -470,6 +470,8 @@ function makeJeans(id,spec,swatch=null){
     return new T.MeshPhysicalMaterial({map,roughness:.95,bumpMap:twill,bumpScale:.006,side:T.DoubleSide,vertexColors:faded});};
   const denim=wash(spec.tiles.small),legDenim=wash(spec.tiles.legs,true),hipDenim=wash(spec.tiles.hips,true),thread=solid(spec.thread,.85),fold=solid('#26303d',.9);
   const metal=new T.MeshStandardMaterial({color:spec.button.colour,metalness:.85,roughness:.3});
+  // Topstitching weight: some pairs have heavier, more visible stitching.
+  const sw=spec.stitchScale||1;
   const hips=spec.hips,legRows=s=>spec.legs.map(([y,rx,rz,cx])=>[y,rx,rz,s*cx]);
   const lerpRows=(rows,y)=>{for(let i=0;i<rows.length-1;i++){const a=rows[i],b=rows[i+1];if(y<=a[0]&&y>=b[0]){const t=(a[0]-y)/(a[0]-b[0]);return a.map((v,k)=>v+(b[k]-v)*t);}}return y>rows[0][0]?rows[0]:rows[rows.length-1];};
   let body;
@@ -502,7 +504,7 @@ function makeJeans(id,spec,swatch=null){
   if(spec.crotch){body[0].userData.ringSize=129;byDistance(body[0]);}else mapByHeight(body[0],hips[hips.length-2][0],hips[0][0]);
   const wb=spec.waistband;
   ring(jeans,wb.y,wb.rx,wb.rz,denim,'jeans-waistband',wb.h);
-  for(const y of [wb.y-wb.h*.46,wb.y+wb.h*.46]){const pts=[];for(let k=0;k<=64;k++){const a=k/64*Math.PI*2;pts.push([Math.sin(a)*(wb.rx+.002),y,Math.cos(a)*(wb.rz+.002)]);}curve(jeans,pts,.0017,thread,'waistband-stitch');}
+  for(const y of [wb.y-wb.h*.46,wb.y+wb.h*.46]){const pts=[];for(let k=0;k<=64;k++){const a=k/64*Math.PI*2;pts.push([Math.sin(a)*(wb.rx+.002),y,Math.cos(a)*(wb.rz+.002)]);}curve(jeans,pts,.0017*sw,thread,'waistband-stitch');}
   if(wb.frayed){
     // Raw top edge: short pale threads standing up from the waistband.
     const fray=solid(spec.frayColour||'#cdd7df',1),r=random(19);
@@ -522,7 +524,7 @@ function makeJeans(id,spec,swatch=null){
     const x=p.getX(i),y=mesh.userData.restY?.[i]??p.getY(i),z=p.getZ(i);let f=gLow+gRange*Math.min(1,Math.max(0,(y-.06)/1.14));
     f*=1+6*(wear?.[i]||0)+spec.whiskers*whiskers(x,y,z);
     if(spec.thighFade&&z>0)f*=1+spec.thighFade*Math.max(0,1-Math.abs(y-.78)/.3)*Math.min(1,z/.1);
-    if(side){const cx=lerpRows(legRows(side),y)[3],a=Math.atan2(x-cx,z);f*=1+.13*Math.exp(-((angleGap(a,outAngle(side,y))/.1)**2))+.1*Math.exp(-((angleGap(a,inAngle(side,y))/.1)**2))+(y<hemY+.025?.1*(1-(y-hemY)/.025):0);}
+    if(side){const cx=lerpRows(legRows(side),y)[3],a=Math.atan2(x-cx,z);const rope=spec.roping||1;f*=1+rope*(.13*Math.exp(-((angleGap(a,outAngle(side,y))/.1)**2))+.1*Math.exp(-((angleGap(a,inAngle(side,y))/.1)**2))+(y<hemY+.025?.1*(1-(y-hemY)/.025):0));}
     c.push(f,f,f);}mesh.geometry.setAttribute('color',new T.Float32BufferAttribute(c,3));return mesh;};
   shade(body[0]);
   const legs={},folds=spec.folds;
@@ -580,7 +582,8 @@ function makeJeans(id,spec,swatch=null){
     const xs=outline.map(q=>q[0]),ys=outline.map(q=>q[1]),size=Math.max(Math.max(...xs)-Math.min(...xs),Math.max(...ys)-Math.min(...ys));
     const mesh=put(jeans,subdivided(shape,size>.06?3:1,back),material,name),pp=mesh.geometry.attributes.position;
     for(let i=0;i<pp.count;i++)pp.setZ(i,(back?-1:1)*(depth(pp.getX(i),pp.getY(i),back)+off));pp.needsUpdate=true;mesh.geometry.computeVertexNormals();return mesh;};
-  curve(jeans,on(spec.fly),.0017,thread,'fly-stitch');
+  curve(jeans,on(spec.fly),.0017*sw,thread,'fly-stitch');
+  if(spec.doubleSeams)curve(jeans,on(spec.fly.map(([x,y],k)=>[x+.008,y-(k===spec.fly.length-1?0:.004)]),false,.004),.0017*sw,thread,'fly-stitch');
   const seamNames=spec.twist?['twisted-side-seam','twisted-inseam']:['side-seam','inseam'];
   for(const side of [-1,1]){
     const fp=spec.frontPocket;
@@ -591,15 +594,18 @@ function makeJeans(id,spec,swatch=null){
       for(let k=0;k<30;k++){const q=line.getPoint((k+r()*.6)/30),h=.002+r()*.004;curve(jeans,[q.toArray(),[q.x+side*(r()-.3)*.003,q.y+h,q.z+.001]],.0007,fray,'frayed-pocket-edge');}
     }
     // Scoop pocket: a curved opening from the waistband down to the side seam, with a second row of stitching.
-    if(fp.type==='scoop')for(const inset of [0,.007])curve(jeans,on(fp.line.map(([x,y],k)=>[side*(x+inset*(k?1:.4)),y+inset*(k===fp.line.length-1?-1:0)])),.0017,thread,'scoop-pocket-stitch');
+    if(fp.type==='scoop')for(const inset of [0,.007])curve(jeans,on(fp.line.map(([x,y],k)=>[side*(x+inset*(k?1:.4)),y+inset*(k===fp.line.length-1?-1:0)])),.0017*sw,thread,'scoop-pocket-stitch');
     // Side seam: starts at the outer hip and runs to the hem (twisting toward the back when the spec twists the legs).
     const hipPoint=(y,a,off=.003)=>{const dir=new T.Vector3(Math.sin(a),0,Math.cos(a));caster.set(new T.Vector3(0,y,0).addScaledVector(dir,.8),dir.clone().negate());const h=caster.intersectObject(body[0],false)[0];return h?h.point.addScaledVector(dir,off).toArray():[dir.x*.27,y,dir.z*.18];};
     const seam=spec.crotch?Array.from({length:7},(_,k)=>{const y=spec.waistband.y-spec.waistband.h/2-k*(spec.waistband.y-spec.waistband.h/2-.98)/6;return hipPoint(y,side*Math.PI/2);}):spec.sideSeamTop.map(([x,y])=>[side*x,y,0]);
     const legTop=spec.crotch?spec.crotch.y-.003:.97;
     for(let k=0;k<=20;k++){const y=legTop-k*(legTop-spec.seamEnd)/20;seam.push(legPoint(side,y,outAngle(side,y)));}
-    curve(jeans,seam,.0018,thread,seamNames[0]);
+    curve(jeans,seam,.0018*sw,thread,seamNames[0]);
+    // Double-needle seams: a second row just toward the front of each leg seam.
+    if(spec.doubleSeams)curve(jeans,seam.map(([x,y,z],k)=>k<seam.length-21?[x,y,z+.006]:legPoint(side,y,outAngle(side,y)-side*.07)),.0018*sw,thread,seamNames[0]);
     const inTop=spec.crotch?spec.crotch.y-.003:.95,inseam=[];for(let k=0;k<=20;k++){const y=inTop-k*(inTop-spec.seamEnd)/20;inseam.push(legPoint(side,y,inAngle(side,y)));}
-    curve(jeans,inseam,.0018,thread,seamNames[1]);
+    curve(jeans,inseam,.0018*sw,thread,seamNames[1]);
+    if(spec.doubleSeams)curve(jeans,inseam.map(([x,y])=>legPoint(side,y,inAngle(side,y)+side*.07)),.0018*sw,thread,seamNames[1]);
     // Articulated knee: horizontal seams across the front and the back of each knee.
     if(spec.kneeSeams)for(const facing of [0,Math.PI]){
     const dart=[];for(let k=0;k<=8;k++)dart.push(legPoint(side,spec.kneeSeams+.006*Math.sin(Math.PI*k/8),facing-side*.55+side*.65*k/8,.002));
@@ -608,10 +614,15 @@ function makeJeans(id,spec,swatch=null){
     // Back: yoke and patch pocket, with a pointed buttoned flap when the spec has one.
     if(spec.backYoke)curve(jeans,on(spec.backYoke.map(([x,y])=>[side*x,y]),true),.0018,thread,'back-yoke');
     // Short darts from the waistband toward each pocket, in place of (or as well as) a yoke.
-    if(spec.backDarts)curve(jeans,on(spec.backDarts.map(([x,y])=>[side*x,y]),true,.003),.0022,fold,'back-dart');
+    if(spec.backDarts)curve(jeans,on(spec.backDarts.map(([x,y])=>[side*x,y]),true,.003),.0022,spec.dartsStitched?thread:fold,'back-dart');
     const bp=spec.backPocket,px=side*bp.x,pocket=bp.outline.map(([x,y])=>[px+x,y]);
     patchOn(pocket,'back-patch-pocket',true,.004);
-    curve(jeans,on([...pocket.slice(1),pocket[0]].map(([x,y])=>[x-(x-px)*.08,y+(y<bp.stitchBelow?.006:0)]),true,.006),.0017,thread,'pocket-stitch');
+    curve(jeans,on([...pocket.slice(1),pocket[0]].map(([x,y])=>[x-(x-px)*.08,y+(y<bp.stitchBelow?.006:0)]),true,.006),.0017*sw,thread,'pocket-stitch');
+    if(spec.doubleSeams){
+      curve(jeans,on([...pocket.slice(1),pocket[0]].map(([x,y])=>[x-(x-px)*.15,y+(y<bp.stitchBelow?.011:-.004)]),true,.006),.0017*sw,thread,'pocket-stitch');
+      // The pocket's hemmed top edge: two rows straight across.
+      const [[x0,top],[x1]]=pocket;for(const d of [.006,.013])curve(jeans,on([[x0+.004,top-d],[px,top-d],[x1-.004,top-d]],true,.0065),.0017*sw,thread,'pocket-stitch');
+    }
     if(bp.arcuate){
       // Decorative double-needle stitching across the pocket: two wings dipping to a point at the centre.
       const [w,y0,dip]=bp.arcuate,wing=[[-w,y0],[-w*.72,y0+.012],[-w*.38,y0+.004],[-w*.12,y0-dip*.6],[0,y0-dip]],arc=[...wing,...wing.slice(0,-1).reverse().map(([x,y])=>[-x,y])];
@@ -645,7 +656,7 @@ function makeJeans(id,spec,swatch=null){
   }
   if(spec.coinPocket){
     // Coin pocket inside the wearer's right front pocket, with its embroidery when the spec has one.
-    const cp=spec.coinPocket;curve(jeans,on(cp.outline),.0016,thread,'coin-pocket-stitch');
+    const cp=spec.coinPocket;curve(jeans,on(cp.outline),.0016*sw,thread,'coin-pocket-stitch');
     if(cp.badge){const [bx,by]=cp.badge,z=depth(bx,by)+.005;put(jeans,new T.BoxGeometry(.02,.01,.003),solid('#1c2747',.8),'coin-badge').position.set(bx,by,z);
       for(const [dx,c] of [[-.004,'#f2f2f0'],[.004,'#c8202f']]){const b=put(jeans,new T.BoxGeometry(.007,.006,.002),solid(c,.8),'coin-badge-block');b.position.set(bx+dx,by,z+.0018);}}
     if(cp.heart){const [hx,hy]=cp.heart,hs=.011,pts=[];for(let k=0;k<=40;k++){const t=k/40*Math.PI*2,x=16*Math.sin(t)**3,y=13*Math.cos(t)-5*Math.cos(2*t)-2*Math.cos(3*t)-Math.cos(4*t);pts.push([hx+x/16*hs,hy+y/16*hs]);}
@@ -669,6 +680,8 @@ function makeJeans(id,spec,swatch=null){
     const [w,h,d]=lp.size,ink=solid(lp.printColour,.9);
     for(const k of [.4,.33])curve(leather,[[-w*k,h*k,d/2+.0006],[w*k,h*k,d/2+.0006],[w*k,-h*k,d/2+.0006],[-w*k,-h*k,d/2+.0006],[-w*k,h*k,d/2+.0006]],.0011,ink,'patch-print');
   }
+  // A stitched hem: a ring of topstitching just above the hem edge of each leg.
+  if(spec.hemStitch)for(const side of [-1,1]){const pts=[];for(let k=0;k<=64;k++)pts.push(legPoint(side,hemY+spec.hemStitch,k/64*Math.PI*2,.002));curve(jeans,pts,.0018*sw,thread,'hem-stitch');}
   if(spec.hem==='raw-crop'){
     // Cropped raw hem: a pale frayed edge around each ankle.
     const fray=solid(spec.frayColour||'#cdd7df',1),r=random(23);
