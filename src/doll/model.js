@@ -1,6 +1,6 @@
 import * as T from 'three';
 import { cleanRecipe } from './recipe.js';
-import { BRONZE_TOP_ID, LILAC_TOP_ID, CROCHET_TOP_ID, PLAID_JUMPER_ID, STRIPE_JUMPER_ID, POINTELLE_FLOWER_ID, GARMENTS } from '../wardrobe/catalog.js';
+import { BRONZE_TOP_ID, LILAC_TOP_ID, CROCHET_TOP_ID, PLAID_JUMPER_ID, STRIPE_JUMPER_ID, POINTELLE_FLOWER_ID, SILVER_CABLE_ID, GARMENTS } from '../wardrobe/catalog.js';
 // Body and wardrobe share one toy proportion system; the face stays unscaled.
 const BODY_HEIGHT = .76;
 const BODY_WIDTH = 1.06;
@@ -519,6 +519,86 @@ function makePointelleJumper(id=POINTELLE_FLOWER_ID,overSkirt=false){
   }
   return top;
 }
+// Silver foil cable jumper: black yarn coated with silver, so raised stitches shine and grooves stay black. Each knit is drawn
+// as a height field: height sets both the colour (black to silver) and the bump.
+const FOIL={silver:[222,222,226],black:[14,14,16]};
+const silverPixels={};
+function stockinette(x,y){return .52+.05*Math.cos(Math.PI*2*x/8)-(y%6===0?.06:0);}
+function frontPanelHeight(x,y,w,h){
+  // One half of the body, side seam to side seam (the front and back are alike). A centre panel half the body's width holds
+  // a diamond lattice of fine twisted cables, two diamonds high; twisted ribs and small rope cables run either side.
+  const U=x/w,V=y/h,c=Math.abs(U-.5),p=(U-.5)/.174,q=(V-.06)/.22;
+  if(c<.174){
+    let best=1,along=0;for(const s of [1,-1]){const t=(p*s+q)/2,d=Math.abs(t-Math.round(t))*2/Math.SQRT2;if(d<best){best=d;along=p*s-q;}}
+    // Each lattice line is a narrow twisted cable between dark grooves, with a small eyelet now and then.
+    if(best<.035)return .56+.1*Math.cos(along*Math.PI*10);
+    if(best<.075)return Math.cos(along*Math.PI*3)>.94?.02:.16;
+    return stockinette(x,y);
+  }
+  const k=c-.174;
+  if(k<.01)return .2;
+  if(k<.05)return .64-.14*Math.abs(((y/5+x/3)%2)-1);
+  if(k<.058)return .2;
+  if(k<.1)return .55+.15*Math.sin((y/h*48+k*90)*Math.PI*2);
+  if(k<.108)return .2;
+  if(k<.13)return .66;
+  if(k<.138)return .2;
+  return stockinette(x,y);
+}
+function sleeveCableHeight(x,y,w,h){
+  // A large two-strand cable centred on the tile (turned to the outer front of each sleeve), crossing three times above the
+  // cuff; narrow black slits open beside the strands where they bulge furthest apart.
+  const U=x/w,V=y/h,phase=V/.25*Math.PI*2,spread=.085*Math.sin(phase),half=.058,over=Math.floor(V/.125)%2;
+  let best=null;
+  // Each strand is a rounded ridge shading down to its edges; the one on top alternates at each crossing.
+  for(const [n,cx] of [[0,.5+spread],[1,.5-spread]]){const d=Math.abs(U-cx)/half;if(d<1){const ridge=.32+.36*Math.cos(d*Math.PI/2)**.6;if(best===null||n===over)best=ridge;}}
+  if(best!==null)return best;
+  const outer=Math.abs(U-.5)-Math.abs(spread);
+  if(outer>half&&outer<half+.01&&Math.abs(Math.sin(phase))>.75)return 0;
+  // Inside the cable's loops the knit is recessed.
+  if(outer<0)return .42;
+  return stockinette(x,y);
+}
+function ribHeight(x){return x%8<5?.75:.15;}
+function silverKnitData(kind){
+  if(silverPixels[kind])return silverPixels[kind];
+  const [w,h]=kind==='body'?[512,512]:kind==='sleeve'?[256,256]:[8,8],colour=new Uint8Array(w*h*4),height=new Uint8Array(w*h*4),rand=random(77);
+  for(let y=0;y<h;y++)for(let x=0;x<w;x++){
+    const v=kind==='body'?frontPanelHeight(x,y,w,h):kind==='sleeve'?sleeveCableHeight(x,y,w,h):ribHeight(x)-(y%4===0?.06:0);
+    // Silver everywhere the foil reaches; it darkens only into grooves and is black in the gaps. Foil catches unevenly,
+    // so the silver carries a grainy sparkle.
+    const t=Math.max(0,Math.min(1,v*1.55)),shine=t*(.84+.3*rand()),i=(y*w+x)*4;
+    for(let k=0;k<3;k++)colour[i+k]=Math.max(0,Math.min(255,FOIL.black[k]+(FOIL.silver[k]-FOIL.black[k])*shine));colour[i+3]=255;
+    height[i]=height[i+1]=height[i+2]=Math.round(Math.max(0,Math.min(1,v))*255);height[i+3]=255;
+  }
+  silverPixels[kind]={colour,height,w,h};return silverPixels[kind];
+}
+function foilMaterial(kind,repeatU,repeatV,offsetU=0){
+  const {colour,height,w,h}=silverKnitData(kind),textures=[colour,height].map((data,n)=>{
+    const t=new T.DataTexture(data,w,h,T.RGBAFormat);if(!n)t.colorSpace=T.SRGBColorSpace;t.wrapS=t.wrapT=T.RepeatWrapping;
+    t.repeat.set(repeatU,repeatV);t.offset.set(offsetU,0);t.generateMipmaps=true;t.minFilter=T.LinearMipmapLinearFilter;t.magFilter=T.LinearFilter;t.needsUpdate=true;return t;});
+  return new T.MeshPhysicalMaterial({map:textures[0],bumpMap:textures[1],bumpScale:.025,metalness:.55,roughness:.38,side:T.DoubleSide});
+}
+function makeSilverCableJumper(id=SILVER_CABLE_ID){
+  const top=new T.Group();top.name=id;
+  // Slim and cropped at the waist: the deep rib band sits over the top of high-rise jeans.
+  const hem=1.27,band=.09,neck=1.905;
+  const body=shell(top,[[neck,.112,.104],[1.875,.17,.124],[1.83,.228,.154],[1.775,.265,.177],[1.65,.28,.185],[1.5,.282,.19],[1.4,.288,.2],[hem+band,.29,.205]],foilMaterial('body',2,1,.5),'silver-cable-body',96);
+  mapByHeight(body,hem+band,neck);
+  // The rib band tucks just inside the body's lower edge.
+  ribbed(shell(top,[[hem+band+.008,.281,.197],[hem+band/2,.288,.203],[hem,.287,.202]],foilMaterial('rib',120,8),'ribbed-hem-band',240),60,.008);
+  ribbed(shell(top,[[1.935,.108,.1],[1.915,.112,.104],[1.893,.118,.11]],foilMaterial('rib',64,3),'ribbed-crew-neck',192),32,.015);
+  for(const side of [-1,1]){
+    const arm=new T.Group();arm.position.set(side*.242,1.815,0);arm.rotation.z=side*.22;
+    // Fitted set-in sleeves, their big cable turned to the outer front of the arm; each blouses slightly over a long ribbed
+    // cuff gathered narrower than the sleeve.
+    const sleeve=shell(arm,[[.03,.106,.105],[-.05,.12,.115],[-.17,.118,.112],[-.29,.113,.108],[-.33,.108,.104],[-.35,.097,.094],[-.47,.091,.088]],foilMaterial('sleeve',1,1,side>0?.375:-.375),'knit-jumper-sleeve',64);
+    roundSleeveCap(sleeve,side,.03);mapByHeight(sleeve,-.47,.03);
+    ribbed(shell(arm,[[-.325,.104,.1],[-.36,.1,.097],[-.45,.096,.093],[-.565,.094,.091]],foilMaterial('rib',40,6),'ribbed-cuff',120),20,.015);
+    top.add(arm);
+  }
+  return top;
+}
 // Acid-wash barrel jeans: construction is read from the product photos.
 let washPixels=null;
 function acidWashData(base=[48,61,70]){
@@ -802,6 +882,7 @@ export function makeOutfit(raw, atlas=null) {
   else if(state.topId===PLAID_JUMPER_ID)root.add(makePlaidJumper(PLAID_JUMPER_ID,state.skirt));
   else if(state.topId===STRIPE_JUMPER_ID)root.add(makeStripeJumper(STRIPE_JUMPER_ID,state.skirt));
   else if(state.topId===POINTELLE_FLOWER_ID)root.add(makePointelleJumper(POINTELLE_FLOWER_ID,state.skirt));
+  else if(state.topId===SILVER_CABLE_ID)root.add(makeSilverCableJumper());
   else if(state.topId!== 'classic')root.add(makeReferenceTop(atlas?.isTexture?atlas:atlas?.[state.topId],state.topId));
   if(state.shirt){
     const layer=new T.Group();layer.name='shirt';root.add(layer);

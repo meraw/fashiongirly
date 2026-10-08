@@ -99,6 +99,7 @@ Items added so far:
 8. [Mango washed black jeans](garments/mango-washed-black-jeans.md). High-rise relaxed straight washed black, ankle length, from eBay listing photos; adds `backDarts`. At the user's request, its light grey double topstitching was added (`stitchScale`, `doubleSeams`, `roping`, `hemStitch`); the user then sent the next pair.
 9. [Cream pointelle flower jumper](garments/cream-pointelle-flower-jumper.md), added by the tops chat from the user's own photos. Boxy openwork knit with raglan sleeves, a wide boat neck, scalloped edges and eight raised raspberry flowers on the front. Skin is drawn inside it to show through the eyelets. Awaiting visual review.
 10. [Bershka grey wide-leg jeans](garments/bershka-grey-wide-leg.md). Neutral grey wash, full length over the shoes, with bleached thigh panels and bold whiskers front and back; adds `whiskerLines` and `centreFade`. Awaiting visual review.
+11. [Desigual silver foil cable jumper](garments/desigual-silver-cable-jumper.md), added by the tops chat. Cropped black knit coated in silver: a diamond lattice panel, rib and rope-cable columns, wavy sleeve cables and long black-grooved ribbing, drawn as a height field that drives both the colour and the bump. Awaiting visual review.
 
 Fit follows the user, not the product photos: when the user says a garment fits them differently (length, rise, looseness), build it that way and note it in the garment record.
 
