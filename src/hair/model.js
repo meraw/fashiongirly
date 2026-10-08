@@ -25,12 +25,24 @@ function scalp(group,mat,thread){
 function curtain(group,mat,thread,wavy=false){
   const cols=48,rows=36,pos=[],index=[];
   const surface=(s,t,offset=0)=>{
-    const end=-.48-.30*(1-Math.abs(s));
-    const wave=wavy?.025*Math.sin(t*Math.PI*3+s*.7)*t:0;
+    const end=wavy?-.78+.30*(Math.sqrt(s*s+.016)-Math.sqrt(.016))/(Math.sqrt(1.016)-Math.sqrt(.016)):-.48-.30*(1-Math.abs(s));
+    // A small mirrored S bend through the lengths; no sideways kick at the tips.
+    const wave=wavy?.014*Math.sin(t*Math.PI*2)*Math.sin(t*Math.PI)*Math.sin(s*Math.PI/2):0;
     const x=s*(.46-.03*t)+wave,y=.16+(end-.16)*t;
     const rootZ=-.405*Math.sqrt(Math.max(0,1-(s*.46/.5)**2-(.16/.47)**2))-.013;
     const blend=Math.min(1,t/.30),smooth=blend*blend*(3-2*blend);
-    const drape=-.41+.025*s*s+wave*.5;
+    if(wavy){
+      // Wrap around the head instead of pulling the side roots abruptly into a
+      // flat rear panel. Below the nape the lengths fall inward towards her back.
+      const wrap=Math.min(1,t/.4),wrapEase=wrap*wrap*(3-2*wrap);
+      const napeZ=-.36*Math.sqrt(1-(s*.85)**2)-.03;
+      const headZ=rootZ*(1-wrapEase)+napeZ*wrapEase;
+      const fall=Math.max(0,Math.min(1,(t-.26)/.74)),ease=fall*fall*(3-2*fall);
+      const back=-.30+.065*s*s;
+      const ripple=.007*Math.sin(t*Math.PI*2)*Math.sin(t*Math.PI)*(1-s*s);
+      return [x,y,headZ*(1-ease)+back*ease+ripple-offset];
+    }
+    const drape=-.41+.025*s*s;
     return [x,y,rootZ*(1-smooth)+drape*smooth-offset];
   };
   for(let j=0;j<=rows;j++)for(let i=0;i<=cols;i++)pos.push(...surface(i/cols*2-1,j/rows));
