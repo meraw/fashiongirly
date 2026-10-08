@@ -21,3 +21,7 @@ Use case: stylized-concept. Asset type: full-bleed square four-panel fabric text
 ## Lower-hem correction
 
 The user reported two holes near the bottom where trousers showed through. A clearance test reproduced trouser-hip and side-seam penetration. The lower torso and hem now ease outward over the trousers. The regression test covers hips, waistband, button and seam vertices with narrow, medium and wide jeans. The print and upper garment are preserved. The correction awaits visual confirmation.
+
+## Sleeve ends eased over her hands
+
+On 8 October 2026, with the user's agreement, `makeReferenceTop()` began easing each sleeve's end and its bound hem over her mitten and thumb (`easeOverHand()`). Before, they cut through the thumb and the edge could look jagged. The shared hand test now covers this top.

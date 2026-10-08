@@ -45,7 +45,7 @@ Plain denim in the photos measures about RGB 16, 15, 17 (side close-up) and 14, 
 
 ## Checks
 
-- `npm test`: 39 passing. A new test checks ankle length above the shoes, that her legs and socks stay covered down to the hem, the panels, pockets and stripes, that the badge is on the left thigh, the hammer loop on the right and the tape on the right back pocket inside its outline, and that each side pocket covers the side seam's stitching. The layering test covers this pair under every waist-covering top, and the shoe tests cover it with every pair of shoes.
+- `npm test`: 41 passing after merging the tops chat's Lacroix sweater. A new test checks ankle length above the shoes, that her legs and socks stay covered down to the hem, the panels, pockets and stripes, that the badge is on the left thigh, the hammer loop on the right and the tape on the right back pocket inside its outline, and that each side pocket covers the side seam's stitching. The layering test covers this pair under every waist-covering top, and the shoe tests cover it with every pair of shoes.
 - `npm run build` succeeds.
 - Rendered in headless Chromium from the front, side, back and a slight turn, without a top, under the crochet top and with the silver cable jumper and Buffalo boots; compared side by side with the front and back photos. The user has not yet seen it.
 

@@ -482,3 +482,48 @@ test('Tommy carpenter jeans: ankle length, front panels, side pockets over the s
     assert.ok(seamOut>0,'seam passes under the pocket');assert.ok(Math.max(Math.abs(pb2.min.x),Math.abs(pb2.max.x))>seamOut+.002,'pocket covers the seam');}
   disposeObject(outfit);
 });
+
+test('Lacroix flower sweater: giant violet flowers front and back, a peony, forearm flowers and olive ribbing',()=>{
+  const id='desigual-lacroix-flower-sweater-v1',recipe=cleanRecipe({topId:id,knit:true,shirt:true});
+  assert.equal(recipe.knit,false);assert.equal(recipe.shirt,false);
+  const outfit=makeOutfit({topId:id});
+  for(const name of ['lacroix-body','printed-hem-rib','lilac-crew-neck'])assert.ok(outfit.getObjectByName(name),name);
+  let cuffs=0;outfit.traverse(o=>{if(o.name==='ribbed-cuff')cuffs++;});assert.equal(cuffs,2);
+  // The body's painting: front (middle half of the texture) and back (outer quarters) are each mostly flower.
+  const body=outfit.getObjectByName('lacroix-body'),{data,width:w,height:h}=body.material.map.image;
+  const share=(test,front)=>{let n=0,all=0;for(let y=0;y<h;y+=2)for(let x=0;x<w;x+=2){const f=x>w/4&&x<w*3/4;if(f!==front)continue;const i=(y*w+x)*4;all++;if(test(data[i],data[i+1],data[i+2]))n++;}return n/all;};
+  const violet=(r,g,b)=>b>g+40&&r>g,white=(r,g,b)=>r>185&&g>185&&b>185,black=(r,g,b)=>r+g+b<120,olive=(r,g,b)=>g>b+30&&r>b+20&&b<60;
+  for(const front of [true,false]){assert.ok(share(violet,front)>.3,`violet ${front?'front':'back'}`);assert.ok(share(olive,front)>.1,`olive ${front?'front':'back'}`);assert.ok(share(black,front)>.003,'black stems');}
+  assert.ok(share(white,true)>.03&&share(white,true)>share(white,false)*2,'the white peony is on the front');
+  // The hem rib carries the same print; the forearm prints differ: the peony is on her left sleeve.
+  assert.equal(outfit.getObjectByName('printed-hem-rib').material.map.image.data,body.material.map.image.data);
+  const sleeves=[];outfit.traverse(o=>{if(o.name==='knit-jumper-sleeve')sleeves.push(o);});assert.equal(sleeves.length,2);
+  const whiteIn=img=>{let n=0;for(let i=0;i<img.data.length;i+=16)if(white(img.data[i],img.data[i+1],img.data[i+2]))n++;return n;};
+  assert.ok(whiteIn(sleeves[1].material.map.image)>whiteIn(sleeves[0].material.map.image)*3,'peony on her left forearm');
+  disposeObject(outfit);
+  // The hem hugs the jeans, or sits out over the skirt; the bow stays hidden.
+  const skirted=makeOutfit({topId:id,skirt:true}),plain=makeOutfit({topId:id});
+  const width=o=>new T.Box3().setFromObject(o.getObjectByName('printed-hem-rib')).getSize(new T.Vector3()).x;
+  assert.ok(width(skirted)>width(plain));assert.equal(skirted.getObjectByName('ribbon-knot'),undefined);
+  disposeObject(skirted);disposeObject(plain);
+});
+
+test('cuffs and sleeve ends never cut through her mittens or thumbs',()=>{
+  const doll=makeDoll();doll.updateMatrixWorld(true);const hands=[];doll.traverse(o=>{if(['tiny-mitten','mitten-thumb'].includes(o.name))hands.push(o);});
+  const ray=new T.Raycaster(),p=new T.Vector3(),local=new T.Vector3(),origin=new T.Vector3();
+  for(const topId of Object.keys(GARMENTS).filter(id=>GARMENTS[id].slot==='top')){
+    const outfit=makeOutfit({topId});outfit.updateMatrixWorld(true);const ends=[];
+    outfit.traverse(o=>{if(o.isMesh&&/cuff|sleeve/.test(o.name)){o.geometry.computeBoundingBox();ends.push(o);}});
+    for(const hand of hands){const pos=hand.geometry.attributes.position;
+      for(let i=0;i<pos.count;i++){p.fromBufferAttribute(pos,i).applyMatrix4(hand.matrixWorld);
+        for(const end of ends){const arm=end.parent;if(Math.sign(arm.getWorldPosition(origin).x)!==Math.sign(p.x))continue;
+          arm.worldToLocal(local.copy(p));const box=end.geometry.boundingBox;if(local.y>box.max.y-.002||local.y<box.min.y+.006)continue;
+          // Within the cuff's height, the hand must lie inside it: a ray from the arm's axis reaches the hand before the cuff.
+          origin.set(0,local.y,0);arm.localToWorld(origin);const d=p.distanceTo(origin);if(d<1e-4)continue;
+          ray.set(origin,p.clone().sub(origin).normalize());const hit=ray.intersectObject(end,false)[0];
+          assert.ok(!hit||hit.distance>=d,`${hand.name} cuts through ${end.name} of ${topId} at vertex ${i}`);}
+      }}
+    disposeObject(outfit);
+  }
+  disposeObject(doll);
+});
