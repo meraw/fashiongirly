@@ -538,7 +538,7 @@ export const GARMENTS = Object.freeze({
     details: ['high rise', 'straight legs, full length, resting on the shoes', 'light vintage blue wash, darker round the fly, slightly paler on the thighs', 'tiny crystals set in a square grid over the whole front of both legs and hips; the waistband and the back are plain', 'tan topstitching, silver button and rivets', 'coin pocket with a small worn patch on the wearer\'s right', 'back yoke, plain patch pockets and a tan leather patch on the wearer\'s right'],
     material: { construction: 'rigid denim', composition: 'not visible in the supplied screenshots', finish: 'light vintage wash with crystal embellishment' },
     fit: { silhouette: 'straight', rise: 'high', length: 'full, resting on the shoes', adjustment: 'fixed authored fit for review' },
-    uncertainties: ['the crystal grid is wider-spaced than the real one (about 1.7 times), so it stays visible and light to draw', 'folds are procedural', 'the leather patch carries no lettering'],
+    uncertainties: ['the crystals are larger and wider-spaced than the real ones (about 2.5 times), so they stay visible at the app\'s size', 'folds are procedural', 'the leather patch carries no lettering'],
     authoring: { texture: 'crystal-jeans-denim.js: flat-lit seamless swatch from the plain back of the legs; the crystals are modelled, not painted', runtimeGeneration: false, sourcePhotosBundled: 'fabric swatch only' },
     build: {
       template: 'jeans', legName: 'jeans-leg', fallback: [104, 121, 137],
@@ -557,7 +557,7 @@ export const GARMENTS = Object.freeze({
       abrasions: [[-.222, 1.215, .026], [-.208, 1.198, .018]],
       rivets: [[.152, 1.255], [.262, 1.17]],
       // The embellishment: crystals in a square grid over the front panels, clear of the seams.
-      crystals: { spacing: .0085, size: .0024, lift: .0006, margin: .12, above: .03, colour: '#d4dbe3' },
+      crystals: { spacing: .012, size: .0042, lift: .0008, margin: .12, above: .03, colour: '#f2f6fc', glow: '#4c5866', setting: '#465a76' },
       seamEnd: .1,
       backYoke: [[.27, 1.235], [.14, 1.205], [.004, 1.185]],
       backPocket: { x: .12, outline: [[-.07, 1.175], [.07, 1.175], [.066, 1.05], [0, 1.025], [-.066, 1.05]], stitchBelow: 1.12 },

@@ -1,6 +1,6 @@
 # Wardrobe item: crystal-embellished straight jeans
 
-Authored 8 October 2026. Status: first interpretation awaiting the user's visual review. A piece from the user's wardrobe list, built on the shared jeans template. The user asked to “notice the embellishments”.
+Authored 8 October 2026. Status: crystals made larger and clearer after the user's first review; awaiting their second look. A piece from the user's wardrobe list, built on the shared jeans template. The user asked to “notice the embellishments”.
 
 ## Source and reference reading
 
@@ -25,21 +25,32 @@ New jeans template option `crystals`, off by default (other pairs are unchanged)
 
 - Crystals are placed by walking the built surface of the hips and each leg ring by ring, every `spacing` along and down the fabric. They follow the folds without any ray casting, so the jeans build as fast as the others.
 - Only the front panels are covered: crystals sit within `margin` of the side seams and inseams, start below the waistband, and stop just above the hem.
-- Each crystal is a small faceted four-sided stud, turned at random and tilted to the surface, so its facets catch the light differently. All of them are one instanced mesh (about 15,000 crystals, about 60,000 triangles).
-- The grid is about 1.7 times wider-spaced than the real one, so it stays visible on her and stays light to draw. The real spacing would need over 40,000 crystals.
+- Each crystal is a small faceted stud, turned at random and tilted to the surface, sitting in a dark setting (see the revision below). The crystals and the settings are each one instanced mesh (about 7,600 of each).
+- The crystals are larger and about 2.5 times wider-spaced than the real ones, so they stay visible at the app's size. The real spacing would need over 40,000 crystals.
 
 The shared layering test now also checks instanced pieces at every copy, so the crystals are checked under every waist-covering top like the rest of the jeans. Lifting the crystals off the surface makes it fail.
+
+## Revision after user feedback
+
+The user found the jeans a very good, realistic representation, but could not see the crystals clearly on a computer screen, let alone in the app on a phone. The first version had about 15,000 small grey metallic studs, 0.0085 apart; at normal viewing size they blurred into the denim. Now:
+
+- About 7,600 crystals, 0.012 apart, nearly twice the size.
+- The crystals are near-white and glossy with a slight glow, so they stay bright on the side away from the light. Each catches a different amount of light, so the grid sparkles.
+- Each sits in a dark blue-grey setting, as in the close-up. The contrast between crystal and setting is what keeps the grid readable at a distance.
+- A first, larger, neutral grey setting turned the front grey; the setting is now smaller and bluer, so the jeans stay light blue.
+
+The grid was checked at phone size (390 × 844 viewport, as on a phone screen), where it reads clearly.
 
 ## Denim and colour
 
 The swatch comes from the plain back of the lower legs in the back photo. Two earlier crops caught the leg's creases, which repeated as diagonal streaks. The swatch keeps only fine grain (a narrow blur divided out) and is stored as WebP in `src/wardrobe/crystal-jeans-denim.js`.
 
-Plain denim in the back photo measures RGB 162, 175, 183 where lit and 131, 145, 154 in shade. The front of the flat lay, crystals included, measures about 142, 159, 166. The first render, from a swatch of 128, 140, 150, was 183, 187, 189 (too pale and grey). With a swatch of 104, 121, 137, the front measures 160, 171, 179 and the back 155, 169, 179.
+Plain denim in the back photo measures RGB 162, 175, 183 where lit and 131, 145, 154 in shade. The front of the flat lay, crystals included, measures about 142, 159, 166. The first render, from a swatch of 128, 140, 150, was 183, 187, 189 (too pale and grey). With a swatch of 104, 121, 137, the back measures 155, 169, 179; the front, with the larger crystals and settings, measures 165, 176, 188 on average.
 
 ## Checks
 
 - `npm test`: 51 passing. A new test checks:
-  - the crystal count
+  - the crystal count, each with its own setting
   - that every crystal is on the front and below the waistband
   - that both legs are covered evenly down toward the hem
   - the coin pocket, abrasion, patch and back pockets
@@ -51,7 +62,7 @@ Plain denim in the back photo measures RGB 162, 175, 183 where lit and 131, 145,
 
 ## Known differences
 
-- The crystal grid is wider-spaced than the real one.
+- The crystals are larger and wider-spaced than the real ones.
 - The darker indigo round the fly and the pocket corners is not reproduced.
 - The leather patch carries no lettering.
 - A faint line remains where the hips meet the legs.

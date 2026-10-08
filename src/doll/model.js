@@ -1395,12 +1395,21 @@ function makeJeans(id,spec,swatch=null,rest=LOAFER_REST){
     scatter(body[0],n0,hipHeights,wb.y-wb.h/2-.006,spec.crotch.y+.002,0,([x,,z])=>z>0&&Math.abs(Math.atan2(x,z))<edge);
     for(const side of [-1,1]){const leg=legs[side],ry=leg.userData.restY,heights=Array.from({length:ry.length/97},(_,j)=>ry[j*97]);
       scatter(leg,97,heights,spec.crotch.y-.003,hemY+cr.above,0,([x,,z],y)=>{const cx=lerpRows(legRows(side),y)[3];return Math.abs(Math.atan2(x-cx,z))<edge;});}
-    const stud=new T.ConeGeometry(1,1,4);stud.translate(0,.5,0);
-    const gem=new T.MeshStandardMaterial({color:cr.colour,metalness:.75,roughness:.22,flatShading:true});
+    // Each crystal sits in a dark setting, as in the close-up: the contrast is what makes the grid readable at a
+    // distance. The crystals glow slightly so they stay bright on the side away from the light, and each catches a
+    // different amount of light, so the grid sparkles rather than reading as a flat print.
+    const stud=new T.ConeGeometry(1,1,6);stud.translate(0,.5,0);
+    const gem=new T.MeshPhysicalMaterial({color:cr.colour,emissive:cr.glow||'#000000',metalness:0,roughness:.12,clearcoat:1,clearcoatRoughness:.05,flatShading:true});
     const studs=new T.InstancedMesh(stud,gem,spots.length);studs.name='crystal-grid';
-    const m=new T.Matrix4(),q=new T.Quaternion(),spin=new T.Quaternion(),up=new T.Vector3(0,1,0),nv=new T.Vector3(),pos=new T.Vector3(),sc=new T.Vector3(cr.size,cr.size*.6,cr.size);
-    spots.forEach(([pt,nn],k)=>{nv.set(...nn).normalize();q.setFromUnitVectors(up,nv).multiply(spin.setFromAxisAngle(up,rand()*Math.PI));pos.set(...pt).addScaledVector(nv,cr.lift);studs.setMatrixAt(k,m.compose(pos,q,sc));});
-    studs.instanceMatrix.needsUpdate=true;studs.computeBoundingSphere();jeans.add(studs);
+    const ring=new T.CircleGeometry(1,10);ring.rotateX(-Math.PI/2);
+    const settings=cr.setting?new T.InstancedMesh(ring,new T.MeshStandardMaterial({color:cr.setting,roughness:.6,metalness:.3}),spots.length):null;if(settings)settings.name='crystal-settings';
+    const m=new T.Matrix4(),q=new T.Quaternion(),spin=new T.Quaternion(),up=new T.Vector3(0,1,0),nv=new T.Vector3(),pos=new T.Vector3(),sc=new T.Vector3(cr.size,cr.size*.6,cr.size),rs=new T.Vector3(cr.size*1.25,1,cr.size*1.25),tint=new T.Color();
+    spots.forEach(([pt,nn],k)=>{nv.set(...nn).normalize();q.setFromUnitVectors(up,nv);
+      if(settings)settings.setMatrixAt(k,m.compose(pos.set(...pt).addScaledVector(nv,cr.lift*.5),q,rs));
+      q.multiply(spin.setFromAxisAngle(up,rand()*Math.PI));pos.set(...pt).addScaledVector(nv,cr.lift);studs.setMatrixAt(k,m.compose(pos,q,sc));
+      studs.setColorAt(k,tint.setScalar(.72+.4*rand()));});
+    studs.instanceMatrix.needsUpdate=true;studs.instanceColor.needsUpdate=true;studs.computeBoundingSphere();jeans.add(studs);
+    if(settings){settings.instanceMatrix.needsUpdate=true;settings.computeBoundingSphere();jeans.add(settings);}
   }
   // Depth of the actual jeans surface at (x, y), front or back: measured on the built shells, so details sit on it.
   // Every ray here is level, so each set of shells gets a levelCaster (same hits as a Raycaster, much faster).

@@ -694,7 +694,9 @@ test('a top worn over another: the cardigan over a slim top, which shows in the 
 test('crystal jeans: a grid of crystals over the front panels only, clear of the waistband, with plain back and full-length legs',()=>{
   const id='crystal-straight-jeans-v1';assert.equal(cleanRecipe({bottomId:id}).bottomId,id);
   const outfit=makeOutfit({bottomId:id});outfit.updateMatrixWorld(true);
-  const grid=outfit.getObjectByName('crystal-grid');assert.ok(grid?.isInstancedMesh);assert.ok(grid.count>8000,`${grid.count} crystals`);
+  const grid=outfit.getObjectByName('crystal-grid');assert.ok(grid?.isInstancedMesh);assert.ok(grid.count>5000,`${grid.count} crystals`);
+  // Each crystal sits in its own dark setting, which keeps the grid readable at a distance.
+  assert.equal(outfit.getObjectByName('crystal-settings')?.count,grid.count);
   const m=new T.Matrix4(),p=new T.Vector3(),wb=GARMENTS[id].build.waistband;let left=0,right=0,low=Infinity;
   for(let k=0;k<grid.count;k++){grid.getMatrixAt(k,m);p.setFromMatrixPosition(m);
     assert.ok(p.z>0,`crystal ${k} on the back`);assert.ok(p.y<wb.y-wb.h/2,`crystal ${k} on the waistband`);if(p.x<0)right++;else left++;low=Math.min(low,p.y);}
