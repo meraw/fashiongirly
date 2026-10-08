@@ -152,7 +152,8 @@ function makeReferenceTop(atlas, id=BRONZE_TOP_ID) {
   const lilac=id===LILAC_TOP_ID,hem=lilac?1.10:1.18;
   const top=new T.Group();top.name=id;
   const bodyMaterial=referenceMaterial(atlas,'body',lilac),binding=cloth(lilac?'#67516d':'#191817');
-  const body=shell(top,[[1.91,.109,.099],[1.875,.17,.122],[1.83,.228,.152],[1.775,.265,.175],[1.65,.279,.183],[1.49,.272,.183],...(lilac?[[1.34,.275,.192],[1.25,.302,.224],[1.16,.319,.237],[hem,.325,.241]]:[[1.34,.268,.186],[1.25,.284,.204],[hem,.29,.212]])],bodyMaterial,'reference-top-body',64);
+  const body=shell(top,[[1.91,.109,.099],[1.875,.17,.122],[1.83,.228,.152],[1.775,.265,.175],[1.65,.279,.183],[1.49,.277,.187],...(lilac?[[1.34,.284,.197],[1.25,.302,.224],[1.16,.319,.237],[hem,.325,.241]]:[[1.34,.284,.196],[1.25,.29,.206],[hem,.292,.213]])],bodyMaterial,'reference-top-body',64);
+  // The waist eases out a little (1.49 to 1.25) so the tops sit over high-rise waistbands as well as low ones.
   // Project each half separately: one upright motif on front and one on back.
   const uv=body.geometry.attributes.uv,p=body.geometry.attributes.position;
   for(let i=0;i<uv.count;i++){
@@ -489,10 +490,15 @@ function makeJeans(id,spec,swatch=null){
       rings.push(ring);}
     body=[ringShell(jeans,rings,hipDenim,'jeans-hips')];body[0].userData.restU=restU;
   }else body=[shell(jeans,hips,hipDenim,'jeans-hips',64)];
-  // Denim laid by real distance along each ring (u) and height (v), with one scale on hips and legs, so the texture
-  // keeps its size through the crotch where the outline pinches.
+  // Denim laid by real distance along each ring (u) and height (v), with one scale on hips and legs. On the hips, u
+  // follows the original rounded outline so columns never slide sideways as the outline pinches into the crotch.
   const byDistance=mesh=>{const p=mesh.geometry.attributes.position,uv=mesh.geometry.attributes.uv,rings=p.count/(mesh.userData.ringSize);
-    for(let j=0;j<rings;j++){let d=0;for(let i=0;i<mesh.userData.ringSize;i++){const k=j*mesh.userData.ringSize+i;if(i)d+=Math.hypot(p.getX(k)-p.getX(k-1),p.getZ(k)-p.getZ(k-1));uv.setXY(k,(mesh.userData.restU?.[k]??d)*spec.uvScale[0],p.getY(k)*spec.uvScale[1]);}}uv.needsUpdate=true;};
+    for(let j=0;j<rings;j++){let d=0;for(let i=0;i<mesh.userData.ringSize;i++){const k=j*mesh.userData.ringSize+i;if(i)d+=Math.hypot(p.getX(k)-p.getX(k-1),p.getZ(k)-p.getZ(k-1));uv.setXY(k,(mesh.userData.restU?.[k]??d)*spec.uvScale[0],p.getY(k)*spec.uvScale[1]);}}uv.needsUpdate=true;
+    // On the hips, v runs by distance along the fabric up each column, starting from the legs' value at the crotch, so
+    // the inward curve into the crotch is not stretched.
+    if(mesh.userData.restU){const n=mesh.userData.ringSize;for(let i=0;i<n;i++){let v=p.getY((rings-1)*n+i)*spec.uvScale[1];uv.setY((rings-1)*n+i,v);
+      for(let j=rings-2;j>=0;j--){const a=j*n+i,b=a+n;v+=Math.hypot(p.getX(a)-p.getX(b),p.getY(a)-p.getY(b),p.getZ(a)-p.getZ(b))*spec.uvScale[1];uv.setY(a,v);}}}
+  };
   if(spec.crotch){body[0].userData.ringSize=129;byDistance(body[0]);}else mapByHeight(body[0],hips[hips.length-2][0],hips[0][0]);
   const wb=spec.waistband;
   ring(jeans,wb.y,wb.rx,wb.rz,denim,'jeans-waistband',wb.h);
@@ -560,14 +566,19 @@ function makeJeans(id,spec,swatch=null){
   }
   // Depth of the actual jeans surface at (x, y), front or back: measured on the built shells, so details sit on it.
   const caster=new T.Raycaster(),hit=new T.Vector3();
-  const depth=(x,y,back=false)=>{caster.set(hit.set(x,y,back?-1:1),new T.Vector3(0,0,back?1:-1));const h=caster.intersectObjects(body,false)[0];return h?Math.abs(h.point.z):0;};
+  // Cached: patches repeat the same corners many times, and each measurement is a ray against the whole surface.
+  const depthCache=new Map(),down=new T.Vector3(),
+    depth=(x,y,back=false)=>{const key=Math.round(x*4000)+':'+Math.round(y*4000)+(back?'b':'f');let d=depthCache.get(key);
+      if(d===undefined){caster.set(hit.set(x,y,back?-1:1),down.set(0,0,back?1:-1));const h=caster.intersectObjects(body,false)[0];d=h?Math.abs(h.point.z):0;depthCache.set(key,d);}return d;};
   const on=(pts,back=false,off=.004)=>pts.map(([x,y])=>[x,y,(back?-1:1)*(depth(x,y,back)+off)]);
   // A point on a leg's folded surface at height y and angle a around the leg, found by casting in from outside
   // against that leg only (an inner seam would otherwise land on the other leg).
   const legPoint=(side,y,a,off=.003)=>{const cx=lerpRows(legRows(side),y)[3],dir=new T.Vector3(Math.sin(a),0,Math.cos(a));caster.set(new T.Vector3(cx,y,0).addScaledVector(dir,.6),dir.clone().negate());const h=caster.intersectObjects(y>(spec.crotch?spec.crotch.y:.97)?[body[0],legs[side]]:[legs[side]],false)[0];return h?h.point.addScaledVector(dir,off).toArray():[cx+dir.x*.17,y,dir.z*.17];};
   // A flat outline projected onto the jeans surface, subdivided so it follows the curve.
   const patchOn=(outline,name,back,off,material=denim)=>{const shape=new T.Shape();outline.forEach(([x,y],k)=>k?shape.lineTo(x,y):shape.moveTo(x,y));shape.closePath();
-    const mesh=put(jeans,subdivided(shape,3,back),material,name),pp=mesh.geometry.attributes.position;
+    // Pocket-sized patches need fine subdivision to follow the curve; small ones (heart, scuffs) need little.
+    const xs=outline.map(q=>q[0]),ys=outline.map(q=>q[1]),size=Math.max(Math.max(...xs)-Math.min(...xs),Math.max(...ys)-Math.min(...ys));
+    const mesh=put(jeans,subdivided(shape,size>.06?3:1,back),material,name),pp=mesh.geometry.attributes.position;
     for(let i=0;i<pp.count;i++)pp.setZ(i,(back?-1:1)*(depth(pp.getX(i),pp.getY(i),back)+off));pp.needsUpdate=true;mesh.geometry.computeVertexNormals();return mesh;};
   curve(jeans,on(spec.fly),.0017,thread,'fly-stitch');
   const seamNames=spec.twist?['twisted-side-seam','twisted-inseam']:['side-seam','inseam'];
@@ -604,6 +615,16 @@ function makeJeans(id,spec,swatch=null){
       const [w,y0,dip]=bp.arcuate,wing=[[-w,y0],[-w*.72,y0+.012],[-w*.38,y0+.004],[-w*.12,y0-dip*.6],[0,y0-dip]],arc=[...wing,...wing.slice(0,-1).reverse().map(([x,y])=>[-x,y])];
       for(const off of [0,.0065])curve(jeans,on(arc.map(([x,y])=>[px+x,y-off]),true,.0055),.0026,solid(bp.arcuateColour||spec.thread,.9),'arcuate-stitch');
     }
+    for(const y of bp.bars||[]){
+      // Straight stitched bars across the pocket.
+      const w=bp.outline[1][0]*.97;curve(jeans,on([[px-w,y],[px-w*.3,y-.002],[px+w*.3,y-.002],[px+w,y]],true,.0055),.0017,thread,'pocket-bar-stitch');
+    }
+    if(bp.badge&&side===bp.badge.side){
+      // A tiny woven flag badge sewn onto the pocket: navy with a red and a white block (no lettering).
+      const bx=px+side*bp.badge.out,by=bp.badge.y,z=-(depth(bx,by,true)+.0062);
+      put(jeans,new T.BoxGeometry(.022,.011,.003),solid('#1c2747',.8),'pocket-badge').position.set(bx,by,z);
+      for(const [dx,c] of [[-.0045,'#f2f2f0'],[.0045,'#c8202f']]){const b=put(jeans,new T.BoxGeometry(.008,.007,.002),solid(c,.8),'pocket-badge-block');b.position.set(bx+dx,by,z-.0018);}
+    }
     if(bp.tab&&side===bp.tab.side){
       // Small woven tab sewn into the pocket's inner edge.
       const tx=px-side*bp.tab.inset,ty=bp.tab.y,tab=put(jeans,new T.BoxGeometry(.013,.024,.004),solid(bp.tab.colour,.75),'pocket-tab');tab.position.set(tx,ty,-(depth(tx,ty,true)+.006));
@@ -623,15 +644,24 @@ function makeJeans(id,spec,swatch=null){
   if(spec.coinPocket){
     // Coin pocket inside the wearer's right front pocket, with its embroidery when the spec has one.
     const cp=spec.coinPocket;curve(jeans,on(cp.outline),.0016,thread,'coin-pocket-stitch');
+    if(cp.badge){const [bx,by]=cp.badge,z=depth(bx,by)+.005;put(jeans,new T.BoxGeometry(.02,.01,.003),solid('#1c2747',.8),'coin-badge').position.set(bx,by,z);
+      for(const [dx,c] of [[-.004,'#f2f2f0'],[.004,'#c8202f']]){const b=put(jeans,new T.BoxGeometry(.007,.006,.002),solid(c,.8),'coin-badge-block');b.position.set(bx+dx,by,z+.0018);}}
     if(cp.heart){const [hx,hy]=cp.heart,hs=.011,pts=[];for(let k=0;k<=40;k++){const t=k/40*Math.PI*2,x=16*Math.sin(t)**3,y=13*Math.cos(t)-5*Math.cos(2*t)-2*Math.cos(3*t)-Math.cos(4*t);pts.push([hx+x/16*hs,hy+y/16*hs]);}
       // A filled embroidered heart, with a slightly darker outline for the satin-stitch edge.
       patchOn(pts,'embroidered-heart',false,.0035,solid('#c4262e',.7));curve(jeans,on(pts,false,.005),.0012,solid('#8f1820',.7),'embroidered-heart-edge');}
   }
+  // Copper rivets at the front pocket corners (mirrored to both sides).
+  if(spec.rivets){const copper=new T.MeshStandardMaterial({color:'#b06a3c',metalness:.8,roughness:.35});
+    for(const side of [-1,1])for(const [x,y] of spec.rivets)oval(jeans,[side*x,y,depth(side*x,y)+.004],[.0065,.0065,.003],copper,'rivet',12);}
   // Light abrasions: small worn strips cut into the wash.
   for(const [x,y,w] of spec.abrasions||[])patchOn([[x-w/2,y-.004],[x+w/2,y-.004],[x+w/2,y+.004],[x-w/2,y+.004]],'abrasion',false,.0015,solid('#b9c8d6',1));
   curve(jeans,on(spec.centreBack,true),.0018,thread,'centre-back-seam');
   if(spec.welt)curve(jeans,on(spec.welt,true,.005),.0028,fold,'welt-pocket');
   const lp=spec.labelPatch,leather=put(jeans,new T.BoxGeometry(...lp.size),solid(lp.colour,.95),lp.name);leather.position.set(...lp.position);leather.rotation.y=lp.rotationY;
+  for(const [x0,y0,x1,y1,c] of lp.blocks||[]){
+    // Coloured blocks on the patch's outer face (no lettering).
+    const b=put(leather,new T.BoxGeometry(x1-x0,y1-y0,.001),solid(c,.85),'patch-block');b.position.set((x0+x1)/2,(y0+y1)/2,lp.size[2]/2+.0006);
+  }
   if(lp.printColour){
     // A printed border on the patch's outer face (no lettering or logo).
     const [w,h,d]=lp.size,ink=solid(lp.printColour,.9);
