@@ -259,27 +259,32 @@ function makeCrochetTop(id=CROCHET_TOP_ID){
 }
 // Brushed windowpane jumper: the knitted-in check is drawn here from the reference reading.
 // Darker than the photographed wool: exposure, tone mapping and the brushed sheen lift these values.
-const WOOL={cream:[200,183,155],rust:[92,54,40],taupe:[82,74,70],blue:[112,146,182]};
+const WOOL={cream:[214,202,180],haze:[198,190,176],blue:[168,182,192],brown:[100,62,44],salmon:[180,128,108],grey:[114,108,102]};
 let plaidPixels=null;
 function plaidData(){
   if(plaidPixels)return plaidPixels;
-  // One repeat: a cream window framed by a hatched band on its left (vertical) and top (horizontal) edge.
-  const S=512,B=.34*S,data=new Uint8Array(S*S*4),rand=random(57),mix=(a,b,t)=>a.map((v,k)=>v+(b[k]-v)*t);
-  // Jacquard stitches: 6 x 5 px cells; diagonal hatching steps from stitch to stitch.
-  const hatch=(x,y)=>{const sx=Math.floor(x/6),sy=Math.floor(y/5),edge=Math.min(x%6,5-x%6,y%5,4-y%5);return (sx+sy)%4<2?Math.min(1,.55+edge*.25):0;};
-  const bandColour=t=>t<.42?WOOL.rust:t<.54?null:WOOL.taupe;
+  // One repeat across (and down): hatched frame, cream square, pale-blue cross line, cream square,
+  // hatched frame, then the pale-blue separator between neighbouring windows.
+  const S=512,profile=[['hatch',.16],['cream',.3],['line',.035],['cream',.3],['hatch',.16],['gap',.045]];
+  const kind=new Array(S);{let i=0;for(const [k,w] of profile){const end=Math.round((i/S+w)*S);for(;i<end&&i<S;i++)kind[i]=k;}for(;i<S;i++)kind[i]='gap';}
+  const strokes=[WOOL.brown,WOOL.grey,WOOL.salmon,WOOL.brown,WOOL.grey],data=new Uint8Array(S*S*4),rand=random(57);
   for(let y=0;y<S;y++)for(let x=0;x<S;x++){
-    let colour=WOOL.cream;
-    const inV=x<B,inH=y<B,on=hatch(x,y);
-    const vc=inV?bandColour(x/B):null,hc=inH?bandColour(y/B):null,band=vc||hc;
-    // Stitches between the hatching carry a lighter tint of the band, so bands stay legible at a distance.
-    if(band)colour=mix(WOOL.cream,band,.4+.6*on);
-    // Pale-blue lines: one through each band, one crossing each window.
-    const wx=B+(S-B)/2,line=(d,dash)=>d<3.5&&dash;
-    if((inV&&!vc&&line(Math.abs(x-.48*B),y%15<10))||(inH&&!hc&&line(Math.abs(y-.48*B),x%18<12))||(!inV&&line(Math.abs(x-wx),y%15<10))||(!inH&&line(Math.abs(y-wx),x%18<12)))colour=WOOL.blue;
-    const i=(y*S+x)*4,grain=(rand()-.5)*22;
+    const kx=kind[x],ky=kind[y];let colour=WOOL.cream;
+    // The pale-blue lines are broken where the knit carries the other yarn.
+    const vLine=(kx==='line'||kx==='gap')&&y%12<10,hLine=(ky==='line'||ky==='gap')&&x%12<10;
+    if(vLine||hLine)colour=WOOL.blue;
+    else if(kx==='hatch'||ky==='hatch'){
+      // Chunky jacquard stitches on a 9 x 7 px grid. Each diagonal stroke takes the next yarn in turn:
+      // mostly brown and grey, with an occasional salmon stroke.
+      const sx=Math.floor(x/9),sy=Math.floor(y/7),d=sx-sy+1024;
+      colour=(d%4)<3?strokes[Math.floor(d/4)%5]:WOOL.haze;
+    }
+    const i=(y*S+x)*4,grain=(rand()-.5)*20;
     for(let k=0;k<3;k++)data[i+k]=Math.max(0,Math.min(255,colour[k]+grain));data[i+3]=255;
   }
+  // Brushed halo: soften every stitch into its neighbours (3 x 3 box blur, wrapping at the edges).
+  const src=data.slice();
+  for(let y=0;y<S;y++)for(let x=0;x<S;x++)for(let k=0;k<3;k++){let sum=0;for(let dy=-1;dy<=1;dy++)for(let dx=-1;dx<=1;dx++)sum+=src[(((y+dy+S)%S)*S+((x+dx+S)%S))*4+k];data[(y*S+x)*4+k]=sum/9;}
   plaidPixels={data,w:S,h:S};return plaidPixels;
 }
 function woolMaterial(map){
@@ -291,19 +296,23 @@ function ribbed(mesh,count,depth){
   for(let i=0;i<p.count;i++){const x=p.getX(i),z=p.getZ(i),k=1+depth*Math.cos(Math.atan2(x,z)*count);p.setX(i,x*k);p.setZ(i,z*k);}
   p.needsUpdate=true;mesh.geometry.computeVertexNormals();return mesh;
 }
-function makePlaidJumper(id=PLAID_JUMPER_ID){
+function makePlaidJumper(id=PLAID_JUMPER_ID,overSkirt=false){
   const top=new T.Group();top.name=id;
-  // Oversized: wide at the chest, then a deep rib band draws the hem in over the hips (and over the skirt).
-  const pixels=plaidData(),rib=woolMaterial(null),hem=1.14,band=.075;rib.color.set('#cbb894');
-  const body=shell(top,[[1.885,.114,.108],[1.845,.205,.152],[1.795,.272,.19],[1.73,.305,.21],[1.55,.33,.235],[1.35,.345,.25],[hem+band+.012,.345,.254],[hem+band,.339,.251]],woolMaterial(yarnTexture(pixels,4,1.7)),'plaid-jumper-body',96);
-  mapByHeight(body,hem+band,1.885);
-  ribbed(shell(top,[[hem+band+.01,.338,.251],[hem+band/2,.337,.25],[hem,.336,.25]],rib,'ribbed-hem-band',128),64,.012);
+  // Oversized means boxy here: the body falls straight from dropped shoulders to a ribbed hip band.
+  // The band hugs the jeans, or sits out over the skirt's fullness when one is worn.
+  const pixels=plaidData(),rib=woolMaterial(null),hem=1.14,band=.075,flare=overSkirt?[.338,.252]:[.312,.233];rib.color.set('#cbb894');
+  const body=shell(top,[[1.885,.114,.108],[1.85,.2,.15],[1.81,.27,.19],[1.76,.305,.21],[1.6,.314,.217],[1.4,.316,.224],[hem+band+.012,overSkirt?.336:.318,overSkirt?.25:.232],[hem+band,flare[0],flare[1]]],woolMaterial(yarnTexture(pixels,6,2)),'plaid-jumper-body',96);
+  // Her torso is much wider than tall, so three windows across the front (not the photo's two) keeps them square
+  // and gives the photo's two rows. The middle window is centred on the front.
+  body.material.map.offset.set(.5,0);mapByHeight(body,hem+band,1.885);
+  ribbed(shell(top,[[hem+band+.01,flare[0],flare[1]],[hem+band/2,flare[0]-.002,flare[1]-.001],[hem,flare[0]-.004,flare[1]-.002]],rib,'ribbed-hem-band',128),64,.012);
   ribbed(shell(top,[[1.93,.112,.106],[1.905,.115,.108],[1.88,.121,.113]],rib,'ribbed-crew-neck',96),48,.02);
   for(const side of [-1,1]){
     const arm=new T.Group();arm.position.set(side*.242,1.815,0);arm.rotation.z=side*.22;
-    const sleeve=shell(arm,[[.03,.125,.12],[-.06,.148,.14],[-.2,.155,.148],[-.33,.15,.143],[-.43,.128,.122],[-.48,.1,.097]],woolMaterial(yarnTexture(pixels,2,1.6)),'knit-jumper-sleeve',64);
-    roundSleeveCap(sleeve,side,.03);mapByHeight(sleeve,-.48,.03);
-    ribbed(shell(arm,[[-.47,.094,.092],[-.51,.088,.087],[-.55,.087,.086]],rib,'ribbed-cuff',64),32,.03);
+    // Straight, roomy sleeves that soften into the cuff instead of ballooning.
+    const sleeve=shell(arm,[[.03,.125,.12],[-.06,.135,.13],[-.2,.137,.132],[-.33,.135,.13],[-.42,.128,.124],[-.47,.11,.106],[-.495,.098,.095]],woolMaterial(yarnTexture(pixels,2,1.8)),'knit-jumper-sleeve',64);
+    roundSleeveCap(sleeve,side,.03);mapByHeight(sleeve,-.495,.03);
+    ribbed(shell(arm,[[-.485,.096,.093],[-.52,.089,.087],[-.56,.088,.086]],rib,'ribbed-cuff',64),32,.03);
     top.add(arm);
   }
   return top;
@@ -324,7 +333,7 @@ export function makeOutfit(raw, atlas=null) {
   }
   oval(trousers,[0,1.205,.187],[.019,.019,.01],solid('#bca16a'),'waist-button');
   if(state.topId===CROCHET_TOP_ID)root.add(makeCrochetTop());
-  else if(state.topId===PLAID_JUMPER_ID)root.add(makePlaidJumper());
+  else if(state.topId===PLAID_JUMPER_ID)root.add(makePlaidJumper(PLAID_JUMPER_ID,state.skirt));
   else if(state.topId!== 'classic')root.add(makeReferenceTop(atlas?.isTexture?atlas:atlas?.[state.topId],state.topId));
   if(state.shirt){
     const layer=new T.Group();layer.name='shirt';root.add(layer);

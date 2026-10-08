@@ -1,6 +1,6 @@
 # Wardrobe item: Mango brushed windowpane jumper
 
-Authored 8 October 2026. Status: first interpretation awaiting user visual feedback. This is the first piece from the user's own wardrobe list.
+Authored 8 October 2026. Status: revised after the user's first review; awaiting their second look. This is the first piece from the user's own wardrobe list.
 
 ## Source and reference reading
 
@@ -21,24 +21,28 @@ The denim shirt collar and cuffs, jeans, belt and boots in the photos are stylin
 
 ## Implementation
 
-Catalog ID `mango-plaid-jumper-v1`. No image asset is bundled. `plaidData()` in `src/doll/model.js` draws one repeat of the check on a 6 × 5 px stitch grid, so the hatching steps like jacquard stitches. Inside the bands, the stitches between the hatching carry a light tint of the band colour, so the bands stay legible when the texture is viewed from a distance.
+Catalog ID `mango-plaid-jumper-v1`. No image asset is bundled. `plaidData()` in `src/doll/model.js` draws one repeat of the check on a 9 × 7 px stitch grid, so the hatching steps like chunky jacquard stitches. One repeat, across and down, is: hatched frame, cream square, pale-blue cross line, cream square, hatched frame, pale-blue separator. Each window is therefore four cream squares inside its own hatched frame, and neighbouring frames are separated by a pale-blue line. The hatch strokes cycle brown, grey, salmon, brown, grey on a light ground; the pale-blue lines are broken; a 3 × 3 blur softens everything like brushed wool.
 
-- Body: oversized shell, widest around the chest, drawn in by a separate ribbed hem band at the hip (1.14 to 1.215). The rib band sits outside the trousers at every jean width and outside the pleated skirt.
+- Body: boxy and straight, falling from dropped shoulders to a ribbed hip band (1.14 to 1.215). The band hugs the jeans, or sits out over the skirt when one is worn (`makePlaidJumper(id, overSkirt)`).
 - Neck: a separate ribbed crew neck, mostly hidden under the doll's chin, as with the earlier tops.
-- Sleeves: full sleeves with the rounded shoulder cap (`roundSleeveCap()`), gathered into ribbed cuffs at the wrist.
-- Materials: matte wool with a knit bump map and low sheen. Colours are set darker than the photographed wool because the studio exposure and sheen lighten them; full sheen washed the check out.
-- Layering: the catalog's new `layering.coversWaistband` rule hides the skirt's ribbon bow under this jumper. The bronze and lilac tops also set it; the cropped crochet top does not.
+- Sleeves: straight and roomy with the rounded shoulder cap (`roundSleeveCap()`), narrowing into ribbed cuffs.
+- Scale: three windows across the front and about two rows down. The photo shows two across, but her torso is much wider than it is tall, so two across made the windows wide and left only one row.
+- Materials: matte wool with a knit bump map and low sheen. Colours are set darker than the photographed wool because the studio exposure and sheen lighten them.
+- Layering: the catalog's `layering.coversWaistband` rule hides the skirt's ribbon bow under this jumper. The bronze and lilac tops also set it; the cropped crochet top does not.
+
+## Revision after user feedback
+
+The user found the first version awkward: “oversized” had been read as balloon-like, and the check was similar but clearly a different pattern. The first version bulged at the chest, had puffed sleeves, and drew wide single bands of rust and taupe hatching around plain cream windows, with strong blue lines. The revision is the boxy shape and the four-pane, double-framed check described above, compared side by side with the flat lay during authoring. A trial dropped-shoulder seam line was removed because it read as an odd horizontal line.
 
 ## Checks
 
 - `npm test`: 18 passing. A new test checks the parts, that the bow is hidden, and that no trouser or skirt vertex between the hem and the waist shows through, for three jean widths with and without the skirt. It fails when the hem band is narrowed.
 - The arm clearance and rounded-shoulder test covers this jumper's sleeves.
 - `npm run build` succeeds.
-- Rendered in headless Chromium from the front, side, back and a slight turn, with indigo jeans and over the moss skirt. These renders were checked by the authoring chat, not the user.
+- Rendered in headless Chromium from the front, side, back and a slight turn, with indigo jeans and over the moss skirt, and compared side by side with the flat-lay screenshot. These renders were checked by the authoring chat; the user has not yet seen the revision.
 
 ## Known differences
 
-- The check is a regular procedural repeat. Band order, scale and the exact stitch pattern are an interpretation.
+- The check is a regular procedural repeat. Three windows across the front instead of two, and the exact stitch pattern, are interpretations.
 - The brushed halo is suggested by colour noise, bump and sheen; there are no fibres standing off the surface.
-- On the compact doll the jumper reads less dramatically oversized than on the model, because her arms are short and the body is wide.
 - The ribbed crew neck is mostly hidden by her large head.

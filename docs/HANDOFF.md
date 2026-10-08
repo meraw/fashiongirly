@@ -80,7 +80,9 @@ The user wants to add their whole wardrobe, **one item at a time**, reviewing ea
 
 Each new kind of garment needs its slot the first time it appears. Only the top slot exists today. Bottoms, dresses, outerwear and shoes each need a slot with layering rules. Button-downs need collar, placket and button details; hoodies need a hood that clears her large head and hair.
 
-Items added so far: [Mango windowpane jumper](garments/mango-windowpane-jumper.md) (first item; awaiting the user's visual review).
+Items added so far: [Mango windowpane jumper](garments/mango-windowpane-jumper.md). First version: the user found it awkward (balloon-like rather than boxy) and the check a different pattern. Revised; awaiting their second look.
+
+Lessons from that review: read “oversized” as the garment's actual cut (boxy, dropped shoulders, straight sleeves), not as extra volume. Before rendering, compare the drawn pattern side by side with the clearest reference crop, and check the count and proportion of motifs on her wide, short torso.
 
 ## Operational notes
 
