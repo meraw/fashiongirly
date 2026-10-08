@@ -10,7 +10,7 @@ Before changing Fashiongirly, read `docs/PRODUCT_BRIEF.md` and `docs/HANDOFF.md`
 - Distinguish existing features from plans, and technical checks from visual/device verification.
 - Update the brief and handoff when user decisions or implementation status change. Current explicit user instructions take precedence over these recorded decisions.
 
-# Product destination — applies to every lane
+# Product destination — applies to every chat
 
 The user clarified on 8 October 2026 that **checking the weather and dressing herself each morning is a core goal**, to be built after their wardrobe import is finished. Do not treat this as an optional stretch feature or manual dress-up as the finished product. She should choose daring, inspiring combinations from the user's wardrobe, including hair.
 
@@ -18,11 +18,11 @@ During garment work, preserve stable IDs, separate reusable pieces, slot/layer c
 
 # Parallel chats
 
-Up to four chats may add garments at the same time. Each works on its own branch and pull request, never pushes to another's branch, and never force-pushes a branch that has been shared.
+Several chats may add garments at the same time. Categories are not assigned to chats (the user's decision, 8 October 2026): each chat adds whatever category the user tells it to, and can switch, for example from bottoms to tops, when the user asks. Each chat works on its own branch and pull request, never pushes to another's branch, and never force-pushes a branch that has been shared.
 
-- Lanes: one chat owns bottoms (jeans, trousers, `makeJeans()` and its template); another owns tops (sweaters, mesh and button-down shirts, short-sleeved tops, hoodies); a third owns shoes (agreed with the user on 8 October 2026): the new shoe slot, the built-in loafers and socks in `makeDoll`, and how hems rest on shoes; a fourth owns outerwear (agreed with the user on 8 October 2026): coats, jackets and other outer layers, the new outerwear slot, and how outerwear layers over tops, bottoms and the skirt. If the user sends a garment from another lane, do it, but say so and keep shared code changes minimal.
-- Shared foundations need one owner at a time, agreed with the user first: the doll body (`makeDoll`), shared top helpers (`makeReferenceTop`, `roundSleeveCap`), the outfit assembler (`makeOutfit`), and any new slot (dresses, outerwear, shoes) with its layering rules.
-- Small layering fixes that a new garment needs in the other lane (for example easing a top's hem over a new waistband) are allowed; record them in the garment record and the pull request.
-- Add, don't rewrite: new garments go in new files where possible (garment record, texture/swatch module). In shared lists, tops go after the last top and bottoms after the last bottom (catalog IDs and entries, the selectors in `index.html`); in `OUTFITS`, bottom studies go first, top studies directly above “Windowpane jumper study” and shoe studies directly above “Tomato mischief”. Shoes get their own catalog section after the bottoms and their own selector after “Choose bottoms”. Outerwear gets its own catalog section after the shoes, its own selector after “Choose shoes”, and its studies go directly above the shoe studies. The lanes then edit different lines.
+- Two chats may work on the same category at once. Adding a garment through an existing template (a new `build` spec for `makeJeans()`, `makeLugBoot()` or `makeZipWindbreaker()`) needs no coordination. Keep changes to a template's code additive: new spec options default to the old behaviour, so garments already on the template are unchanged. Check that in the tests and say so in the pull request.
+- Shared foundations need one owner at a time, agreed with the user first: the doll body (`makeDoll`), shared top helpers (`makeReferenceTop`, `roundSleeveCap`), the outfit assembler (`makeOutfit`, beyond a dispatch line for a new garment), and any new slot (for example dresses) with its layering rules.
+- Small layering fixes that a new garment needs in another category (for example easing a top's hem over a new waistband) are allowed; record them in the garment record and the pull request.
+- Add, don't rewrite: new garments go in new files where possible (garment record, texture/swatch module). In shared lists, tops go after the last top and bottoms after the last bottom (catalog IDs and entries, the selectors in `index.html`); in `OUTFITS`, bottom studies go first, top studies directly above “Windowpane jumper study” and shoe studies directly above “Tomato mischief”. Shoes have their own catalog section after the bottoms and their own selector after “Choose bottoms”. Outerwear has its own catalog section after the shoes, its own selector after “Choose shoes”, and its studies go directly above the shoe studies. Chats on different categories then edit different lines; two chats on the same category may meet on the same line, so keep both sides.
 - Before every push: fetch and merge `origin/main`, resolve conflicts by keeping both sides, then run `npm test` and `npm run build`.
 - In `docs/HANDOFF.md`, append to “Items added so far” and renumber on merge; edit only the lines about your own garments.

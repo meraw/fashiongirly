@@ -1,7 +1,7 @@
 import * as T from 'three';
 import { cleanRecipe } from './recipe.js';
 import { makeOuterwear } from './outerwear.js';
-import { BRONZE_TOP_ID, LILAC_TOP_ID, CROCHET_TOP_ID, PLAID_JUMPER_ID, STRIPE_JUMPER_ID, POINTELLE_FLOWER_ID, SILVER_CABLE_ID, LACROIX_FLOWER_ID, GARMENTS } from '../wardrobe/catalog.js';
+import { BRONZE_TOP_ID, LILAC_TOP_ID, CROCHET_TOP_ID, PLAID_JUMPER_ID, STRIPE_JUMPER_ID, POINTELLE_FLOWER_ID, SILVER_CABLE_ID, LACROIX_FLOWER_ID, TOMMY_CABLE_ID, GARMENTS } from '../wardrobe/catalog.js';
 // Body and wardrobe share one toy proportion system; the face stays unscaled.
 const BODY_HEIGHT = .76;
 const BODY_WIDTH = 1.06;
@@ -741,6 +741,21 @@ function waveEdge(mesh,edgeY,band,depth,count,up){
 }
 // Flowers measured on the front photo, as fractions of the body's width (from her right) and of its length (from the neckline).
 const POINTELLE_FLOWERS=[[.14,.30],[.68,.33],[.31,.49],[.77,.53],[.49,.62],[.21,.66],[.68,.81],[.31,.84]];
+function surfaceProbe(top,names){
+  // Finds the outermost of the named surfaces seen straight from the front (or back) at a point, with its outward normal.
+  top.updateMatrixWorld(true);
+  const surfaces=[];top.traverse(o=>{if(names.includes(o.name))surfaces.push(o);});
+  const ray=new T.Raycaster(),normal=new T.Vector3();
+  return (x,y,front)=>{ray.set(V(x,y,front?1:-1),V(0,0,front?-1:1));const hit=ray.intersectObjects(surfaces,false)[0];if(!hit)return null;
+    normal.copy(hit.face.normal).transformDirection(hit.object.matrixWorld);if(normal.z*(front?1:-1)<0)normal.negate();return {point:hit.point,normal:normal.clone()};};
+}
+function raglanSeams(top,onSurface,mat,{x,span,y,drop}){
+  // Raglan seams run from the neckline down to each underarm, front and back, laid on whichever surface is outermost.
+  for(const front of [true,false])for(const side of [-1,1]){
+    const points=[];for(let k=0;k<=14;k++){const t=k/14,hit=onSurface(side*(x+span*t),y-drop*t+.02*Math.sin(t*Math.PI),front);if(hit)points.push(hit.point.clone().addScaledVector(hit.normal,.003).toArray());}
+    if(points.length>3)curve(top,points,.0035,mat,'raglan-seam');
+  }
+}
 function makePointelleJumper(id=POINTELLE_FLOWER_ID,overSkirt=false){
   const top=new T.Group();top.name=id;
   const band=woolMaterial(null),hem=1.145,edge=.03,flare=overSkirt?[.338,.252]:[.316,.232],skin=cloth('#dfb195');band.color.set('#d8d1bf');
@@ -772,17 +787,8 @@ function makePointelleJumper(id=POINTELLE_FLOWER_ID,overSkirt=false){
     waveEdge(cuff,-.532,.02,.007,26,false);
     top.add(arm);
   }
-  // Raglan seams run from the neckline down to each underarm, front and back. They are laid on whichever surface is
-  // outermost, found by casting rays at the finished body and sleeves.
-  top.updateMatrixWorld(true);
-  const surfaces=[];top.traverse(o=>{if(o.name==='pointelle-body'||o.name==='knit-jumper-sleeve')surfaces.push(o);});
-  const ray=new T.Raycaster(),normal=new T.Vector3();
-  const onSurface=(x,y,front)=>{ray.set(V(x,y,front?1:-1),V(0,0,front?-1:1));const hit=ray.intersectObjects(surfaces,false)[0];if(!hit)return null;
-    normal.copy(hit.face.normal).transformDirection(hit.object.matrixWorld);if(normal.z*(front?1:-1)<0)normal.negate();return {point:hit.point,normal:normal.clone()};};
-  for(const front of [true,false])for(const side of [-1,1]){
-    const points=[];for(let k=0;k<=14;k++){const t=k/14,hit=onSurface(side*(.17+.13*t),bodyTop-.008-.22*t+.02*Math.sin(t*Math.PI),front);if(hit)points.push(hit.point.clone().addScaledVector(hit.normal,.003).toArray());}
-    if(points.length>3)curve(top,points,.0035,band,'raglan-seam');
-  }
+  const onSurface=surfaceProbe(top,['pointelle-body','knit-jumper-sleeve']);
+  raglanSeams(top,onSurface,band,{x:.17,span:.13,y:bodyTop-.008,drop:.22});
   // Raised embroidered flowers on the front only: six raspberry petals around a darker centre, two dark green leaves above.
   // Each is built facing +z, then turned to the knit's surface and enlarged to the photo's size (about 6% of the body's
   // width); the scale also undoes her body's squash so the flowers stay round.
@@ -980,6 +986,66 @@ function makeLacroixSweater(id=LACROIX_FLOWER_ID,overSkirt=false){
     easeOverHand(ribbed(shell(arm,[[-.465,.094,.09],[-.52,.094,.091],[-.57,.093,.09]],olive,'ribbed-cuff',240),30,.03),side);
     top.add(arm);
   }
+  return top;
+}
+// Tommy Hilfiger green cable sweater: rope cables in plain wool, so the pattern is all relief. One tile is one cable column
+// for one twist; its height drives both the bump and a baked shading (grooves darker, ridges lighter).
+// Darker than the photographed wool: exposure, tone mapping and sheen lift these values.
+const CABLE_GREEN=[11,56,35],CABLE_PITCH=.14;
+let cablePixels=null;
+function cableKnitData(){
+  if(cablePixels)return cablePixels;
+  const w=128,h=192,colour=new Uint8Array(w*h*4),height=new Uint8Array(w*h*4),field=new Float32Array(w*h),rand=random(31);
+  for(let y=0;y<h;y++)for(let x=0;x<w;x++){
+    // Across the tile: a rope cable filling almost the whole column, with only a thin, shallow groove either side, as in
+    // the photos. Along it: one twist, a leaning oval with a wide, flat top that pinches in a little where it tucks under
+    // the next one, with a fine crease there. Fine stitch columns run through everything.
+    const s=(x+.5)/w*2-1,t=(y+.5)/h,d=((t+s*.32)%1+1)%1,bulge=Math.pow(Math.sin(Math.PI*d),.3),halfWidth=.93*(.84+.16*bulge),across=Math.abs(s)/halfWidth;
+    let v=across<1?.42+.5*bulge*Math.pow(1-Math.pow(across,4),.5):.26;
+    if(across<1&&(d<.025||d>.99))v=.24;
+    field[y*w+x]=v+.035*Math.cos(Math.PI*2*x/(w/10));
+  }
+  for(let y=0;y<h;y++)for(let x=0;x<w;x++){
+    // Lit from the upper left, as in the photos: each twist's upper edge catches the light and its lower edge falls into
+    // soft shadow, and the thin grooves between columns stay visible.
+    const v=field[y*w+x],slopeY=field[((y+3)%h)*w+x]-field[((y-3+h)%h)*w+x],slopeX=field[y*w+(x+3)%w]-field[y*w+(x-3+w)%w];
+    const i=(y*w+x)*4,heather=1+(rand()-.5)*.14,shade=(.62+.5*v-.7*slopeY+.5*slopeX)*heather;
+    for(let k=0;k<3;k++)colour[i+k]=Math.max(0,Math.min(255,CABLE_GREEN[k]*shade));colour[i+3]=255;
+    height[i]=height[i+1]=height[i+2]=Math.round(Math.max(0,Math.min(1,v))*255);height[i+3]=255;
+  }
+  cablePixels={colour,height,w,h};return cablePixels;
+}
+function cableMaterial(repeatU,repeatV){
+  const {colour,height,w,h}=cableKnitData(),textures=[colour,height].map((data,n)=>{
+    const t=new T.DataTexture(data,w,h,T.RGBAFormat);if(!n)t.colorSpace=T.SRGBColorSpace;t.wrapS=t.wrapT=T.RepeatWrapping;t.repeat.set(repeatU,repeatV);
+    t.generateMipmaps=true;t.minFilter=T.LinearMipmapLinearFilter;t.magFilter=T.LinearFilter;t.needsUpdate=true;return t;});
+  return new T.MeshPhysicalMaterial({map:textures[0],bumpMap:textures[1],bumpScale:.04,roughness:.95,sheen:.35,sheenColor:new T.Color('#7fa58a'),sheenRoughness:.9,side:T.DoubleSide});
+}
+function makeTommyCableSweater(id=TOMMY_CABLE_ID,overSkirt=false){
+  const top=new T.Group();top.name=id;
+  const hem=1.14,band=.09,neck=1.905,flare=overSkirt?[.338,.252]:[.312,.23];
+  const rib=woolMaterial(null);rib.color.set('#1c4a2e');
+  // Relaxed and straight to the hip. Sixteen cable columns round the body (eight across the front, as in the photos).
+  const body=shell(top,[[neck,.112,.104],[1.875,.172,.126],[1.83,.238,.16],[1.775,.282,.188],[1.65,.302,.204],[1.45,.308,.214],[1.3,.311,.222],[hem+band+.012,overSkirt?.336:.314,overSkirt?.25:.232],[hem+band,flare[0],flare[1]]],cableMaterial(16,(neck-hem-band)/CABLE_PITCH),'cable-knit-body',128);
+  mapByHeight(body,hem+band,neck);
+  // The rib band tucks just inside the body's lower edge, and the narrow crew neck sits up round her neck.
+  ribbed(shell(top,[[hem+band+.01,flare[0]-.008,flare[1]-.006],[hem+band/2,flare[0]-.004,flare[1]-.003],[hem,flare[0]-.006,flare[1]-.004]],rib,'ribbed-hem-band',768),96,.01);
+  ribbed(shell(top,[[1.935,.108,.1],[1.915,.112,.104],[1.893,.118,.11]],rib,'ribbed-crew-neck',384),48,.02);
+  for(const side of [-1,1]){
+    const arm=new T.Group();arm.position.set(side*.242,1.815,0);arm.rotation.z=side*.22;
+    // Long raglan sleeves with six cable columns round them, blousing slightly over long ribbed cuffs.
+    const sleeve=shell(arm,[[.03,.118,.115],[-.06,.13,.125],[-.2,.128,.122],[-.33,.12,.115],[-.42,.108,.104],[-.46,.1,.097]],cableMaterial(6,.49/CABLE_PITCH),'knit-jumper-sleeve',96);
+    roundSleeveCap(sleeve,side,.03);mapByHeight(sleeve,-.46,.03);
+    easeOverHand(ribbed(shell(arm,[[-.445,.096,.092],[-.5,.093,.09],[-.565,.092,.089]],rib,'ribbed-cuff',256),32,.03),side);
+    top.add(arm);
+  }
+  // Raglan seams, and the little flag embroidered on her left chest: navy, white and red.
+  const onSurface=surfaceProbe(top,['cable-knit-body','knit-jumper-sleeve']);
+  raglanSeams(top,onSurface,rib,{x:.13,span:.17,y:neck-.012,drop:.25});
+  const hit=onSurface(.11,1.745,true);
+  if(hit){const flag=new T.Group();flag.name='embroidered-flag';
+    [['#1d2a5a',-.0065],['#f4f2ee',0],['#c0262f',.0065]].forEach(([c,x])=>{const m=put(flag,new T.BoxGeometry(.0065,.009,.002),solid(c,.8),'flag-stripe');m.position.x=x;});
+    flag.position.copy(hit.point).addScaledVector(hit.normal,.002);flag.lookAt(flag.position.clone().add(hit.normal));flag.scale.set(1/BODY_WIDTH,1/BODY_HEIGHT,1);top.add(flag);}
   return top;
 }
 // Acid-wash barrel jeans: construction is read from the product photos.
@@ -1339,6 +1405,7 @@ export function makeOutfit(raw, atlas=null) {
   else if(state.topId===POINTELLE_FLOWER_ID)root.add(makePointelleJumper(POINTELLE_FLOWER_ID,state.skirt));
   else if(state.topId===SILVER_CABLE_ID)root.add(makeSilverCableJumper());
   else if(state.topId===LACROIX_FLOWER_ID)root.add(makeLacroixSweater(LACROIX_FLOWER_ID,state.skirt));
+  else if(state.topId===TOMMY_CABLE_ID)root.add(makeTommyCableSweater(TOMMY_CABLE_ID,state.skirt));
   else if(state.topId!== 'classic')root.add(makeReferenceTop(atlas?.isTexture?atlas:atlas?.[state.topId],state.topId));
   if(state.shirt){
     const layer=new T.Group();layer.name='shirt';root.add(layer);

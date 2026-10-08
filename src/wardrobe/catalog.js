@@ -12,6 +12,7 @@ export const STRIPE_JUMPER_ID = 'bershka-asymmetric-stripe-jumper-v1';
 export const POINTELLE_FLOWER_ID = 'cream-pointelle-flower-jumper-v1';
 export const SILVER_CABLE_ID = 'desigual-silver-cable-jumper-v1';
 export const LACROIX_FLOWER_ID = 'desigual-lacroix-flower-sweater-v1';
+export const TOMMY_CABLE_ID = 'tommy-green-cable-sweater-v1';
 export const BARREL_JEANS_ID = 'topshop-barrel-jeans-v1';
 export const DAVINIA_JEANS_ID = 'desigual-davinia-jeans-v1';
 export const LEVIS_94_ID = 'levis-94-wide-leg-v1';
@@ -36,6 +37,7 @@ export const GARMENTS = Object.freeze({
     exclusions: ['striped-shirt', 'knit-sweater'],
     layering: { coversWaistband: true },
     uncertainties: ['exact sleeve characters are not transcribed', 'generated artwork is interpretive', 'same front-facing motif is reused on back', 'side seam alignment and physical transparency need visual review'],
+    styling: { silhouette: 'fitted, hip length', palette: ['bronze', 'black', 'neon green', 'white'], pattern: 'horizontal metallic stripes with a large graphic print', coverage: { neck: 'crew', sleeves: 'long', midriff: 'covered' }, material: 'fine stretch mesh with opaque bands', warmth: 1, warmthBasis: 'inferred: fine mesh, partly see-through', weather: 'a light layer; sheer in the mesh stripes' },
     authoring: { texture: 'bronze-atlas.js', runtimeGeneration: false, sourcePhotosBundled: false },
   },
   [LILAC_TOP_ID]: {
@@ -49,6 +51,7 @@ export const GARMENTS = Object.freeze({
     exclusions: ['striped-shirt','knit-sweater'],
     layering: { coversWaistband: true },
     uncertainties: ['portrait and floral artwork are interpretive', 'physical material and brand are not established from pictures', 'exact seam placement and print scale need visual review'],
+    styling: { silhouette: 'fitted, lower hip length', palette: ['lilac', 'mauve', 'navy', 'silver'], pattern: 'portrait and flowers on the front, patterned navy sleeves', coverage: { neck: 'raised mock neck', sleeves: 'long', midriff: 'covered' }, material: 'textured fabric, fibre unknown', warmth: 2, warmthBasis: 'inferred: long sleeves and a mock neck; fabric weight unknown', weather: 'unknown beyond coverage' },
     authoring: { texture: 'lilac-atlas.js', runtimeGeneration: false, sourcePhotosBundled: false },
   },
   [CROCHET_TOP_ID]: {
@@ -62,6 +65,7 @@ export const GARMENTS = Object.freeze({
     fit: { silhouette: 'boxy, cropped at the waist', sleeve: 'slightly flared, covers half the mitten', hem: 'scalloped at waist', adjustment: 'fixed authored fit for review' },
     exclusions: ['striped-shirt','knit-sweater'],
     uncertainties: ['motif layout is a procedural repeat, not a stitch-for-stitch copy', 'upper back and back neckline are hidden by hair in the back photo', 'dropped shoulders and the ladder seams at shoulder and sleeve are not modelled', 'scallops do not follow individual motif edges'],
+    styling: { silhouette: 'boxy, cropped at the waist', palette: ['navy', 'turquoise', 'pale blue', 'cream'], pattern: 'joined crochet flowers with open lace', coverage: { neck: 'wide scoop', sleeves: 'long, flared', midriff: 'cropped' }, material: 'cotton-rich crochet (per the product page)', warmth: 1, warmthBasis: 'inferred: open crochet lets air through', weather: 'airy; shows what is worn under it' },
     authoring: { texture: 'procedural crochetData() in src/doll/model.js, drawn locally when first worn', runtimeGeneration: false, sourcePhotosBundled: false },
   },
   [PLAID_JUMPER_ID]: {
@@ -77,6 +81,7 @@ export const GARMENTS = Object.freeze({
     exclusions: ['striped-shirt','knit-sweater'],
     layering: { coversWaistband: true },
     uncertainties: ['check scale and band order are an interpretation of the photos', 'fibre composition is unknown', 'the shirt collar and cuffs in the photos are styling, not part of the jumper'],
+    styling: { silhouette: 'oversized, boxy, hip length', palette: ['cream', 'rust brown', 'grey-taupe', 'pale blue'], pattern: 'large windowpane check', coverage: { neck: 'crew', sleeves: 'long, full', midriff: 'covered' }, material: 'heavy brushed jacquard knit', warmth: 4, warmthBasis: 'user: very warm for the local climate', weather: 'cold days only (user note)' },
     authoring: { texture: 'procedural plaidData() in src/doll/model.js, drawn locally when first worn', runtimeGeneration: false, sourcePhotosBundled: false },
   },
   [STRIPE_JUMPER_ID]: {
@@ -93,6 +98,7 @@ export const GARMENTS = Object.freeze({
     // below. Sleeve-local height above which the sleeve alone does not cover that arm.
     layering: { coversWaistband: true, bareShoulder: { side: 1, above: -.23 } },
     uncertainties: ['the back was not shown; its neckline and stripes are inferred', 'the flat lay and the worn photo disagree on which side sits lower; the worn photo is followed', 'stripe count is adapted to her short torso', 'the bare shoulder is a skin-coloured piece inside the jumper, because her body under clothes is cream felt'],
+    styling: { silhouette: 'relaxed, boxy, high hip', palette: ['ecru', 'dark green'], pattern: 'even horizontal stripes', coverage: { neck: 'off one shoulder', sleeves: 'long', midriff: 'covered' }, material: 'medium-weight slub knit', warmth: 2, warmthBasis: 'inferred: medium knit, one shoulder bare', weather: 'mild; the bare shoulder is exposed' },
     authoring: { texture: 'procedural stripeKnitData() in src/doll/model.js, drawn locally when first worn', runtimeGeneration: false, sourcePhotosBundled: false },
   },
   [POINTELLE_FLOWER_ID]: {
@@ -107,6 +113,7 @@ export const GARMENTS = Object.freeze({
     exclusions: ['striped-shirt','knit-sweater'],
     layering: { coversWaistband: true },
     uncertainties: ['eyelet spacing is coarser than the real knit so it reads at the doll\'s size', 'flower placement is measured from the front photo and adapted to her short torso', 'the front photo has a cool colour cast; colours aim between the two photos', 'her body under clothes is cream felt, so skin is drawn inside the jumper to show through the eyelets'],
+    styling: { silhouette: 'boxy, hip length', palette: ['cream', 'raspberry', 'dark green'], pattern: 'eyelet bands with scattered raised flowers on the front', coverage: { neck: 'wide boat neck', sleeves: 'long, wide', midriff: 'covered' }, material: 'fine openwork knit', warmth: 1, warmthBasis: 'inferred: openwork knit', weather: 'airy; shows what is worn under it' },
     authoring: { texture: 'procedural pointelleData() in src/doll/model.js; flowers are small raised shapes', runtimeGeneration: false, sourcePhotosBundled: false },
   },
   [SILVER_CABLE_ID]: {
@@ -120,6 +127,7 @@ export const GARMENTS = Object.freeze({
     fit: { silhouette: 'slim', sleeve: 'long and fitted, gathered into long ribbed cuffs', hem: 'cropped at the waist, deep rib band', adjustment: 'fixed authored fit for review' },
     exclusions: ['striped-shirt','knit-sweater'],
     uncertainties: ['the lattice and cables are drawn procedurally, not stitch for stitch', 'the exact order of the narrow columns beside the panel is simplified', 'silver is shaded with the studio lights only; there is no reflected environment'],
+    styling: { silhouette: 'slim, cropped at the waist', palette: ['silver', 'black'], pattern: 'metallic cable knit: diamond lattice, rope cables and ribs', coverage: { neck: 'crew', sleeves: 'long', midriff: 'cropped' }, material: 'cable knit coated with silver foil', warmth: 2, warmthBasis: 'inferred: cable knit, but cropped', weather: 'unknown how the foil coating handles rain' },
     authoring: { texture: 'procedural silverKnitData() in src/doll/model.js, drawn locally when first worn', runtimeGeneration: false, sourcePhotosBundled: false },
   },
   [LACROIX_FLOWER_ID]: {
@@ -134,7 +142,23 @@ export const GARMENTS = Object.freeze({
     exclusions: ['striped-shirt','knit-sweater'],
     layering: { coversWaistband: true },
     uncertainties: ['the flowers are painted procedurally from the photos, not copied; their shapes and streaks are an interpretation', 'flower sizes are adapted to her short, wide torso', 'the back is read from one model photo partly hidden by hair'],
+    styling: { silhouette: 'regular, high hip', palette: ['olive', 'violet', 'lilac', 'white', 'mint', 'black'], pattern: 'giant painterly flowers front, back and on the forearms', coverage: { neck: 'crew', sleeves: 'long', midriff: 'covered' }, material: 'brushed knit, composition unknown', warmth: 3, warmthBasis: 'inferred: brushed knit', weather: 'cool days' },
     authoring: { texture: 'procedural lacroixData() in src/doll/model.js, painted locally when first worn', runtimeGeneration: false, sourcePhotosBundled: false },
+  },
+  [TOMMY_CABLE_ID]: {
+    slot: 'top',
+    id: TOMMY_CABLE_ID, name: 'Green cable knit wool sweater', family: 'cable-knit-sweater', version: 1,
+    status: 'reference-study-awaiting-visual-review', brandAsProvided: 'Tommy Hilfiger',
+    source: { note: 'user supplied five phone screenshots of a Rinascente listing (Tommy Hilfiger cable knit wool sweater): front and full length on a model, a close-up, the back and a flat lay' },
+    referenceViews: ['front on model', 'full length on model', 'front close-up', 'back on model', 'front flat lay'],
+    details: ['forest green wool', 'rope cables all over: about eight columns across the front and the back, continuing down the sleeves', 'raglan sleeves with seams from the neck to each underarm', 'narrow ribbed crew neck', 'deep ribbed hem band and long ribbed cuffs', 'small embroidered flag on her left chest', 'relaxed fit to the hip'],
+    material: { construction: 'cable knit', composition: 'wool (from the listing title); exact blend not visible', finish: 'soft, slightly heathered' },
+    fit: { silhouette: 'relaxed, straight', sleeve: 'long raglan sleeves into ribbed cuffs', hem: 'hip, deep rib band', adjustment: 'fixed authored fit for review' },
+    exclusions: ['striped-shirt','knit-sweater'],
+    layering: { coversWaistband: true },
+    uncertainties: ['the cables are a regular procedural repeat; their twist is taller than wide in the photos, slightly squatter here to suit her short torso', 'the flag is a simple three-colour tab, not the exact logo'],
+    styling: { silhouette: 'relaxed, straight, hip length', palette: ['forest green'], pattern: 'tonal rope cables all over', coverage: { neck: 'crew', sleeves: 'long', midriff: 'covered' }, material: 'wool cable knit (listing title)', warmth: 3, warmthBasis: 'inferred: wool cable knit', weather: 'cool to cold days' },
+    authoring: { texture: 'procedural cableKnitData() in src/doll/model.js, drawn locally when first worn', runtimeGeneration: false, sourcePhotosBundled: false },
   },
   [BARREL_JEANS_ID]: {
     slot: 'bottom',
