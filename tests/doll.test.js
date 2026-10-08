@@ -94,13 +94,14 @@ test('reference sleeves cover the upper arm with clearance and round over the sh
   doll.updateMatrixWorld(true);outfit.updateMatrixWorld(true);
   const arms=[],sleeves=[];
   doll.traverse(o=>{if(o.name==='arm')arms.push(o);});
-  outfit.traverse(o=>{if(['reference-fitted-sleeve','crochet-flared-sleeve','knit-jumper-sleeve'].includes(o.name))sleeves.push(o);});
+  outfit.traverse(o=>{if(['reference-fitted-sleeve','crochet-flared-sleeve','knit-jumper-sleeve','knit-polo-sleeve'].includes(o.name))sleeves.push(o);});
   const ray=new T.Raycaster(),point=new T.Vector3(),origin=new T.Vector3();let checked=0;
   for(let side=0;side<2;side++){
     const arm=arms[side],sleeve=sleeves[side],vertices=arm.geometry.attributes.position,bare=GARMENTS[topId].layering?.bareShoulder;
     for(let i=0;i<vertices.count;i+=2){
       point.fromBufferAttribute(vertices,i).applyMatrix4(arm.matrixWorld);sleeve.worldToLocal(point);
-      if(point.y<-.44)continue;
+      // Long sleeves cover her arm down to the forearm; a short sleeve leaves it bare below its band (catalog bareArmBelow).
+      if(point.y<(GARMENTS[topId].layering?.bareArmBelow??-.44))continue;
       // An off-the-shoulder top leaves the top of that arm bare or covered by its body; its own test checks that arm.
       if(bare?.side===(side?1:-1)&&point.y>bare.above)continue;
       // Above the sleeve's top ring, aim from the axis at the top so the rounded cap is checked too.
@@ -546,6 +547,46 @@ test('green cable sweater: rope cables in relief, raglan seams, a flag on her le
   const width=o=>new T.Box3().setFromObject(o.getObjectByName('ribbed-hem-band')).getSize(new T.Vector3()).x;
   assert.ok(width(skirted)>width(plain));assert.equal(skirted.getObjectByName('ribbon-knot'),undefined);
   disposeObject(skirted);disposeObject(plain);
+});
+
+test('stripe knit polo: navy collar, open placket with three buttons, short sleeves, monogram and sleeve flag',()=>{
+  const id='tommy-stripe-knit-polo-v1',recipe=cleanRecipe({topId:id,knit:true,shirt:true});
+  assert.equal(recipe.knit,false);assert.equal(recipe.shirt,false);
+  const outfit=makeOutfit({topId:id});outfit.updateMatrixWorld(true);
+  for(const name of ['polo-knit-body','polo-collar','polo-collar-stand','polo-collar-edge','ribbed-hem-band','embroidered-monogram','sleeve-flag'])assert.ok(outfit.getObjectByName(name),name);
+  const count=name=>{let n=0;outfit.traverse(o=>{if(o.name===name)n++;});return n;};
+  assert.equal(count('polo-button'),3);assert.equal(count('knit-polo-sleeve'),2);assert.equal(count('ribbed-cuff'),2);assert.equal(count('flag-stripe'),3);
+  const at=name=>outfit.getObjectByName(name).getWorldPosition(new T.Vector3());
+  const mono=new T.Box3().setFromObject(outfit.getObjectByName('embroidered-monogram')).getCenter(new T.Vector3());assert.ok(mono.x>.08&&mono.z>.1,'monogram on her left chest');
+  assert.ok(at('sleeve-flag').x>.25,'flag on her left sleeve');
+  // Navy takes 60% of each stripe repeat, as measured in the photos.
+  const body=outfit.getObjectByName('polo-knit-body'),px=body.material.map.image.data;let navy=0;
+  for(let i=0;i<px.length;i+=4)if(px[i]+px[i+1]+px[i+2]<200)navy++;assert.ok(Math.abs(navy/(px.length/4)-.6)<.02,`navy share ${navy/(px.length/4)}`);
+  // The top button is open: the body is cut into a narrow V at the front, its edges covered by the placket.
+  const p=body.geometry.attributes.position;
+  let front=-Infinity;for(let i=0;i<p.count;i++)if(p.getZ(i)>.09&&Math.abs(p.getX(i))<.004)front=Math.max(front,p.getY(i));
+  assert.ok(front<1.845&&front>1.82,`V bottom at ${front}`);
+  // Short sleeves: each ends above her elbow, and her forearm stays bare.
+  for(const sleeve of outfit.getObjectByName(id).children.filter(o=>o.isGroup&&o.children.some(c=>c.name==='knit-polo-sleeve'))){
+    const box=new T.Box3().setFromObject(sleeve);assert.ok(box.min.y/.76>1.55,`sleeve ends at ${box.min.y/.76}`);}
+  disposeObject(outfit);
+  // Cropped at the waist: it ends above the skirt, whose bow stays visible.
+  const skirted=makeOutfit({topId:id,skirt:true});skirted.updateMatrixWorld(true);assert.ok(skirted.getObjectByName('ribbon-knot'));
+  const hem=new T.Box3().setFromObject(skirted.getObjectByName('ribbed-hem-band')).min.y/.76;assert.ok(hem>1.24&&hem<1.28,`hem at ${hem}`);
+  disposeObject(skirted);
+  // Every waistband that reaches above the hem passes inside the body and band.
+  const ray=new T.Raycaster(),q=new T.Vector3(),axis=new T.Vector3(0,1,0);let checked=0;
+  for(const bottomId of ['classic',...Object.keys(GARMENTS).filter(b=>GARMENTS[b].slot==='bottom')]){
+    const dressed=makeOutfit({topId:id,bottomId,skirt:bottomId==='classic'});dressed.updateMatrixWorld(true);
+    const cover=[dressed.getObjectByName('polo-knit-body'),dressed.getObjectByName('ribbed-hem-band')],seen=new Map();
+    for(const layer of ['trousers','layered-skirt'].map(name=>dressed.getObjectByName(name)).filter(Boolean))layer.traverse(o=>{if(!o.geometry)return;const pos=o.geometry.attributes.position;
+      for(let i=0;i<pos.count;i++){q.fromBufferAttribute(pos,i).applyMatrix4(o.matrixWorld);const y=q.y/.76;if(y<hem+.006||y>1.4)continue;
+        const r=Math.hypot(q.x,q.z),a=Math.atan2(q.x,q.z),key=Math.round(y/.002)+':'+Math.round(a/(Math.PI/180));
+        if(!seen.has(key)){ray.set(new T.Vector3(0,q.y,0),new T.Vector3(Math.sin(a),0,Math.cos(a)).applyAxisAngle(axis,1e-5));seen.set(key,ray.intersectObjects(cover,false)[0]?.distance||0);}
+        assert.ok(seen.get(key)>r+.001,`${o.name} pokes through the polo over ${bottomId} at vertex ${i}`);checked++;}});
+    disposeObject(dressed);
+  }
+  assert.ok(checked>200,`checked ${checked}`);
 });
 
 test('every top records styling facts for later outfit selection',()=>{
