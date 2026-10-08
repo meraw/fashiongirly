@@ -6,6 +6,7 @@ export const PLAID_JUMPER_ID = 'mango-plaid-jumper-v1';
 export const BARREL_JEANS_ID = 'topshop-barrel-jeans-v1';
 export const DAVINIA_JEANS_ID = 'desigual-davinia-jeans-v1';
 export const LEVIS_94_ID = 'levis-94-wide-leg-v1';
+export const TOMMY_MOM_ID = 'tommy-ultra-high-mom-v1';
 export const GARMENTS = Object.freeze({
   [BRONZE_TOP_ID]: {
     slot: 'top',
@@ -170,6 +171,43 @@ export const GARMENTS = Object.freeze({
         tab: { side: -1, inset: .066, y: 1.09, colour: '#c3262f' } },
       centreBack: [[.004, 1.142], [.004, 1.05], [0, .985]],
       labelPatch: { name: 'printed-patch', size: [.085, .052, .005], colour: '#c49a6c', printColour: '#9c4a3c', position: [-.07, 1.21, -(.175 + .004)], rotationY: Math.PI + .27 },
+    },
+  },
+  [TOMMY_MOM_ID]: {
+    slot: 'bottom',
+    id: TOMMY_MOM_ID, name: 'Tommy ultra high rise mom jeans', family: 'mom-jeans', version: 1,
+    status: 'reference-study-awaiting-visual-review', brandAsProvided: 'Tommy Jeans',
+    source: { note: 'user supplied four phone screenshots of an ASOS listing (Tommy Jeans ultra high rise mom jean in mid wash): front and back on model, back pocket close-up, front waist close-up' },
+    referenceViews: ['front on model', 'back on model', 'back pocket close-up', 'front waist close-up'],
+    details: ['ultra high rise at the natural waist', 'mom fit: roomy hips and thighs tapering to a narrow ankle-length hem', 'even mid indigo wash, slightly paler on the thighs', 'tan-orange topstitching, scoop front pockets with copper rivets, silver button', 'coin pocket with a tiny flag badge', 'back yoke, patch pockets crossed by a double stitched bar, a small flag badge on the wearer\'s right pocket', 'red, white and navy flag patch on the back waistband'],
+    material: { construction: 'rigid denim', composition: 'not visible in the supplied screenshots', finish: 'mid wash' },
+    fit: { silhouette: 'mom, tapered', rise: 'ultra high', length: 'ankle', adjustment: 'fixed authored fit for review' },
+    uncertainties: ['folds are procedural', 'badges and patch are colour blocks without lettering'],
+    authoring: { texture: 'tommy-mom-denim.js: flat-lit seamless swatch processed from the front close-up', runtimeGeneration: false, sourcePhotosBundled: 'fabric swatch only' },
+    build: {
+      template: 'jeans', legName: 'jeans-leg', fallback: [30, 46, 76],
+      // The swatch comes from a zoomed close-up, so it repeats more often than the other pairs' to keep the grain fine.
+      crotch: { top: 1.12, y: .95 }, uvScale: [6, 3],
+      tiles: { small: [5.5, 2.8], legs: [1, 1], hips: [1, 1] },
+      // Ultra high rise: the waistband sits at her natural waist.
+      hips: [[1.36, .268, .168], [1.27, .274, .18], [1.15, .288, .196], [1.05, .296, .2], [.97, .292, .19], [.935, .24, .1]],
+      // Mom fit: roomy through the thigh, tapering to a narrow hem at the ankle, above her shoes.
+      legs: [[1.03, .152, .18, .14], [.95, .154, .178, .152], [.8, .152, .172, .158], [.6, .138, .158, .16], [.42, .127, .148, .16], [.24, .125, .145, .16]],
+      hem: 'ankle', folds: { base: .004, low: .007 }, gradient: [.88, .18], whiskers: .14, thighFade: .1,
+      waistband: { y: 1.335, rx: .267, rz: .169, h: .05 },
+      loops: [-2.6, -1.5, -.62, .62, 1.5, 2.6, Math.PI],
+      button: { colour: '#c9ccd0' }, thread: '#c27a3a',
+      fly: [[.036, 1.31], [.038, 1.16], [.022, 1.1], [0, 1.09]],
+      frontPocket: { type: 'scoop', line: [[.15, 1.31], [.165, 1.255], [.2, 1.225], [.262, 1.21]] },
+      coinPocket: { outline: [[-.236, 1.305], [-.19, 1.305], [-.194, 1.25], [-.233, 1.25], [-.236, 1.305]], badge: [-.214, 1.27] },
+      rivets: [[.152, 1.305], [.262, 1.215]],
+      seamEnd: .245,
+      backYoke: [[.27, 1.27], [.14, 1.235], [.004, 1.205]],
+      backPocket: { x: .122, outline: [[-.08, 1.2], [.08, 1.2], [.076, 1.055], [0, 1.025], [-.076, 1.055]], stitchBelow: 1.15,
+        bars: [1.132, 1.117], badge: { side: -1, out: .032, y: 1.1245 } },
+      centreBack: [[.004, 1.205], [.004, 1.1], [0, 1.0]],
+      labelPatch: { name: 'flag-patch', size: [.08, .05, .005], colour: '#1c2747', position: [-.08, 1.338, -(.169 + .004)], rotationY: Math.PI + .3,
+        blocks: [[-.038, .002, 0, .023, '#f2f2f0'], [0, .002, .038, .023, '#c8202f']] },
     },
   },
 });
