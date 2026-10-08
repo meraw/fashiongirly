@@ -120,3 +120,8 @@ Lessons from these reviews: calibrate colour by measurement, not by eye. Sample 
 ## Latest lilac hem correction
 
 The user reported trousers showing through both lower sides of the lilac shirt. The lower torso and hem now ease over the trouser hips and seams; a regression check covers narrow, medium and wide jeans. Visual confirmation is next. The crochet sweater added in another chat is preserved.
+
+
+## Hairstyle lane — separate branch
+
+The user requested a fourth, isolated hair task while three agents add clothes. See [HAIRSTYLES.md](HAIRSTYLES.md). `codex/outfit-hairstyles` adds eight long/up styles plus the original bob, in the existing hair colour; `hairId` saves with looks. Hair modules own their selector and attach to `doll-head` through a view adapter, leaving body, garment builders, catalog and clothing selectors untouched. Clothing presets retain the selected hair. Awaiting visual review; keep this work on its own PR until integrated.

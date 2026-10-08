@@ -1,3 +1,4 @@
+import { createHairController } from '../hair/model.js';
 import * as T from 'three';
 import { LILAC_ATLAS } from '../wardrobe/lilac-atlas.js';
 import { BRONZE_TOP_ID, LILAC_TOP_ID, BARREL_JEANS_ID, DAVINIA_JEANS_ID, LEVIS_94_ID, TOMMY_MOM_ID, STRADIVARIUS_RELAXED_ID, MANGO_BLACK_JEANS_ID, BERSHKA_GREY_ID } from '../wardrobe/catalog.js';
@@ -27,7 +28,8 @@ export async function createDollView(host, recipe) {
   const fill=new T.DirectionalLight('#e9e7ff',1.4);fill.position.set(3,2,2);scene.add(fill);
   const rim=new T.DirectionalLight('#fff4df',2);rim.position.set(-1,3,-2);scene.add(rim);
   const floor=new T.Mesh(new T.PlaneGeometry(20,20),new T.ShadowMaterial({opacity:.13}));floor.rotation.x=-Math.PI/2;floor.receiveShadow=true;floor.position.y=.004;scene.add(floor);
-  const model=new T.Group();scene.add(model);model.add(makeDoll());let outfit=makeOutfit(recipe,atlas);model.add(outfit);
+  const model=new T.Group();scene.add(model);const doll=makeDoll();model.add(doll);const hair=createHairController(doll);hair.update(recipe.hairId);let outfit=makeOutfit(recipe,atlas);model.add(outfit);
+  const clothingKey=state=>JSON.stringify({...state,hairId:undefined});let lastClothing=clothingKey(recipe);
   let angle=-.12,target=angle,frame=null,closed=false,drag=null;
   const draw=()=>{frame=null;if(closed)return;model.rotation.y=angle;renderer.render(scene,camera);};
   const render=()=>{if(!closed&&frame==null)frame=requestAnimationFrame(draw);};
@@ -39,8 +41,9 @@ export async function createDollView(host, recipe) {
   renderer.domElement.addEventListener('pointerdown',down);renderer.domElement.addEventListener('pointermove',move);renderer.domElement.addEventListener('pointerup',up);renderer.domElement.addEventListener('pointercancel',up);
   const lost=e=>{e.preventDefault();host.dispatchEvent(new CustomEvent('view-error',{detail:'The 3D view was interrupted. Reload the page to restore it.'}));};renderer.domElement.addEventListener('webglcontextlost',lost);
   return {
-    update(next){const replacement=makeOutfit(next,atlas);model.remove(outfit);disposeObject(outfit);outfit=replacement;model.add(outfit);render();},
+    update(next){hair.update(next.hairId);const key=clothingKey(next);if(key!==lastClothing){const replacement=makeOutfit(next,atlas);model.remove(outfit);disposeObject(outfit);outfit=replacement;model.add(outfit);lastClothing=key;}render();},
     turn(degrees){target=degrees*Math.PI/180;angle=target;render();},
-    dispose(){if(closed)return;closed=true;cancelAnimationFrame(frame);observer.disconnect();renderer.domElement.removeEventListener('pointerdown',down);renderer.domElement.removeEventListener('pointermove',move);renderer.domElement.removeEventListener('pointerup',up);renderer.domElement.removeEventListener('pointercancel',up);renderer.domElement.removeEventListener('webglcontextlost',lost);disposeObject(model);Object.values(atlas).forEach(t=>t.dispose());disposeObject(floor);key.shadow.map?.dispose();renderer.dispose();renderer.domElement.remove();},
+    dispose(){if(closed)return;closed=true;cancelAnimationFrame(frame);observer.disconnect();renderer.domElement.removeEventListener('pointerdown',down);renderer.domElement.removeEventListener('pointermove',move);renderer.domElement.removeEventListener('pointerup',up);renderer.domElement.removeEventListener('pointercancel',up);renderer.domElement.removeEventListener('webglcontextlost',lost);hair.dispose();disposeObject(model);Object.values(atlas).forEach(t=>t.dispose());disposeObject(floor);key.shadow.map?.dispose();renderer.dispose();renderer.domElement.remove();},
   };
 }
+
