@@ -31,7 +31,7 @@ Catalog ID `ugg-lowmel-cream-v1` (slot `shoes`), template `sneaker`. It is built
 
 ## Checks
 
-- `npm test`: 50 passing. A new test checks:
+- `npm test`: 51 passing. A new test checks:
   - the sneaker's parts, and that the boot-only parts are absent;
   - the eyelet count;
   - that the collar sits well below her sock tops and she is not raised;
