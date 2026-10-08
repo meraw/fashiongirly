@@ -7,6 +7,7 @@ import { makeDoll, makeOutfit, disposeObject } from '../src/doll/model.js';
 import { OUTFITS, cleanRecipe } from '../src/doll/recipe.js';
 import { startStudio } from '../src/doll/app.js';
 import { GARMENTS, MARIKOO_WINDBREAKER_ID, DESIGUAL_LEATHER_JACKET_ID } from '../src/wardrobe/catalog.js';
+import { check, wearings } from './outerwear-coverage.js';
 const outerwear=Object.keys(GARMENTS).filter(id=>GARMENTS[id].slot==='outerwear');
 const tops=['classic',...Object.keys(GARMENTS).filter(id=>GARMENTS[id].slot==='top')];
 const bottoms=['classic',...Object.keys(GARMENTS).filter(id=>GARMENTS[id].slot==='bottom')];
@@ -45,37 +46,9 @@ test('Marikoo windbreaker: zipped closed, with its yoke, hood, cords, snap pocke
   const t0=performance.now();disposeObject(makeOutfit({outerwearId:MARIKOO_WINDBREAKER_ID}));assert.ok(performance.now()-t0<600,'outfit build time');
 });
 
-test('outerwear covers every top, every bottom and the skirt from its hem to its collar, apart from an open front',()=>{
-  // A point is covered when it lies inside the jacket's outermost surface along the ray from her centre line: the body, or
-  // a sleeve where a top wraps over her arm. A fitted jacket depends on what is under it, so each outfit's own jacket is
-  // indexed by height band, and each ray only tests the triangles at its height. Open, the front between its edges is
-  // meant to show what is underneath.
-  const check=(id,open,skirt,recipe,layer)=>{
-    const outfit=makeOutfit({...recipe,outerwearId:id,outerwearOpen:open,skirt});outfit.updateMatrixWorld(true);
-    const jacket=outfit.getObjectByName('outerwear'),spec=GARMENTS[id].build.body,covering=[];jacket.traverse(o=>{if(o.userData.covering)covering.push(o);});
-    assert.ok(covering.length>=5,`${id}: body, band, sleeves and cuffs cover`);
-    const bands=new Map(),band=y=>Math.floor(y/.004);
-    for(const m of covering){const g=m.geometry,pos=g.attributes.position,idx=g.index;
-      for(let i=0;i<idx.count;i+=3){const tri=[0,1,2].map(k=>new T.Vector3().fromBufferAttribute(pos,idx.getX(i+k)).applyMatrix4(m.matrixWorld));
-        for(let b=band(Math.min(...tri.map(v=>v.y)));b<=band(Math.max(...tri.map(v=>v.y)));b++){if(!bands.has(b))bands.set(b,[]);bands.get(b).push(tri);}}}
-    const ray=new T.Ray(),hit=new T.Vector3(),axis=new T.Vector3(0,1,0),surface=new Map();
-    const coverAt=(y,a)=>{const key=Math.round(y/.001)+':'+Math.round(a/(Math.PI/360));
-      if(!surface.has(key)){ray.origin.set(0,y,0);ray.direction.set(Math.sin(a),0,Math.cos(a)).applyAxisAngle(axis,1e-5);let best=0;
-        for(const [p0,p1,p2] of bands.get(band(y))||[])if(ray.intersectTriangle(p0,p1,p2,false,hit))best=Math.max(best,hit.distanceTo(ray.origin));
-        surface.set(key,best);}
-      return surface.get(key);};
-    const p=new T.Vector3();let checked=0;
-    for(const child of outfit.children){if(!layer(child.name))continue;child.traverse(o=>{if(!o.geometry||!visible(o))return;const pos=o.geometry.attributes.position;
-      for(let i=0;i<pos.count;i++){p.fromBufferAttribute(pos,i).applyMatrix4(o.matrixWorld);const y=p.y/.76;if(y<spec.hem+.004||y>spec.collarBase)continue;
-        const radius=Math.hypot(p.x,p.z);if(radius<.01)continue;
-        if(open&&Math.abs(Math.atan2(p.x/1.06,p.z))<jacket.userData.opening(y)+.05)continue;
-        assert.ok(coverAt(p.y,Math.atan2(p.x,p.z))>radius+.001,`${o.name} of ${JSON.stringify(recipe)} shows through ${id}${open?' (open)':''}${skirt?' over the skirt':''} at y ${y.toFixed(3)}`);checked++;}});}
-    disposeObject(outfit);return checked;};
-  for(const id of outerwear)for(const open of GARMENTS[id].layering?.canOpen?[false,true]:[false])for(const skirt of [false,true]){
+test('outerwear covers every top from its hem to its collar, apart from an open front',()=>{
+  for(const {id,open,skirt} of wearings)
     for(const topId of tops)assert.ok(check(id,open,skirt,{topId,knit:topId==='classic',shirt:topId==='classic'},n=>!['trousers','shoes','layered-skirt','outerwear'].includes(n))>100,topId);
-    for(const bottomId of bottoms)assert.ok(check(id,open,skirt,{bottomId,topId:'desigual-silver-cable-jumper-v1'},n=>n==='trousers')>20,bottomId);
-    if(skirt)assert.ok(check(id,open,skirt,{},n=>n==='layered-skirt')>50,'skirt');
-  }
 });
 
 test('under closed outerwear the top sleeves are hidden, and her arms and hands stay inside its sleeves and cuffs',()=>{

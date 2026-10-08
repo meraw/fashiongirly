@@ -9,14 +9,18 @@ const BODY_HEIGHT = .76;
 const BODY_WIDTH = 1.06;
 const V = (x,y,z) => new T.Vector3(x,y,z);
 function random(seed=13) { return () => { seed = (1664525 * seed + 1013904223) >>> 0; return seed / 4294967296; }; }
+// Generated textures are the same every time for the same arguments, so their pixels are drawn once and shared by the
+// textures made from them (an outfit is rebuilt on every change). Nothing writes to these pixels afterwards.
+const pixelCache=new Map(),cachedPixels=(key,draw)=>{if(!pixelCache.has(key))pixelCache.set(key,draw());return pixelCache.get(key);};
 function weave(kind) {
-  const size = 128, data = new Uint8Array(size*size*4), rand=random(27);
+  const size = 128, data = cachedPixels('weave:'+kind,()=>{const data = new Uint8Array(size*size*4), rand=random(27);
   for(let y=0;y<size;y++) for(let x=0;x<size;x++) {
     const i=(y*size+x)*4;
     const stitch = kind === 'knit' ? Math.cos(x/size*Math.PI*8 + Math.abs((y%32)-16)*.17) : kind === 'denim' ? Math.sin((x+y)*1.3) : Math.sin(x*3.2)*Math.sin(y*3.7);
     const c = Math.round(153+stitch*39+(rand()-.5)*52);
     data[i]=data[i+1]=data[i+2]=c; data[i+3]=255;
   }
+  return data;});
   const texture=new T.DataTexture(data,size,size,T.RGBAFormat); texture.wrapS=texture.wrapT=T.RepeatWrapping; texture.repeat.set(kind==='knit'?4:6,kind==='knit'?5:6);texture.needsUpdate=true;
   return texture;
 }
@@ -359,7 +363,7 @@ function makeLugBoot(id,spec,tape=null){
 function cowPrint(seed=5){
   // Pony-hair cow print: crisp, irregular black patches of mixed sizes, from large splotches to small spots, on white,
   // with a fine hair grain. Each patch is a cluster of overlapping blobs with a slightly ragged edge.
-  const size=256,data=new Uint8Array(size*size*4),r=random(seed),blobs=[];
+  const size=256,data=cachedPixels('cow:'+seed,()=>{const data=new Uint8Array(size*size*4),r=random(seed),blobs=[];
   for(let k=0;k<34;k++){const big=r()<.3,cx=r()*size,cy=r()*size,rad=big?9+r()*7:2.5+r()*4,n=big?6:2;
     for(let j=0;j<n;j++)blobs.push([cx+(r()-.5)*rad*2,cy+(r()-.5)*rad*1.4,rad*(.5+r()*.5)]);}
   for(let y=0;y<size;y++)for(let x=0;x<size;x++){let f=0;
@@ -367,6 +371,7 @@ function cowPrint(seed=5){
     f+=.18*Math.sin(x*.9+Math.sin(y*.7)*2)*Math.sin(y*.8);
     const ink=Math.min(1,Math.max(0,(f-.5)*10)),grain=(r()-.5)*12+Math.sin(x*1.7+y*.4)*4,v=240*(1-ink)+26*ink+grain,i=(y*size+x)*4;
     data[i]=Math.max(0,Math.min(255,v));data[i+1]=Math.max(0,Math.min(255,v-1));data[i+2]=Math.max(0,Math.min(255,v-3));data[i+3]=255;}
+  return data;});
   const tex=new T.DataTexture(data,size,size,T.RGBAFormat);tex.wrapS=tex.wrapT=T.RepeatWrapping;tex.colorSpace=T.SRGBColorSpace;tex.needsUpdate=true;return tex;
 }
 function makePlatformSlide(id,spec){
@@ -824,8 +829,9 @@ function surfaceProbe(top,names){
   // Finds the outermost of the named surfaces seen straight from the front (or back) at a point, with its outward normal.
   top.updateMatrixWorld(true);
   const surfaces=[];top.traverse(o=>{if(names.includes(o.name))surfaces.push(o);});
-  const ray=new T.Raycaster(),normal=new T.Vector3();
-  return (x,y,front)=>{ray.set(V(x,y,front?1:-1),V(0,0,front?-1:1));const hit=ray.intersectObjects(surfaces,false)[0];if(!hit)return null;
+  // Level rays straight in from the front or back, so a levelCaster gives the same hit, faster.
+  const cast=levelCaster(surfaces),normal=new T.Vector3();
+  return (x,y,front)=>{const hit=cast(V(x,y,front?1:-1),V(0,0,front?-1:1));if(!hit)return null;
     normal.copy(hit.face.normal).transformDirection(hit.object.matrixWorld);if(normal.z*(front?1:-1)<0)normal.negate();return {point:hit.point,normal:normal.clone()};};
 }
 function raglanSeams(top,onSurface,mat,{x,span,y,drop}){
@@ -1412,9 +1418,11 @@ function makeJeans(id,spec,swatch=null,rest=LOAFER_REST){
     if(settings){settings.instanceMatrix.needsUpdate=true;settings.computeBoundingSphere();jeans.add(settings);}
   }
   // Depth of the actual jeans surface at (x, y), front or back: measured on the built shells, so details sit on it.
-  // Every ray here is level, so each set of shells gets a levelCaster (same hits as a Raycaster, much faster).
-  const casters=new Map(),hit=new T.Vector3(),cast=(meshes,origin,dir)=>{const key=meshes.map(m=>m.id).join();
-    if(!casters.has(key))casters.set(key,levelCaster(meshes));return casters.get(key)(origin,dir);};
+  // Every ray here is level, so each shell gets a levelCaster (same hits as a Raycaster, much faster), and a ray against
+  // several shells takes the nearest of their hits.
+  const casters=new Map(),hit=new T.Vector3(),cast=(meshes,origin,dir)=>{let best;
+    for(const m of meshes){if(!casters.has(m))casters.set(m,levelCaster([m]));const h=casters.get(m)(origin,dir);if(h&&(!best||h.distance<best.distance))best=h;}
+    return best;};
   // Cached: patches repeat the same corners many times, and each measurement is a ray against the whole surface.
   const depthCache=new Map(),down=new T.Vector3(),
     depth=(x,y,back=false)=>{const key=Math.round(x*4000)+':'+Math.round(y*4000)+(back?'b':'f');let d=depthCache.get(key);
