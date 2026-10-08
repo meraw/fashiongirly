@@ -1,6 +1,7 @@
 import * as T from 'three';
 import { LILAC_ATLAS } from '../wardrobe/lilac-atlas.js';
-import { BRONZE_TOP_ID, LILAC_TOP_ID, BARREL_JEANS_ID, DAVINIA_JEANS_ID, LEVIS_94_ID, TOMMY_MOM_ID, STRADIVARIUS_RELAXED_ID } from '../wardrobe/catalog.js';
+import { BRONZE_TOP_ID, LILAC_TOP_ID, BARREL_JEANS_ID, DAVINIA_JEANS_ID, LEVIS_94_ID, TOMMY_MOM_ID, STRADIVARIUS_RELAXED_ID, MANGO_BLACK_JEANS_ID } from '../wardrobe/catalog.js';
+import { MANGO_DENIM } from '../wardrobe/mango-denim.js';
 import { STRADIVARIUS_DENIM } from '../wardrobe/stradivarius-denim.js';
 import { TOMMY_MOM_DENIM } from '../wardrobe/tommy-mom-denim.js';
 import { LEVIS_94_DENIM } from '../wardrobe/levis-94-denim.js';
@@ -10,7 +11,7 @@ import { BRONZE_ATLAS } from '../wardrobe/bronze-atlas.js';
 import { makeDoll, makeOutfit, disposeObject } from './model.js';
 export async function createDollView(host, recipe) {
   const atlas={};
-  try { for(const [id,data] of [[BRONZE_TOP_ID,BRONZE_ATLAS],[LILAC_TOP_ID,LILAC_ATLAS],[BARREL_JEANS_ID,TOPSHOP_DENIM],[DAVINIA_JEANS_ID,DAVINIA_DENIM],[LEVIS_94_ID,LEVIS_94_DENIM],[TOMMY_MOM_ID,TOMMY_MOM_DENIM],[STRADIVARIUS_RELAXED_ID,STRADIVARIUS_DENIM]]){atlas[id]=await new T.TextureLoader().loadAsync(data);atlas[id].colorSpace=T.SRGBColorSpace;} }
+  try { for(const [id,data] of [[BRONZE_TOP_ID,BRONZE_ATLAS],[LILAC_TOP_ID,LILAC_ATLAS],[BARREL_JEANS_ID,TOPSHOP_DENIM],[DAVINIA_JEANS_ID,DAVINIA_DENIM],[LEVIS_94_ID,LEVIS_94_DENIM],[TOMMY_MOM_ID,TOMMY_MOM_DENIM],[STRADIVARIUS_RELAXED_ID,STRADIVARIUS_DENIM],[MANGO_BLACK_JEANS_ID,MANGO_DENIM]]){atlas[id]=await new T.TextureLoader().loadAsync(data);atlas[id].colorSpace=T.SRGBColorSpace;} }
   catch(error){Object.values(atlas).forEach(t=>t.dispose());throw error;}
   let renderer;
   try { renderer=new T.WebGLRenderer({antialias:true,alpha:true}); }

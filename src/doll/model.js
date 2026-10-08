@@ -499,7 +499,9 @@ function makeJeans(id,spec,swatch=null){
     curve(jeans,dart,.0042,fold,'knee-dart');curve(jeans,dart.map(([x,y,z],k)=>legPoint(side,y+.008,facing-side*.55+side*.65*k/8,.003)),.002,thread,'knee-dart-stitch');
     }
     // Back: yoke and patch pocket, with a pointed buttoned flap when the spec has one.
-    curve(jeans,on(spec.backYoke.map(([x,y])=>[side*x,y]),true),.0018,thread,'back-yoke');
+    if(spec.backYoke)curve(jeans,on(spec.backYoke.map(([x,y])=>[side*x,y]),true),.0018,thread,'back-yoke');
+    // Short darts from the waistband toward each pocket, in place of (or as well as) a yoke.
+    if(spec.backDarts)curve(jeans,on(spec.backDarts.map(([x,y])=>[side*x,y]),true,.003),.0022,fold,'back-dart');
     const bp=spec.backPocket,px=side*bp.x,pocket=bp.outline.map(([x,y])=>[px+x,y]);
     patchOn(pocket,'back-patch-pocket',true,.004);
     curve(jeans,on([...pocket.slice(1),pocket[0]].map(([x,y])=>[x-(x-px)*.08,y+(y<bp.stitchBelow?.006:0)]),true,.006),.0017,thread,'pocket-stitch');
