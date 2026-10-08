@@ -21,6 +21,7 @@ export const STRADIVARIUS_RELAXED_ID = 'stradivarius-relaxed-v1';
 export const MANGO_BLACK_JEANS_ID = 'mango-washed-black-v1';
 export const BERSHKA_GREY_ID = 'bershka-grey-wide-leg-v1';
 export const TOMMY_CARPENTER_ID = 'tommy-remastered-carpenter-v1';
+export const ZARA_CARGO_ID = 'zara-cargo-joggers-v1';
 export const GARMENTS = Object.freeze({
   [BRONZE_TOP_ID]: {
     slot: 'top',
@@ -451,6 +452,40 @@ export const GARMENTS = Object.freeze({
       centreBack: [[.004, 1.167], [.004, 1.07], [0, .985]],
       labelPatch: { name: 'flag-patch', size: [.075, .045, .005], colour: '#2b2b30', position: [-.08, 1.238, -(.173 + .004)], rotationY: Math.PI + .3,
         blocks: [[-.034, .0, 0, .02, '#6b6b72'], [0, .0, .034, .02, '#45454c']] },
+    },
+  },
+  [ZARA_CARGO_ID]: {
+    slot: 'bottom',
+    id: ZARA_CARGO_ID, name: 'Zara elastic-waist cargo trousers', family: 'cargo-joggers', version: 1,
+    status: 'reference-study-awaiting-visual-review', brandAsProvided: 'Zara',
+    source: { note: 'user supplied three phone screenshots of a resale listing on zara.com (“Pantaloni cargo con vita elasticizzata”, black, size M): front flat lay, back flat lay, front close-up; the listing text says light, cool trousers with an adjustable elastic drawstring waist' },
+    referenceViews: ['front flat lay', 'back flat lay', 'front close-up'],
+    details: ['gathered elastic waistband with a black drawstring and metal tips', 'black, light, slightly crinkled fabric with a soft sheen', 'relaxed legs tapering to gathered elastic cuffs at the ankle, the fabric blousing above them', 'slanted side pockets', 'cargo patch pockets with plain flaps on both outer thighs', 'plain back with a centre seam, no back pockets', 'tonal stitching'],
+    material: { construction: 'light woven (satin-like crinkle)', composition: 'not visible in the supplied screenshots', finish: 'black' },
+    fit: { silhouette: 'relaxed jogger, cuffed', rise: 'high, elastic at the waist', length: 'ankle, gathered into the cuffs', adjustment: 'fixed authored fit for review' },
+    uncertainties: ['folds and crinkle are procedural or from a small swatch', 'the cargo pockets\' exact size and placement are read from flat lays', 'how the user wears the waist and cuffs is not yet known'],
+    authoring: { texture: 'zara-cargo-fabric.js: flat-lit seamless swatch from the close-up, keeping only fine crinkle detail at reduced contrast', runtimeGeneration: false, sourcePhotosBundled: 'fabric swatch only' },
+    build: {
+      template: 'jeans', legName: 'jeans-leg', fallback: [26, 29, 37],
+      // Not denim: a light, smooth woven with a soft sheen and no twill.
+      surface: { roughness: .7, twill: 0, sheen: .3 },
+      crotch: { top: 1.14, y: .95 }, uvScale: [16, 8],
+      tiles: { small: [10, 5], legs: [1, 1], hips: [1, 1] },
+      hips: [[1.32, .256, .168], [1.24, .272, .184], [1.14, .29, .197], [1.04, .3, .2], [.97, .302, .19], [.935, .245, .105]],
+      // Relaxed legs tapering to the ankle, blousing over the elastic cuffs.
+      legs: [[1.03, .152, .182, .135], [.95, .16, .182, .152], [.75, .16, .176, .16], [.55, .153, .168, .162], [.4, .149, .162, .163], [.335, .155, .167, .163], [.295, .138, .15, .163], [.28, .133, .146, .163], [.24, .133, .146, .163]],
+      hem: 'ankle', folds: { base: .006, low: .012, stack: .005 }, gradient: [.92, .12], whiskers: 0,
+      cuff: { top: .285, count: 18, depth: .005 }, hemStitch: .045,
+      // Gathered elastic waistband with a drawstring.
+      waistband: { y: 1.285, rx: .254, rz: .167, h: .07, gathers: { count: 48, depth: .035 } },
+      drawstring: { colour: '#1c1d22', tip: '#c9ccd0', x: .016, length: .2 },
+      thread: '#3a3c44',
+      centreFront: [[0, 1.25], [0, 1.1], [0, .975]],
+      frontPocket: { type: 'slant', line: [[.175, 1.25], [.215, 1.185], [.258, 1.12]] },
+      // Cargo pockets with plain flaps on both outer thighs.
+      sidePocket: { top: .93, bottom: .63, span: [-.38, .58], flap: .055 },
+      seamEnd: .245,
+      centreBack: [[0, 1.25], [0, 1.1], [0, .985]],
     },
   },
   // Shoes.

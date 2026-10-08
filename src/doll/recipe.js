@@ -1,5 +1,5 @@
 import { DEFAULT_HAIR_ID, cleanHairId } from '../hair/catalog.js';
-import { BRONZE_TOP_ID, LILAC_TOP_ID, CROCHET_TOP_ID, PLAID_JUMPER_ID, STRIPE_JUMPER_ID, POINTELLE_FLOWER_ID, SILVER_CABLE_ID, LACROIX_FLOWER_ID, TOMMY_CABLE_ID, BARREL_JEANS_ID, DAVINIA_JEANS_ID, LEVIS_94_ID, TOMMY_MOM_ID, STRADIVARIUS_RELAXED_ID, MANGO_BLACK_JEANS_ID, BERSHKA_GREY_ID, TOMMY_CARPENTER_ID, GARMENTS } from '../wardrobe/catalog.js';
+import { BRONZE_TOP_ID, LILAC_TOP_ID, CROCHET_TOP_ID, PLAID_JUMPER_ID, STRIPE_JUMPER_ID, POINTELLE_FLOWER_ID, SILVER_CABLE_ID, LACROIX_FLOWER_ID, TOMMY_CABLE_ID, BARREL_JEANS_ID, DAVINIA_JEANS_ID, LEVIS_94_ID, TOMMY_MOM_ID, STRADIVARIUS_RELAXED_ID, MANGO_BLACK_JEANS_ID, BERSHKA_GREY_ID, TOMMY_CARPENTER_ID, ZARA_CARGO_ID, GARMENTS } from '../wardrobe/catalog.js';
 import { BUFFALO_ASPHA_ID, DM_COW_SLIDE_ID } from '../wardrobe/catalog.js';
 import { MARIKOO_WINDBREAKER_ID } from '../wardrobe/catalog.js';
 export const DEFAULT = Object.freeze({ sweater: '#bf303e', trousers: '#283c59', sleeve: .74, hem: .3, barrel: .78, knit: true, shirt: true, skirt: false, skirtColour: '#bd9bc8', topId: 'classic', bottomId: 'classic', shoesId: 'classic', outerwearId: 'none', hairId: DEFAULT_HAIR_ID });
@@ -37,6 +37,7 @@ export function editRecipe(current, sentence) {
 }
 
 export const OUTFITS = [
+  { name: 'Zara cargo trousers study', note: 'Reference study: light black cargo trousers with a gathered elastic waist and drawstring, flap cargo pockets on both thighs and elastic ankle cuffs. The fabric is taken from the product photo.', recipe: { ...DEFAULT, topId: CROCHET_TOP_ID, bottomId: ZARA_CARGO_ID, knit: false, shirt: false } },
   { name: 'Tommy carpenter jeans study', note: 'Reference study: black carpenter jeans with white double stitching, front hip panels, utility pockets on both thighs, a hammer loop and a flag tape across one back pocket. The denim is taken from the product photo.', recipe: { ...DEFAULT, topId: CROCHET_TOP_ID, bottomId: TOMMY_CARPENTER_ID, knit: false, shirt: false } },
   { name: 'Bershka grey jeans study', note: 'Reference study: grey wide-leg jeans with bleached thigh panels, a darker hem and strong whiskers across the hips. The denim is taken from the product photo.', recipe: { ...DEFAULT, topId: CROCHET_TOP_ID, bottomId: BERSHKA_GREY_ID, knit: false, shirt: false } },
   { name: 'Mango black jeans study', note: 'Reference study: high-rise, relaxed straight washed-black jeans at ankle length, with copper rivets, back darts and a black leather patch. The denim is taken from the listing photo.', recipe: { ...DEFAULT, topId: CROCHET_TOP_ID, bottomId: MANGO_BLACK_JEANS_ID, knit: false, shirt: false } },
