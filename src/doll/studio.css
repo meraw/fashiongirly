@@ -2,4 +2,4 @@
 
 .outfit-ideas{display:flex;flex-wrap:wrap;gap:8px;margin:0 0 23px}.outfit-ideas button{padding:10px 13px;border:1px solid #d8c6b8;border-radius:18px;background:#f7f0e7;font-size:12px;min-height:44px}.outfit-ideas button[aria-pressed=true]{background:#786150;color:#fff9ef;border-color:#786150}
 
-#top-select{display:block;width:100%;min-height:44px;padding:10px;margin:8px 0 16px;background:#fffbf5;color:#433634;border:1px solid #d8c6b8;border-radius:6px;font:inherit;font-size:14px}
+#top-select,#bottom-select{display:block;width:100%;min-height:44px;padding:10px;margin:8px 0 16px;background:#fffbf5;color:#433634;border:1px solid #d8c6b8;border-radius:6px;font:inherit;font-size:14px}

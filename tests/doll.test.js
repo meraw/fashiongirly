@@ -89,7 +89,7 @@ test('reference garment keeps its identity, mapped details and layer exclusions'
   app.dispose();dom.window.close();
 });
 test('reference sleeves cover the upper arm with clearance and round over the shoulder',()=>{
-  for(const topId of Object.keys(GARMENTS)){
+  for(const topId of Object.keys(GARMENTS).filter(id=>GARMENTS[id].slot==='top')){
   const doll=makeDoll(),outfit=makeOutfit({topId});
   doll.updateMatrixWorld(true);outfit.updateMatrixWorld(true);
   const arms=[],sleeves=[];
@@ -172,4 +172,43 @@ test('windowpane jumper keeps its ribbing and covers trousers, skirt and the hid
     assert.ok(checked>100);disposeObject(outfit);
   }
   const cropped=makeOutfit({topId:'desigual-crochet-flowers-v1',skirt:true});assert.ok(cropped.getObjectByName('ribbon-knot'),'cropped top still shows the bow');disposeObject(cropped);
+});
+
+test('bottom slot: barrel jeans replace the classic jeans and only accept bottoms',async()=>{
+  const id='topshop-barrel-jeans-v1';
+  assert.equal(cleanRecipe({bottomId:id}).bottomId,id);
+  assert.equal(cleanRecipe({topId:id}).topId,'classic','a bottom cannot be worn as a top');
+  assert.equal(cleanRecipe({bottomId:'mango-plaid-jumper-v1'}).bottomId,'classic','a top cannot be worn as a bottom');
+  assert.equal(cleanRecipe(null).bottomId,'classic');
+  assert.equal(editRecipe(cleanRecipe({bottomId:id}),'wider jeans').changes.length,0,'width edits apply only to the classic jeans');
+  const outfit=makeOutfit({bottomId:id});
+  for(const name of ['jeans-hips','jeans-waistband','shank-button','twisted-side-seam','knee-dart','back-patch-pocket','pocket-flap','suede-patch'])assert.ok(outfit.getObjectByName(name),name);
+  let legs=0;outfit.traverse(o=>{if(o.name==='barrel-leg')legs++;if(o.geometry)for(const v of o.geometry.attributes.position.array)assert.ok(Number.isFinite(v));});assert.equal(legs,2);
+  assert.equal(outfit.getObjectByName('jean-cuff'),undefined,'classic jeans are not also built');
+  disposeObject(outfit);
+  const dom=new JSDOM(readFileSync('index.html','utf8'),{url:'https://example.com/'}),d=dom.window.document;
+  const app=await startStudio(d,async()=>({update(){},turn(){},dispose(){}}));
+  const select=d.getElementById('bottom-select');select.value=id;select.dispatchEvent(new dom.window.Event('change'));
+  assert.equal(app.getRecipe().bottomId,id);assert.equal(d.getElementById('barrel').disabled,true);
+  d.getElementById('save').click();assert.equal(JSON.parse(dom.window.localStorage.getItem('fashiongirly.plush-looks.v1'))[0].bottomId,id);
+  app.dispose();dom.window.close();
+});
+
+test('every waist-covering top hides every bottom between its hem and the waist',()=>{
+  const tops=Object.keys(GARMENTS).filter(id=>GARMENTS[id].layering?.coversWaistband);
+  for(const topId of tops)for(const bottomId of ['classic','topshop-barrel-jeans-v1']){
+    const outfit=makeOutfit({topId,bottomId});outfit.updateMatrixWorld(true);
+    const covering=[];outfit.getObjectByName(topId).traverse(o=>{if(o.isMesh)covering.push(o);});
+    const hem=Math.min(...covering.filter(o=>!o.parent||o.parent.name===topId).map(o=>new T.Box3().setFromObject(o).min.y))/.76;
+    const ray=new T.Raycaster(),p=new T.Vector3(),origin=new T.Vector3();let checked=0;
+    outfit.getObjectByName('trousers').traverse(o=>{if(!o.geometry)return;const pos=o.geometry.attributes.position;
+      for(let i=0;i<pos.count;i+=3){
+        p.fromBufferAttribute(pos,i).applyMatrix4(o.matrixWorld);const y=p.y/.76;if(y<hem+.012||y>1.3)continue;
+        origin.set(0,p.y,0);const radius=p.distanceTo(origin);if(radius<.01)continue;
+        ray.set(origin,p.clone().sub(origin).normalize().applyAxisAngle(new T.Vector3(0,1,0),1e-5));
+        const hit=ray.intersectObjects(covering,false)[0];
+        assert.ok(hit&&hit.distance>radius+.001,`${o.name} shows through ${topId} over ${bottomId} at vertex ${i}`);checked++;
+      }});
+    assert.ok(checked>50,`${topId}/${bottomId} checked ${checked}`);disposeObject(outfit);
+  }
 });
