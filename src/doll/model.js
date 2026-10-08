@@ -446,7 +446,8 @@ function makeJeans(id,spec,swatch=null){
     // Coin pocket inside the wearer's right front pocket, with its embroidery when the spec has one.
     const cp=spec.coinPocket;curve(jeans,on(cp.outline),.0016,thread,'coin-pocket-stitch');
     if(cp.heart){const [hx,hy]=cp.heart,hs=.011,pts=[];for(let k=0;k<=40;k++){const t=k/40*Math.PI*2,x=16*Math.sin(t)**3,y=13*Math.cos(t)-5*Math.cos(2*t)-2*Math.cos(3*t)-Math.cos(4*t);pts.push([hx+x/16*hs,hy+y/16*hs]);}
-      curve(jeans,on(pts,false,.005),.0014,solid('#c4262e',.7),'embroidered-heart');}
+      // A filled embroidered heart, with a slightly darker outline for the satin-stitch edge.
+      patchOn(pts,'embroidered-heart',false,.0035,solid('#c4262e',.7));curve(jeans,on(pts,false,.005),.0012,solid('#8f1820',.7),'embroidered-heart-edge');}
   }
   // Light abrasions: small worn strips cut into the wash.
   for(const [x,y,w] of spec.abrasions||[])patchOn([[x-w/2,y-.004],[x+w/2,y-.004],[x+w/2,y+.004],[x-w/2,y+.004]],'abrasion',false,.0015,solid('#b9c8d6',1));
