@@ -44,11 +44,28 @@ test('curated outfits preserve editable layers through saving and restoring',asy
   const dom=new JSDOM(readFileSync('index.html','utf8'),{url:'https://example.com/'}),d=dom.window.document;
   d.getElementById('lookbook').showModal=function(){this.open=true;};d.getElementById('lookbook').close=function(){this.open=false;};
   const app=await startStudio(d,()=>({update(){},turn(){},dispose(){}}));
-  d.querySelector('#outfit-ideas button').click();
+  [...d.querySelectorAll('#outfit-ideas button')].find(b=>b.textContent==='Tomato mischief').click();
   assert.equal(app.getRecipe().skirt,true);assert.equal(d.getElementById('skirt').checked,true);
   const outfit=makeOutfit(app.getRecipe());assert.ok(outfit.getObjectByName('pleated-skirt'));disposeObject(outfit);
   d.getElementById('save').click();d.getElementById('reset').click();assert.equal(app.getRecipe().skirt,false);
   d.getElementById('lookbook-open').click();d.querySelector('.saved-row button').click();assert.equal(app.getRecipe().skirt,true);
   assert.equal(editRecipe(app.getRecipe(),'remove the skirt').recipe.skirt,false);
+  app.dispose();dom.window.close();
+});
+
+test('reference garment keeps its identity, mapped details and layer exclusions',async()=>{
+  const recipe=cleanRecipe({topId:'desigual-bronze-mesh-v1',knit:true,shirt:true});
+  assert.equal(recipe.knit,false);assert.equal(recipe.shirt,false);
+  assert.equal(cleanRecipe({topId:'not-a-garment'}).topId,'classic');
+  const atlas=new T.DataTexture(new Uint8Array([255,255,255,255]),1,1);const outfit=makeOutfit(recipe,atlas);
+  assert.ok(outfit.getObjectByName('desigual-bronze-mesh-v1'));assert.equal(outfit.getObjectByName('sweater'),undefined);
+  let sleeves=0;outfit.traverse(o=>{if(o.name==='reference-fitted-sleeve')sleeves++;if(o.name==='reference-top-body'||o.name==='reference-fitted-sleeve'){assert.ok(o.material.map);assert.ok(o.material.alphaMap);for(const v of o.geometry.attributes.uv.array)assert.ok(v>=0&&v<=1);}});assert.equal(sleeves,2);
+  assert.equal(editRecipe(recipe,'butter sweater').changes.length,0);
+  disposeObject(outfit);atlas.dispose();
+  const dom=new JSDOM(readFileSync('index.html','utf8'),{url:'https://example.com/'}),d=dom.window.document;
+  const app=await startStudio(d,async()=>({update(){},turn(){},dispose(){}}));
+  const select=d.getElementById('top-select');select.value='desigual-bronze-mesh-v1';select.dispatchEvent(new dom.window.Event('change'));
+  assert.equal(app.getRecipe().topId,'desigual-bronze-mesh-v1');assert.equal(d.getElementById('shirt').disabled,true);
+  d.getElementById('save').click();assert.equal(JSON.parse(dom.window.localStorage.getItem('fashiongirly.plush-looks.v1'))[0].topId,'desigual-bronze-mesh-v1');
   app.dispose();dom.window.close();
 });

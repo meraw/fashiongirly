@@ -49,7 +49,7 @@ Intended workflow:
 
 Reference images inform the asset. The intended display is a dressable garment, not a product-photo cutout pasted onto the character. Texture maps or procedural materials may still be legitimate parts of a garment asset. Unseen construction details need another view or an explicitly acknowledged interpretation.
 
-The user believes reference-based reconstruction is practical from previous game-building experience and expects us to test it concretely. Do not dismiss the workflow; also do not claim fidelity before showing the result. No actual reference garment has yet been supplied or built in this project.
+The user believes reference-based reconstruction is practical from previous game-building experience and expects us to test it concretely. Do not dismiss the workflow; also do not claim fidelity before showing the result. The first actual reference is now the Desigual bronze mesh top, supplied in front and back views. Its first implementation is awaiting visual review; see [the garment record](garments/bronze-mesh.md).
 
 ## Local first; no runtime AI API requirement
 
@@ -65,7 +65,7 @@ If AI is added later, it should translate requests into the same validated wardr
 
 The existing “Tell her what to change” input is a small keyword parser. It recognises specific colours and phrases, not arbitrary natural language or reference images. It does not call a model.
 
-Agreed direction: label it “Quick edits” with visible examples and explicit feedback about recognised changes. That label change has not yet been implemented. Keep direct controls available. Do not imply that unsupported requests were understood.
+Agreed direction: label it “Quick edits” with visible examples and explicit feedback about recognised changes. The input has now been relabelled. Keep direct controls available. Do not imply that unsupported requests were understood.
 
 Possible future AI requests include “make the sweater slouchier,” “let the shirt peek out,” “this feels too safe,” and “keep the jeans, change everything else.” These are intended experiences, not current functionality. Structured edits should be validated and reversible; undo is still future work.
 

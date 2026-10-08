@@ -6,12 +6,12 @@ A tiny living fashion doll with a playful wardrobe. The current homepage is a **
 
 Read the [product brief](docs/PRODUCT_BRIEF.md) for the intended experience, approved visual direction, reference-based garment creation, individual fit requirements, and no-API-first constraint. Read the [working handoff](docs/HANDOFF.md) for what exists, what is still planned, and where to resume. [AGENTS.md](AGENTS.md) points coding assistants to these documents.
 
-The next proposed milestone is one recognisable garment created from a user-supplied reference picture and fitted to the existing doll. That reference has not been supplied yet.
+The first reference garment is now a [Desigual bronze mesh top](docs/garments/bronze-mesh.md). Select “Bronze mesh study” to review its fitted geometry and generated print. It remains an approximation awaiting visual feedback.
 
 ## Current milestone
 
 - One permanent doll: large soft head, embroidered-style eyes and smile, rosy cheeks, sculpted dark bob, flower clip, little hands, socks, and loafers.
-- Three editable outfit presets using knit, striped shirt, barrel jeans, and an optional pleated skirt with a ribbon.
+- A reference mesh top with a stable catalog ID and local texture, plus three editable outfit presets using knit, striped shirt, barrel jeans, and an optional pleated skirt with a ribbon.
 - Independently adjustable sleeve volume, sweater hem, jean volume, and garment colours.
 - Toggle the sweater, shirt, or skirt independently; rotate the doll with drag or Front / Turn / Back.
 - Procedural fabric bump maps and material sheen. No garment photographs, generated outfit pictures, or downloaded character models.
@@ -54,7 +54,7 @@ The renderer rebuilds only the outfit on a wardrobe edit. The doll's identity re
 
 `npm test` covers finite geometry and supported parameter extremes, layer toggles, silhouette changes, safe recipe handling, description editing, UI save/restore, and failed WebGL startup. It also preserves the earlier vector recipe tests. An offline geometry projection was inspected; it does not reproduce WebGL fabric shading. Browser/device QA remains outstanding.
 
-Data lives in this browser. Clearing browser storage removes drafts and saved looks. Weather, autonomous daily styling, arbitrary garment generation, reference-photo intake, real cloth physics, animation, and cloud sync are future work.
+Data lives in this browser. Clearing browser storage removes drafts and saved looks. Weather, autonomous daily styling, arbitrary garment generation, automatic reference-photo intake, real cloth physics, animation, and cloud sync are future work.
 
 ### Playful outfit studies
 

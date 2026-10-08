@@ -8,7 +8,7 @@ export async function startStudio(doc=document, makeView) {
   try {const data=JSON.parse(storage?.getItem(BOOK)||'[]');if(Array.isArray(data))looks=data.slice(0,24).map(cleanRecipe);} catch {}
   function message(text){$('message').textContent=text;}
   function persist(){try {storage?.setItem(KEY,JSON.stringify(recipe));if(!storage)message('Changes last for this visit; browser storage is unavailable.');}catch{message('Changes last for this visit; browser storage is full or unavailable.');}}
-  function apply(){view?.update(recipe);persist();}
+  function apply(){recipe=cleanRecipe(recipe);view?.update(recipe);persist();}
   function schedule(){clearTimeout(timer);timer=setTimeout(apply,65);}
   function swatches(id,choices,key){$(id).replaceChildren(...choices.map(([name,color])=>{const b=doc.createElement('button');b.type='button';b.style.background=color;b.setAttribute('aria-label',name);b.dataset.color=color;b.onclick=()=>{recipe[key]=color;sync();apply();};return b;}));}
   swatches('sweater-colours',SWATCHES,'sweater');swatches('denim-colours',[['Indigo','#283c59'],['Washed blue','#71899b'],['Charcoal','#39363b'],['Ecru','#d9cbb2']],'trousers');
@@ -17,6 +17,8 @@ export async function startStudio(doc=document, makeView) {
     button.onclick=()=>{recipe=cleanRecipe(look.recipe);sync();apply();message(look.note);};return button;
   }));
   function sync(){
+    $('top-select').value=recipe.topId;
+    for(const key of ['knit','shirt'])$(key).disabled=recipe.topId!=='classic';
     const selected=OUTFITS.find(look=>Object.keys(DEFAULT).every(key=>look.recipe[key]===recipe[key]));
     $('outfit-title').textContent=selected?.name||'Her own little experiment.';
     for(const button of $('outfit-ideas').children)button.setAttribute('aria-pressed',String(button.textContent===selected?.name));
@@ -29,7 +31,8 @@ export async function startStudio(doc=document, makeView) {
   }
   for(const key of ['sleeve','hem','barrel'])$(key).oninput=()=>{recipe[key]=Number($(key).value)/100;sync();schedule();};
   for(const key of ['knit','shirt','skirt'])$(key).onchange=()=>{recipe[key]=$(key).checked;sync();apply();};
-  $('edit-form').onsubmit=e=>{e.preventDefault();const result=editRecipe(recipe,$('request').value);recipe=result.recipe;sync();apply();message(result.changes.length?`Changed: ${result.changes.join(', ')}. Only these supported details were interpreted.`:'I could not interpret that yet. Try “butter sweater, enormous sleeves, cropped”.');};
+  $('top-select').onchange=()=>{recipe=cleanRecipe({...recipe,topId:$('top-select').value,knit:$('top-select').value==='classic',shirt:$('top-select').value==='classic'});sync();apply();message(recipe.topId==='classic'?'Classic layers restored.':'Reference mesh top selected. Its fit and print are fixed for this first review.');};
+  $('edit-form').onsubmit=e=>{e.preventDefault();const result=editRecipe(recipe,$('request').value);recipe=result.recipe;sync();apply();message(result.changes.length?`Changed: ${result.changes.join(', ')}. Only these supported details were interpreted.`:(recipe.topId==='classic'?'I could not interpret that yet. Try “butter sweater, enormous sleeves, cropped”.':'This reference top has a fixed fit and print for now. Try “straight jeans” or “add a skirt”.'));};
   $('reset').onclick=()=>{recipe=cleanRecipe(DEFAULT);sync();apply();message('Back to the original outfit.');};
   for(const b of doc.querySelectorAll('[data-angle]'))b.onclick=()=>{view?.turn(Number(b.dataset.angle));for(const other of doc.querySelectorAll('[data-angle]'))other.setAttribute('aria-pressed',String(other===b));};
   function storeLooks(next){try{if(!storage)throw new Error();storage.setItem(BOOK,JSON.stringify(next));looks=next;sync();return true;}catch{message('This browser could not save your look.');return false;}}
@@ -42,7 +45,7 @@ export async function startStudio(doc=document, makeView) {
   $('lookbook-open').onclick=()=>{book();$('lookbook').showModal();};$('lookbook-close').onclick=()=>$('lookbook').close();
   const showError=text=>{$('loading')?.remove();$('view-error').hidden=false;$('view-error').textContent=text;};
   $('stage').addEventListener('view-error',e=>showError(e.detail));sync();
-  try {const factory=makeView || (await import('./view.js')).createDollView;view=factory($('stage'),recipe);view.turn(-25);$('loading')?.remove();}
+  try {const factory=makeView || (await import('./view.js')).createDollView;view=await factory($('stage'),recipe);view.turn(-25);$('loading')?.remove();}
   catch(error){showError(error.message||'The 3D view could not load. Please reload and try again.');}
   return {getRecipe:()=>cleanRecipe(recipe),dispose(){clearTimeout(timer);persist();view?.dispose();}};
 }

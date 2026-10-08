@@ -15,7 +15,7 @@ Read [PRODUCT_BRIEF.md](PRODUCT_BRIEF.md) for the product's intent and agreed co
 - Sweater and denim colours, sweater sleeve volume and hem, trouser volume, and layer toggles.
 - Bounded text parser, turn controls, draft persistence and a 24-look browser lookbook.
 - Earlier vector implementation retained at `illustration.html`.
-- Twelve tests were passing and the static build succeeded at this handoff. Geometry and UI checks do not establish visual quality; full device/WebGL appearance and performance still require review.
+- Thirteen tests were passing and the static build succeeded at this handoff. Geometry and UI checks do not establish visual quality; full device/WebGL appearance and performance still require review.
 
 ## Code landmarks
 
@@ -31,7 +31,7 @@ Read [PRODUCT_BRIEF.md](PRODUCT_BRIEF.md) for the product's intent and agreed co
 | `scripts/build.mjs` | Static build including local Three.js dependencies |
 | `.github/workflows/pages.yml` | Manually dispatched Pages deployment |
 
-The current flat recipe is not a garment database. It holds colours, bounded numeric controls and layer booleans for the procedural study. There are no independent garment IDs, imported reference garments, fitting rigs or custom garment asset pipeline yet.
+The current flat recipe is not a garment database. It holds colours, bounded numeric controls and layer booleans for the procedural study. A first catalog entry now exists for `desigual-bronze-mesh-v1`, selected by `topId`. It uses fitted geometry and a bundled generated texture. The other pieces still use the flat recipe. There is no general import pipeline, fitting rig or automatic reference reconstruction yet.
 
 ## Latest decisions
 
@@ -39,13 +39,13 @@ The current flat recipe is not a garment database. It holds colours, bounded num
 - References can be processed outside the app. The durable result belongs in the wardrobe catalog as a reusable asset and data.
 - Garments need recognisable construction details, not just recolours.
 - Improve one garment's fit before adding many more rough options.
-- Relabel the bounded text input “Quick edits” and retain supported examples. This is agreed but still outstanding.
+- The bounded input is now labelled “Quick edits”. Unsupported sweater edits do not alter the reference top.
 
 ## Where to resume
 
-The next proposed visual milestone is one garment from a reference chosen by the user. The user has not supplied that reference yet; they paused first to have these intentions documented. Ask for the picture or product link when resuming that milestone. Avoid substituting a random garment or proposing another full character redesign.
+The user supplied front and back pictures of a detailed Desigual bronze mesh top. Its first implementation is available via the top selector and “Bronze mesh study” preset. Review [the garment record](garments/bronze-mesh.md), then get feedback on recognition and fit on the doll. Do not ask for the first reference again unless the actual pictures are needed and unavailable in the new chat.
 
-After inspecting the reference, identify the distinguishing details, choose a template or custom geometry, and make a reviewable first garment on the existing doll. Be candid about unseen details and fit limitations. Use the exercise to establish the catalog structure; do not lock in a broad asset pipeline before testing the approach.
+Next: refine this garment based on visual feedback, especially print scale, sleeves, mesh, seams and layering clearance. The back currently reuses the front-facing motif, and sleeve glyphs are approximate. Preserve these limitations in future handoffs. Do not expand the wardrobe before reviewing this test.
 
 ## Operational notes
 

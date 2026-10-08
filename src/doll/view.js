@@ -1,9 +1,11 @@
 import * as T from 'three';
+import { BRONZE_ATLAS } from '../wardrobe/bronze-atlas.js';
 import { makeDoll, makeOutfit, disposeObject } from './model.js';
-export function createDollView(host, recipe) {
+export async function createDollView(host, recipe) {
+  const atlas=await new T.TextureLoader().loadAsync(BRONZE_ATLAS);atlas.colorSpace=T.SRGBColorSpace;
   let renderer;
   try { renderer=new T.WebGLRenderer({antialias:true,alpha:true}); }
-  catch { throw new Error('This device could not start the 3D view. Try a browser with WebGL 2 enabled.'); }
+  catch { atlas.dispose();throw new Error('This device could not start the 3D view. Try a browser with WebGL 2 enabled.'); }
   renderer.setPixelRatio(Math.min(devicePixelRatio || 1,2));renderer.setClearColor(0x000000,0);renderer.outputColorSpace=T.SRGBColorSpace;
   renderer.toneMapping=T.ACESFilmicToneMapping;renderer.toneMappingExposure=1.2;renderer.shadowMap.enabled=true;renderer.shadowMap.type=T.PCFSoftShadowMap;
   renderer.domElement.setAttribute('aria-label','Dressable 3D doll. Drag to turn her, or use the view buttons.');renderer.domElement.setAttribute('role','img');
@@ -14,7 +16,7 @@ export function createDollView(host, recipe) {
   const fill=new T.DirectionalLight('#e9e7ff',1.4);fill.position.set(3,2,2);scene.add(fill);
   const rim=new T.DirectionalLight('#fff4df',2);rim.position.set(-1,3,-2);scene.add(rim);
   const floor=new T.Mesh(new T.PlaneGeometry(20,20),new T.ShadowMaterial({opacity:.13}));floor.rotation.x=-Math.PI/2;floor.receiveShadow=true;floor.position.y=.004;scene.add(floor);
-  const model=new T.Group();scene.add(model);model.add(makeDoll());let outfit=makeOutfit(recipe);model.add(outfit);
+  const model=new T.Group();scene.add(model);model.add(makeDoll());let outfit=makeOutfit(recipe,atlas);model.add(outfit);
   let angle=-.12,target=angle,frame=null,closed=false,drag=null;
   const draw=()=>{frame=null;if(closed)return;model.rotation.y=angle;renderer.render(scene,camera);};
   const render=()=>{if(!closed&&frame==null)frame=requestAnimationFrame(draw);};
@@ -26,8 +28,8 @@ export function createDollView(host, recipe) {
   renderer.domElement.addEventListener('pointerdown',down);renderer.domElement.addEventListener('pointermove',move);renderer.domElement.addEventListener('pointerup',up);renderer.domElement.addEventListener('pointercancel',up);
   const lost=e=>{e.preventDefault();host.dispatchEvent(new CustomEvent('view-error',{detail:'The 3D view was interrupted. Reload the page to restore it.'}));};renderer.domElement.addEventListener('webglcontextlost',lost);
   return {
-    update(next){const replacement=makeOutfit(next);model.remove(outfit);disposeObject(outfit);outfit=replacement;model.add(outfit);render();},
+    update(next){const replacement=makeOutfit(next,atlas);model.remove(outfit);disposeObject(outfit);outfit=replacement;model.add(outfit);render();},
     turn(degrees){target=degrees*Math.PI/180;angle=target;render();},
-    dispose(){if(closed)return;closed=true;cancelAnimationFrame(frame);observer.disconnect();renderer.domElement.removeEventListener('pointerdown',down);renderer.domElement.removeEventListener('pointermove',move);renderer.domElement.removeEventListener('pointerup',up);renderer.domElement.removeEventListener('pointercancel',up);renderer.domElement.removeEventListener('webglcontextlost',lost);disposeObject(model);disposeObject(floor);key.shadow.map?.dispose();renderer.dispose();renderer.domElement.remove();},
+    dispose(){if(closed)return;closed=true;cancelAnimationFrame(frame);observer.disconnect();renderer.domElement.removeEventListener('pointerdown',down);renderer.domElement.removeEventListener('pointermove',move);renderer.domElement.removeEventListener('pointerup',up);renderer.domElement.removeEventListener('pointercancel',up);renderer.domElement.removeEventListener('webglcontextlost',lost);disposeObject(model);atlas.dispose();disposeObject(floor);key.shadow.map?.dispose();renderer.dispose();renderer.domElement.remove();},
   };
 }
