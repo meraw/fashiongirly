@@ -15,7 +15,7 @@ Features read from the screenshots:
 - Slanted front pockets, belt loops, a silver shank button and a zip fly.
 - Tan contrast topstitching throughout.
 - Back: a yoke, patch pockets with pointed flaps and a button, a welt slit above the right pocket, and a brown suede patch on the waistband.
-- Mid-dark teal-navy with a grey cast and a marbled, crinkled acid-wash texture, paler down the front of the thighs.
+- Mid-dark slate grey-blue: a nearly even colour with a very fine texture, and a faint gradient darker toward the hem.
 
 The cropped tank and sneakers in the photos are styling. Fibre composition was not visible.
 
@@ -29,7 +29,7 @@ Catalog ID `topshop-barrel-jeans-v1`; `makeBarrelJeans()` in `src/doll/model.js`
 
 - The waistband sits a little below the classic jeans' (1.17 to 1.22), leaving room for the yoke and large back pockets. The hips widen to meet the wide legs without a step.
 - Legs are wide and nearly straight down to the floor (0.06). Over each loafer the hem rises to rest on the shoe's upper, so the toe shows beneath it; elsewhere it reaches the floor.
-- The wash (`acidWashData()`) is tileable value noise: thin light veins over a dark teal-navy ground, with a twill line. The hips and legs use different repeats so the wash keeps one physical scale. A per-vertex fade lightens the front of the thighs and the seat and darkens toward the hem.
+- The wash (`acidWashData()`) is a flat calibrated colour with a faint grain and twill line; a per-vertex gradient darkens it toward the hem (see the calibration below).
 - Details are placed by raycasting the built jeans surface, so they sit on it. Bold tan stitching on the waistband, fly and slanted pockets; belt loops and a shank button; outseams twisting to the back and inseams to the front; knee seams front and back; back yoke and centre-back seam; large subdivided back patch pockets with stitched pointed flaps and snap buttons; the welt slit; and a large suede patch (no lettering).
 
 ## Revision after user feedback
@@ -38,7 +38,7 @@ The user found the first version did not fit like the jeans: it read as balloon-
 
 ## Colour calibration
 
-After the revision, the user found the colour still off compared with the tops, whose image textures render accurately. The wash had been tuned by eye. It is now calibrated by measurement. Plain-denim areas of the three photos were sampled (sRGB average and brightness percentiles):
+After the revision, the user found the colour still off compared with the tops, whose image textures render accurately. The wash had been tuned by eye. Plain-denim areas of the three photos were sampled (sRGB average and brightness percentiles):
 
 | Source | Mean RGB | Brightness p10 / p50 / p90 |
 | --- | --- | --- |
@@ -46,7 +46,9 @@ After the revision, the user found the colour still off compared with the tops, 
 | Flat lay | 69, 77, 84 | 48 / 75 / 107 |
 | Back on model | 56, 66, 72 | 39 / 54 / 77 |
 
-The same areas of the headless-Chromium render were measured after each change. The first measurement was 71, 88, 98 (too bright, too blue, and much flatter: p10 73). The wash's dark and light colours, its contrast curve and the sheen were adjusted over five rounds. The sheen was removed (rigid denim has almost none). The noise was stretched vertically so the crinkle runs in fine streaks down the leg, as in the photos, instead of round blotches. Final render: front 63, 74, 81 (brightness 50 / 71 / 97); back 62, 73, 79. The remaining gap is mostly the deepest shadows: the photos get them from folds, which the smooth geometry lacks.
+A first calibration matched the averages but also tried to match the photos' brightness spread by drawing streaky crinkle into the texture. The user found that worse: the real jeans read as a nearly even colour on a faint gradient, darker toward the hem, and the drawn streaks looked like ruffles. The photos' spread comes from lighting and folds, not from the fabric.
+
+The wash is now a flat calibrated base (texel RGB 48, 61, 70) with a very faint fine grain and a twill line. A per-vertex gradient runs from slightly lighter at the hips (1.08) to darker at the hem (0.86). Rendered plain-denim areas measure 61, 75, 82 at the front and 63, 76, 83 at the back, against the photo's 61, 73, 80.
 
 ## Layering fix found by this item
 
@@ -60,7 +62,7 @@ A new test checks that every waist-covering top hides every bottom between its h
 
 ## Known differences
 
-- The wash is procedural; it is not copied from the photos and has no whisker lines. Its colour is calibrated to the photos (see above), but the texture repeats and the deepest shadows from folds are missing.
+- The denim colour is calibrated to the photos (see above). It has no whisker lines, and lacks the photos' fold shadows.
 - Her seat is short, so the back pockets sit close to where the legs separate.
 - The hem rests on the shoe as a smooth lift, without stacked folds.
 - The suede patch carries no lettering.
