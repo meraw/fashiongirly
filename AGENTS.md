@@ -10,6 +10,12 @@ Before changing Fashiongirly, read `docs/PRODUCT_BRIEF.md` and `docs/HANDOFF.md`
 - Distinguish existing features from plans, and technical checks from visual/device verification.
 - Update the brief and handoff when user decisions or implementation status change. Current explicit user instructions take precedence over these recorded decisions.
 
+# Product destination — applies to every lane
+
+The user clarified on 8 October 2026 that **checking the weather and dressing herself each morning is a core goal**, to be built after their wardrobe import is finished. Do not treat this as an optional stretch feature or manual dress-up as the finished product. She should choose daring, inspiring combinations from the user's wardrobe, including hair.
+
+During garment work, preserve stable IDs, separate reusable pieces, slot/layer compatibility and known fit constraints. Record styling-relevant details (silhouette, palette/pattern, coverage, material, relative warmth and weather limitations) when supported; distinguish uncertain inferences and unknowns. See the product brief's “Building towards daily self-dressing” section. Do not add live weather/API dependencies during import or independently redesign shared styling foundations.
+
 # Parallel chats
 
 Up to four chats may add garments at the same time. Each works on its own branch and pull request, never pushes to another's branch, and never force-pushes a branch that has been shared.
