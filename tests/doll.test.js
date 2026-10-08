@@ -97,10 +97,12 @@ test('reference sleeves cover the upper arm with clearance and round over the sh
   outfit.traverse(o=>{if(['reference-fitted-sleeve','crochet-flared-sleeve','knit-jumper-sleeve'].includes(o.name))sleeves.push(o);});
   const ray=new T.Raycaster(),point=new T.Vector3(),origin=new T.Vector3();let checked=0;
   for(let side=0;side<2;side++){
-    const arm=arms[side],sleeve=sleeves[side],vertices=arm.geometry.attributes.position;
+    const arm=arms[side],sleeve=sleeves[side],vertices=arm.geometry.attributes.position,bare=GARMENTS[topId].layering?.bareShoulder;
     for(let i=0;i<vertices.count;i+=2){
       point.fromBufferAttribute(vertices,i).applyMatrix4(arm.matrixWorld);sleeve.worldToLocal(point);
       if(point.y<-.44)continue;
+      // An off-the-shoulder top leaves the top of that arm bare or covered by its body; its own test checks that arm.
+      if(bare?.side===(side?1:-1)&&point.y>bare.above)continue;
       // Above the sleeve's top ring, aim from the axis at the top so the rounded cap is checked too.
       origin.set(0,Math.min(point.y,0),0);sleeve.localToWorld(origin);sleeve.localToWorld(point);
       const radius=point.distanceTo(origin);if(radius<.01)continue;
@@ -274,6 +276,38 @@ test("Levi's '94 jeans: wide full-length legs resting on the shoes, with their b
   assert.ok(width(legs[0],.32,.36).getSize(new T.Vector3()).x>width(legs[0],.55,.6).getSize(new T.Vector3()).x,'widens toward the hem');
   const [l,r]=legs.map(leg=>width(leg,.32,.4)).sort((a,b)=>a.min.x-b.min.x);assert.ok(l.max.x<=r.min.x+.012,'legs do not cross');
   disposeObject(doll);disposeObject(outfit);
+});
+
+test('off-shoulder stripe jumper bares only her left shoulder and keeps its stripes, ribbing and edge',()=>{
+  const id='bershka-asymmetric-stripe-jumper-v1',recipe=cleanRecipe({topId:id,knit:true,shirt:true});
+  assert.equal(recipe.knit,false);assert.equal(recipe.shirt,false);
+  const doll=makeDoll(),outfit=makeOutfit({topId:id});doll.updateMatrixWorld(true);outfit.updateMatrixWorld(true);
+  for(const name of ['stripe-jumper-body','ribbed-hem-band','neckline-edge','bare-shoulder-skin'])assert.ok(outfit.getObjectByName(name),name);
+  let cuffs=0;outfit.traverse(o=>{if(o.name==='ribbed-cuff')cuffs++;});assert.equal(cuffs,2);
+  // Stripes: about seven repeats from the neckline to the hem band, slanting with the neckline at the top only.
+  const body=outfit.getObjectByName('stripe-jumper-body'),uv=body.geometry.attributes.uv,p=body.geometry.attributes.position;
+  let vMin=Infinity,vMax=-Infinity;for(let i=0;i<uv.count;i++){vMin=Math.min(vMin,uv.getY(i));vMax=Math.max(vMax,uv.getY(i));}
+  assert.ok(vMax-vMin>6&&vMax-vMin<8.5,`stripe repeats ${(vMax-vMin).toFixed(2)}`);
+  const bottomRow=p.count-97;for(let i=0;i<97;i++)assert.ok(Math.abs(uv.getY(bottomRow+i)-uv.getY(bottomRow))<1e-6,'stripes are level at the hem');
+  // Neckline: high on her right, off the shoulder on her left. The top row is the neckline.
+  let right=-Infinity,left=Infinity;for(let i=0;i<=96;i++){const x=p.getX(i),y=p.getY(i);if(x<-.1)right=Math.max(right,y);if(x>.1&&p.getZ(i)>0)left=Math.min(left,y);}
+  assert.ok(right-left>.12,`neckline slant ${(right-left).toFixed(3)}`);
+  // Her left arm shows above the sleeve; her right arm is covered right up to the shoulder.
+  // The body wraps over the top of her left arm and the sleeve starts below it; together they cover all but the very top.
+  const ray=new T.Raycaster(),point=new T.Vector3(),origin=new T.Vector3(),arms=[],sleeves=[];
+  doll.traverse(o=>{if(o.name==='arm')arms.push(o);});outfit.traverse(o=>{if(o.name==='knit-jumper-sleeve')sleeves.push(o);});
+  const bare=[0,0];
+  for(let side=0;side<2;side++){const arm=arms[side],sleeve=sleeves[side],v=arm.geometry.attributes.position;
+    for(let i=0;i<v.count;i+=2){point.fromBufferAttribute(v,i).applyMatrix4(arm.matrixWorld);sleeve.worldToLocal(point);if(point.y<-.44)continue;const y=point.y;
+      origin.set(0,Math.min(point.y,0),0);sleeve.localToWorld(origin);sleeve.localToWorld(point);const r=point.distanceTo(origin);if(r<.01)continue;
+      ray.set(origin,point.clone().sub(origin).normalize());const covered=ray.intersectObjects([sleeve,body],false).some(h=>h.distance>r+.002);
+      if(!covered){bare[side]++;assert.ok(y>-.13,`arm ${side} uncovered below the neckline at ${y.toFixed(3)}`);}}}
+  assert.equal(bare[0],0,'right shoulder covered');assert.ok(bare[1]>10,'left shoulder bare');
+  disposeObject(doll);disposeObject(outfit);
+  // The band hugs the jeans, or sits out over the skirt; the bow stays hidden either way.
+  const skirted=makeOutfit({topId:id,skirt:true});assert.equal(skirted.getObjectByName('ribbon-knot'),undefined);
+  const band=o=>new T.Box3().setFromObject(o.getObjectByName('ribbed-hem-band')).getSize(new T.Vector3()).x,plain=makeOutfit({topId:id});
+  assert.ok(band(skirted)>band(plain));disposeObject(skirted);disposeObject(plain);
 });
 
 test('Tommy mom jeans: ultra high rise, tapered to the ankle, with rivets, pocket bars and badges',()=>{

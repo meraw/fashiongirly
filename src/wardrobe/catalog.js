@@ -3,6 +3,7 @@ export const BRONZE_TOP_ID = 'desigual-bronze-mesh-v1';
 export const LILAC_TOP_ID = 'lilac-portrait-mockneck-v1';
 export const CROCHET_TOP_ID = 'desigual-crochet-flowers-v1';
 export const PLAID_JUMPER_ID = 'mango-plaid-jumper-v1';
+export const STRIPE_JUMPER_ID = 'bershka-asymmetric-stripe-jumper-v1';
 export const BARREL_JEANS_ID = 'topshop-barrel-jeans-v1';
 export const DAVINIA_JEANS_ID = 'desigual-davinia-jeans-v1';
 export const LEVIS_94_ID = 'levis-94-wide-leg-v1';
@@ -66,6 +67,22 @@ export const GARMENTS = Object.freeze({
     layering: { coversWaistband: true },
     uncertainties: ['check scale and band order are an interpretation of the photos', 'fibre composition is unknown', 'the shirt collar and cuffs in the photos are styling, not part of the jumper'],
     authoring: { texture: 'procedural plaidData() in src/doll/model.js, drawn locally when first worn', runtimeGeneration: false, sourcePhotosBundled: false },
+  },
+  [STRIPE_JUMPER_ID]: {
+    slot: 'top',
+    id: STRIPE_JUMPER_ID, name: 'Asymmetric rustic stripe jumper', family: 'off-shoulder-knit-jumper', version: 1,
+    status: 'reference-study-awaiting-visual-review', brandAsProvided: 'Bershka',
+    source: { note: 'user supplied two phone screenshots of a Myntra listing (Bershka Asymmetric Rustic Stripe Jumper): front on model and a flat lay; no other views were available' },
+    referenceViews: ['front on model', 'front flat lay'],
+    details: ['wide asymmetric neckline worn off one shoulder: high at the base of the neck on her right, slipping below the shoulder onto the upper arm on her left', 'ecru slub ("rustic") knit with even dark green horizontal stripes', 'stripes near the neckline follow its slant and level out lower down', 'deep plain ecru ribbed hem band', 'long straight sleeves with deep plain ribbed cuffs', 'boxy body with dropped shoulders, ending at the high hip', 'narrow plain edge around the neckline'],
+    material: { construction: 'medium-weight slub knit', composition: 'not visible in the supplied screenshots', finish: 'matte, flecked yarn' },
+    fit: { silhouette: 'relaxed, boxy', sleeve: 'long and straight into deep ribbed cuffs', hem: 'high hip, deep rib band', neckline: 'off her left shoulder', adjustment: 'fixed authored fit for review' },
+    exclusions: ['striped-shirt','knit-sweater'],
+    // The bare shoulder is deliberate: her left arm shows above the neckline, and the body (not the sleeve) covers it just
+    // below. Sleeve-local height above which the sleeve alone does not cover that arm.
+    layering: { coversWaistband: true, bareShoulder: { side: 1, above: -.23 } },
+    uncertainties: ['the back was not shown; its neckline and stripes are inferred', 'the flat lay and the worn photo disagree on which side sits lower; the worn photo is followed', 'stripe count is adapted to her short torso', 'the bare shoulder is a skin-coloured piece inside the jumper, because her body under clothes is cream felt'],
+    authoring: { texture: 'procedural stripeKnitData() in src/doll/model.js, drawn locally when first worn', runtimeGeneration: false, sourcePhotosBundled: false },
   },
   [BARREL_JEANS_ID]: {
     slot: 'bottom',
