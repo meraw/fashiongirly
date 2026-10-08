@@ -566,13 +566,14 @@ export const GARMENTS = Object.freeze({
       template: 'sneaker', cx: .168, mesh: true,
       colours: { upper: '#e2d7b7', mesh: '#d0cab1', sole: '#cab792', thread: '#b3a27c', piping: '#b9a782', lace: '#d9cfb6', laceLine: '#ad9b80', collar: '#cbc0a3', eyelet: '#cfc9b9', lining: '#bfb196', webbing: '#d4c9ae', sock: '#ecdcac' },
       sole: { top: .069, heelTop: .069, heelFrom: -.03, rand: .069, lugTop: .016, groove: null, bulge: .004, flare: .014, toeLift: .02, lugs: 56, lugDepth: .006 },
-      upper: [[.069, .41, -.155, .134], [.09, .425, -.158, .137], [.11, .425, -.16, .138], [.13, .415, -.16, .137], [.15, .39, -.158, .136], [.17, .345, -.155, .134], [.19, .28, -.152, .132], [.21, .215, -.15, .13], [.23, .17, -.149, .128], [.25, .15, -.149, .128]],
+      upper: [[.069, .41, -.155, .134], [.09, .425, -.158, .137], [.11, .425, -.16, .138], [.13, .415, -.16, .137], [.15, .39, -.158, .136], [.17, .345, -.155, .132], [.19, .28, -.15, .122], [.21, .215, -.138, .106], [.23, .17, -.122, .094], [.25, .15, -.112, .09]],
       collar: { front: .25, side: .205, back: .225 },
       nFront: 2.8, nBack: 2.1, heelNarrow: .1, toeNarrow: .2, restCap: .2, collarRoll: .006, drapeClear: .066, collarRest: .035,
       eyelets: [.163, .19, .217, .244], laceHalfWidth: .044, eyeletSize: [.012, .0045],
       puffyLace: { width: .046, thick: .019, loop: .09, tailTo: .1 },
       // Her own ankle socks for a low shoe: a knit tube [y, rx, rz] centred at z, from inside the shoe up into her leg.
-      sock: { z: .0, rows: [[.1, .07, .075], [.2, .066, .07], [.29, .063, .066], [.3, .069, .072], [.35, .069, .072], [.356, .064, .067]] },
+      // Centred on her leg (cx .16), which sits slightly inside the shoe's centre line.
+      sock: { cx: .16, z: .0, rows: [[.1, .074, .08], [.2, .075, .08], [.3, .074, .078], [.37, .074, .077], [.38, .079, .082], [.405, .079, .082], [.41, .074, .077]] },
       pullLoop: { height: .06, width: .036 }, tongueLabel: .2,
       // Suede overlays: a band above the sole (taller round the toe), the heel counter, and the side quarters up to the
       // eyestays; mesh shows at the toe box and as a band round the heel collar.

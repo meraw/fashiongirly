@@ -127,7 +127,7 @@ test('UGG sneakers: low cream sneaker with puffy laces and her own ankle socks, 
   // Her round doll socks are replaced by the shoe's slim ankle socks, which hold the bottom of her legs.
   doll.traverse(o=>{if(o.name==='sock')assert.equal(o.visible,false);});
   const socks=named(shoesGroup,'ankle-sock'),top=spec.sock.rows.at(-1)[0];let checked=0;
-  doll.traverse(o=>{if(o.name!=='leg')return;eachVertex(o,p=>{const y=p.y/.76;if(y>top-.02)return;const c=cast(socks,Math.sign(p.x)*spec.cx*1.06,p.clone().setZ(p.z-spec.sock.z));if(!c)return;
+  doll.traverse(o=>{if(o.name!=='leg')return;eachVertex(o,p=>{const y=p.y/.76;if(y>top-.008)return;const c=cast(socks,Math.sign(p.x)*(spec.sock.cx??spec.cx)*1.06,p.clone().setZ(p.z-spec.sock.z));if(!c)return;
     assert.ok(c.hit&&c.hit.distance>c.r,`leg shows through the ankle sock at y ${y.toFixed(3)}`);checked++;});});
   assert.ok(checked>20,`checked ${checked}`);
   // The ankle socks sit inside the shoe below its collar.

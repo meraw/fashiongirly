@@ -25,9 +25,13 @@ Catalog ID `ugg-lowmel-cream-v1` (slot `shoes`), template `sneaker`. It is built
 - **Laces.** Soft flat laces (`flatLace()`, an elliptical tube) with a redrawn diamond zigzag (`laceTexture()`). They cross between four big eyelets a side, arching up off the tongue. The large bow has loops lying out to the sides and long tails hanging down over them, with aglets.
 - **Sole.** The plain-sole option is new for this pair: small lugs round the bottom, a smooth, slightly rounded sidewall and a rounded top edge.
 - **Colours.** Measured in the side and top photos and in renders, then adjusted: suede about 228, 221, 202 in the photo; the suede band a little darker; the sole 217, 202, 175; the mesh about 225, 220, 203. The side render now matches within about 15 levels. Top-lit surfaces still render a little lighter than the top photo.
-- **Her socks.** A low shoe would show her round doll socks bulging over the collar. So, like the slides bringing her bare feet, these sneakers bring her own slim ankle socks (`sock` in the spec): a knit tube from inside the shoe up into her leg, with a turned cuff. `fitDoll()` hides the doll's socks when an outfit reports `ownSocks`.
+- **Her socks.** A low shoe would show her round doll socks bulging over the collar. So, like the slides bringing her bare feet, these sneakers bring her own slim ankle socks (`sock` in the spec): a knit tube from inside the shoe up into her leg, with a turned cuff, centred on her leg. `fitDoll()` hides the doll's socks when an outfit reports `ownSocks`.
 - **Height.** The sole is within her normal foot height, so she is not raised.
 - **Layering.** Long jeans rest on the shoe and drape around the laces and bow (`drapeClear`). Shorter hems sit on the collar (`collarRest`), lifted at the heel over the pull loop. These are shoe-side settings; no jeans code changed for this pair.
+
+## Revision after the user's first review
+
+The user found the soles convincing but the ankle far too loose: her leg came out of a wide opening and looked tiny. The shaft now narrows above the instep and curves in round the ankle (the upper's top rows are narrower and the back comes forward), as a padded sneaker collar does. The ankle sock is fuller and a little taller, with a turned cuff, centred on her leg rather than the shoe, so it meets her leg where the leg is wider.
 
 ## Checks
 

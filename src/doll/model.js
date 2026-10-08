@@ -223,7 +223,7 @@ function makeLugBoot(id,spec,tape=null){
     curve(boots,Array.from({length:N+1},(_,i)=>{const a=i/N*Math.PI*2;return surf(side,collarY(a),a,.004).toArray();}),spec.collarRoll,C.collar?new T.MeshStandardMaterial({color:C.collar,roughness:1}):nubuck,'collar-roll');
     // Low shoes bring her own ankle socks: a slim knit tube from inside the shoe up into her leg, with a ribbed cuff
     // and a turned cuff (her round doll socks would bulge over the collar).
-    if(spec.sock){const K2=spec.sock,knitMat=cloth(C.sock,'knit'),ring=(y,r)=>Array.from({length:49},(_,i)=>{const a=i/48*Math.PI*2;return [side*cx+Math.sin(a)*r[0],y,K2.z+Math.cos(a)*r[1]];});
+    if(spec.sock){const K2=spec.sock,knitMat=cloth(C.sock,'knit'),sx=side*(K2.cx??cx),ring=(y,r)=>Array.from({length:49},(_,i)=>{const a=i/48*Math.PI*2;return [sx+Math.sin(a)*r[0],y,K2.z+Math.cos(a)*r[1]];});
       ringShell(boots,K2.rows.map(([y,rx,rz])=>ring(y,[rx,rz])),knitMat,'ankle-sock');
       boots.userData.ownSocks=true;}
     // Quilted collar: tan stitching along each quilting row, around the back and sides.
