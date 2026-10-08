@@ -20,7 +20,7 @@ Features read from the images:
 
 Catalog ID `buffalo-aspha-mid-olive-v1` (slot `shoes`), built by `makeLugBoot()` in `src/doll/model.js` from the `build` spec in its catalog entry. Other lug-sole boots can reuse the template with their own spec.
 
-- **Shoe slot.** `shoesId` joins the recipe (default `'classic'`). The classic loafers moved out of `makeDoll()` into the outfit via `makeShoes()`; her socks stay part of the doll. With loafers, renders of the default outfit and of both full-length jeans are pixel-identical to `main`.
+- **Shoe slot.** `shoesId` joins the recipe (default `'classic'`). The classic loafers moved out of `makeDoll()` into the outfit via `makeShoes()`; her socks stay part of the doll. With loafers, renders of the default outfit and of every catalog pair of jeans are pixel-identical to `main`.
 - **Height.** The platform is built inside her existing foot height: she is not raised, and the sole stands on the floor. The user was asked whether platforms should raise her but had not answered, so this is a reversible default.
 - **Upper.** Built from horizontal slices whose front recedes up the lacing (`upper` rows: height, front, back, half-width), with a squarer toe and a rounder heel. It encloses her socks with clearance, and narrows a little toward the collar so the two legs of wide jeans have room between her feet.
 - **Sole.** Flared from the upper's base outline, with 21 wedge-shaped lug gaps, a ledge, a groove, a heel cup that rises toward the back, and a lifted toe.
@@ -33,19 +33,20 @@ Catalog ID `buffalo-aspha-mid-olive-v1` (slot `shoes`), built by `makeLugBoot()`
 Each pair of shoes now reports `rest(side, x, z)`: the height at which a hem resting on it lies at that point. The loafers keep the exact formula `makeJeans()` used before, now moved into `makeShoes()`. `makeJeans()` takes this function instead of assuming the loafer. These were the only bottoms-lane edits; they were needed so long jeans could sit on any shoe:
 
 - For boots, a full-length hem (`hem: 'rests-on-shoe'`) settles partway up the vamp (`restCap`), falls away to the floor just beyond the platform instead of stepping down, and tents gradually around the leg. Above the hem, the leg bows out just enough to clear the boot shaft, laces, collar and tabs (`rest.inside`).
-- The Levi's '94 test now reads the loafer's height from the outfit instead of the doll.
-- Cropped Davinia jeans and the classic barrel jeans tuck into the boot shaft.
+- The Levi's '94 and Stradivarius tests now read the loafer's height from the outfit instead of the doll.
+- The side seams and frayed hem follow a hem that has moved up onto a boot collar.
+- Catalog jeans whose hem would end inside the boot (the cropped Davinia and the ankle-length Tommy mom jeans) sit on top of the padded collar instead, gathering a little above it, with the pull tabs standing up outside them (`rest.collar`). An attempt to take them over the shaft made slim legs balloon. The classic barrel jeans tuck into the shaft.
 
 ## Checks
 
-- `npm test`: 26 passing. A new `tests/shoes.test.js` checks four things:
+- `npm test`: 29 passing. A new `tests/shoes.test.js` checks four things:
   - The slot: only shoes fill it, and the loafers moved from the doll to the outfit.
   - The boots: their details, platform thickness, lugs, feet kept apart, and her socks and lower legs inside the boots.
-  - Layering: every full-length bottom drapes over every catalog shoe without any part poking through, without pushing the legs together more than the loafers do, and still reaching the platform; every other bottom stays inside the boot shaft.
+  - Layering, for every bottom with every catalog shoe: full-length jeans drape over the shoe without any part poking through, without pushing the legs together more than the loafers do, and still reach the platform; shorter jeans sit on the collar; the classic jeans stay inside the boot shaft.
   - The UI: selector, saving and the study preset.
 - The draping check was confirmed to fail with the draping switched off.
 - `npm run build` succeeds.
-- Rendered in headless Chromium (software WebGL) from the front three-quarter, both sides, the back and full length, and compared with the product photos. Also rendered with the Levi's '94, Topshop barrel, Davinia and classic jeans. The real app page loads the preset and switches shoes without errors. The user has not yet seen it, and nothing has been checked on a device.
+- Rendered in headless Chromium (software WebGL) from the front three-quarter, both sides, the back and full length, and compared with the product photos. Also rendered with every pair of jeans (Levi's '94, Topshop barrel, Stradivarius, Davinia, Tommy and classic). The real app page loads the preset and switches shoes without errors. The user has not yet seen it, and nothing has been checked on a device.
 
 ## Known differences
 

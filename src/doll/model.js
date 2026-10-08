@@ -1,6 +1,6 @@
 import * as T from 'three';
 import { cleanRecipe } from './recipe.js';
-import { BRONZE_TOP_ID, LILAC_TOP_ID, CROCHET_TOP_ID, PLAID_JUMPER_ID, GARMENTS } from '../wardrobe/catalog.js';
+import { BRONZE_TOP_ID, LILAC_TOP_ID, CROCHET_TOP_ID, PLAID_JUMPER_ID, STRIPE_JUMPER_ID, GARMENTS } from '../wardrobe/catalog.js';
 // Body and wardrobe share one toy proportion system; the face stays unscaled.
 const BODY_HEIGHT = .76;
 const BODY_WIDTH = 1.06;
@@ -214,7 +214,7 @@ function makeLugBoot(id,spec,tape=null){
     // Heel pull tab: tall logo tape up the back, rising above the collar.
     // It passes over the padded collar roll, so it lifts away from the upper near the top.
     const hp=[],hn=[];for(let i=0;i<=16;i++){const y=spec.heelTab.from+(yTop-spec.heelTab.from)*i/16;hp.push(surf(side,y,Math.PI,.008+(spec.collarRoll+.006)*smooth(yTop-.05,yTop,y)));hn.push(normal(side,y,Math.PI));}
-    for(const k of [1,2,3]){hp.push(hp[hp.length-1].clone().add(V(0,spec.heelTab.above/3,-.004)));hn.push(hn[hn.length-1].clone());}
+    for(const k of [1,2,3]){hp.push(hp[hp.length-1].clone().add(V(0,spec.heelTab.above/3,0)));hn.push(hn[hn.length-1].clone());}
     ribbon(boots,hp,hn,spec.heelTab.width,tapeMat,'heel-tab');
     // Lacing: metal eyelets, taupe webbing loops, and flat laces crossing between them, tied in a bow at the top.
     const L=spec.laceHalfWidth,laceRows=[...spec.eyelets,...spec.loops].sort((a,b)=>a-b),edge=(y,k)=>surf(side,y,laceAngle(y,k*L),.006);
@@ -254,8 +254,8 @@ function makeLugBoot(id,spec,tape=null){
     for(let i=0;i<14;i++){const m=(lo+hi)/2;if(inside(dx,z,yBase,m)<=1)hi=m;else lo=m;}const t=1-(hi-S.flare)/fall;return .06+(soleTop(z)+.006-.06)*t*t;};
   // How far up the trouser leg the hem gathers to sit on them, and the space they take up (with their laces, collar
   // and tabs) that long trousers must drape around.
-  rest.reach=yTop+.1;
-  rest.inside=(side,x,y,z)=>y>=yBase&&y<=yTop+.09&&inside(x-side*cx,z,Math.min(y,yTop),y>yTop+.03?.012:.03)<=1;
+  rest.reach=yTop+.1;rest.collar=yTop+.025;
+  rest.inside=(side,x,y,z)=>y>=yBase&&y<=yTop+.12&&inside(x-side*cx,z,Math.min(y,yTop),y>yTop-.03?.045:.03)<=1;
   return boots;
 }
 function sleeve(group,side,volume,mat) {
@@ -294,7 +294,8 @@ function makeReferenceTop(atlas, id=BRONZE_TOP_ID) {
   const lilac=id===LILAC_TOP_ID,hem=lilac?1.10:1.18;
   const top=new T.Group();top.name=id;
   const bodyMaterial=referenceMaterial(atlas,'body',lilac),binding=cloth(lilac?'#67516d':'#191817');
-  const body=shell(top,[[1.91,.109,.099],[1.875,.17,.122],[1.83,.228,.152],[1.775,.265,.175],[1.65,.279,.183],[1.49,.272,.183],...(lilac?[[1.34,.275,.192],[1.25,.302,.224],[1.16,.319,.237],[hem,.325,.241]]:[[1.34,.268,.186],[1.25,.284,.204],[hem,.29,.212]])],bodyMaterial,'reference-top-body',64);
+  const body=shell(top,[[1.91,.109,.099],[1.875,.17,.122],[1.83,.228,.152],[1.775,.265,.175],[1.65,.279,.183],[1.49,.277,.187],...(lilac?[[1.34,.284,.197],[1.25,.302,.224],[1.16,.319,.237],[hem,.325,.241]]:[[1.34,.284,.196],[1.25,.29,.206],[hem,.292,.213]])],bodyMaterial,'reference-top-body',64);
+  // The waist eases out a little (1.49 to 1.25) so the tops sit over high-rise waistbands as well as low ones.
   // Project each half separately: one upright motif on front and one on back.
   const uv=body.geometry.attributes.uv,p=body.geometry.attributes.position;
   for(let i=0;i<uv.count;i++){
@@ -466,6 +467,113 @@ function makePlaidJumper(id=PLAID_JUMPER_ID,overSkirt=false){
   }
   return top;
 }
+// Asymmetric stripe jumper: ecru slub knit with dark green stripes, worn off her left shoulder.
+// Darker than the photographed yarn: exposure, tone mapping and sheen lift these values.
+const SLUB={ecru:[212,204,170],green:[28,37,22]};
+const STRIPE_PITCH=.08;
+let stripePixels=null;
+function stripeKnitData(){
+  if(stripePixels)return stripePixels;
+  // Four stripe repeats across and one down. A green stripe fills a third of each repeat, as in the photos.
+  const w=256,h=64,data=new Uint8Array(w*h*4),rand=random(64);
+  for(let y=0;y<h;y++)for(let x=0;x<w;x++){
+    const colour=y<h/3?SLUB.green:SLUB.ecru,i=(y*w+x)*4;
+    for(let k=0;k<3;k++)data[i+k]=colour[k];data[i+3]=255;
+  }
+  // Slubs: short thick lengths of yarn, a little lighter or darker than their row.
+  for(let n=0;n<420;n++){
+    const y=Math.floor(rand()*h),x0=Math.floor(rand()*w),len=4+Math.floor(rand()*14),lift=(rand()-.45)*.16;
+    for(let d=0;d<len;d++){const i=(y*w+(x0+d)%w)*4;for(let k=0;k<3;k++)data[i+k]=Math.max(0,Math.min(255,data[i+k]*(1+lift)));}
+  }
+  for(let i=0;i<data.length;i+=4){const grain=(rand()-.5)*10;for(let k=0;k<3;k++)data[i+k]=Math.max(0,Math.min(255,data[i+k]+grain));}
+  stripePixels={data,w,h};return stripePixels;
+}
+// The neckline in body coordinates: high at the base of her neck on her right, sloping across the chest and
+// off her left shoulder onto the upper arm. The back edge runs a little higher than the front.
+function stripeNeckline(x,z){const front=1.80-.4*x,back=1.85-.3*x,f=.5+.5*z/Math.max(1e-6,Math.hypot(x,z));return back+(front-back)*f;}
+function trimToEdge(mesh,segments,toBody,edge){
+  // Cut each column of a shell() grid where it crosses the edge, then spread the column's rows evenly below the cut,
+  // so the cut is clean and nothing folds back inside.
+  const p=mesh.geometry.attributes.position,rows=p.count/(segments+1),v=new T.Vector3();
+  const height=i=>{v.fromBufferAttribute(p,i);toBody(v);return edge(v.x,v.z)-v.y;};
+  for(let i=0;i<=segments;i++){
+    const col=Array.from({length:rows},(_,j)=>(rows-1-j)*(segments+1)+i);
+    let k=col.findIndex(index=>height(index)<0);if(k<0)continue;if(k===0)k=1;
+    const pts=col.slice(0,k).map(index=>new T.Vector3().fromBufferAttribute(p,index)),a=height(col[k-1]),b=height(col[k]);
+    pts.push(new T.Vector3().fromBufferAttribute(p,col[k-1]).lerp(new T.Vector3().fromBufferAttribute(p,col[k]),a/(a-b)));
+    const lengths=[0];for(let n=1;n<pts.length;n++)lengths.push(lengths[n-1]+pts[n].distanceTo(pts[n-1]));
+    const total=lengths.at(-1);
+    col.forEach((index,j)=>{const target=total*j/(rows-1);let n=1;while(n<pts.length-1&&lengths[n]<target)n++;
+      const t=(target-lengths[n-1])/Math.max(1e-9,lengths[n]-lengths[n-1]);v.copy(pts[n-1]).lerp(pts[n],Math.min(1,t));p.setXYZ(index,v.x,v.y,v.z);});
+  }
+  p.needsUpdate=true;mesh.geometry.computeVertexNormals();
+}
+// Her left arm, from makeDoll(): an oval .09 wide and .25 tall centred at (.307, 1.51), tilted out by .22.
+// Returns how far a horizontal ray from her centre line, at height y and angle a, travels before leaving the arm (0 if it misses).
+function leftArmExit(y,a){
+  const c=Math.cos(.22),s=Math.sin(.22),dx=Math.sin(a),dz=Math.cos(a),px=-.307,py=y-1.51;
+  // Into the arm's own frame: x' = x cos + y sin, y' = -x sin + y cos.
+  const ox=px*c+py*s,oy=-px*s+py*c,vx=dx*c,vy=-dx*s;
+  const A=(vx/.09)**2+(vy/.25)**2+(dz/.09)**2,B=2*(ox*vx/.0081+oy*vy/.0625),C=(ox/.09)**2+(oy/.25)**2-1,D=B*B-4*A*C;
+  return D<0?0:Math.max(0,(-B+Math.sqrt(D))/(2*A));
+}
+const SHOULDER_ROWS=[[1.885,.06,.05],[1.86,.13,.09],[1.82,.2,.122],[1.77,.24,.14],[1.70,.262,.152],[1.62,.27,.158]];
+function shoulderRadius(y,a){
+  // Radius of the skin piece (SHOULDER_ROWS) at height y in direction a.
+  const rows=SHOULDER_ROWS;let k=0;while(k<rows.length-2&&rows[k+1][0]>y)k++;
+  const t=Math.max(0,Math.min(1,(rows[k][0]-y)/(rows[k][0]-rows[k+1][0]))),rx=rows[k][1]+(rows[k+1][1]-rows[k][1])*t,rz=rows[k][2]+(rows[k+1][2]-rows[k][2])*t;
+  return 1/Math.hypot(Math.sin(a)/rx,Math.cos(a)/rz);
+}
+function makeStripeJumper(id=STRIPE_JUMPER_ID,overSkirt=false){
+  const top=new T.Group();top.name=id;
+  const rib=woolMaterial(null),hem=1.16,band=.12,flare=overSkirt?[.338,.252]:[.305,.226],skin=cloth('#dfb195');rib.color.set('#d4cbb6');
+  // Her body under clothes is cream felt; this skin piece is what shows above the neckline.
+  shell(top,SHOULDER_ROWS,skin,'bare-shoulder-skin',48);
+  const knit=()=>{const m=woolMaterial(yarnTexture(stripeKnitData(),1,1));m.bumpMap.repeat.set(5,1.6);m.bumpScale=.012;return m;};
+  const body=shell(top,[[1.89,.114,.108],[1.85,.2,.15],[1.81,.27,.19],[1.76,.3,.208],[1.6,.306,.214],[1.4,.31,.222],[hem+band+.012,overSkirt?.336:.312,overSkirt?.25:.228],[hem+band,flare[0],flare[1]]],knit(),'stripe-jumper-body',96);
+  // One neckline, cut from the body alone. Near it the knit settles onto her shoulders, and on her left the body wraps over
+  // the top of her arm (a dropped shoulder slipping down), so the edge simply runs lower on that side and the sleeve starts
+  // below it.
+  const bp=body.geometry.attributes.position;
+  for(let n=0;n<bp.count;n++){
+    const x=bp.getX(n),y=bp.getY(n),z=bp.getZ(n),r=Math.hypot(x,z);if(r<1e-6)continue;
+    const a=Math.atan2(x,z),below=stripeNeckline(x,z)-y,under=Math.max(shoulderRadius(y,a),leftArmExit(y,a))+.014;
+    const settle=Math.max(0,Math.min(1,(.16-below)/.08)),wrap=Math.max(0,Math.min(1,(.24-below)/.06));
+    let target=r+(Math.min(r,under)-r)*settle;if(x>0)target=Math.max(target,r+(Math.max(r,leftArmExit(y,a)+.014)-r)*wrap);
+    bp.setX(n,x*target/r);bp.setZ(n,z*target/r);
+  }
+  bp.needsUpdate=true;
+  trimToEdge(body,96,v=>v,stripeNeckline);
+  // Stripes follow the neckline's slant near the top and level out by mid-chest.
+  const centre=stripeNeckline(0,1),uv=body.geometry.attributes.uv;
+  for(let n=0;n<uv.count;n++){const x=bp.getX(n),y=bp.getY(n),z=bp.getZ(n),w=Math.max(0,Math.min(1,(y-1.42)/(centre-1.42)));
+    uv.setXY(n,uv.getX(n)*5,(centre-y+w*(stripeNeckline(x,z)-centre))/STRIPE_PITCH+.5);}
+  uv.needsUpdate=true;
+  // A narrow plain edge finishes the neckline all the way round.
+  curve(top,Array.from({length:97},(_,n)=>[bp.getX(n)*1.012,bp.getY(n)+.003,bp.getZ(n)*1.012]),.0075,rib,'neckline-edge');
+  // The band tucks just inside the body's lower edge, so the body blouses over it.
+  ribbed(shell(top,[[hem+band+.012,flare[0]-.008,flare[1]-.006],[hem+band/2,flare[0]-.004,flare[1]-.003],[hem,flare[0]-.006,flare[1]-.004]],rib,'ribbed-hem-band',128),72,.012);
+  for(const side of [-1,1]){
+    const arm=new T.Group();arm.position.set(side*.242,1.815,0);arm.rotation.z=side*.22;arm.updateMatrix();
+    // Long straight sleeves into deep ribbed cuffs.
+    const sleeve=shell(arm,[[.03,.124,.12],[-.06,.132,.127],[-.2,.133,.128],[-.33,.13,.126],[-.42,.122,.118],[-.455,.108,.104]],knit(),'knit-jumper-sleeve',64);
+    roundSleeveCap(sleeve,side,.03);
+    if(side>0){
+      // On her left the sleeve starts under the body's wrapped shoulder: it is cut below the neckline and its top is
+      // gathered onto the arm, then it widens to the same straight sleeve as on her right.
+      trimToEdge(sleeve,64,v=>v.applyMatrix4(arm.matrix),(x,z)=>stripeNeckline(x,z)-.07);
+      const q=sleeve.geometry.attributes.position,armRadius=y=>.09*Math.sqrt(Math.max(0,1-((y+.314)/.25)**2));
+      for(let j=0;j<12;j++)for(let i=0;i<=64;i++){const n=j*65+i,r=Math.hypot(q.getX(n),q.getZ(n)),t=j/12,k=1+(Math.min(1,Math.max(.05,armRadius(q.getY(n))+.006)/r)-1)*(1-t*t*(3-2*t));q.setX(n,q.getX(n)*k);q.setZ(n,q.getZ(n)*k);}
+      q.needsUpdate=true;sleeve.geometry.computeVertexNormals();
+    }
+    const suv=sleeve.geometry.attributes.uv,sp=sleeve.geometry.attributes.position;
+    for(let n=0;n<suv.count;n++)suv.setXY(n,suv.getX(n)*3,(centre-1.815-sp.getY(n))/STRIPE_PITCH+.5);
+    suv.needsUpdate=true;
+    ribbed(shell(arm,[[-.44,.1,.096],[-.5,.099,.096],[-.575,.099,.096]],rib,'ribbed-cuff',64),36,.03);
+    top.add(arm);
+  }
+  return top;
+}
 // Acid-wash barrel jeans: construction is read from the product photos.
 let washPixels=null;
 function acidWashData(base=[48,61,70]){
@@ -524,10 +632,15 @@ function makeJeans(id,spec,swatch=null,rest=LOAFER_REST){
       rings.push(ring);}
     body=[ringShell(jeans,rings,hipDenim,'jeans-hips')];body[0].userData.restU=restU;
   }else body=[shell(jeans,hips,hipDenim,'jeans-hips',64)];
-  // Denim laid by real distance along each ring (u) and height (v), with one scale on hips and legs, so the texture
-  // keeps its size through the crotch where the outline pinches.
+  // Denim laid by real distance along each ring (u) and height (v), with one scale on hips and legs. On the hips, u
+  // follows the original rounded outline so columns never slide sideways as the outline pinches into the crotch.
   const byDistance=mesh=>{const p=mesh.geometry.attributes.position,uv=mesh.geometry.attributes.uv,rings=p.count/(mesh.userData.ringSize);
-    for(let j=0;j<rings;j++){let d=0;for(let i=0;i<mesh.userData.ringSize;i++){const k=j*mesh.userData.ringSize+i;if(i)d+=Math.hypot(p.getX(k)-p.getX(k-1),p.getZ(k)-p.getZ(k-1));uv.setXY(k,(mesh.userData.restU?.[k]??d)*spec.uvScale[0],p.getY(k)*spec.uvScale[1]);}}uv.needsUpdate=true;};
+    for(let j=0;j<rings;j++){let d=0;for(let i=0;i<mesh.userData.ringSize;i++){const k=j*mesh.userData.ringSize+i;if(i)d+=Math.hypot(p.getX(k)-p.getX(k-1),p.getZ(k)-p.getZ(k-1));uv.setXY(k,(mesh.userData.restU?.[k]??d)*spec.uvScale[0],p.getY(k)*spec.uvScale[1]);}}uv.needsUpdate=true;
+    // On the hips, v runs by distance along the fabric up each column, starting from the legs' value at the crotch, so
+    // the inward curve into the crotch is not stretched.
+    if(mesh.userData.restU){const n=mesh.userData.ringSize;for(let i=0;i<n;i++){let v=p.getY((rings-1)*n+i)*spec.uvScale[1];uv.setY((rings-1)*n+i,v);
+      for(let j=rings-2;j>=0;j--){const a=j*n+i,b=a+n;v+=Math.hypot(p.getX(a)-p.getX(b),p.getY(a)-p.getY(b),p.getZ(a)-p.getZ(b))*spec.uvScale[1];uv.setY(a,v);}}}
+  };
   if(spec.crotch){body[0].userData.ringSize=129;byDistance(body[0]);}else mapByHeight(body[0],hips[hips.length-2][0],hips[0][0]);
   const wb=spec.waistband;
   ring(jeans,wb.y,wb.rx,wb.rz,denim,'jeans-waistband',wb.h);
@@ -547,6 +660,8 @@ function makeJeans(id,spec,swatch=null,rest=LOAFER_REST){
   const angleGap=(a,b)=>Math.abs(Math.atan2(Math.sin(a-b),Math.cos(a-b)));
   const whiskers=(x,y,z)=>{if(z<=0||y<.82||y>1.06)return 0;let w=0;for(let k=0;k<4;k++){const line=1.0-.035*k-.3*Math.max(0,Math.abs(x)-.04),gap=Math.abs(y-line);if(gap<.007)w=Math.max(w,(1-gap/.007)*Math.max(0,1-Math.abs(x)/.27));}return w;};
   const hemY=spec.legs[spec.legs.length-1][0],[gLow,gRange]=spec.gradient;
+  // Where the hem actually ends: on a boot's collar when it would otherwise end inside the boot.
+  const hemTop=spec.hem!=='rests-on-shoe'&&rest.collar>hemY?rest.collar:hemY;
   const shade=(mesh,wear,side=0)=>{const p=mesh.geometry.attributes.position,c=[];for(let i=0;i<p.count;i++){
     const x=p.getX(i),y=mesh.userData.restY?.[i]??p.getY(i),z=p.getZ(i);let f=gLow+gRange*Math.min(1,Math.max(0,(y-.06)/1.14));
     f*=1+6*(wear?.[i]||0)+spec.whiskers*whiskers(x,y,z);
@@ -587,8 +702,15 @@ function makeJeans(id,spec,swatch=null,rest=LOAFER_REST){
     if(spec.hem==='rests-on-shoe'&&rest.inside){const n=97,lift=Array.from({length:p.count},(_,i)=>p.getY(i)-restY[i]);
       for(let r=0;r<p.count/n;r++)for(let pass=0;pass<2;pass++)for(const dir of [1,-1])for(let j=1;j<n;j++){const k=r*n+(dir>0?j:n-1-j),prev=k-dir;lift[k]=Math.max(lift[k],lift[prev]-.008);}
       for(let i=0;i<p.count;i++)p.setY(i,restY[i]+lift[i]);}
-    if(spec.hem==='rests-on-shoe'&&rest.inside)for(let i=0;i<p.count;i++){const x=p.getX(i),y=p.getY(i),z=p.getZ(i);if(!rest.inside(side,x,y,z))continue;
-      const cx=lerpRows(legRows(side),restY[i])[3];let k=1;while(k<1.6&&rest.inside(side,cx+(x-cx)*k,y,z*k))k+=.01;p.setX(i,cx+(x-cx)*k);p.setZ(i,z*k);}
+    // A shorter hem (cropped, ankle) that would end inside a boot sits on top of its padded collar instead, gathering a
+    // little above; the boot's pull tabs stand up outside it.
+    if(spec.hem!=='rests-on-shoe'&&rest.collar){const top=rest.collar,hem=spec.legs[spec.legs.length-1][0],reach2=top+.12;
+      if(hem<top)for(let i=0;i<p.count;i++){const y=p.getY(i);if(y>reach2||!rest.inside(side,p.getX(i),top-.002,p.getZ(i)))continue;p.setY(i,y+(top-hem)*(reach2-y)/(reach2-hem));}}
+    // Where a long leg still meets the boot (shaft, laces, collar, tabs) it bows out to clear it, easing in above and below.
+    if(spec.hem==='rests-on-shoe'&&rest.inside){const n=97,rows=p.count/n,push=new Float32Array(p.count),cxs=new Float32Array(p.count);
+      for(let i=0;i<p.count;i++){const x=p.getX(i),y=p.getY(i),z=p.getZ(i),cx=cxs[i]=lerpRows(legRows(side),restY[i])[3];let k=1;while(k<2.5&&rest.inside(side,cx+(x-cx)*k,y,z*k))k+=.01;push[i]=k-1;}
+      for(let c=0;c<n;c++)for(const dir of [1,-1])for(let j=1;j<rows;j++){const r=dir>0?j:rows-1-j,k=r*n+c,prev=(r-dir)*n+c;push[k]=Math.max(push[k],push[prev]-.04);}
+      for(let i=0;i<p.count;i++)if(push[i]>0){const cx=cxs[i];p.setX(i,cx+(p.getX(i)-cx)*(1+push[i]));p.setZ(i,p.getZ(i)*(1+push[i]));}}
     p.needsUpdate=true;leg.geometry.computeVertexNormals();leg.userData.restY=restY;shade(leg,wear,side);
     if(spec.crotch){leg.userData.ringSize=97;byDistance(leg);}
   }
@@ -603,14 +725,19 @@ function makeJeans(id,spec,swatch=null,rest=LOAFER_REST){
   }
   // Depth of the actual jeans surface at (x, y), front or back: measured on the built shells, so details sit on it.
   const caster=new T.Raycaster(),hit=new T.Vector3();
-  const depth=(x,y,back=false)=>{caster.set(hit.set(x,y,back?-1:1),new T.Vector3(0,0,back?1:-1));const h=caster.intersectObjects(body,false)[0];return h?Math.abs(h.point.z):0;};
+  // Cached: patches repeat the same corners many times, and each measurement is a ray against the whole surface.
+  const depthCache=new Map(),down=new T.Vector3(),
+    depth=(x,y,back=false)=>{const key=Math.round(x*4000)+':'+Math.round(y*4000)+(back?'b':'f');let d=depthCache.get(key);
+      if(d===undefined){caster.set(hit.set(x,y,back?-1:1),down.set(0,0,back?1:-1));const h=caster.intersectObjects(body,false)[0];d=h?Math.abs(h.point.z):0;depthCache.set(key,d);}return d;};
   const on=(pts,back=false,off=.004)=>pts.map(([x,y])=>[x,y,(back?-1:1)*(depth(x,y,back)+off)]);
   // A point on a leg's folded surface at height y and angle a around the leg, found by casting in from outside
   // against that leg only (an inner seam would otherwise land on the other leg).
   const legPoint=(side,y,a,off=.003)=>{const cx=lerpRows(legRows(side),y)[3],dir=new T.Vector3(Math.sin(a),0,Math.cos(a));caster.set(new T.Vector3(cx,y,0).addScaledVector(dir,.6),dir.clone().negate());const h=caster.intersectObjects(y>(spec.crotch?spec.crotch.y:.97)?[body[0],legs[side]]:[legs[side]],false)[0];return h?h.point.addScaledVector(dir,off).toArray():[cx+dir.x*.17,y,dir.z*.17];};
   // A flat outline projected onto the jeans surface, subdivided so it follows the curve.
   const patchOn=(outline,name,back,off,material=denim)=>{const shape=new T.Shape();outline.forEach(([x,y],k)=>k?shape.lineTo(x,y):shape.moveTo(x,y));shape.closePath();
-    const mesh=put(jeans,subdivided(shape,3,back),material,name),pp=mesh.geometry.attributes.position;
+    // Pocket-sized patches need fine subdivision to follow the curve; small ones (heart, scuffs) need little.
+    const xs=outline.map(q=>q[0]),ys=outline.map(q=>q[1]),size=Math.max(Math.max(...xs)-Math.min(...xs),Math.max(...ys)-Math.min(...ys));
+    const mesh=put(jeans,subdivided(shape,size>.06?3:1,back),material,name),pp=mesh.geometry.attributes.position;
     for(let i=0;i<pp.count;i++)pp.setZ(i,(back?-1:1)*(depth(pp.getX(i),pp.getY(i),back)+off));pp.needsUpdate=true;mesh.geometry.computeVertexNormals();return mesh;};
   curve(jeans,on(spec.fly),.0017,thread,'fly-stitch');
   const seamNames=spec.twist?['twisted-side-seam','twisted-inseam']:['side-seam','inseam'];
@@ -628,9 +755,9 @@ function makeJeans(id,spec,swatch=null,rest=LOAFER_REST){
     const hipPoint=(y,a,off=.003)=>{const dir=new T.Vector3(Math.sin(a),0,Math.cos(a));caster.set(new T.Vector3(0,y,0).addScaledVector(dir,.8),dir.clone().negate());const h=caster.intersectObject(body[0],false)[0];return h?h.point.addScaledVector(dir,off).toArray():[dir.x*.27,y,dir.z*.18];};
     const seam=spec.crotch?Array.from({length:7},(_,k)=>{const y=spec.waistband.y-spec.waistband.h/2-k*(spec.waistband.y-spec.waistband.h/2-.98)/6;return hipPoint(y,side*Math.PI/2);}):spec.sideSeamTop.map(([x,y])=>[side*x,y,0]);
     const legTop=spec.crotch?spec.crotch.y-.003:.97;
-    for(let k=0;k<=20;k++){const y=legTop-k*(legTop-spec.seamEnd)/20;seam.push(legPoint(side,y,outAngle(side,y)));}
+    const seamEnd=hemTop>hemY?Math.max(spec.seamEnd,hemTop+.01):spec.seamEnd;for(let k=0;k<=20;k++){const y=legTop-k*(legTop-seamEnd)/20;seam.push(legPoint(side,y,outAngle(side,y)));}
     curve(jeans,seam,.0018,thread,seamNames[0]);
-    const inTop=spec.crotch?spec.crotch.y-.003:.95,inseam=[];for(let k=0;k<=20;k++){const y=inTop-k*(inTop-spec.seamEnd)/20;inseam.push(legPoint(side,y,inAngle(side,y)));}
+    const inTop=spec.crotch?spec.crotch.y-.003:.95,inseam=[];for(let k=0;k<=20;k++){const y=inTop-k*(inTop-seamEnd)/20;inseam.push(legPoint(side,y,inAngle(side,y)));}
     curve(jeans,inseam,.0018,thread,seamNames[1]);
     // Articulated knee: horizontal seams across the front and the back of each knee.
     if(spec.kneeSeams)for(const facing of [0,Math.PI]){
@@ -646,6 +773,16 @@ function makeJeans(id,spec,swatch=null,rest=LOAFER_REST){
       // Decorative double-needle stitching across the pocket: two wings dipping to a point at the centre.
       const [w,y0,dip]=bp.arcuate,wing=[[-w,y0],[-w*.72,y0+.012],[-w*.38,y0+.004],[-w*.12,y0-dip*.6],[0,y0-dip]],arc=[...wing,...wing.slice(0,-1).reverse().map(([x,y])=>[-x,y])];
       for(const off of [0,.0065])curve(jeans,on(arc.map(([x,y])=>[px+x,y-off]),true,.0055),.0026,solid(bp.arcuateColour||spec.thread,.9),'arcuate-stitch');
+    }
+    for(const y of bp.bars||[]){
+      // Straight stitched bars across the pocket.
+      const w=bp.outline[1][0]*.97;curve(jeans,on([[px-w,y],[px-w*.3,y-.002],[px+w*.3,y-.002],[px+w,y]],true,.0055),.0017,thread,'pocket-bar-stitch');
+    }
+    if(bp.badge&&side===bp.badge.side){
+      // A tiny woven flag badge sewn onto the pocket: navy with a red and a white block (no lettering).
+      const bx=px+side*bp.badge.out,by=bp.badge.y,z=-(depth(bx,by,true)+.0062);
+      put(jeans,new T.BoxGeometry(.022,.011,.003),solid('#1c2747',.8),'pocket-badge').position.set(bx,by,z);
+      for(const [dx,c] of [[-.0045,'#f2f2f0'],[.0045,'#c8202f']]){const b=put(jeans,new T.BoxGeometry(.008,.007,.002),solid(c,.8),'pocket-badge-block');b.position.set(bx+dx,by,z-.0018);}
     }
     if(bp.tab&&side===bp.tab.side){
       // Small woven tab sewn into the pocket's inner edge.
@@ -666,15 +803,24 @@ function makeJeans(id,spec,swatch=null,rest=LOAFER_REST){
   if(spec.coinPocket){
     // Coin pocket inside the wearer's right front pocket, with its embroidery when the spec has one.
     const cp=spec.coinPocket;curve(jeans,on(cp.outline),.0016,thread,'coin-pocket-stitch');
+    if(cp.badge){const [bx,by]=cp.badge,z=depth(bx,by)+.005;put(jeans,new T.BoxGeometry(.02,.01,.003),solid('#1c2747',.8),'coin-badge').position.set(bx,by,z);
+      for(const [dx,c] of [[-.004,'#f2f2f0'],[.004,'#c8202f']]){const b=put(jeans,new T.BoxGeometry(.007,.006,.002),solid(c,.8),'coin-badge-block');b.position.set(bx+dx,by,z+.0018);}}
     if(cp.heart){const [hx,hy]=cp.heart,hs=.011,pts=[];for(let k=0;k<=40;k++){const t=k/40*Math.PI*2,x=16*Math.sin(t)**3,y=13*Math.cos(t)-5*Math.cos(2*t)-2*Math.cos(3*t)-Math.cos(4*t);pts.push([hx+x/16*hs,hy+y/16*hs]);}
       // A filled embroidered heart, with a slightly darker outline for the satin-stitch edge.
       patchOn(pts,'embroidered-heart',false,.0035,solid('#c4262e',.7));curve(jeans,on(pts,false,.005),.0012,solid('#8f1820',.7),'embroidered-heart-edge');}
   }
+  // Copper rivets at the front pocket corners (mirrored to both sides).
+  if(spec.rivets){const copper=new T.MeshStandardMaterial({color:'#b06a3c',metalness:.8,roughness:.35});
+    for(const side of [-1,1])for(const [x,y] of spec.rivets)oval(jeans,[side*x,y,depth(side*x,y)+.004],[.0065,.0065,.003],copper,'rivet',12);}
   // Light abrasions: small worn strips cut into the wash.
   for(const [x,y,w] of spec.abrasions||[])patchOn([[x-w/2,y-.004],[x+w/2,y-.004],[x+w/2,y+.004],[x-w/2,y+.004]],'abrasion',false,.0015,solid('#b9c8d6',1));
   curve(jeans,on(spec.centreBack,true),.0018,thread,'centre-back-seam');
   if(spec.welt)curve(jeans,on(spec.welt,true,.005),.0028,fold,'welt-pocket');
   const lp=spec.labelPatch,leather=put(jeans,new T.BoxGeometry(...lp.size),solid(lp.colour,.95),lp.name);leather.position.set(...lp.position);leather.rotation.y=lp.rotationY;
+  for(const [x0,y0,x1,y1,c] of lp.blocks||[]){
+    // Coloured blocks on the patch's outer face (no lettering).
+    const b=put(leather,new T.BoxGeometry(x1-x0,y1-y0,.001),solid(c,.85),'patch-block');b.position.set((x0+x1)/2,(y0+y1)/2,lp.size[2]/2+.0006);
+  }
   if(lp.printColour){
     // A printed border on the patch's outer face (no lettering or logo).
     const [w,h,d]=lp.size,ink=solid(lp.printColour,.9);
@@ -683,7 +829,7 @@ function makeJeans(id,spec,swatch=null,rest=LOAFER_REST){
   if(spec.hem==='raw-crop'){
     // Cropped raw hem: a pale frayed edge around each ankle.
     const fray=solid(spec.frayColour||'#cdd7df',1),r=random(23);
-    for(const side of [-1,1])for(let k=0;k<56;k++){const a=k/56*Math.PI*2+r()*.05,[x,y,z]=legPoint(side,hemY+.004,a,.001),h=.006+r()*.008;curve(jeans,[[x,y,z],[x,y-h,z]],.0011,fray,'frayed-hem');}
+    for(const side of [-1,1])for(let k=0;k<56;k++){const a=k/56*Math.PI*2+r()*.05,[x,y,z]=legPoint(side,hemTop+.004,a,.001),h=.006+r()*.008;curve(jeans,[[x,y,z],[x,y-h,z]],.0011,fray,'frayed-hem');}
   }
   return jeans;
 }
@@ -707,6 +853,7 @@ export function makeOutfit(raw, atlas=null) {
   }
   if(state.topId===CROCHET_TOP_ID)root.add(makeCrochetTop());
   else if(state.topId===PLAID_JUMPER_ID)root.add(makePlaidJumper(PLAID_JUMPER_ID,state.skirt));
+  else if(state.topId===STRIPE_JUMPER_ID)root.add(makeStripeJumper(STRIPE_JUMPER_ID,state.skirt));
   else if(state.topId!== 'classic')root.add(makeReferenceTop(atlas?.isTexture?atlas:atlas?.[state.topId],state.topId));
   if(state.shirt){
     const layer=new T.Group();layer.name='shirt';root.add(layer);
