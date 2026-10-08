@@ -1,6 +1,6 @@
 # Wardrobe item: crystal-embellished straight jeans
 
-Authored 8 October 2026. Status: crystals made larger and clearer after the user's first review; awaiting their second look. A piece from the user's wardrobe list, built on the shared jeans template. The user asked to “notice the embellishments”.
+Authored 8 October 2026. Status: crystals made larger and clearer after the user's first review; the user said the revision “looks great”. A piece from the user's wardrobe list, built on the shared jeans template. The user asked to “notice the embellishments”.
 
 ## Source and reference reading
 
@@ -49,7 +49,7 @@ Plain denim in the back photo measures RGB 162, 175, 183 where lit and 131, 145,
 
 ## Checks
 
-- `npm test`: 51 passing. A new test checks:
+- `npm test`: 58 passing after rebasing onto the other chats' latest garments. A new test checks:
   - the crystal count, each with its own setting
   - that every crystal is on the front and below the waistband
   - that both legs are covered evenly down toward the hem
