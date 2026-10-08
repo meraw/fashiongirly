@@ -5,10 +5,15 @@ import { LEVIS_94_DENIM } from '../wardrobe/levis-94-denim.js';
 import { DAVINIA_DENIM } from '../wardrobe/desigual-davinia-denim.js';
 import { TOPSHOP_DENIM } from '../wardrobe/topshop-denim.js';
 import { BRONZE_ATLAS } from '../wardrobe/bronze-atlas.js';
+import { BUFFALO_ASPHA_ID } from '../wardrobe/catalog.js';
+import { BUFFALO_TAPE } from '../wardrobe/buffalo-tape.js';
 import { makeDoll, makeOutfit, disposeObject } from './model.js';
 export async function createDollView(host, recipe) {
   const atlas={};
   try { for(const [id,data] of [[BRONZE_TOP_ID,BRONZE_ATLAS],[LILAC_TOP_ID,LILAC_ATLAS],[BARREL_JEANS_ID,TOPSHOP_DENIM],[DAVINIA_JEANS_ID,DAVINIA_DENIM],[LEVIS_94_ID,LEVIS_94_DENIM]]){atlas[id]=await new T.TextureLoader().loadAsync(data);atlas[id].colorSpace=T.SRGBColorSpace;} }
+  catch(error){Object.values(atlas).forEach(t=>t.dispose());throw error;}
+  // Shoe textures.
+  try { for(const [id,data] of [[BUFFALO_ASPHA_ID,BUFFALO_TAPE]]){atlas[id]=await new T.TextureLoader().loadAsync(data);atlas[id].colorSpace=T.SRGBColorSpace;} }
   catch(error){Object.values(atlas).forEach(t=>t.dispose());throw error;}
   let renderer;
   try { renderer=new T.WebGLRenderer({antialias:true,alpha:true}); }

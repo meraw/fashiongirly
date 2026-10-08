@@ -15,7 +15,7 @@ Read [PRODUCT_BRIEF.md](PRODUCT_BRIEF.md) for the product's intent and agreed co
 - Sweater and denim colours, sweater sleeve volume and hem, trouser volume, and layer toggles.
 - Bounded text parser, turn controls, draft persistence and a 24-look browser lookbook.
 - Earlier vector implementation retained at `illustration.html`.
-- Twenty-two tests were passing and the static build succeeded at this handoff. Geometry and UI checks do not establish visual quality; full device/WebGL appearance and performance still require review.
+- Twenty-six tests were passing and the static build succeeded at this handoff. Geometry and UI checks do not establish visual quality; full device/WebGL appearance and performance still require review.
 
 ## Code landmarks
 
@@ -28,10 +28,11 @@ Read [PRODUCT_BRIEF.md](PRODUCT_BRIEF.md) for the product's intent and agreed co
 | `src/doll/boot.js` | Entry point and page lifecycle |
 | `src/doll/studio.css`, `index.html` | Studio interface |
 | `tests/doll.test.js` | Geometry bounds, layer edits, UI persistence and error handling |
+| `tests/shoes.test.js` | Shoe slot, boot construction, how every bottom layers with every shoe, shoe selector |
 | `scripts/build.mjs` | Static build including local Three.js dependencies |
 | `.github/workflows/pages.yml` | Manually dispatched Pages deployment |
 
-The current flat recipe is not a garment database. It holds colours, bounded numeric controls and layer booleans for the procedural study. Seven catalog entries now exist. Each declares a `slot`. Tops are selected by `topId`: `desigual-bronze-mesh-v1` and `lilac-portrait-mockneck-v1` use fitted geometry and bundled generated textures; `desigual-crochet-flowers-v1` and `mango-plaid-jumper-v1` use their own geometry and textures drawn procedurally in `model.js`. A catalog `layering.coversWaistband` flag hides the skirt's ribbon bow under tops whose hem covers the waist. Bottoms are selected by `bottomId`: `topshop-barrel-jeans-v1`, `desigual-davinia-jeans-v1` and `levis-94-wide-leg-v1` replace the built-in jeans. All catalog jeans are built by `makeJeans()` from a `build` spec in their catalog entry, each with a denim swatch processed from its own product photo. `cleanRecipe()` only accepts IDs from the matching slot. The skirt and shoes are still built-in procedural pieces; dresses, outerwear and shoes have no slot yet. There is no general import pipeline, fitting rig or automatic reference reconstruction yet.
+The current flat recipe is not a garment database. It holds colours, bounded numeric controls and layer booleans for the procedural study. Eight catalog entries now exist. Each declares a `slot`. Tops are selected by `topId`: `desigual-bronze-mesh-v1` and `lilac-portrait-mockneck-v1` use fitted geometry and bundled generated textures; `desigual-crochet-flowers-v1` and `mango-plaid-jumper-v1` use their own geometry and textures drawn procedurally in `model.js`. A catalog `layering.coversWaistband` flag hides the skirt's ribbon bow under tops whose hem covers the waist. Bottoms are selected by `bottomId`: `topshop-barrel-jeans-v1`, `desigual-davinia-jeans-v1` and `levis-94-wide-leg-v1` replace the built-in jeans. All catalog jeans are built by `makeJeans()` from a `build` spec in their catalog entry, each with a denim swatch processed from its own product photo. Shoes are selected by `shoesId`: the built-in loafers (`'classic'`) are worn from the outfit by `makeShoes()`, no longer part of `makeDoll()`, and `buffalo-aspha-mid-olive-v1` is built by `makeLugBoot()` from its catalog `build` spec. Each pair of shoes reports `rest(side, x, z)`, the height at which a long hem rests on it, and boots also report the space long trousers must drape around (`rest.inside`); `makeJeans()` reads both. `cleanRecipe()` only accepts IDs from the matching slot. The skirt is still a built-in procedural piece; dresses and outerwear have no slot yet. There is no general import pipeline, fitting rig or automatic reference reconstruction yet.
 
 ## Latest decisions
 
@@ -78,14 +79,15 @@ The user wants to add their whole wardrobe, **one item at a time**, reviewing ea
 - about seven coats and other outerwear (layering matters)
 - about ten pairs of shoes (the user expects these to be harder)
 
-Each new kind of garment needs its slot the first time it appears. Top and bottom slots exist. Dresses, outerwear and shoes each still need a slot with layering rules. Button-downs need collar, placket and button details; hoodies need a hood that clears her large head and hair.
+Each new kind of garment needs its slot the first time it appears. Top, bottom and shoe slots exist. Dresses and outerwear each still need a slot with layering rules. Button-downs need collar, placket and button details; hoodies need a hood that clears her large head and hair.
 
-Shoes are a third parallel lane (see [AGENTS.md](../AGENTS.md)), agreed with the user on 8 October 2026. No pair has been supplied yet. The plan, to carry out with the first pair so it can be checked against a real shoe:
+Shoes are a third parallel lane (see [AGENTS.md](../AGENTS.md)), agreed with the user on 8 October 2026. The shoe slot was built with the first pair (see its record):
 
-- Move the classic loafers out of `makeDoll` into the outfit as the built-in `shoesId: 'classic'`, so they can be swapped like the classic tops and jeans. Her face, body and socks stay unchanged. The Levi's '94 test reads the loafer's height from the doll and moves with it.
-- Each catalog shoe declares `slot: 'shoes'` and a footprint (toe, heel, upper height, platform) that bottoms read. The floor-length jeans (`hem: 'rests-on-shoe'` in `makeJeans()`) currently assume the loafer's shape. They should rest on whatever shoe she wears, and cropped jeans must clear a boot shaft.
-- Platforms and heels raise her. This needs a decision: lift the whole doll, or keep her body fixed and let the shoe sit under it.
-- Judge every pair from the side as well as the front and back, because shoes are mostly seen below a hem.
+- The classic loafers moved out of `makeDoll` into the outfit (`shoesId: 'classic'`). Her face, body and socks are unchanged, and outfits with loafers render pixel-identical to before.
+- Long jeans (`hem: 'rests-on-shoe'`) rest on whatever shoe she wears through `rest()`, and drape around boots through `rest.inside`. Shorter jeans tuck into a boot shaft. `tests/shoes.test.js` checks every bottom with every shoe, so new pairs of jeans and new shoes are covered automatically.
+- Open decision: platforms are built inside her existing foot height, so she is not raised. The user was asked whether a heel or platform should make her taller and has not answered yet.
+- Judge every pair from the side as well as the front and back, because shoes are mostly seen below a hem. Her toy foot is short and wide, so toes come out stubbier than in product photos.
+- Adding more boots: copy the Buffalo entry's `build` spec and adjust the upper slices, sole and details; measure the upper and sole colours in the photos and in a render, as for denim.
 
 Items added so far:
 
@@ -93,6 +95,7 @@ Items added so far:
 2. [Topshop acid-wash barrel jeans](garments/topshop-barrel-jeans.md). Added the bottom slot; its layering test also found and fixed the bronze top clipping over trousers. Approved by the user (“Ok, that works”) after five revisions: straight floor-length fit, bolder details, drape and stacking geometry, and denim taken from the product photo as a processed swatch. The user still considers the jeans below the tops' quality overall and does not expect the shape to improve much further.
 3. [Desigual Davinia heart jeans](garments/desigual-davinia-jeans.md). First pair on the shared jeans template (`makeJeans()` with a `build` spec in the catalog). The user found the crotch strange; it was rebuilt as sewn (hips morphing into the legs), applied to both pairs, and the user said it “looks better”. The user asked for “a few more jeans” next.
 4. [Levi's '94 baggy wide leg](garments/levis-94-wide-leg.md). Washed black wide legs with arc stitching, red tab and frayed pocket edges. Full length resting on the shoes, confirmed by the user (a brief shortening came from mixing it up with another pair); awaiting visual review.
+5. [Buffalo Aspha olive platform boots](garments/buffalo-aspha-boots.md). First pair of shoes, which added the shoe slot. Chunky lug platform, quilted padded collar, logo-tape heel and tongue tabs, webbing loops and side-window straps; colours measured from the photos. Long jeans drape over them; cropped jeans tuck in. Awaiting visual review.
 
 Fit follows the user, not the product photos: when the user says a garment fits them differently (length, rise, looseness), build it that way and note it in the garment record.
 

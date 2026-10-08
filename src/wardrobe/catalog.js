@@ -1,4 +1,6 @@
 // Authored wardrobe entries. These describe assets, not runtime AI requests.
+// Shoes: built-in loafers are 'classic'; catalog shoes fill the 'shoes' slot.
+export const BUFFALO_ASPHA_ID = 'buffalo-aspha-mid-olive-v1';
 export const BRONZE_TOP_ID = 'desigual-bronze-mesh-v1';
 export const LILAC_TOP_ID = 'lilac-portrait-mockneck-v1';
 export const CROCHET_TOP_ID = 'desigual-crochet-flowers-v1';
@@ -170,6 +172,30 @@ export const GARMENTS = Object.freeze({
         tab: { side: -1, inset: .066, y: 1.09, colour: '#c3262f' } },
       centreBack: [[.004, 1.142], [.004, 1.05], [0, .985]],
       labelPatch: { name: 'printed-patch', size: [.085, .052, .005], colour: '#c49a6c', printColour: '#9c4a3c', position: [-.07, 1.21, -(.175 + .004)], rotationY: Math.PI + .27 },
+    },
+  },
+  // Shoes.
+  [BUFFALO_ASPHA_ID]: {
+    slot: 'shoes',
+    id: BUFFALO_ASPHA_ID, name: 'Buffalo Aspha olive platform boots', family: 'lug-sole-platform-ankle-boot', version: 1,
+    status: 'reference-study-awaiting-visual-review', brandAsProvided: 'Buffalo',
+    source: { note: 'user supplied five phone screenshots of an Amazon listing ("Buffalo Aspha NC Mid Vegan Nu", colour Verde, size 36 EU): front three-quarter, outer side, back three-quarter, inner side, inner three-quarter' },
+    referenceViews: ['front three-quarter', 'outer side', 'back three-quarter', 'inner side', 'inner three-quarter'],
+    details: ['chunky tonal platform sole with deep trapezoid lugs, a ledge above the lugs and a raised heel cup', 'toe of the sole lifted (rocker)', 'mid-cut olive vegan nubuck upper, all one colour with the sole', 'padded collar quilted in two horizontal rows', 'tall heel pull tab of jacquard logo tape: grey band reading BUFFALO // between black and taupe woven edges', 'logo tape down the tongue and a tongue pull tab', 'metal eyelets with two taupe webbing lace loops per side', 'flat olive laces', 'curved side overlay edged in dark piping, over a window with two diagonal taupe webbing straps', 'tan double topstitching'],
+    material: { construction: 'vegan nubuck upper on a moulded rubber platform', composition: 'not visible in the supplied screenshots', finish: 'matte, softly mottled' },
+    fit: { silhouette: 'chunky lug-sole ankle boot', height: 'mid, just above the ankle bone', platform: 'built inside her existing foot height; her body is not raised', adjustment: 'fixed authored fit for review' },
+    uncertainties: ['lug count and side-panel curves adapted to her short toy foot', 'the tongue badge, side label and embossed Buffalo script on the heel of the sole carry no lettering', 'tape lettering is redrawn, not copied'],
+    authoring: { texture: 'buffalo-tape.js: logo tape drawn locally from the product photos; nubuck and sole colours measured from the photos', runtimeGeneration: false, sourcePhotosBundled: false },
+    // Construction for makeLugBoot() in src/doll/model.js, in outfit units (x is widened by 1.06 and y squashed by .76 on screen).
+    // Upper rows are [y, front, back, halfWidth]: horizontal slices whose front recedes up the lacing.
+    build: {
+      template: 'lug-boot', cx: .168,
+      colours: { upper: '#514e3f', sole: '#44463e', thread: '#7a6b52', piping: '#2a271f', webbing: '#6e604d', lace: '#47422f', eyelet: '#3b3a37', lining: '#2f2c24' },
+      sole: { top: .108, heelTop: .132, heelFrom: -.02, lugTop: .046, groove: .066, flare: .013, toeLift: .026, lugs: 21 },
+      upper: [[.108, .312, -.148, .128], [.13, .316, -.149, .129], [.155, .3, -.148, .128], [.18, .268, -.145, .128], [.21, .235, -.141, .127], [.24, .205, -.137, .127], [.27, .183, -.134, .127], [.3, .165, -.133, .128], [.32, .155, -.133, .125], [.345, .148, -.135, .12]],
+      nFront: 2.7, nBack: 2.1, restCap: .23, collarRoll: .017, quilt: [.27, .305],
+      eyelets: [.2, .222, .244, .31, .332], loops: [.266, .288], laceHalfWidth: .046,
+      heelTab: { width: .056, from: .17, above: .085 }, tongueTab: { width: .046, above: .05 },
     },
   },
 });

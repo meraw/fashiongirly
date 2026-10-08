@@ -250,7 +250,7 @@ test("Levi's '94 jeans: wide full-length legs resting on the shoes, with their b
   let tabs=0;outfit.traverse(o=>{if(o.name==='pocket-tab')tabs++;});assert.equal(tabs,1,'one tab, on the right back pocket');
   const legs=[];outfit.traverse(o=>{if(o.name==='jeans-leg')legs.push(o);});assert.equal(legs.length,2);
   // Full length, as the user wears them: the hem comes down over the shoes to the floor around them.
-  let shoeTop=-Infinity;doll.traverse(o=>{if(o.name==='loafer')shoeTop=Math.max(shoeTop,new T.Box3().setFromObject(o).max.y);});
+  let shoeTop=-Infinity;outfit.traverse(o=>{if(o.name==='loafer')shoeTop=Math.max(shoeTop,new T.Box3().setFromObject(o).max.y);});
   const hem=Math.min(...legs.map(l=>new T.Box3().setFromObject(l).min.y));
   assert.ok(hem<shoeTop*.6,'hem reaches down over the shoes');
   // Wide leg: the hem is wider than the knee, and the two legs never cross each other.
