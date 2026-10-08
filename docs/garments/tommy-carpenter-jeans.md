@@ -1,6 +1,6 @@
 # Wardrobe item: Tommy Jeans Remastered carpenter jeans
 
-Authored 8 October 2026. Status: narrowed and shortened to the ankle after the user's first review; awaiting their second look. A piece from the user's wardrobe list, built on the shared jeans template.
+Authored 8 October 2026. Status: narrowed and shortened to the ankle after the user's first review; the user then sent the next item without commenting on the revision. A piece from the user's wardrobe list, built on the shared jeans template.
 
 ## Source and reference reading
 
