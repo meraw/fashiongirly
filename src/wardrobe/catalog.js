@@ -37,7 +37,8 @@ export const GARMENTS = Object.freeze({
     material: { construction: 'fine stretch mesh', finish: 'metallic flecks', opaqueBands: 'black' },
     fit: { silhouette: 'close to doll body', sleeve: 'tapered', hem: 'hip', adjustment: 'fixed authored fit for first review' },
     exclusions: ['striped-shirt', 'knit-sweater'],
-    layering: { coversWaistband: true },
+    // underTop: fitted enough to wear under a top worn over another (a cardigan).
+    layering: { coversWaistband: true, underTop: true },
     uncertainties: ['exact sleeve characters are not transcribed', 'generated artwork is interpretive', 'same front-facing motif is reused on back', 'side seam alignment and physical transparency need visual review'],
     styling: { silhouette: 'fitted, hip length', palette: ['bronze', 'black', 'neon green', 'white'], pattern: 'horizontal metallic stripes with a large graphic print', coverage: { neck: 'crew', sleeves: 'long', midriff: 'covered' }, material: 'fine stretch mesh with opaque bands', warmth: 1, warmthBasis: 'inferred: fine mesh, partly see-through', weather: 'a light layer; sheer in the mesh stripes' },
     authoring: { texture: 'bronze-atlas.js', runtimeGeneration: false, sourcePhotosBundled: false },
@@ -51,7 +52,8 @@ export const GARMENTS = Object.freeze({
     material: { construction: 'textured fabric; exact fibre unconfirmed', finish: 'subtle metallic back sheen' },
     fit: { silhouette: 'close to doll body', sleeve: 'tapered with cuff gathers', hem: 'lower hip', adjustment: 'fixed authored fit for review' },
     exclusions: ['striped-shirt','knit-sweater'],
-    layering: { coversWaistband: true },
+    // underTop: fitted enough to wear under a top worn over another (a cardigan).
+    layering: { coversWaistband: true, underTop: true },
     uncertainties: ['portrait and floral artwork are interpretive', 'physical material and brand are not established from pictures', 'exact seam placement and print scale need visual review'],
     styling: { silhouette: 'fitted, lower hip length', palette: ['lilac', 'mauve', 'navy', 'silver'], pattern: 'portrait and flowers on the front, patterned navy sleeves', coverage: { neck: 'raised mock neck', sleeves: 'long', midriff: 'covered' }, material: 'textured fabric, fibre unknown', warmth: 2, warmthBasis: 'inferred: long sleeves and a mock neck; fabric weight unknown', weather: 'unknown beyond coverage' },
     authoring: { texture: 'lilac-atlas.js', runtimeGeneration: false, sourcePhotosBundled: false },
@@ -83,7 +85,7 @@ export const GARMENTS = Object.freeze({
     exclusions: ['striped-shirt','knit-sweater'],
     layering: { coversWaistband: true },
     uncertainties: ['check scale and band order are an interpretation of the photos', 'fibre composition is unknown', 'the shirt collar and cuffs in the photos are styling, not part of the jumper'],
-    styling: { silhouette: 'oversized, boxy, hip length', palette: ['cream', 'rust brown', 'grey-taupe', 'pale blue'], pattern: 'large windowpane check', coverage: { neck: 'crew', sleeves: 'long, full', midriff: 'covered' }, material: 'heavy brushed jacquard knit', warmth: 4, warmthBasis: 'user: very warm for the local climate', weather: 'cold days only (user note)' },
+    styling: { silhouette: 'oversized, boxy, mid-thigh length', palette: ['cream', 'rust brown', 'grey-taupe', 'pale blue'], pattern: 'large windowpane check', coverage: { neck: 'crew', sleeves: 'long, full', midriff: 'covered' }, material: 'heavy brushed jacquard knit', warmth: 4, warmthBasis: 'user: very warm for the local climate', weather: 'cold days only (user note)' },
     authoring: { texture: 'procedural plaidData() in src/doll/model.js, drawn locally when first worn', runtimeGeneration: false, sourcePhotosBundled: false },
   },
   [STRIPE_JUMPER_ID]: {
@@ -168,14 +170,15 @@ export const GARMENTS = Object.freeze({
     status: 'reference-study-awaiting-visual-review', brandAsProvided: 'Petit Bateau',
     source: { note: 'user supplied four phone screenshots of a petit-bateau.it listing: flat lay buttoned, on a model, flat lay with the front opened, and the back' },
     referenceViews: ['front flat lay, buttoned', 'front on model', 'front flat lay, opened', 'back flat lay'],
-    details: ['cream fisherman rib knit', 'three wide navy stripes round the lower body, front and back, above a cream ribbed hem', 'three navy stripes on each forearm, above long cream ribbed cuffs', 'deep V-neck with ribbed button bands meeting at the first button', 'five cream buttons down the front', 'a small navy badge on her left upper sleeve', 'oversized and boxy with dropped shoulders, to the hip'],
+    details: ['cream fisherman rib knit', 'three wide navy stripes round the lower body, front and back, above a cream ribbed hem', 'three navy stripes on each forearm, above long cream ribbed cuffs', 'deep V-neck with ribbed button bands meeting at the first button', 'five cream buttons down the front', 'a small navy badge on her left upper sleeve', 'oversized and boxy with dropped shoulders; on the user it hangs well below the crotch, to mid-thigh, and the sleeves cover most of the hands'],
     material: { construction: 'chunky fisherman rib knit', composition: 'not visible in the supplied screenshots', finish: 'matte cotton-like yarn' },
-    fit: { silhouette: 'oversized, boxy', sleeve: 'long, straight, into long ribbed cuffs', hem: 'hip, ribbed', neckline: 'deep V', adjustment: 'fixed authored fit for review' },
+    fit: { silhouette: 'oversized, boxy', sleeve: 'long, falling over most of the hands (the user)', hem: 'mid-thigh, well below the crotch (the user)', neckline: 'deep V', adjustment: 'fixed authored fit for review' },
     // A top, not outerwear: the user wears cardigans on their own, buttoned over bare skin, or over a blue sleeveless top.
     wear: { userNote: 'worn buttoned on its own with skin showing in the V, or over a blue sleeveless top' },
     exclusions: ['striped-shirt','knit-sweater'],
-    layering: { coversWaistband: true },
-    styling: { silhouette: 'oversized, boxy, hip length', palette: ['cream', 'navy'], pattern: 'wide navy stripes on the lower body and forearms', coverage: { neck: 'deep V, skin showing', sleeves: 'long', midriff: 'covered' }, material: 'chunky fisherman rib knit', warmth: 3, warmthBasis: 'inferred: chunky knit, open V-neck', weather: 'cool days; the V leaves the chest open' },
+    // overTop: worn on its own or over a slim top (the user wears it over a blue sleeveless top).
+    layering: { coversWaistband: true, overTop: true },
+    styling: { silhouette: 'oversized, boxy, mid-thigh length', palette: ['cream', 'navy'], pattern: 'wide navy stripes on the lower body and forearms', coverage: { neck: 'deep V, skin showing', sleeves: 'long', midriff: 'covered' }, material: 'chunky fisherman rib knit', warmth: 3, warmthBasis: 'inferred: chunky knit, open V-neck', weather: 'cool days; the V leaves the chest open' },
     uncertainties: ['buttons are plain cream discs', 'the badge is a plain navy oval', 'the rib is drawn as texture and bump, not separate ridges', 'worn over the blue sleeveless top needs a rule for layering two tops, not yet built'],
     authoring: { texture: 'procedural fishermanRibData() in src/doll/model.js, drawn locally when first worn', runtimeGeneration: false, sourcePhotosBundled: false },
   },

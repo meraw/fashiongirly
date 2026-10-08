@@ -1082,13 +1082,18 @@ function edgeBand(mesh,segments,rows,lift,mat,name){
 }
 function makeStripedCardigan(id=PETIT_BATEAU_CARDIGAN_ID,overSkirt=false){
   const top=new T.Group();top.name=id;
-  const hem=1.14,band=.07,neck=1.905,vBottom=1.66,flare=overSkirt?[.338,.252]:[.316,.234],skin=cloth('#dfb195');
+  // Oversized on the user: it hangs well below the crotch, to mid-thigh, and the sleeves come down over most of her hands.
+  const hem=.8,band=.075,neck=1.905,vBottom=1.6,flare=overSkirt?[.424,.3]:[.354,.252],skin=cloth('#dfb195');
   const cream=woolMaterial(null);cream.color.set('#d9cbb2');
   // Worn buttoned over bare skin (the user's way): her chest shows in the V. Her body under clothes is cream felt, so the
   // skin piece from the stripe jumper fills it.
   shell(top,SHOULDER_ROWS,skin,'bare-shoulder-skin',48);
-  // Oversized and boxy from dropped shoulders to the hip.
-  const body=shell(top,[[neck,.114,.108],[1.85,.2,.15],[1.81,.27,.19],[1.76,.306,.212],[1.6,.316,.22],[1.4,.318,.226],[hem+band+.012,overSkirt?.336:.32,overSkirt?.25:.236],[hem+band,flare[0],flare[1]]],fishermanMaterial('body',150),'cardigan-body',128);
+  // Boxy from dropped shoulders, falling straight past her hands (kept just inside them) and widening only below the
+  // hips, enough to hang round both legs, or out over the skirt.
+  // Over the skirt it follows the skirt's flare from the waistband down, clearing its pleats.
+  const lower=overSkirt?[[1.3,.314,.234],[1.2,.334,.248],[1.1,.356,.26],[1.0,.388,.277],[.92,.408,.29],[hem+band+.012,.42,.298]]
+    :[[1.2,.312,.236],[1.1,.318,.236],[1.0,.336,.252],[.92,.348,.254],[hem+band+.012,.354,.252]];
+  const body=shell(top,[[neck,.114,.108],[1.88,.168,.128],[1.85,.21,.154],[1.81,.272,.19],[1.76,.304,.214],[1.6,.31,.222],[1.4,.31,.23],...lower,[hem+band,flare[0],flare[1]]],fishermanMaterial('body',150),'cardigan-body',128);
   // The deep V: on the front the edge falls from the shoulders to the first button; round the sides and back it stays at
   // the neck.
   trimToEdge(body,128,v=>v,(x,z)=>{const front=Math.max(0,z/Math.max(1e-6,Math.hypot(x,z)));return vBottom+1.45*Math.abs(x)+.4*(1-front)**2;});
@@ -1098,9 +1103,10 @@ function makeStripedCardigan(id=PETIT_BATEAU_CARDIGAN_ID,overSkirt=false){
   ribbed(shell(top,[[hem+band+.012,flare[0]-.008,flare[1]-.006],[hem+band/2,flare[0]-.004,flare[1]-.003],[hem,flare[0]-.006,flare[1]-.004]],cream,'ribbed-hem-band',768),96,.012);
   for(const side of [-1,1]){
     const arm=new T.Group();arm.position.set(side*.242,1.815,0);arm.rotation.z=side*.22;
-    const sleeve=shell(arm,[[.03,.126,.121],[-.06,.136,.131],[-.2,.137,.132],[-.33,.134,.129],[-.42,.124,.12],[-.47,.108,.104]],fishermanMaterial('sleeve',54),'knit-jumper-sleeve',96);
-    roundSleeveCap(sleeve,side,.03);mapByHeight(sleeve,-.47,.03);
-    easeOverHand(ribbed(shell(arm,[[-.455,.1,.096],[-.51,.096,.093],[-.565,.095,.092]],cream,'ribbed-cuff',320),40,.03),side);
+    // Long, roomy sleeves; the ribbed cuffs fall over her hands, leaving the tips of her mittens showing.
+    const sleeve=shell(arm,[[.03,.128,.123],[-.06,.14,.134],[-.2,.142,.136],[-.33,.14,.134],[-.44,.134,.128],[-.52,.124,.118]],fishermanMaterial('sleeve',54),'knit-jumper-sleeve',96);
+    roundSleeveCap(sleeve,side,.03);mapByHeight(sleeve,-.52,.03);
+    easeOverHand(ribbed(shell(arm,[[-.505,.12,.114],[-.56,.116,.111],[-.635,.114,.11]],cream,'ribbed-cuff',320),40,.025),side);
     // A small navy badge on her left upper sleeve.
     top.add(arm);
   }
@@ -1113,7 +1119,7 @@ function makeStripedCardigan(id=PETIT_BATEAU_CARDIGAN_ID,overSkirt=false){
       badge.lookAt(hit.point.clone().addScaledVector(n,1));badge.scale.set(.013/BODY_WIDTH,.016/BODY_HEIGHT,.003);}}
   // The front button band runs from the bottom of the V to the hem, with five cream buttons.
   const onSurface=surfaceProbe(top,['cardigan-body','ribbed-hem-band']),strip=[];
-  for(let k=0;k<=24;k++){const y=vBottom-.004-(vBottom-.004-hem)*k/24;for(const x of [-.021,.021]){const hit=onSurface(x,y,true);strip.push(hit?hit.point.clone().addScaledVector(hit.normal,.004):null);}}
+  for(let k=0;k<=24;k++){const y=vBottom-.004-(vBottom-.01-hem)*k/24;for(const x of [-.021,.021]){const hit=onSurface(x,y,true);strip.push(hit?hit.point.clone().addScaledVector(hit.normal,.004):null);}}
   if(strip.every(Boolean)){const pos=strip.flatMap(p=>p.toArray()),idx=[];for(let k=0;k<24;k++){const a=k*2;idx.push(a,a+2,a+1,a+1,a+2,a+3);}
     const g=new T.BufferGeometry();g.setAttribute('position',new T.Float32BufferAttribute(pos,3));g.setIndex(idx);g.computeVertexNormals();put(top,g,cream,'front-button-band');}
   const buttonMat=new T.MeshPhysicalMaterial({color:'#efe6d6',roughness:.35,clearcoat:.5,clearcoatRoughness:.4});
@@ -1498,15 +1504,23 @@ export function makeOutfit(raw, atlas=null) {
   }
   oval(trousers,[0,1.205,.187],[.019,.019,.01],solid('#bca16a'),'waist-button');
   }
-  if(state.topId===CROCHET_TOP_ID)root.add(makeCrochetTop());
-  else if(state.topId===PLAID_JUMPER_ID)root.add(makePlaidJumper(PLAID_JUMPER_ID,state.skirt));
-  else if(state.topId===STRIPE_JUMPER_ID)root.add(makeStripeJumper(STRIPE_JUMPER_ID,state.skirt));
-  else if(state.topId===POINTELLE_FLOWER_ID)root.add(makePointelleJumper(POINTELLE_FLOWER_ID,state.skirt));
-  else if(state.topId===SILVER_CABLE_ID)root.add(makeSilverCableJumper());
-  else if(state.topId===LACROIX_FLOWER_ID)root.add(makeLacroixSweater(LACROIX_FLOWER_ID,state.skirt));
-  else if(state.topId===TOMMY_CABLE_ID)root.add(makeTommyCableSweater(TOMMY_CABLE_ID,state.skirt));
-  else if(state.topId===PETIT_BATEAU_CARDIGAN_ID)root.add(makeStripedCardigan(PETIT_BATEAU_CARDIGAN_ID,state.skirt));
-  else if(state.topId!== 'classic')root.add(makeReferenceTop(atlas?.isTexture?atlas:atlas?.[state.topId],state.topId));
+  const makeTop=id=>id===CROCHET_TOP_ID?makeCrochetTop():id===PLAID_JUMPER_ID?makePlaidJumper(id,state.skirt):id===STRIPE_JUMPER_ID?makeStripeJumper(id,state.skirt)
+    :id===POINTELLE_FLOWER_ID?makePointelleJumper(id,state.skirt):id===SILVER_CABLE_ID?makeSilverCableJumper():id===LACROIX_FLOWER_ID?makeLacroixSweater(id,state.skirt)
+    :id===TOMMY_CABLE_ID?makeTommyCableSweater(id,state.skirt):id===PETIT_BATEAU_CARDIGAN_ID?makeStripedCardigan(id,state.skirt)
+    :makeReferenceTop(atlas?.isTexture?atlas:atlas?.[id],id);
+  if(state.topId!=='classic')root.add(makeTop(state.topId));
+  // A top that can be worn over another top (layering.overTop, such as a cardigan) may have a slim top under it
+  // (layering.underTop). The under top shows in the opening instead of her skin; its sleeves stay inside the outer
+  // sleeves (hidden), and its body is eased in a little below its collar so it sits inside the outer top; its collar
+  // stays as it is and shows above the outer top's neckline, as a crew or mock neck does.
+  if(state.underTopId!=='none'){
+    const under=makeTop(state.underTopId);under.name='under-top';under.userData.garmentId=state.underTopId;root.add(under);
+    under.traverse(o=>{if(o.isGroup&&o.rotation.z!==0&&o.children.some(c=>c.isMesh&&/sleeve/.test(c.name)))o.visible=false;});
+    for(const o of under.children){if(!o.isMesh)continue;const p=o.geometry.attributes.position;
+      for(let i=0;i<p.count;i++){const y=p.getY(i),k=y>=1.9?1:y>=1.86?1-.07*(1.9-y)/.04:y>=1.8?.93+.025*(1.86-y)/.06:.955;p.setX(i,p.getX(i)*k);p.setZ(i,p.getZ(i)*k);}
+      p.needsUpdate=true;o.geometry.computeVertexNormals();}
+    root.getObjectByName(state.topId)?.traverse(o=>{if(o.name==='bare-shoulder-skin')o.visible=false;});
+  }
   if(state.shirt){
     const layer=new T.Group();layer.name='shirt';root.add(layer);
     shell(layer,[[1.8,.22,.145],[1.69,.267,.174],[1.43,.284,.185],[1.19,.288,.198],[1.145,.265,.19]],shirt,'shirt-body');

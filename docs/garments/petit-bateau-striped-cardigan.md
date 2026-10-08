@@ -1,12 +1,10 @@
 # Wardrobe item: Petit Bateau striped fisherman rib cardigan
 
-Authored 8 October 2026. Status: first version, awaiting the user's visual review.
+Authored 8 October 2026. Status: refitted after the user's first review (oversized on them); awaiting their next look.
 
-## Sorting: a top, not outerwear
+## Sorting: a top that can also go over another top
 
-The user wears cardigans on their own, buttoned over bare skin, or over a blue sleeveless top (8 October 2026). So this cardigan is a top, and it is built buttoned, with skin showing in the V. Outerwear, as the app has it, always goes closed over another top.
-
-Wearing it over the blue sleeveless top is not built yet. It needs a rule for two tops at once: an under-layer top (such as the sleeveless top) worn under a top that is open at the front (such as this cardigan). That rule touches shared foundations, so it is to be agreed with the user when the sleeveless top is added.
+The user wears cardigans on their own, buttoned over bare skin, or over a blue sleeveless top (8 October 2026). The user asked for the best solution to that ambiguity, so the cardigan is a top marked `layering.overTop`. It is worn alone, with skin showing in the V. It can also take a slim top under it (`underTopId`, from the tops marked `layering.underTop`), which then shows in the V. Outerwear stays for pieces only ever worn over a top. See the handoff's sorting paragraph for the rule.
 
 ## Source and reference reading
 
@@ -33,25 +31,40 @@ Catalog ID `petit-bateau-striped-cardigan-v1`. No image asset is bundled.
 - Front: a button band from the bottom of the V to the hem, laid on the body with `surfaceProbe()`, and five glossy cream buttons on it.
 - Skin: the bare-shoulder skin piece from the stripe jumper fills the V, since her body under clothes is cream felt.
 - Badge: a small navy oval on the outside of her left upper sleeve. It sits in the sleeve's group, so it hides with the sleeve under a closed jacket (the outerwear test caught it floating over the windbreaker at first).
-- Shape: boxy from dropped shoulders to a ribbed hem band at the hip. It hugs the jeans or sits out over the skirt. Long, straight sleeves blouse over long ribbed cuffs, which ease over her hands.
+- Shape: oversized and boxy from dropped shoulders to a ribbed hem band at mid-thigh, with long sleeves over most of the hands (see “Fit, as the user wears it”).
 - Layering: `coversWaistband`; the styling record says the V leaves her chest open.
 - Preset: “Striped cardigan study”, with the classic jeans in washed blue, as in the photos.
 
 ## Checks
 
-- `npm test`: 49 passing. The new test checks:
+- `npm test`: 52 passing. The new test checks:
   - that it is a top, and the user's note on how they wear it
   - the parts, five buttons and two cuffs
   - a V at least 0.2 deeper at the front than the back neck
   - three navy stripes on the body
   - the badge on her left upper sleeve, inside the sleeve's group
+  - that it hangs outside the skirt's pleats, with the bow hidden
+  - the layering rule: which tops may go under it, under tops inside it except in the V, and the “Under it” selector
 
   The shared tests for sleeves, hands, the waist and outerwear also run on it.
 - `npm run build` succeeds.
-- Rendered in headless Chromium from the front, a turn, the side and the back. The authoring chat checked these renders; the user has not seen them yet.
+- Rendered in headless Chromium from the front, a turn, the side and the back, alone, over the lilac and bronze tops, over the skirt and under the windbreaker. The authoring chat checked these renders; the user has not seen the refit yet.
+
+## Fit, as the user wears it
+
+The user said the cardigan is oversized on them: long sleeves, and it hits well below the crotch. The first version was hip length with sleeves to the wrist. It now:
+- hangs to mid-thigh (hem band 0.8 to 0.875), straight past her hands and widening only below the hips, enough to hang round both legs. Over the skirt it follows the skirt's flare from the waistband down, clearing the pleats.
+- has longer, roomier sleeves; the ribbed cuffs fall over most of her mittens, leaving the tips showing.
+
+The stripes keep their measured proportions of the knitted length, so they sit lower on her than before. Under the hip-length windbreaker the cardigan hangs out below it.
+
+## Worn over a slim top
+
+With a top under it, the under top shows in the V and above the back of the neck instead of her skin. Its sleeves stay inside the cardigan's. The new layering test checks the bronze and lilac tops under the cardigan; every point of their bodies below the collar is inside the cardigan or seen through the V.
 
 ## Known differences
 
 - The rib is drawn as texture and bump, not separate ridges in the silhouette.
 - The badge is a plain navy oval, without the boat logo.
 - It is always shown buttoned; open wear is not modelled.
+- The user's blue sleeveless top is not imported yet; once it is, it should be marked `layering.underTop`.

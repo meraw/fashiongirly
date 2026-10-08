@@ -596,7 +596,53 @@ test('striped cardigan: a top worn over skin, with a deep V, five buttons, navy 
   // Three navy stripes on the body: the texture's navy rows form three bands.
   const img=outfit.getObjectByName('cardigan-body').material.map.image;let bands=0,prev=false;
   for(let y=0;y<img.height;y++){const i=y*img.width*4,navy=img.data[i+2]<80;if(navy&&!prev)bands++;prev=navy;}assert.equal(bands,3);
+  // Over the skirt it hangs outside the pleats, from its hem up to the waistband.
+  const skirted=makeOutfit({topId:id,skirt:true});skirted.updateMatrixWorld(true);
+  const cover=['cardigan-body','ribbed-hem-band'].map(n=>skirted.getObjectByName(n)),ray=new T.Raycaster(),q=new T.Vector3();let under=0;
+  skirted.getObjectByName('layered-skirt').traverse(o=>{if(!o.geometry)return;const pos=o.geometry.attributes.position;
+    for(let i=0;i<pos.count;i+=2){q.fromBufferAttribute(pos,i).applyMatrix4(o.matrixWorld);if(q.y/.76<.82)continue;const r=Math.hypot(q.x,q.z);
+      ray.set(new T.Vector3(0,q.y,0),new T.Vector3(q.x,0,q.z).normalize().applyAxisAngle(new T.Vector3(0,1,0),1e-4));const hit=ray.intersectObjects(cover,false)[0];
+      assert.ok(hit&&hit.distance>r,`${o.name} pokes through the cardigan at vertex ${i}`);under++;}});
+  assert.ok(under>100);assert.equal(skirted.getObjectByName('ribbon-knot'),undefined);disposeObject(skirted);
   // The badge is on her left upper sleeve, and hides with the sleeve.
   const badge=outfit.getObjectByName('sleeve-badge');assert.ok(badge.getWorldPosition(new T.Vector3()).x>.3);assert.ok(badge.parent.children.some(o=>o.name==='knit-jumper-sleeve'));
   disposeObject(outfit);
+});
+
+test('a top worn over another: the cardigan over a slim top, which shows in the V and stays inside it',async()=>{
+  const id='petit-bateau-striped-cardigan-v1',under='lilac-portrait-mockneck-v1';
+  // Only a top that can be worn over another takes one under it, and only a slim top goes under.
+  assert.equal(cleanRecipe({topId:id,underTopId:under}).underTopId,under);
+  assert.equal(cleanRecipe({topId:'tommy-green-cable-sweater-v1',underTopId:under}).underTopId,'none','a jumper takes nothing under it');
+  assert.equal(cleanRecipe({topId:id,underTopId:'tommy-green-cable-sweater-v1'}).underTopId,'none','a bulky top cannot go under');
+  assert.equal(cleanRecipe({topId:id,underTopId:'levis-94-wide-leg-v1'}).underTopId,'none','only tops');
+  assert.equal(cleanRecipe(null).underTopId,'none');
+  for(const underId of Object.keys(GARMENTS).filter(k=>GARMENTS[k].layering?.underTop)){
+    const outfit=makeOutfit({topId:id,underTopId:underId,skirt:true});outfit.updateMatrixWorld(true);
+    const layer=outfit.getObjectByName('under-top');assert.ok(layer);
+    assert.equal(outfit.getObjectByName('bare-shoulder-skin').visible,false,'the under top replaces her skin in the V');
+    // Its sleeves are hidden inside the cardigan's sleeves.
+    layer.traverse(o=>{if(o.isMesh&&/sleeve/.test(o.name)){let v=true;for(let q=o;q;q=q.parent)if(!q.visible)v=false;assert.equal(v,false,`${underId} ${o.name} hidden`);}});
+    // Every point of its body below its collar is either inside the cardigan or seen through the V (nothing of the cardigan
+    // in front of it). Its collar shows above the cardigan's neckline, as a crew or mock neck does.
+    const cover=['cardigan-body','ribbed-hem-band','neckline-button-band','front-button-band'].map(n=>outfit.getObjectByName(n));
+    const ray=new T.Raycaster(),p=new T.Vector3();let inside=0,inV=0;
+    for(const o of layer.children){if(!o.isMesh)continue;const pos=o.geometry.attributes.position;
+      for(let i=0;i<pos.count;i+=2){p.fromBufferAttribute(pos,i).applyMatrix4(o.matrixWorld);const r=Math.hypot(p.x,p.z);if(r<.01||p.y/.76>1.895)continue;
+        ray.set(new T.Vector3(0,p.y,0),new T.Vector3(p.x,0,p.z).normalize().applyAxisAngle(new T.Vector3(0,1,0),1e-4));
+        const hit=ray.intersectObjects(cover,false)[0];
+        if(!hit){assert.ok(p.z>0&&p.y/.76>1.55,`${underId} ${o.name} shows outside the V at vertex ${i}`);inV++;}
+        else{assert.ok(hit.distance>r,`${underId} ${o.name} pokes through the cardigan at vertex ${i}`);inside++;}}}
+    assert.ok(inside>200&&inV>20,`${underId}: inside ${inside}, in the V ${inV}`);
+    disposeObject(outfit);
+  }
+  // In the studio, the choice is offered only for such a top, and is saved with the look.
+  const dom=new JSDOM(readFileSync('index.html','utf8'),{url:'https://example.com/'}),d=dom.window.document;
+  const app=await startStudio(d,async()=>({update(){},turn(){},dispose(){}}));
+  const top=d.getElementById('top-select'),pick=d.getElementById('under-select');
+  top.value='tommy-green-cable-sweater-v1';top.dispatchEvent(new dom.window.Event('change'));assert.equal(pick.disabled,true);
+  top.value=id;top.dispatchEvent(new dom.window.Event('change'));assert.equal(pick.disabled,false);
+  pick.value=under;pick.dispatchEvent(new dom.window.Event('change'));assert.equal(app.getRecipe().underTopId,under);
+  d.getElementById('save').click();assert.equal(JSON.parse(dom.window.localStorage.getItem('fashiongirly.plush-looks.v1'))[0].underTopId,under);
+  app.dispose();dom.window.close();
 });

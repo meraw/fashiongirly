@@ -2,7 +2,7 @@ import { DEFAULT_HAIR_ID, cleanHairId } from '../hair/catalog.js';
 import { BRONZE_TOP_ID, LILAC_TOP_ID, CROCHET_TOP_ID, PLAID_JUMPER_ID, STRIPE_JUMPER_ID, POINTELLE_FLOWER_ID, SILVER_CABLE_ID, LACROIX_FLOWER_ID, TOMMY_CABLE_ID, PETIT_BATEAU_CARDIGAN_ID, BARREL_JEANS_ID, DAVINIA_JEANS_ID, LEVIS_94_ID, TOMMY_MOM_ID, STRADIVARIUS_RELAXED_ID, MANGO_BLACK_JEANS_ID, BERSHKA_GREY_ID, TOMMY_CARPENTER_ID, ZARA_CARGO_ID, GARMENTS } from '../wardrobe/catalog.js';
 import { BUFFALO_ASPHA_ID, DM_COW_SLIDE_ID } from '../wardrobe/catalog.js';
 import { MARIKOO_WINDBREAKER_ID } from '../wardrobe/catalog.js';
-export const DEFAULT = Object.freeze({ sweater: '#bf303e', trousers: '#283c59', sleeve: .74, hem: .3, barrel: .78, knit: true, shirt: true, skirt: false, skirtColour: '#bd9bc8', topId: 'classic', bottomId: 'classic', shoesId: 'classic', outerwearId: 'none', hairId: DEFAULT_HAIR_ID });
+export const DEFAULT = Object.freeze({ sweater: '#bf303e', trousers: '#283c59', sleeve: .74, hem: .3, barrel: .78, knit: true, shirt: true, skirt: false, skirtColour: '#bd9bc8', topId: 'classic', bottomId: 'classic', shoesId: 'classic', underTopId: 'none', outerwearId: 'none', hairId: DEFAULT_HAIR_ID });
 export const SWATCHES = [['Tomato', '#bf303e'], ['Butter', '#ead391'], ['Lilac', '#bd9bc8'], ['Cobalt', '#315cb3'], ['Moss', '#74804b'], ['Cream', '#f0e3cb']];
 export function cleanRecipe(value = {}) {
   const v = value && typeof value === 'object' ? value : {};
@@ -15,6 +15,9 @@ export function cleanRecipe(value = {}) {
   if (GARMENTS[v.bottomId]?.slot==='bottom') result.bottomId=v.bottomId;
   if (GARMENTS[v.shoesId]?.slot==='shoes') result.shoesId=v.shoesId;
   if (GARMENTS[v.outerwearId]?.slot==='outerwear') result.outerwearId=v.outerwearId;
+  // A top worn over another top (a cardigan, say) may have a slim top under it; anything else falls back to none.
+  const under=GARMENTS[v.underTopId];
+  if (GARMENTS[result.topId]?.layering?.overTop && under?.slot==='top' && under.layering?.underTop && v.underTopId!==result.topId) result.underTopId=v.underTopId;
   if(result.topId!== 'classic'){result.knit=false;result.shirt=false;}
   return result;
 }
