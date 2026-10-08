@@ -1,0 +1,41 @@
+import { DEFAULT, SWATCHES, cleanRecipe, editRecipe } from './recipe.js';
+const KEY='fashiongirly.plush-draft.v1', BOOK='fashiongirly.plush-looks.v1';
+export async function startStudio(doc=document, makeView) {
+  const $=id=>doc.getElementById(id);let storage;
+  try { storage=doc.defaultView.localStorage; } catch { storage=null; }
+  let recipe=cleanRecipe(),looks=[],view=null,timer=null;
+  try {recipe=cleanRecipe(JSON.parse(storage?.getItem(KEY)||'null'));} catch {}
+  try {const data=JSON.parse(storage?.getItem(BOOK)||'[]');if(Array.isArray(data))looks=data.slice(0,24).map(cleanRecipe);} catch {}
+  function message(text){$('message').textContent=text;}
+  function persist(){try {storage?.setItem(KEY,JSON.stringify(recipe));if(!storage)message('Changes last for this visit; browser storage is unavailable.');}catch{message('Changes last for this visit; browser storage is full or unavailable.');}}
+  function apply(){view?.update(recipe);persist();}
+  function schedule(){clearTimeout(timer);timer=setTimeout(apply,65);}
+  function swatches(id,choices,key){$(id).replaceChildren(...choices.map(([name,color])=>{const b=doc.createElement('button');b.type='button';b.style.background=color;b.setAttribute('aria-label',name);b.dataset.color=color;b.onclick=()=>{recipe[key]=color;sync();apply();};return b;}));}
+  swatches('sweater-colours',SWATCHES,'sweater');swatches('denim-colours',[['Indigo','#283c59'],['Washed blue','#71899b'],['Charcoal','#39363b'],['Ecru','#d9cbb2']],'trousers');
+  function sync(){
+    for(const key of ['sleeve','hem','barrel']){$(key).value=Math.round(recipe[key]*100);const value=recipe[key];$(`${key}-value`).textContent=key==='hem'?(value<.34?'Cropped':value>.66?'Longer':'At the waist'):value<.34?'A little':value>.66?'A lot':'In between';$(key).setAttribute('aria-valuetext',`${$(`${key}-value`).textContent}, ${Math.round(value*100)} percent`);}
+    for(const key of ['knit','shirt'])$(key).checked=recipe[key];
+    for(const [id,key] of [['sweater-colours','sweater'],['denim-colours','trousers']])for(const b of $(id).children)b.setAttribute('aria-pressed',String(b.dataset.color===recipe[key]));
+    for(const id of ['sleeve','hem'])$(id).disabled=!recipe.knit;
+    for(const b of $('sweater-colours').children)b.disabled=!recipe.knit;
+    $('count').textContent=looks.length;
+  }
+  for(const key of ['sleeve','hem','barrel'])$(key).oninput=()=>{recipe[key]=Number($(key).value)/100;sync();schedule();};
+  for(const key of ['knit','shirt'])$(key).onchange=()=>{recipe[key]=$(key).checked;sync();apply();};
+  $('edit-form').onsubmit=e=>{e.preventDefault();const result=editRecipe(recipe,$('request').value);recipe=result.recipe;sync();apply();message(result.changes.length?`Changed: ${result.changes.join(', ')}. Only these supported details were interpreted.`:'I could not interpret that yet. Try “butter sweater, enormous sleeves, cropped”.');};
+  $('reset').onclick=()=>{recipe=cleanRecipe(DEFAULT);sync();apply();message('Back to the original outfit.');};
+  for(const b of doc.querySelectorAll('[data-angle]'))b.onclick=()=>{view?.turn(Number(b.dataset.angle));for(const other of doc.querySelectorAll('[data-angle]'))other.setAttribute('aria-pressed',String(other===b));};
+  function storeLooks(next){try{if(!storage)throw new Error();storage.setItem(BOOK,JSON.stringify(next));looks=next;sync();return true;}catch{message('This browser could not save your look.');return false;}}
+  $('save').onclick=()=>{if(looks.length>=24){message('Your lookbook is full. Remove a look to make room.');return;}if(storeLooks([cleanRecipe(recipe),...looks]))message('Saved in My looks.');};
+  function book(){
+    const list=$('saved-list');list.replaceChildren();
+    if(!looks.length){const p=doc.createElement('p');p.className='saved-empty';p.textContent='Save a little experiment with the heart. Your looks stay in this browser.';list.append(p);}
+    looks.forEach((look,i)=>{const row=doc.createElement('div');row.className='saved-row';const colours=doc.createElement('span');colours.className='saved-colours';for(const color of [look.sweater,look.trousers]){const dot=doc.createElement('i');dot.style.background=color;colours.append(dot);}const title=doc.createElement('span');title.textContent=`Little experiment ${looks.length-i}`;const wear=doc.createElement('button');wear.textContent='Wear';wear.onclick=()=>{recipe=cleanRecipe(look);sync();apply();$('lookbook').close();};const remove=doc.createElement('button');remove.textContent='Remove';remove.onclick=()=>{if(storeLooks(looks.filter((_,j)=>j!==i)))book();};row.append(colours,title,wear,remove);list.append(row);});
+  }
+  $('lookbook-open').onclick=()=>{book();$('lookbook').showModal();};$('lookbook-close').onclick=()=>$('lookbook').close();
+  const showError=text=>{$('loading')?.remove();$('view-error').hidden=false;$('view-error').textContent=text;};
+  $('stage').addEventListener('view-error',e=>showError(e.detail));sync();
+  try {const factory=makeView || (await import('./view.js')).createDollView;view=factory($('stage'),recipe);view.turn(-25);$('loading')?.remove();}
+  catch(error){showError(error.message||'The 3D view could not load. Please reload and try again.');}
+  return {getRecipe:()=>cleanRecipe(recipe),dispose(){clearTimeout(timer);persist();view?.dispose();}};
+}

@@ -8,5 +8,13 @@
     "test": "node --test",
     "build": "node scripts/build.mjs"
   },
-  "engines": { "node": ">=22" }
+  "engines": {
+    "node": ">=22"
+  },
+  "dependencies": {
+    "three": "0.180.0"
+  },
+  "devDependencies": {
+    "jsdom": "26.1.0"
+  }
 }

@@ -1,49 +1,29 @@
 <!doctype html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="theme-color" content="#f3eee7">
-  <meta name="description" content="A little fashion muse. Clothes made from shapes, colour, and a little audacity.">
-  <title>Fashiongirly — the dressing room</title>
-  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='18' fill='%23d2e675'/%3E%3Ctext x='17' y='46' font-size='47' font-family='Georgia'%3Ef%3C/text%3E%3C/svg%3E">
-  <link rel="stylesheet" href="./src/style.css">
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#f7f0e7">
+<title>Fashiongirly — a little living doll</title>
+<link rel="stylesheet" href="./src/doll/studio.css">
+<script type="importmap">{"imports":{"three":"./node_modules/three/build/three.module.js"}}</script>
 </head>
 <body>
-  <header class="masthead"><a class="brand" href="./" aria-label="Fashiongirly home">fashiongirly<span>✳</span></a><span class="edition">A LITTLE TASTE. A LITTLE TROUBLE.</span><button id="archive-open" class="quiet">Saved looks <span id="saved-count">0</span></button></header>
-  <main>
-    <section class="intro"><div><p class="eyebrow">THE DRESSING ROOM / VOL. 01</p><h1>Getting dressed.<br><em>Getting carried away.</em></h1></div><p class="intro-note">Meet your experimental side.<br>Same girl. A new point of view.</p></section>
-    <div class="studio">
-      <section class="look-panel" aria-label="Outfit preview">
-        <div class="stage-top"><span class="pill"><span class="live-dot"></span> YOUR FASHION GIRL</span><span id="look-number" class="micro">LOOK 01 / 03</span></div>
-        <div class="character-stage" id="character"></div>
-        <div class="stage-caption"><span class="scribble" id="look-mood">a little sweet,<br>a little strange.</span><span class="stage-stamp">MADE OF<br>SHAPES & ATTITUDE ↗</span></div>
-        <div class="look-footer"><div><p class="eyebrow">ON HER TODAY</p><h2 id="look-title"></h2></div><button id="save-look" class="round" aria-label="Save this look" title="Save this look">♡</button></div>
-      </section>
-      <aside class="styling-panel" aria-label="Outfit styling controls">
-        <div class="panel-heading"><span class="eyebrow">01 / THE IDEA</span><span class="tiny-star">✳</span></div>
-        <div id="outfit-tabs" class="outfit-tabs" role="group" aria-label="Choose a starting look"></div>
-        <p id="styling-note" class="styling-note"></p><p id="styling-move" class="styling-move"></p>
-        <div class="rule"></div>
-        <div class="panel-heading"><span class="eyebrow">02 / MAKE IT YOURS</span><span class="micro">SELECT A PIECE</span></div>
-        <div id="garment-list" class="garment-list" role="group" aria-label="Choose a garment to edit"></div>
-        <div class="editor">
-          <div class="editor-title"><h3 id="garment-name"></h3><button id="reset-piece" class="text-button">Reset piece ↺</button></div>
-          <label class="field-label" for="description">Describe a change</label>
-          <form id="description-form"><div class="prompt-box"><textarea id="description" rows="2" placeholder="Make it butter yellow, cropped, with balloon sleeves…" maxlength="400"></textarea><button type="submit" class="apply-button" aria-label="Apply description">↗</button></div></form>
-          <p class="help">Try colour, length, fit, sleeves or fabric. <button id="vocabulary-toggle" class="text-button" aria-expanded="false" aria-controls="vocabulary">What can I say?</button></p>
-          <div id="vocabulary" class="vocabulary" hidden>Colours: butter yellow, burgundy, lilac, cobalt, red, pink, cream, olive, navy, black, white. Length: cropped, waist, hip; mini, midi, maxi; ankle, floor. Fit: fitted, relaxed, oversized. Sleeves: slim, balloon, enormous. Fabric: knit, satin, denim. Pattern: solid or striped. Cardigans and jackets: open or closed. Other words aren’t interpreted yet.</div>
-          <p id="edit-status" class="edit-status" role="status" aria-live="polite"></p>
-          <div id="shape-controls"></div>
-          <div class="field-label palette-label">Colour <span id="colour-name"></span></div><div id="palette" class="palette" role="group" aria-label="Garment colour"></div>
-          <div class="select-row"><label>Fabric<select id="material"><option value="knit">Soft knit</option><option value="satin">Satin</option><option value="cotton">Cotton</option><option value="denim">Denim</option></select></label><label>Pattern<select id="pattern"><option value="solid">Solid</option><option value="stripe">Stripes</option></select></label></div>
-        </div>
-      </aside>
-    </div>
-    <footer class="page-footer"><span>LESS PERFECT. MORE PERSONAL.</span><p>A first study in silhouette & playful dressing. Photo-free, always.</p><span>✳</span></footer>
-  </main>
-  <div id="toast" role="status" aria-live="polite"></div>
-  <dialog id="archive"><div class="archive-heading"><div><p class="eyebrow">YOUR LITTLE LOOKBOOK</p><h2>Worth repeating.</h2></div><button id="archive-close" class="round" aria-label="Close saved looks">×</button></div><div id="archive-list"></div></dialog>
-  <script type="module" src="./src/app.js"></script>
-</body>
-</html>
+<header><a class="logo" href="./">fashiongirly <span>✳</span></a><span class="small">THE LITTLE DOLL STUDIO</span><button id="lookbook-open" class="text">My looks <span id="count">0</span></button></header>
+<main>
+<div class="intro"><p class="eyebrow">A LITTLE SOFTNESS. A LOT OF PERSONALITY.</p><h1>Small girl.<br><em>Big wardrobe energy.</em></h1></div>
+<section class="studio">
+<div class="doll-panel"><div class="stage-label"><span>MEET YOUR LITTLE MUSE</span><span>STUDY 02</span></div><div id="stage"><p id="loading">Getting her dressed…</p></div><p id="view-error" role="alert" hidden></p><div class="camera" aria-label="Doll viewing angle"><button data-angle="0" aria-pressed="false">Front</button><button data-angle="-25" aria-pressed="true">A little turn</button><button data-angle="180" aria-pressed="false">Back</button></div><p class="drag-hint">Drag gently to turn her around</p><div class="look-caption"><div><p class="eyebrow">THE FIRST REAL OUTFIT</p><h2>Big jeans energy.</h2></div><button id="save" class="save" aria-label="Save this outfit">♡</button></div></div>
+<aside><p class="eyebrow">HER LITTLE WARDROBE</p><h2>Soft heart.<br>A taste for volume.</h2><p class="note">A tiny knit, an escaping shirt, and jeans with somewhere to be.</p><hr>
+<form id="edit-form"><label for="request">Tell her what to change</label><div class="request-box"><textarea id="request" rows="2" maxlength="250" placeholder="Butter sweater, enormous sleeves, wider jeans…"></textarea><button type="submit" aria-label="Apply outfit changes">↗</button></div></form><p class="help">Try tomato, butter, lilac, cobalt, moss or cream; cropped or longer; slim or enormous sleeves; straight or wider jeans.</p><p id="message" role="status" aria-live="polite"></p>
+<div class="control-heading"><h3>The sweater</h3><label class="toggle"><input type="checkbox" id="knit" checked> Wear it</label></div><div id="sweater-colours" class="swatches" aria-label="Sweater colour"></div>
+<label class="slider-label" for="sleeve">Sleeve volume <output id="sleeve-value"></output></label><input id="sleeve" type="range" min="0" max="100" step="1">
+<label class="slider-label" for="hem">Hem length <output id="hem-value"></output></label><input id="hem" type="range" min="0" max="100" step="1">
+<div class="control-heading"><h3>The jeans</h3><span class="small">BARREL SILHOUETTE</span></div><div id="denim-colours" class="swatches" aria-label="Jeans colour"></div>
+<label class="slider-label" for="barrel">More room, please <output id="barrel-value"></output></label><input id="barrel" type="range" min="0" max="100" step="1">
+<label class="toggle shirt-toggle"><input id="shirt" type="checkbox" checked> Layer the striped shirt underneath</label><button id="reset" class="reset">Back to her original outfit ↺</button>
+<p class="prototype-note">An early dressable 3D study. Her clothes are built from shapes and procedural fabric, with no garment photos.</p>
+</aside></section>
+<footer><span>MADE OF THREAD & A LITTLE ATTITUDE</span><a href="./illustration.html">Earlier illustration study ↗</a></footer>
+</main>
+<dialog id="lookbook"><div class="dialog-heading"><h2>Her favourite experiments.</h2><button id="lookbook-close" aria-label="Close saved looks">×</button></div><div id="saved-list"></div></dialog>
+<script type="module" src="./src/doll/boot.js"></script>
+</body></html>

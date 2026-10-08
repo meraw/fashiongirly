@@ -1,43 +1,51 @@
 # Fashiongirly
 
-A fashion girl who lives in your phone: playful, experimental, and dressed in editable clothing made from geometry rather than garment photographs.
+A tiny living fashion doll with a playful wardrobe. The current homepage is a **reusable 3D doll study** with separate, editable clothing geometry.
 
-## First prototype
+## Current milestone
 
-- A consistent adult fashion illustration with a fixed pose, face, hair, and accessories.
-- Three starting looks: colour clash, sporty layering, and exaggerated proportions.
-- Recipe-driven SVG garments with colour, hem, silhouette, sleeve volume, fabric treatment, pattern, and open/closed jackets and cardigans.
-- A bounded description interpreter. Try **“burgundy, cropped, enormous sleeves”** on the cardigan. This is a local keyword parser, not an AI model. It reports exactly which supported changes were applied.
-- Live controls, current-draft persistence, and a local lookbook (up to 30 looks).
-- No garment photographs, raster images, external fonts, API keys, runtime dependencies, or network requests.
+- One permanent doll: large soft head, embroidered-style eyes and smile, rosy cheeks, sculpted dark bob, flower clip, little hands, socks, and loafers.
+- One layered outfit: red knit, striped shirt, and barrel jeans.
+- Independently adjustable sleeve volume, sweater hem, jean volume, and garment colours.
+- Remove the sweater or shirt independently; rotate the doll with drag or Front / Turn / Back.
+- Procedural fabric bump maps and material sheen. No garment photographs, generated outfit pictures, or downloaded character models.
+- Validated local garment recipes, browser draft persistence, and a 24-look local lookbook.
+- A deliberately limited text interpreter. Try **“butter sweater, enormous sleeves, cropped, wider jeans”**. It reports the changes it understood; this is not AI generation.
+
+This is an initial procedural interpretation of the approved plush-doll concept. It is not a pixel-identical recreation of the concept image, a fully rigged animated character, or a cloth simulation. Full WebGL appearance and touch performance still need device review. Geometry and UI tests do not establish visual fidelity.
 
 ## Run
 
-Node.js 22 or later. No installation step required.
+Node.js 22 or later:
 
 ```sh
+npm ci
 npm run dev
 ```
 
-Open http://localhost:5173. On a phone on the same network, use your computer's local IP with port 5173.
+Open http://localhost:5173. To use a phone on the same network, open your computer's local IP with port 5173.
 
 ```sh
 npm test
 npm run build
 ```
 
-Deploy `dist/` to any static host. Application URLs are relative, including under `/fashiongirly/`. For GitHub Pages, enable **Settings → Pages → Source → GitHub Actions**, then run the included **Deploy Pages** workflow. Committed code is not automatically a deployed app.
+Deploy `dist/` to a static host. All runtime dependencies are copied into the build: no CDN requests, credentials, or API calls are needed. App paths work at a repository subpath such as `/fashiongirly/`.
 
-## Architecture
+For GitHub Pages: select **Settings → Pages → Source → GitHub Actions**, then run **Deploy Pages** from Actions. Committing code alone does not publish it.
 
-`src/recipes.js` defines garment data, outfits, validation, and description interpretation. `src/illustration.js` constructs vector garments and the character. Garments draw in recipe array order. `src/app.js` owns controls and persistence; `src/style.css` owns the responsive interface.
+## Source map
 
-Keep recipes separate from rendering. A future AI adapter should return validated recipe patches, never arbitrary executable drawing code. Reference photos and product descriptions can later supply recipe data without becoming clothing textures.
+- `src/doll/model.js`: doll identity and separately constructed outfit, procedural fabric textures, and resource disposal.
+- `src/doll/recipe.js`: clothing recipe validation and bounded description editing.
+- `src/doll/view.js`: Three.js camera, lighting, touch rotation, and rendering lifecycle.
+- `src/doll/app.js`: controls, draft storage, and lookbook.
+- `illustration.html`: the earlier vector study, retained for comparison.
 
-## Scope
+The renderer rebuilds only the outfit on a wardrobe edit. The doll's identity remains in the scene. Sleeve, body, cuff, collar, and trouser surfaces are authored approximations with explicit controls, not sewing-pattern reconstruction.
 
-This is a fixed-pose vector illustration, not a rotatable 3D avatar, cloth simulation, or fitting prediction. Starting looks and styling notes are authored. Weather, AI styling, link/photo intake, arbitrary garment creation, animation, and cloud sync are not implemented.
+## Checks and limits
 
-Starting-look tabs load original recipes. Save a variation with the heart before switching. Data lives only in this browser; clearing browser data removes it.
+`npm test` covers finite geometry and supported parameter extremes, layer toggles, silhouette changes, safe recipe handling, description editing, UI save/restore, and failed WebGL startup. It also preserves the earlier vector recipe tests. An offline geometry projection was inspected; it does not reproduce WebGL fabric shading. Browser/device QA remains outstanding.
 
-Next: refine her visual identity; expand garment families and wearing options; add a validated AI recipe adapter; connect weather and daily styling.
+Data lives in this browser. Clearing browser storage removes drafts and saved looks. Weather, autonomous daily styling, arbitrary garment generation, reference-photo intake, real cloth physics, animation, and cloud sync are future work.
