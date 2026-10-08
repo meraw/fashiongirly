@@ -4,6 +4,7 @@ export const LILAC_TOP_ID = 'lilac-portrait-mockneck-v1';
 export const CROCHET_TOP_ID = 'desigual-crochet-flowers-v1';
 export const PLAID_JUMPER_ID = 'mango-plaid-jumper-v1';
 export const STRIPE_JUMPER_ID = 'bershka-asymmetric-stripe-jumper-v1';
+export const POINTELLE_FLOWER_ID = 'cream-pointelle-flower-jumper-v1';
 export const BARREL_JEANS_ID = 'topshop-barrel-jeans-v1';
 export const DAVINIA_JEANS_ID = 'desigual-davinia-jeans-v1';
 export const LEVIS_94_ID = 'levis-94-wide-leg-v1';
@@ -84,6 +85,20 @@ export const GARMENTS = Object.freeze({
     layering: { coversWaistband: true, bareShoulder: { side: 1, above: -.23 } },
     uncertainties: ['the back was not shown; its neckline and stripes are inferred', 'the flat lay and the worn photo disagree on which side sits lower; the worn photo is followed', 'stripe count is adapted to her short torso', 'the bare shoulder is a skin-coloured piece inside the jumper, because her body under clothes is cream felt'],
     authoring: { texture: 'procedural stripeKnitData() in src/doll/model.js, drawn locally when first worn', runtimeGeneration: false, sourcePhotosBundled: false },
+  },
+  [POINTELLE_FLOWER_ID]: {
+    slot: 'top',
+    id: POINTELLE_FLOWER_ID, name: 'Cream pointelle flower jumper', family: 'boxy-openwork-knit-jumper', version: 1,
+    status: 'reference-study-awaiting-visual-review', brandAsProvided: null,
+    source: { note: "the user's own jumper, photographed flat on the floor from the front and the back; the user could not find the product online" },
+    referenceViews: ['front flat on the floor', 'back flat on the floor'],
+    details: ['cream openwork knit: bands of two staggered eyelet rows between raised horizontal ridges', 'eight raised embroidered flowers scattered over the front only: six raspberry petals with a darker centre, two dark green leaves above each, so the flowers hang', 'wide boat neckline', 'raglan seams from the neckline to the underarms', 'boxy body about as long as it is wide, ending at the hip', 'long wide straight sleeves', 'narrow plain bands with small scallops at the neckline, hem and sleeve ends'],
+    material: { construction: 'fine openwork (pointelle) knit', composition: 'not known', finish: 'matte cotton-like yarn' },
+    fit: { silhouette: 'boxy, relaxed', sleeve: 'long, wide and straight', hem: 'hip, narrow scalloped band', neckline: 'wide boat neck', adjustment: 'fixed authored fit for review' },
+    exclusions: ['striped-shirt','knit-sweater'],
+    layering: { coversWaistband: true },
+    uncertainties: ['eyelet spacing is coarser than the real knit so it reads at the doll\'s size', 'flower placement is measured from the front photo and adapted to her short torso', 'the front photo has a cool colour cast; colours aim between the two photos', 'her body under clothes is cream felt, so skin is drawn inside the jumper to show through the eyelets'],
+    authoring: { texture: 'procedural pointelleData() in src/doll/model.js; flowers are small raised shapes', runtimeGeneration: false, sourcePhotosBundled: false },
   },
   [BARREL_JEANS_ID]: {
     slot: 'bottom',
