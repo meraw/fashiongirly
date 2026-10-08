@@ -12,6 +12,7 @@ export const POINTELLE_FLOWER_ID = 'cream-pointelle-flower-jumper-v1';
 export const SILVER_CABLE_ID = 'desigual-silver-cable-jumper-v1';
 export const LACROIX_FLOWER_ID = 'desigual-lacroix-flower-sweater-v1';
 export const TOMMY_CABLE_ID = 'tommy-green-cable-sweater-v1';
+export const PETIT_BATEAU_CARDIGAN_ID = 'petit-bateau-striped-cardigan-v1';
 export const BARREL_JEANS_ID = 'topshop-barrel-jeans-v1';
 export const DAVINIA_JEANS_ID = 'desigual-davinia-jeans-v1';
 export const LEVIS_94_ID = 'levis-94-wide-leg-v1';
@@ -158,6 +159,23 @@ export const GARMENTS = Object.freeze({
     uncertainties: ['the cables are a regular procedural repeat; their twist is taller than wide in the photos, slightly squatter here to suit her short torso', 'the flag is a simple three-colour tab, not the exact logo'],
     styling: { silhouette: 'relaxed, straight, hip length', palette: ['forest green'], pattern: 'tonal rope cables all over', coverage: { neck: 'crew', sleeves: 'long', midriff: 'covered' }, material: 'wool cable knit (listing title)', warmth: 3, warmthBasis: 'inferred: wool cable knit', weather: 'cool to cold days' },
     authoring: { texture: 'procedural cableKnitData() in src/doll/model.js, drawn locally when first worn', runtimeGeneration: false, sourcePhotosBundled: false },
+  },
+  [PETIT_BATEAU_CARDIGAN_ID]: {
+    slot: 'top',
+    id: PETIT_BATEAU_CARDIGAN_ID, name: 'Striped fisherman rib cardigan', family: 'button-front-cardigan', version: 1,
+    status: 'reference-study-awaiting-visual-review', brandAsProvided: 'Petit Bateau',
+    source: { note: 'user supplied four phone screenshots of a petit-bateau.it listing: flat lay buttoned, on a model, flat lay with the front opened, and the back' },
+    referenceViews: ['front flat lay, buttoned', 'front on model', 'front flat lay, opened', 'back flat lay'],
+    details: ['cream fisherman rib knit', 'three wide navy stripes round the lower body, front and back, above a cream ribbed hem', 'three navy stripes on each forearm, above long cream ribbed cuffs', 'deep V-neck with ribbed button bands meeting at the first button', 'five cream buttons down the front', 'a small navy badge on her left upper sleeve', 'oversized and boxy with dropped shoulders, to the hip'],
+    material: { construction: 'chunky fisherman rib knit', composition: 'not visible in the supplied screenshots', finish: 'matte cotton-like yarn' },
+    fit: { silhouette: 'oversized, boxy', sleeve: 'long, straight, into long ribbed cuffs', hem: 'hip, ribbed', neckline: 'deep V', adjustment: 'fixed authored fit for review' },
+    // A top, not outerwear: the user wears cardigans on their own, buttoned over bare skin, or over a blue sleeveless top.
+    wear: { userNote: 'worn buttoned on its own with skin showing in the V, or over a blue sleeveless top' },
+    exclusions: ['striped-shirt','knit-sweater'],
+    layering: { coversWaistband: true },
+    styling: { silhouette: 'oversized, boxy, hip length', palette: ['cream', 'navy'], pattern: 'wide navy stripes on the lower body and forearms', coverage: { neck: 'deep V, skin showing', sleeves: 'long', midriff: 'covered' }, material: 'chunky fisherman rib knit', warmth: 3, warmthBasis: 'inferred: chunky knit, open V-neck', weather: 'cool days; the V leaves the chest open' },
+    uncertainties: ['buttons are plain cream discs', 'the badge is a plain navy oval', 'the rib is drawn as texture and bump, not separate ridges', 'worn over the blue sleeveless top needs a rule for layering two tops, not yet built'],
+    authoring: { texture: 'procedural fishermanRibData() in src/doll/model.js, drawn locally when first worn', runtimeGeneration: false, sourcePhotosBundled: false },
   },
   [BARREL_JEANS_ID]: {
     slot: 'bottom',

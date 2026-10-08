@@ -557,3 +557,23 @@ test('every top records styling facts for later outfit selection',()=>{
     assert.ok(Array.isArray(st.palette)&&st.palette.length);assert.ok(st.coverage?.neck&&st.coverage?.sleeves&&st.coverage?.midriff,`${id} coverage`);
   }
 });
+
+test('striped cardigan: a top worn over skin, with a deep V, five buttons, navy stripes and a sleeve badge',()=>{
+  const id='petit-bateau-striped-cardigan-v1',g=GARMENTS[id];
+  // Sorted by how the user wears it: on its own over bare skin, so it is a top, not outerwear.
+  assert.equal(g.slot,'top');assert.match(g.wear.userNote,/on its own/);
+  const recipe=cleanRecipe({topId:id,knit:true,shirt:true});assert.equal(recipe.knit,false);assert.equal(recipe.shirt,false);
+  const outfit=makeOutfit({topId:id});outfit.updateMatrixWorld(true);
+  for(const name of ['cardigan-body','neckline-button-band','front-button-band','ribbed-hem-band','bare-shoulder-skin','sleeve-badge'])assert.ok(outfit.getObjectByName(name),name);
+  const count=name=>{let n=0;outfit.traverse(o=>{if(o.name===name)n++;});return n;};assert.equal(count('cardigan-button'),5);assert.equal(count('ribbed-cuff'),2);
+  // The deep V: the body's neckline drops far lower at the centre front than at the back.
+  const p=outfit.getObjectByName('cardigan-body').geometry.attributes.position;let front=Infinity,back=-Infinity;
+  for(let i=0;i<=128;i++){const x=p.getX(i),y=p.getY(i),z=p.getZ(i);if(Math.abs(x)<.03&&z>0)front=Math.min(front,y);if(Math.abs(x)<.03&&z<0)back=Math.max(back,y);}
+  assert.ok(back-front>.2,`V depth ${(back-front).toFixed(3)}`);
+  // Three navy stripes on the body: the texture's navy rows form three bands.
+  const img=outfit.getObjectByName('cardigan-body').material.map.image;let bands=0,prev=false;
+  for(let y=0;y<img.height;y++){const i=y*img.width*4,navy=img.data[i+2]<80;if(navy&&!prev)bands++;prev=navy;}assert.equal(bands,3);
+  // The badge is on her left upper sleeve, and hides with the sleeve.
+  const badge=outfit.getObjectByName('sleeve-badge');assert.ok(badge.getWorldPosition(new T.Vector3()).x>.3);assert.ok(badge.parent.children.some(o=>o.name==='knit-jumper-sleeve'));
+  disposeObject(outfit);
+});
