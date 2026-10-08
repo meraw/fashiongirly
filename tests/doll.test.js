@@ -185,6 +185,11 @@ test('bottom slot: barrel jeans replace the classic jeans and only accept bottom
   for(const name of ['jeans-hips','jeans-waistband','shank-button','twisted-side-seam','knee-dart','back-patch-pocket','pocket-flap','suede-patch'])assert.ok(outfit.getObjectByName(name),name);
   let legs=0;outfit.traverse(o=>{if(o.name==='barrel-leg')legs++;if(o.geometry)for(const v of o.geometry.attributes.position.array)assert.ok(Number.isFinite(v));});assert.equal(legs,2);
   assert.equal(outfit.getObjectByName('jean-cuff'),undefined,'classic jeans are not also built');
+  // Fit from the photos: wide and nearly straight (not ballooning), and long enough to reach the shoes.
+  outfit.updateMatrixWorld(true);const leg=[];outfit.traverse(o=>{if(o.name==='barrel-leg')leg.push(o);});
+  const width=(y0,y1)=>{const b=new T.Box3(),p=new T.Vector3(),pos=leg[0].geometry.attributes.position;for(let i=0;i<pos.count;i++){p.fromBufferAttribute(pos,i);if(p.y>=y0&&p.y<=y1)b.expandByPoint(p);}return b.max.x-b.min.x;};
+  assert.ok(width(.5,.6)/width(.25,.3)<1.08,'leg stays nearly straight from knee to hem');
+  assert.ok(new T.Box3().setFromObject(leg[0]).min.y<.07,'hem reaches down to the shoes (world units, outfit scaled by .76)');
   disposeObject(outfit);
   const dom=new JSDOM(readFileSync('index.html','utf8'),{url:'https://example.com/'}),d=dom.window.document;
   const app=await startStudio(d,async()=>({update(){},turn(){},dispose(){}}));

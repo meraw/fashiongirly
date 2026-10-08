@@ -83,9 +83,9 @@ Each new kind of garment needs its slot the first time it appears. Top and botto
 Items added so far:
 
 1. [Mango windowpane jumper](garments/mango-windowpane-jumper.md). First version: the user found it awkward (balloon-like rather than boxy) and the check a different pattern. Revised; the user then sent the next item without further comment on the revision.
-2. [Topshop acid-wash barrel jeans](garments/topshop-barrel-jeans.md). Added the bottom slot. Awaiting the user's visual review. Its new layering test also found and fixed the bronze top clipping over trousers.
+2. [Topshop acid-wash barrel jeans](garments/topshop-barrel-jeans.md). Added the bottom slot. Its new layering test also found and fixed the bronze top clipping over trousers. First version: the user found it balloon-like, too short and not recognisable from the back. Revised to straight, floor-length legs with bolder details; awaiting their second look.
 
-Lessons from that review: read “oversized” as the garment's actual cut (boxy, dropped shoulders, straight sleeves), not as extra volume. Before rendering, compare the drawn pattern side by side with the clearest reference crop, and check the count and proportion of motifs on her wide, short torso.
+Lessons from these reviews: read cut names like “oversized” or “barrel” from the garment's actual silhouette in the photos, not from the word. Judge length against the photos (floor-length means resting on the shoes). Make each piece's distinguishing details large and contrasting enough to identify it from every angle, especially the back. Read “oversized” as the garment's actual cut (boxy, dropped shoulders, straight sleeves), not as extra volume. Before rendering, compare the drawn pattern side by side with the clearest reference crop, and check the count and proportion of motifs on her wide, short torso.
 
 ## Operational notes
 

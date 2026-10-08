@@ -1,6 +1,6 @@
 # Wardrobe item: Topshop acid-wash barrel jeans
 
-Authored 8 October 2026. Status: first interpretation awaiting user visual feedback. Second piece from the user's wardrobe list, and the first that is not a top.
+Authored 8 October 2026. Status: revised after the user's first review; awaiting their second look. Second piece from the user's wardrobe list, and the first that is not a top.
 
 ## Source and reference reading
 
@@ -9,13 +9,13 @@ The user sent four phone screenshots of the product gallery: front on a model, a
 Features read from the screenshots:
 
 - Low rise, sitting on the hips.
-- Very wide barrel (horseshoe) legs: they curve out to their widest around the knee and taper back toward the hem, full length, resting on the shoes.
-- Side seams twisting forward toward the hem.
-- Horizontal darts across the front of each knee.
+- Wide, nearly straight legs despite the “barrel” name: about as wide at the thigh as at the hem, with only a gentle outward curve at the knee. Full length to the floor, resting on the shoes.
+- Twisted legs: the outseam sweeps toward the back on its way down, and the inseam toward the front.
+- Articulated knees: a horizontal seam across the front and the back of each knee.
 - Slanted front pockets, belt loops, a silver shank button and a zip fly.
 - Tan contrast topstitching throughout.
 - Back: a yoke, patch pockets with pointed flaps and a button, a welt slit above the right pocket, and a brown suede patch on the waistband.
-- Mid-dark blue with a grey cast and a marbled, crinkled acid-wash texture.
+- Mid-dark teal-navy with a grey cast and a marbled, crinkled acid-wash texture, paler down the front of the thighs.
 
 The cropped tank and sneakers in the photos are styling. Fibre composition was not visible.
 
@@ -27,9 +27,14 @@ This item adds the second wardrobe slot. Catalog entries now declare `slot: 'top
 
 Catalog ID `topshop-barrel-jeans-v1`; `makeBarrelJeans()` in `src/doll/model.js`. It builds the same `trousers` group the tops already layer over, so existing hem-clearance rules apply.
 
-- Hips and waistband sit lower than the classic jeans (waistband 1.155 to 1.205). The barrel legs reach their widest at the knee and taper back to a hem with a forward break: slightly shorter in front and longer at the back, clear of the loafers.
-- The wash (`acidWashData()`) is tileable value noise: thin light veins over a mostly dark grey-blue ground, with a twill line. The hips and legs use different repeats so the wash keeps one physical scale.
-- Details are placed by raycasting the built jeans surface, so stitches and patches sit on it rather than on an approximation: slanted pocket and fly stitching, waistband stitching, belt loops, shank button, twisted side seams, knee darts, back yoke, subdivided back patch pockets with stitched pointed flaps and buttons, the welt slit and the suede patch (without brand lettering).
+- The waistband sits a little below the classic jeans' (1.17 to 1.22), leaving room for the yoke and large back pockets. The hips widen to meet the wide legs without a step.
+- Legs are wide and nearly straight down to the floor (0.06). Over each loafer the hem rises to rest on the shoe's upper, so the toe shows beneath it; elsewhere it reaches the floor.
+- The wash (`acidWashData()`) is tileable value noise: thin light veins over a dark teal-navy ground, with a twill line. The hips and legs use different repeats so the wash keeps one physical scale. A per-vertex fade lightens the front of the thighs and the seat and darkens toward the hem.
+- Details are placed by raycasting the built jeans surface, so they sit on it. Bold tan stitching on the waistband, fly and slanted pockets; belt loops and a shank button; outseams twisting to the back and inseams to the front; knee seams front and back; back yoke and centre-back seam; large subdivided back patch pockets with stitched pointed flaps and snap buttons; the welt slit; and a large suede patch (no lettering).
+
+## Revision after user feedback
+
+The user found the first version did not fit like the jeans: it read as balloon-like (despite the “barrel” name the real legs are nearly straight), it was too short, and it was not differentiated enough, especially from the back. The first version bulged at the knee, tapered to a hem above the shoes, and had small, low-contrast details. The revision straightens the legs, takes them to the floor draped over the shoes, enlarges and brightens the distinguishing details, corrects the direction of the seam twist, adds the back knee seams and centre-back seam, and darkens the wash toward the photo. Renders were compared side by side with the back photo during authoring. A test now checks that the leg stays nearly straight from knee to hem and reaches the shoes; it fails on the first version.
 
 ## Layering fix found by this item
 
@@ -43,7 +48,7 @@ A new test checks that every waist-covering top hides every bottom between its h
 
 ## Known differences
 
-- The wash is procedural; it is not copied from the photos and has no whiskering or fading at the thighs.
-- Her seat is short, so the back pockets sit high and close to where the legs separate.
-- The legs end just above the loafers rather than pooling over them, to avoid the shoes cutting through the denim.
+- The wash is procedural; it is not copied from the photos and has no whisker lines.
+- Her seat is short, so the back pockets sit close to where the legs separate.
+- The hem rests on the shoe as a smooth lift, without stacked folds.
 - The suede patch carries no lettering.
