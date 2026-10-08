@@ -105,16 +105,175 @@ export function makeDoll() {
     const arm=oval(root,[side*.307,1.51,0],[.09,.25,.09],skin,'arm');arm.rotation.z=side*.22;
     const hand=oval(root,[side*.37,1.245,.025],[.077,.093,.068],skin,'tiny-mitten');hand.rotation.z=side*.16;
     oval(root,[side*.322,1.265,.07],[.031,.042,.032],skin,'mitten-thumb',20);
+    // Her shoes are worn from the shoe slot (makeShoes); the socks stay part of her.
     const sock=cloth('#ecdcac','knit');oval(root,[side*.16,.25,.02],[.106,.14,.107],sock,'sock');
-    const leather=solid('#64362e',.37), sole=solid('#312829',.85);
-    oval(root,[side*.16,.105,.09],[.131,.089,.205],leather,'loafer');oval(root,[side*.16,.052,.09],[.136,.044,.21],sole,'shoe-sole');
-    curve(root,[[side*.16-.093,.157,.135],[side*.16,.177,.16],[side*.16+.093,.157,.135]],.015,leather,'loafer-strap');
-    curve(root,[[side*.16-.11,.11,.14],[side*.16-.06,.09,.267],[side*.16+.06,.09,.267],[side*.16+.11,.11,.14]],.003,solid('#c4a26e'),'shoe-stitch');
   }
   root.name='plush-body';root.scale.set(BODY_WIDTH,BODY_HEIGHT,1);
   const doll=new T.Group();doll.name='living-doll';
   const head=makeHead();head.position.y-=1.94*(1-BODY_HEIGHT);
   doll.add(root,head);return doll;
+}
+// Shoes fill their own slot. Each pair reports rest(side,x,z): the height at which a hem resting on it lies over
+// that point, or null where the shoe is not underneath.
+const LOAFER_REST=(side,x,z)=>{const fx=(x-side*.16)/.15,fz=(z-.09)/.225,inside=1-fx*fx-fz*fz;return inside>0?.105+.098*Math.sqrt(inside)+.012:null;};
+LOAFER_REST.reach=.3;
+function makeShoes(id='classic',tape=null){
+  const spec=GARMENTS[id]?.slot==='shoes'?GARMENTS[id].build:null;
+  if(spec?.template==='lug-boot')return makeLugBoot(id,spec,tape);
+  const shoes=new T.Group();shoes.name='shoes';shoes.userData.rest=LOAFER_REST;
+  const leather=solid('#64362e',.37),sole=solid('#312829',.85),stitch=solid('#c4a26e');
+  for(const side of [-1,1]){
+    oval(shoes,[side*.16,.105,.09],[.131,.089,.205],leather,'loafer');oval(shoes,[side*.16,.052,.09],[.136,.044,.21],sole,'shoe-sole');
+    curve(shoes,[[side*.16-.093,.157,.135],[side*.16,.177,.16],[side*.16+.093,.157,.135]],.015,leather,'loafer-strap');
+    curve(shoes,[[side*.16-.11,.11,.14],[side*.16-.06,.09,.267],[side*.16+.06,.09,.267],[side*.16+.11,.11,.14]],.003,stitch,'shoe-stitch');
+  }
+  return shoes;
+}
+function ribbon(group,points,normals,width,mat,name,off=0){
+  // A flat strip (tape, webbing, piping) lying on a surface: centre points with their surface normals.
+  const pos=[],uv=[],idx=[],t=new T.Vector3(),b=new T.Vector3();let d=0;const lengths=[0];
+  for(let i=1;i<points.length;i++)lengths.push(d+=points[i].distanceTo(points[i-1]));
+  points.forEach((p,i)=>{t.subVectors(points[Math.min(i+1,points.length-1)],points[Math.max(i-1,0)]).normalize();b.crossVectors(normals[i],t).normalize();
+    for(const k of [-1,1]){const q=p.clone().addScaledVector(b,k*width/2).addScaledVector(normals[i],off);pos.push(q.x,q.y,q.z);uv.push((1-k)/2,lengths[i]/(d||1));}});
+  for(let i=0;i<points.length-1;i++){const a=i*2;idx.push(a,a+1,a+2,a+1,a+3,a+2);}
+  const geo=new T.BufferGeometry();geo.setAttribute('position',new T.Float32BufferAttribute(pos,3));geo.setAttribute('uv',new T.Float32BufferAttribute(uv,2));geo.setIndex(idx);geo.computeVertexNormals();
+  const mesh=put(group,geo,mat,name);mesh.userData.length=d;return mesh;
+}
+function mottle(seed,spread=.05){
+  // Soft, low-contrast patches like brushed nubuck. A multiplier around 1, so the colour stays the measured average.
+  const size=64,data=new Uint8Array(size*size*4),r=random(seed),ph=Array.from({length:6},()=>r()*Math.PI*2),q=Math.PI*2/size;
+  for(let y=0;y<size;y++)for(let x=0;x<size;x++){const v=1+spread*(.5*Math.sin(x*q*2+ph[0])*Math.sin(y*q*3+ph[1])+.3*Math.sin((x+y)*q*5+ph[2])+.2*Math.sin((x-2*y)*q*7+ph[3]))+(r()-.5)*spread*.5;
+    const i=(y*size+x)*4;data[i]=data[i+1]=data[i+2]=Math.round(Math.min(255,236*v));data[i+3]=255;}
+  const tex=new T.DataTexture(data,size,size,T.RGBAFormat);tex.wrapS=tex.wrapT=T.RepeatWrapping;tex.colorSpace=T.SRGBColorSpace;tex.needsUpdate=true;return tex;
+}
+function makeLugBoot(id,spec,tape=null){
+  const boots=new T.Group();boots.name='shoes';boots.userData.garmentId=id;
+  const C=spec.colours,S=spec.sole,rows=spec.upper,yBase=rows[0][0],cx=spec.cx,K=spec.collar;
+  const grain=weave('felt');grain.repeat.set(10,6);
+  const map=mottle(31);map.repeat.set(3,1);
+  const nubuck=new T.MeshPhysicalMaterial({color:C.upper,map,roughness:.92,sheen:.5,sheenColor:new T.Color(C.upper).lerp(new T.Color('#efe3c6'),.35),sheenRoughness:.7,bumpMap:grain,bumpScale:.004,side:T.DoubleSide});
+  const rubberGrain=weave('felt');rubberGrain.repeat.set(16,4);
+  const rubber=new T.MeshStandardMaterial({color:C.sole,roughness:.82,bumpMap:rubberGrain,bumpScale:.0012,side:T.DoubleSide});
+  const thread=solid(C.thread,.85),piping=solid(C.piping,.6),webbing=cloth(C.webbing),lace=solid(C.lace,.9),lining=solid(C.lining,.95),eyelet=new T.MeshStandardMaterial({color:C.eyelet,metalness:.7,roughness:.4});
+  let tapeMat;if(tape){const m=tape.clone();m.needsUpdate=true;tapeMat=new T.MeshStandardMaterial({map:m,roughness:.85,side:T.DoubleSide});}else tapeMat=new T.MeshStandardMaterial({color:'#8f8d87',roughness:.85,side:T.DoubleSide});
+  const smooth=(e0,e1,x)=>{const t=Math.min(1,Math.max(0,(x-e0)/(e1-e0)));return t*t*(3-2*t);};
+  // Upper: horizontal slices (rows are [y, front, back, halfWidth]) smoothed through the rows. Low down a slice is the
+  // whole long foot; higher up its front recedes along the lacing until only the ankle shaft is left.
+  const at=y=>{let k=0;while(k<rows.length-2&&y>rows[k+1][0])k++;const t=Math.min(1,Math.max(0,(y-rows[k][0])/(rows[k+1][0]-rows[k][0]))),r=i=>rows[Math.max(0,Math.min(rows.length-1,i))];
+    return [1,2,3].map(c=>{const p0=r(k-1)[c],p1=r(k)[c],p2=r(k+1)[c],p3=r(k+2)[c];return .5*(2*p1+(-p0+p2)*t+(2*p0-5*p1+4*p2-p3)*t*t+(-p0+3*p1-3*p2+p3)*t*t*t);});};
+  // The collar is not level: it rises to the heel tab, dips over the ankle bones and lifts again toward the tongue.
+  const yTopMax=Math.max(K.front,K.back),collarY=a=>{const c=Math.cos(a);return K.side+(K.back-K.side)*Math.max(0,-c)**2+(K.front-K.side)*Math.max(0,c)**2;};
+  // The padded collar puffs out between its quilting rows (depths below the collar), around the back and sides.
+  const puff=(y,a)=>{const back=smooth(-.2,.35,-Math.cos(a)),d=collarY(a)-y,[q0,q1]=spec.quilt;let p=0;for(const [lo,hi] of [[0,q0],[q0,q1]])if(d>lo&&d<hi)p=Math.sin(Math.PI*(d-lo)/(hi-lo));return .005*p*back;};
+  // Each slice: a rounded outline between its back and front, squarer at the toe and narrowing toward the heel
+  // (the foot's heel, not the ankle shaft above it).
+  const heelNarrow=y=>spec.heelNarrow*(1-smooth(.2,.26,y));
+  const plan=(y,a,off=0,[f,b,w]=at(y))=>{const s=Math.sin(a),c=Math.cos(a),n=c>0?spec.nFront:spec.nBack,zc=(f+b)/2,hl=(f-b)/2,heel=1-heelNarrow(y)*Math.max(0,-c)-spec.toeNarrow*Math.max(0,c)**2;
+    const x=w*heel*Math.sign(s)*Math.abs(s)**(2/n),z=hl*Math.sign(c)*Math.abs(c)**(2/n),r=Math.hypot(x,z)||1,k=(r+off)/r;return [x*k,zc+z*k];};
+  const centreZ=y=>{const [f,b]=at(y);return (f+b)/2;};
+  const surf=(side,y,a,off=0)=>{const [x,z]=plan(y,a,off+puff(y,a));return V(side*cx+x,y,z);};
+  const normal=(side,y,a)=>{const da=surf(side,y,a+1e-3).sub(surf(side,y,a-1e-3)),dy=surf(side,y+1e-3,a).sub(surf(side,y-1e-3,a)),n=new T.Vector3().crossVectors(da,dy).normalize(),p=surf(side,y,a);
+    if(n.x*(p.x-side*cx)+n.z*(p.z-centreZ(y))<0)n.negate();return n;};
+  // Angle on a slice where the lacing edge (dx from the centre front) lies; and where a point at length z lies on side k.
+  const laceAngle=(y,dx)=>{const [,, w]=at(y),n=spec.nFront;return Math.sign(dx)*Math.asin(Math.min(1,(Math.abs(dx)/w)**(n/2)));};
+  const angleAt=(y,z,k)=>{const [f,b]=at(y),q=Math.max(-1,Math.min(1,(z-(f+b)/2)/((f-b)/2))),n=q>0?spec.nFront:spec.nBack;return k*Math.acos(Math.sign(q)*Math.abs(q)**(n/2));};
+  const inside=(dx,z,y,grow=0)=>{const [f,b,w]=at(y),zc=(f+b)/2,hl=(f-b)/2+grow,q=(z-zc)/hl,n=q>0?spec.nFront:spec.nBack,heel=1-(q<0?heelNarrow(y)*Math.abs(q)**(n/2):spec.toeNarrow*Math.abs(q)**n);
+    return Math.abs(dx/(w*heel+grow))**n+Math.abs(q)**n;};
+  // Sole: a tall heel block that steps down under the forefoot, with a rubber toe bumper rising round the toe.
+  const base=at(yBase),front=base[0];
+  const soleTop=z=>S.top+(S.heelTop-S.top)*smooth(S.heelFrom,S.heelFrom-.03,z)+(S.rand-S.top)*smooth(front-.08,front+.01,z);
+  const onSurface=(side,path,off=0,count=24)=>{const c=new T.CatmullRomCurve3(path.map(([y,a])=>V(a,y,0)),false,'centripetal');
+    const pts=[],nrm=[];for(let i=0;i<=count;i++){const q=c.getPoint(i/count);pts.push(surf(side,q.y,q.x,off));nrm.push(normal(side,q.y,q.x));}return [pts,nrm];};
+  // Side details are placed by length along the boot (z) and height, read from the side photos, on side k.
+  const alongSide=(side,k,path,off,count)=>onSurface(side,path.map(([z,y])=>[y,angleAt(y,z,k)]),off,count);
+  const N=120;
+  for(const side of [-1,1]){
+    // Upper, from just inside the sole to the shaped collar.
+    const rings=[];for(let j=0;j<=40;j++){const t=j/40,ring=[];for(let i=0;i<=N;i++){const a=i/N*Math.PI*2,y=yBase-.012+(collarY(a)-yBase+.012)*t;ring.push(surf(side,Math.max(y,yBase),a).setY(y).toArray());}rings.push(ring);}
+    ringShell(boots,rings,nubuck,'boot-upper');
+    // Lining just inside the collar, and the padded roll over its edge.
+    ringShell(boots,[0,1].map(j=>Array.from({length:N+1},(_,i)=>{const a=i/N*Math.PI*2,y=collarY(a)-j*.03;return surf(side,y,a,-.006).toArray();})),lining,'boot-lining');
+    curve(boots,Array.from({length:N+1},(_,i)=>{const a=i/N*Math.PI*2;return surf(side,collarY(a),a,.004).toArray();}),spec.collarRoll,nubuck,'collar-roll');
+    // Quilted collar: tan stitching along each quilting row, around the back and sides.
+    for(const d of spec.quilt)curve(boots,Array.from({length:41},(_,i)=>{const a=Math.PI*(.45+1.1*i/40);return surf(side,collarY(a)-d-.003,a,.0015).toArray();}),.0013,thread,'quilt-stitch');
+    // Sole: flared from the upper's base outline, deep lugs below a ledge, a groove, the stepped heel block and toe
+    // bumper, and a lifted toe.
+    const soleRows=[[0,-.008],[.007,0],[.017,0],[.028,0],[.039,0],[S.lugTop-.004,0],[S.lugTop,.005],[S.lugTop+.006,.005],[S.groove-.006,.002],[S.groove,-.004],[S.groove+.006,.002],['top',-.014,0],['top',0,-.005]];
+    const ringPts=Array.from({length:4*N+1},(_,i)=>i/(4*N)*Math.PI*2),perim=[0];
+    for(let i=1;i<ringPts.length;i++){const [x0,z0]=plan(yBase,ringPts[i-1],S.flare,base),[x1,z1]=plan(yBase,ringPts[i],S.flare,base);perim.push(perim[i-1]+Math.hypot(x1-x0,z1-z0));}
+    const period=perim[perim.length-1]/S.lugs,soleRings=[];
+    for(const row of soleRows){const ring=[];
+      ringPts.forEach((a,i)=>{const [,z0]=plan(yBase,a,S.flare,base),top=soleTop(z0);let y,off;
+        if(row[0]==='top'){y=top+row[1];off=S.flare+row[2];}else{y=row[0];off=S.flare+row[1];}
+        // Lugs: wedge-shaped gaps cut into the outsole, widest at the ground.
+        if(row[0]!=='top'&&y<S.lugTop){const g=Math.abs((perim[i]/period)%1-.5),half=.2*Math.max(0,1-y/(S.lugTop*.9));if(g<half)off-=S.lugDepth*smooth(half,half*.55,g);}
+        const lift=S.toeLift*Math.max(0,(z0-(front-.16))/.16)**2*(1-y/top);
+        const [x,z]=plan(yBase,a,off,base);ring.push([side*cx+x,y+lift,z]);});
+      soleRings.push(ring);}
+    ringShell(boots,soleRings,rubber,'lug-sole');
+    // The sole's top edge meets the upper, rising into the heel block and over the toe bumper.
+    ringShell(boots,[soleRings[soleRings.length-1],ringPts.map(a=>{const [,z0]=plan(yBase,a,0,base),y=soleTop(z0);return surf(side,Math.max(yBase,y),a).toArray();})],rubber,'sole-rim');
+    // A dark welt line where the upper goes into the sole, so the two read apart.
+    curve(boots,ringPts.filter((_,i)=>i%4===0).map(a=>{const [,z0]=plan(yBase,a,0,base);return surf(side,Math.max(yBase,soleTop(z0))+.004,a,.002).toArray();}),.0032,piping,'welt');
+    // Tongue under the laces, standing a little above the collar.
+    const yFront=collarY(0),y0=spec.eyelets[0]-.008,tPath=[];for(let k=0;k<=10;k++)tPath.push([y0+(yFront-y0)*k/10,0]);
+    const [tp,tn]=onSurface(side,tPath,.002,20),up=V(0,1,0);
+    for(const k of [1,2]){tp.push(tp[tp.length-1].clone().addScaledVector(up,.01));tn.push(tn[tn.length-1].clone());}
+    ribbon(boots,tp,tn,spec.laceHalfWidth*2+.016,nubuck,'tongue');
+    // Logo tape down the tongue, and its pull tab above the collar.
+    const tapeAt=(ya,yb,extra=0)=>{const [pp,nn]=onSurface(side,[[ya,0],[(ya+yb)/2,0],[yb,0]],.005,12);if(extra)for(const k of [1,2,3]){pp.push(pp[pp.length-1].clone().add(V(0,extra/3,0)));nn.push(nn[nn.length-1].clone());}return [pp,nn];};
+    ribbon(boots,...tapeAt(spec.loops[0]-.03,spec.loops[1]+.012),.032,tapeMat,'tongue-tape');
+    ribbon(boots,...tapeAt(yFront-.035,yFront,spec.tongueTab.above),spec.tongueTab.width,tapeMat,'tongue-tab');
+    const badge=oval(boots,surf(side,y0+.004,0,.008).toArray(),[.024,.016,.006],solid(C.lining,.5),'tongue-badge',16);badge.lookAt(badge.position.clone().add(normal(side,y0+.004,0)));
+    // Heel pull tab: tall logo tape up the back, passing over the padded collar roll and rising above it.
+    const yBack=collarY(Math.PI),hp=[],hn=[];for(let i=0;i<=16;i++){const y=spec.heelTab.from+(yBack-spec.heelTab.from)*i/16;hp.push(surf(side,y,Math.PI,.008+(spec.collarRoll+.006)*smooth(yBack-.05,yBack,y)));hn.push(normal(side,y,Math.PI));}
+    for(const k of [1,2,3]){hp.push(hp[hp.length-1].clone().add(V(0,spec.heelTab.above/3,0)));hn.push(hn[hn.length-1].clone());}
+    ribbon(boots,hp,hn,spec.heelTab.width,tapeMat,'heel-tab');
+    // Lacing: metal eyelets, taupe webbing loops, and flat laces crossing between them, tied in a bow at the top.
+    const L=spec.laceHalfWidth,laceRows=[...spec.eyelets,...spec.loops].sort((a,b)=>a-b),edge=(y,k)=>surf(side,y,laceAngle(y,k*L),.006);
+    for(const y of spec.eyelets)for(const k of [-1,1]){const a=laceAngle(y,k*L),e=put(boots,new T.TorusGeometry(.012,.0042,6,14),eyelet,'eyelet');e.position.copy(surf(side,y,a,.003));e.lookAt(e.position.clone().add(normal(side,y,a)));}
+    for(const y of spec.loops)for(const k of [-1,1]){const a=laceAngle(y,k*L);ribbon(boots,...onSurface(side,[[y,a-k*.03],[y-.002,a+k*.12],[y-.004,a+k*.26]],.006,8),.017,webbing,'webbing-loop');}
+    // Eyestays: dark piping and tan stitching beside the lacing, from the toe up to the collar.
+    for(const k of [-1,1]){
+      curve(boots,onSurface(side,[[y0,laceAngle(y0,k*(L+.013))],[(y0+yFront)/2,laceAngle((y0+yFront)/2,k*(L+.013))],[yFront-.006,laceAngle(yFront-.006,k*(L+.013))]],.003,16)[0].map(p=>p.toArray()),.0034,piping,'eyestay-piping');
+      curve(boots,onSurface(side,[[y0,laceAngle(y0,k*(L+.024))],[yFront-.008,laceAngle(yFront-.008,k*(L+.024))]],.0015,16)[0].map(p=>p.toArray()),.0013,thread,'eyestay-stitch');
+    }
+    curve(boots,[edge(laceRows[0],-1),surf(side,laceRows[0],0,.015),edge(laceRows[0],1)].map(p=>p.toArray()),.0075,lace,'lace');
+    for(let r=0;r<laceRows.length-1;r++)for(const k of [-1,1]){const ya=laceRows[r],yb=laceRows[r+1],mid=surf(side,(ya+yb)/2,0,.017+.003*k);curve(boots,[edge(ya,k),mid,edge(yb,-k)].map(p=>p.toArray()),.0075,lace,'lace');}
+    // A small bow lying close to the lacing, so long trousers drape over it.
+    const knot=surf(side,yFront-.008,0,.013),out=normal(side,yFront-.008,0);
+    for(const k of [-1,1]){
+      curve(boots,[knot,knot.clone().add(V(k*.024,.016,0)).addScaledVector(out,.004),knot.clone().add(V(k*.042,.002,0)).addScaledVector(out,.004),knot.clone().add(V(k*.016,-.006,0)),knot].map(p=>p.toArray()),.005,lace,'lace-bow');
+      curve(boots,[knot,knot.clone().add(V(k*.014,-.026,0)),knot.clone().add(V(k*.022,-.06,0)).addScaledVector(out,-.004)].map(p=>p.toArray()),.005,lace,'lace-end');
+    }
+    oval(boots,knot.toArray(),[.011,.009,.008],lace,'lace-knot',12);
+    // Sides (both): the long overlay edge in dark piping sweeping from the heel up to the lacing, the window below it with
+    // two diagonal webbing straps, the vamp seam, and tan stitching beside each edge. Paths are [z, y].
+    for(const k of [-1,1]){
+      const D=spec.sides;
+      curve(boots,alongSide(side,k,D.arch,.004,30)[0].map(p=>p.toArray()),.0042,piping,'side-piping');
+      curve(boots,alongSide(side,k,D.arch.map(([z,y])=>[z,y-.012]),.002,30)[0].map(p=>p.toArray()),.0013,thread,'side-stitch');
+      curve(boots,alongSide(side,k,D.window,.004,24)[0].map(p=>p.toArray()),.0042,piping,'window-piping');
+      curve(boots,alongSide(side,k,D.window.map(([z,y])=>[z,y+.01]),.002,24)[0].map(p=>p.toArray()),.0013,thread,'side-stitch');
+      for(const strap of D.straps)ribbon(boots,...alongSide(side,k,strap,.004,8),.016,webbing,'side-strap');
+      curve(boots,alongSide(side,k,D.vamp,.002,16)[0].map(p=>p.toArray()),.0013,thread,'vamp-stitch');
+    }
+  }
+  // Where a hem rests on the boots: partway up the vamp over the upper, on the platform's rim beside it.
+  const rest=boots.userData.rest=(side,x,z)=>{const dx=x-side*cx;
+    // A long hem settles partway up the vamp (no higher than restCap); above that the leg drapes forward over the
+    // lacing (rest.inside below) instead of climbing it.
+    if(inside(dx,z,yBase)<=1){let lo=yBase,hi=yTopMax;if(inside(dx,z,yTopMax)<=1)lo=yTopMax;else for(let i=0;i<18;i++){const m=(lo+hi)/2;if(inside(dx,z,m)<=1)lo=m;else hi=m;}return Math.min(Math.max(lo,soleTop(z))+.03,spec.restCap);}
+    if(inside(dx,z,yBase,S.flare)<=1)return soleTop(z)+.006;
+    // Just beyond the platform the hem falls away to the floor rather than stepping down.
+    const fall=.07;if(inside(dx,z,yBase,S.flare+fall)>1)return null;let lo=S.flare,hi=S.flare+fall;
+    for(let i=0;i<14;i++){const m=(lo+hi)/2;if(inside(dx,z,yBase,m)<=1)hi=m;else lo=m;}const t=1-(hi-S.flare)/fall;return .06+(soleTop(z)+.006-.06)*t*t;};
+  // How far up the trouser leg the hem gathers to sit on them; where a shorter hem sits (on the collar); and the space
+  // they take up (with their laces, collar and tabs) that long trousers must drape around.
+  rest.reach=yTopMax+.1;rest.collar=yTopMax+.025;
+  rest.collarAt=(side,x,z)=>collarY(Math.atan2(x-side*cx,z-centreZ(yTopMax)))+.025;
+  rest.inside=(side,x,y,z)=>y>=yBase&&y<=yTopMax+.12&&inside(x-side*cx,z,Math.min(y,yTopMax),y>K.side-.03?.045:.036)<=1;
+  return boots;
 }
 function sleeve(group,side,volume,mat) {
   const sleeveGroup=new T.Group();sleeveGroup.position.set(side*.245,1.81,0);sleeveGroup.rotation.z=side*.22;
@@ -627,7 +786,7 @@ function subdivided(shape,levels=3,back=false){
 }
 // One builder for every pair of catalog jeans. Each pair's catalog entry holds its `build` spec: cut (hip and leg rows),
 // rise, hem, pockets, seams and details. Optional details are switched on by the presence of their spec field.
-function makeJeans(id,spec,swatch=null){
+function makeJeans(id,spec,swatch=null,rest=LOAFER_REST){
   const jeans=new T.Group();jeans.name='trousers';jeans.userData.garmentId=id;
   // The denim is a swatch taken from the product photos (flat-lit, seamless). Repeats keep it at the photo's scale
   // relative to the leg. Without the swatch (tests, or a failed load) a flat calibrated colour stands in.
@@ -689,6 +848,10 @@ function makeJeans(id,spec,swatch=null){
   const wl={top:1.0,count:4,spacing:.035,width:.007,lo:.82,hi:1.06,back:false,...spec.whiskerLines};
   const whiskers=(x,y,z)=>{if((z<=0&&!wl.back)||y<wl.lo||y>wl.hi)return 0;let w=0;for(let k=0;k<wl.count;k++){const line=wl.top-wl.spacing*k-.3*Math.max(0,Math.abs(x)-.04),gap=Math.abs(y-line);if(gap<wl.width)w=Math.max(w,(1-gap/wl.width)*Math.max(0,1-Math.abs(x)/.27));}return w;};
   const hemY=spec.legs[spec.legs.length-1][0],[gLow,gRange]=spec.gradient;
+  // A shorter hem that would end inside a boot sits on its collar when the leg's cut fits round it (decided once, from
+  // the pattern, so both legs agree); a wider leg goes over the boot shaft instead.
+  const cut=spec.legs[spec.legs.length-1],fitsCollar=spec.hem!=='rests-on-shoe'&&!!rest.collar&&hemY<rest.collar&&Array.from({length:24},(_,k)=>k/24*Math.PI*2).every(a=>{const x=cut[3]+cut[1]*Math.sin(a),z=cut[2]*Math.cos(a);return rest.inside(1,x,(rest.collarAt?.(1,x,z)??rest.collar)-.002,z);});
+  const hemTop=fitsCollar?rest.collar:hemY;if(fitsCollar)jeans.userData.hemOnCollar=true;
   const shade=(mesh,wear,side=0)=>{const p=mesh.geometry.attributes.position,c=[];for(let i=0;i<p.count;i++){
     const x=p.getX(i),y=mesh.userData.restY?.[i]??p.getY(i),z=p.getZ(i);let f=gLow+gRange*Math.min(1,Math.max(0,(y-.06)/1.14));
     f*=1+6*(wear?.[i]||0)+spec.whiskers*whiskers(x,y,z);
@@ -722,10 +885,26 @@ function makeJeans(id,spec,swatch=null){
       if(spec.crotch){const f=Math.min(1,Math.max(0,(spec.crotch.y-y)/.08));d*=f*f*(3-2*f);}
       wear[i]=d;restY[i]=y;const k=(r+d)/r;p.setX(i,cx+dx*k);p.setZ(i,z*k);
     }
-    // A floor-length hem rests on the loafer: over the shoe it rises to sit on the upper, elsewhere it reaches the floor.
-    if(spec.hem==='rests-on-shoe')for(let i=0;i<p.count;i++){const y=p.getY(i);if(y>.3)continue;
-      const fx=(p.getX(i)-side*.16)/.15,fz=(p.getZ(i)-.09)/.225,inside=1-fx*fx-fz*fz;
-      const floor=inside>0?.105+.098*Math.sqrt(inside)+.012:.06,t=Math.min(1,(.3-y)/(.3-.06));p.setY(i,Math.max(y,y+(floor-.06)*t));}
+    // A floor-length hem rests on the shoe she wears (rest() from makeShoes): over the shoe it rises to sit on the
+    // upper, elsewhere it reaches the floor.
+    const reach=rest.reach||.3;
+    if(spec.hem==='rests-on-shoe')for(let i=0;i<p.count;i++){const y=p.getY(i);if(y>reach)continue;
+      const floor=rest(side,p.getX(i),p.getZ(i))??.06,t=Math.min(1,(reach-y)/(reach-.06));p.setY(i,Math.max(y,y+(floor-.06)*t));}
+    // Over a taller shoe (a boot shaft, its laces and collar) the hem tents gradually around the leg rather than
+    // stepping up, and the leg bows out just enough to clear the shoe.
+    if(spec.hem==='rests-on-shoe'&&rest.inside){const n=97,lift=Array.from({length:p.count},(_,i)=>p.getY(i)-restY[i]);
+      for(let r=0;r<p.count/n;r++)for(let pass=0;pass<2;pass++)for(const dir of [1,-1])for(let j=1;j<n;j++){const k=r*n+(dir>0?j:n-1-j),prev=k-dir;lift[k]=Math.max(lift[k],lift[prev]-.008);}
+      for(let i=0;i<p.count;i++)p.setY(i,restY[i]+lift[i]);}
+    // A shorter hem (cropped, ankle) that would end inside a boot sits on top of its padded collar instead, gathering a
+    // little above; the boot's pull tabs stand up outside it.
+    if(fitsCollar){const hem=hemY,reach2=rest.collar+.12;
+      // The collar dips at the sides, so the hem follows it round the leg.
+      for(let i=0;i<p.count;i++){const x=p.getX(i),y=p.getY(i),z=p.getZ(i),top=rest.collarAt?.(side,x,z)??rest.collar;if(y>reach2)continue;p.setY(i,y+(top-hem)*(reach2-y)/(reach2-hem));}}
+    // Where a long leg still meets the boot (shaft, laces, collar, tabs) it bows out to clear it, easing in above and below.
+    if((spec.hem==='rests-on-shoe'||!fitsCollar)&&rest.inside){const n=97,rows=p.count/n,push=new Float32Array(p.count),cxs=new Float32Array(p.count);
+      for(let i=0;i<p.count;i++){const x=p.getX(i),y=p.getY(i),z=p.getZ(i),cx=cxs[i]=lerpRows(legRows(side),restY[i])[3];let k=1;while(k<2.5&&rest.inside(side,cx+(x-cx)*k,y,z*k))k+=.01;push[i]=k-1;}
+      for(let c=0;c<n;c++)for(const dir of [1,-1])for(let j=1;j<rows;j++){const r=dir>0?j:rows-1-j,k=r*n+c,prev=(r-dir)*n+c;push[k]=Math.max(push[k],push[prev]-.04);}
+      for(let i=0;i<p.count;i++)if(push[i]>0){const cx=cxs[i];p.setX(i,cx+(p.getX(i)-cx)*(1+push[i]));p.setZ(i,p.getZ(i)*(1+push[i]));}}
     p.needsUpdate=true;leg.geometry.computeVertexNormals();leg.userData.restY=restY;shade(leg,wear,side);
     if(spec.crotch){leg.userData.ringSize=97;byDistance(leg);}
   }
@@ -771,11 +950,11 @@ function makeJeans(id,spec,swatch=null){
     const hipPoint=(y,a,off=.003)=>{const dir=new T.Vector3(Math.sin(a),0,Math.cos(a));caster.set(new T.Vector3(0,y,0).addScaledVector(dir,.8),dir.clone().negate());const h=caster.intersectObject(body[0],false)[0];return h?h.point.addScaledVector(dir,off).toArray():[dir.x*.27,y,dir.z*.18];};
     const seam=spec.crotch?Array.from({length:7},(_,k)=>{const y=spec.waistband.y-spec.waistband.h/2-k*(spec.waistband.y-spec.waistband.h/2-.98)/6;return hipPoint(y,side*Math.PI/2);}):spec.sideSeamTop.map(([x,y])=>[side*x,y,0]);
     const legTop=spec.crotch?spec.crotch.y-.003:.97;
-    for(let k=0;k<=20;k++){const y=legTop-k*(legTop-spec.seamEnd)/20;seam.push(legPoint(side,y,outAngle(side,y)));}
+    const seamEnd=hemTop>hemY?Math.max(spec.seamEnd,hemTop+.01):spec.seamEnd;for(let k=0;k<=20;k++){const y=legTop-k*(legTop-seamEnd)/20;seam.push(legPoint(side,y,outAngle(side,y)));}
     curve(jeans,seam,.0018*sw,thread,seamNames[0]);
     // Double-needle seams: a second row just toward the front of each leg seam.
     if(spec.doubleSeams)curve(jeans,seam.map(([x,y,z],k)=>k<seam.length-21?[x,y,z+.006]:legPoint(side,y,outAngle(side,y)-side*.07)),.0018*sw,thread,seamNames[0]);
-    const inTop=spec.crotch?spec.crotch.y-.003:.95,inseam=[];for(let k=0;k<=20;k++){const y=inTop-k*(inTop-spec.seamEnd)/20;inseam.push(legPoint(side,y,inAngle(side,y)));}
+    const inTop=spec.crotch?spec.crotch.y-.003:.95,inseam=[];for(let k=0;k<=20;k++){const y=inTop-k*(inTop-seamEnd)/20;inseam.push(legPoint(side,y,inAngle(side,y)));}
     curve(jeans,inseam,.0018*sw,thread,seamNames[1]);
     if(spec.doubleSeams)curve(jeans,inseam.map(([x,y])=>legPoint(side,y,inAngle(side,y)+side*.07)),.0018*sw,thread,seamNames[1]);
     // Articulated knee: horizontal seams across the front and the back of each knee.
@@ -853,18 +1032,19 @@ function makeJeans(id,spec,swatch=null){
     for(const k of [.4,.33])curve(leather,[[-w*k,h*k,d/2+.0006],[w*k,h*k,d/2+.0006],[w*k,-h*k,d/2+.0006],[-w*k,-h*k,d/2+.0006],[-w*k,h*k,d/2+.0006]],.0011,ink,'patch-print');
   }
   // A stitched hem: a ring of topstitching just above the hem edge of each leg.
-  if(spec.hemStitch)for(const side of [-1,1]){const pts=[];for(let k=0;k<=64;k++)pts.push(legPoint(side,hemY+spec.hemStitch,k/64*Math.PI*2,.002));curve(jeans,pts,.0018*sw,thread,'hem-stitch');}
+  if(spec.hemStitch)for(const side of [-1,1]){const pts=[];for(let k=0;k<=64;k++)pts.push(legPoint(side,hemTop+spec.hemStitch,k/64*Math.PI*2,.002));curve(jeans,pts,.0018*sw,thread,'hem-stitch');}
   if(spec.hem==='raw-crop'){
     // Cropped raw hem: a pale frayed edge around each ankle.
     const fray=solid(spec.frayColour||'#cdd7df',1),r=random(23);
-    for(const side of [-1,1])for(let k=0;k<56;k++){const a=k/56*Math.PI*2+r()*.05,[x,y,z]=legPoint(side,hemY+.004,a,.001),h=.006+r()*.008;curve(jeans,[[x,y,z],[x,y-h,z]],.0011,fray,'frayed-hem');}
+    for(const side of [-1,1])for(let k=0;k<56;k++){const a=k/56*Math.PI*2+r()*.05,[x,y,z]=legPoint(side,hemTop+.004,a,.001),h=.006+r()*.008;curve(jeans,[[x,y,z],[x,y-h,z]],.0011,fray,'frayed-hem');}
   }
   return jeans;
 }
 export function makeOutfit(raw, atlas=null) {
   const state=cleanRecipe(raw),root=new T.Group();root.name='wardrobe';
   const shirt=cloth('#e6e6de'),stripe=solid('#829bb9'),denim=cloth(state.trousers,'denim'),knit=cloth(state.sweater,'knit'),stitch=solid('#ae8c62');
-  const bottom=GARMENTS[state.bottomId],trousers=bottom?.build?.template==='jeans'?makeJeans(state.bottomId,bottom.build,atlas?.isTexture?null:atlas?.[state.bottomId]):new T.Group();trousers.name='trousers';root.add(trousers);
+  const shoes=makeShoes(state.shoesId,atlas?.isTexture?null:atlas?.[state.shoesId]);root.add(shoes);
+  const bottom=GARMENTS[state.bottomId],trousers=bottom?.build?.template==='jeans'?makeJeans(state.bottomId,bottom.build,atlas?.isTexture?null:atlas?.[state.bottomId],shoes.userData.rest):new T.Group();trousers.name='trousers';root.add(trousers);
   if(state.bottomId==='classic'){
   // One pelvis shell overlaps leg roots; both are separate from the doll.
   shell(trousers,[[1.23,.252,.177],[1.15,.272,.194],[1.05,.267,.19],[.96,.235,.176]],denim,'jeans-hips');

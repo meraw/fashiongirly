@@ -1,4 +1,6 @@
 // Authored wardrobe entries. These describe assets, not runtime AI requests.
+// Shoes: built-in loafers are 'classic'; catalog shoes fill the 'shoes' slot.
+export const BUFFALO_ASPHA_ID = 'buffalo-aspha-mid-olive-v1';
 export const BRONZE_TOP_ID = 'desigual-bronze-mesh-v1';
 export const LILAC_TOP_ID = 'lilac-portrait-mockneck-v1';
 export const CROCHET_TOP_ID = 'desigual-crochet-flowers-v1';
@@ -363,6 +365,39 @@ export const GARMENTS = Object.freeze({
       backPocket: { x: .122, outline: [[-.074, 1.128], [.074, 1.128], [.07, 1.0], [0, .972], [-.07, 1.0]], stitchBelow: 1.07 },
       centreBack: [[.004, 1.142], [.004, 1.05], [0, .985]],
       labelPatch: { name: 'woven-label', size: [.032, .02, .003], colour: '#d8d6d0', position: [-.06, 1.21, -(.175 + .004)], rotationY: Math.PI + .25 },
+    },
+  },
+  // Shoes.
+  [BUFFALO_ASPHA_ID]: {
+    slot: 'shoes',
+    id: BUFFALO_ASPHA_ID, name: 'Buffalo Aspha olive platform boots', family: 'lug-sole-platform-ankle-boot', version: 1,
+    status: 'reference-study-awaiting-visual-review', brandAsProvided: 'Buffalo',
+    source: { note: 'user supplied five phone screenshots of an Amazon listing ("Buffalo Aspha NC Mid Vegan Nu", colour Verde, size 36 EU): front three-quarter, outer side, back three-quarter, inner side, inner three-quarter' },
+    referenceViews: ['front three-quarter', 'outer side', 'back three-quarter', 'inner side', 'inner three-quarter'],
+    details: ['chunky tonal platform sole with deep trapezoid lugs, a ledge above the lugs and a raised heel cup', 'toe of the sole lifted (rocker)', 'mid-cut olive vegan nubuck upper, all one colour with the sole', 'padded collar quilted in two horizontal rows', 'tall heel pull tab of jacquard logo tape: grey band reading BUFFALO // between black and taupe woven edges', 'logo tape down the tongue and a tongue pull tab', 'metal eyelets with two taupe webbing lace loops per side', 'flat olive laces', 'curved side overlay edged in dark piping, over a window with two diagonal taupe webbing straps', 'tan double topstitching'],
+    material: { construction: 'vegan nubuck upper on a moulded rubber platform', composition: 'not visible in the supplied screenshots', finish: 'matte, softly mottled' },
+    fit: { silhouette: 'chunky lug-sole ankle boot', height: 'mid, just above the ankle bone', platform: 'built inside her existing foot height; her body is not raised', adjustment: 'fixed authored fit for review' },
+    uncertainties: ['lug count and side-panel curves adapted to her short toy foot', 'the tongue badge, side label and embossed Buffalo script on the heel of the sole carry no lettering', 'tape lettering is redrawn, not copied'],
+    authoring: { texture: 'buffalo-tape.js: logo tape drawn locally from the product photos; nubuck and sole colours measured from the photos', runtimeGeneration: false, sourcePhotosBundled: false },
+    // Construction for makeLugBoot() in src/doll/model.js, in outfit units (x is widened by 1.06 and y squashed by .76 on screen).
+    // Upper rows are [y, front, back, halfWidth]: horizontal slices whose front recedes up the lacing.
+    build: {
+      template: 'lug-boot', cx: .168,
+      colours: { upper: '#514e3f', sole: '#44463e', thread: '#7a6b52', piping: '#2a271f', webbing: '#6e604d', lace: '#47422f', eyelet: '#3b3a37', lining: '#2f2c24' },
+      sole: { top: .112, heelTop: .15, heelFrom: -.03, rand: .15, lugTop: .05, groove: .074, flare: .02, toeLift: .03, lugs: 24, lugDepth: .026 },
+      // A long, low toe; the lacing climbs diagonally to an ankle shaft. Measured as proportions of the side photos.
+      upper: [[.112, .44, -.16, .13], [.13, .445, -.162, .131], [.15, .43, -.165, .13], [.165, .4, -.165, .13], [.18, .355, -.164, .129], [.2, .31, -.162, .13], [.225, .265, -.158, .128], [.25, .228, -.155, .127], [.28, .198, -.15, .126], [.31, .175, -.145, .126], [.335, .155, -.138, .124], [.36, .14, -.132, .108], [.385, .132, -.13, .104]],
+      collar: { front: .365, side: .345, back: .385 },
+      nFront: 2.3, nBack: 2, heelNarrow: .12, toeNarrow: .22, restCap: .22, collarRoll: .017, quilt: [.035, .07],
+      eyelets: [.195, .215, .235, .33, .35], loops: [.265, .297], laceHalfWidth: .044,
+      heelTab: { width: .056, from: .18, above: .08 }, tongueTab: { width: .046, above: .045 },
+      // Side overlay, window, straps and vamp seam as [z, y] paths along each side.
+      sides: {
+        arch: [[-.115, .165], [-.01, .2], [.09, .243], [.15, .27], [.19, .29]],
+        window: [[0, .15], [.02, .18], [.12, .186], [.2, .15], [.225, .122]],
+        straps: [[[.025, .128], [.07, .178]], [[.105, .125], [.15, .176]]],
+        vamp: [[.265, .2], [.285, .16], [.3, .122]],
+      },
     },
   },
 });

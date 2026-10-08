@@ -268,7 +268,7 @@ test("Levi's '94 jeans: wide full-length legs resting on the shoes, with their b
   let tabs=0;outfit.traverse(o=>{if(o.name==='pocket-tab')tabs++;});assert.equal(tabs,1,'one tab, on the right back pocket');
   const legs=[];outfit.traverse(o=>{if(o.name==='jeans-leg')legs.push(o);});assert.equal(legs.length,2);
   // Full length, as the user wears them: the hem comes down over the shoes to the floor around them.
-  let shoeTop=-Infinity;doll.traverse(o=>{if(o.name==='loafer')shoeTop=Math.max(shoeTop,new T.Box3().setFromObject(o).max.y);});
+  let shoeTop=-Infinity;outfit.traverse(o=>{if(o.name==='loafer')shoeTop=Math.max(shoeTop,new T.Box3().setFromObject(o).max.y);});
   const hem=Math.min(...legs.map(l=>new T.Box3().setFromObject(l).min.y));
   assert.ok(hem<shoeTop*.6,'hem reaches down over the shoes');
   // Wide leg: the hem is wider than the knee, and the two legs never cross each other.
@@ -321,7 +321,7 @@ test('Tommy mom jeans: ultra high rise, tapered to the ankle, with rivets, pocke
   const legs=[];outfit.traverse(o=>{if(o.name==='jeans-leg')legs.push(o);});
   const width=(leg,y0,y1)=>{const b=new T.Box3(),p=new T.Vector3(),pos=leg.geometry.attributes.position;for(let i=0;i<pos.count;i++){p.fromBufferAttribute(pos,i);if(p.y>=y0&&p.y<=y1)b.expandByPoint(p);}return b.getSize(new T.Vector3()).x;};
   assert.ok(width(legs[0],.24,.27)<width(legs[0],.85,.9)*.87,'tapers to the ankle');
-  let shoeTop=-Infinity;doll.traverse(o=>{if(o.name==='loafer')shoeTop=Math.max(shoeTop,new T.Box3().setFromObject(o).max.y);});
+  let shoeTop=-Infinity;outfit.traverse(o=>{if(o.name==='loafer')shoeTop=Math.max(shoeTop,new T.Box3().setFromObject(o).max.y);});
   const hem=Math.min(...legs.map(l=>new T.Box3().setFromObject(l).min.y));assert.ok(hem>shoeTop&&hem<.26*.76,'ends at the ankle, above the shoes');
   // The tapered legs still cover her legs and socks all the way down to the hem.
   const ray=new T.Raycaster(),p=new T.Vector3(),origin=new T.Vector3();let checked=0;
@@ -342,7 +342,7 @@ test('Stradivarius relaxed jeans: plain five-pocket, wide full-length legs resti
   for(const name of ['scoop-pocket-stitch','coin-pocket-stitch','paper-patch'])assert.ok(outfit.getObjectByName(name),name);
   for(const name of ['pocket-flap','arcuate-stitch','pocket-tab','pocket-bar-stitch'])assert.equal(count(name),0,`plain back pockets: no ${name}`);
   const legs=[];outfit.traverse(o=>{if(o.name==='jeans-leg')legs.push(o);});
-  let shoeTop=-Infinity;doll.traverse(o=>{if(o.name==='loafer')shoeTop=Math.max(shoeTop,new T.Box3().setFromObject(o).max.y);});
+  let shoeTop=-Infinity;outfit.traverse(o=>{if(o.name==='loafer')shoeTop=Math.max(shoeTop,new T.Box3().setFromObject(o).max.y);});
   assert.ok(Math.min(...legs.map(l=>new T.Box3().setFromObject(l).min.y))<shoeTop*.6,'full length, down over the shoes');
   const [l,r]=legs.map(leg=>new T.Box3().setFromObject(leg)).sort((a,b)=>a.min.x-b.min.x);assert.ok(l.max.x<=r.min.x+.03,'legs stay apart');
   disposeObject(doll);disposeObject(outfit);
@@ -390,7 +390,7 @@ test('Mango washed black jeans: high rise, back darts instead of a yoke, ankle l
   assert.equal(count('back-dart'),2);assert.equal(count('back-yoke'),0,'darts instead of a yoke');
   assert.equal(count('rivet'),6);assert.ok(outfit.getObjectByName('leather-patch'));assert.equal(count('back-patch-pocket'),2);
   const legs=[];outfit.traverse(o=>{if(o.name==='jeans-leg')legs.push(o);});
-  let shoeTop=-Infinity;doll.traverse(o=>{if(o.name==='loafer')shoeTop=Math.max(shoeTop,new T.Box3().setFromObject(o).max.y);});
+  let shoeTop=-Infinity;outfit.traverse(o=>{if(o.name==='loafer')shoeTop=Math.max(shoeTop,new T.Box3().setFromObject(o).max.y);});
   const hem=Math.min(...legs.map(l=>new T.Box3().setFromObject(l).min.y));assert.ok(hem>shoeTop&&hem<.26*.76,'ankle length, above the shoes');
   // Her legs and socks stay covered down to the hem.
   const ray=new T.Raycaster(),p=new T.Vector3(),origin=new T.Vector3();let checked=0;
@@ -442,7 +442,7 @@ test('Bershka grey jeans: whiskers and pale thigh panels, wide full-length legs 
   assert.equal(count('back-patch-pocket'),2);assert.equal(count('rivet'),4);
   for(const name of ['back-yoke','woven-label','scoop-pocket-stitch','coin-pocket-stitch'])assert.ok(outfit.getObjectByName(name),name);
   const legs=[];outfit.traverse(o=>{if(o.name==='jeans-leg')legs.push(o);});assert.equal(legs.length,2);
-  let shoeTop=-Infinity;doll.traverse(o=>{if(o.name==='loafer')shoeTop=Math.max(shoeTop,new T.Box3().setFromObject(o).max.y);});
+  let shoeTop=-Infinity;outfit.traverse(o=>{if(o.name==='loafer')shoeTop=Math.max(shoeTop,new T.Box3().setFromObject(o).max.y);});
   assert.ok(Math.min(...legs.map(l=>new T.Box3().setFromObject(l).min.y))<shoeTop*.6,'full length, down over the shoes');
   const [l,r]=legs.map(leg=>new T.Box3().setFromObject(leg)).sort((a,b)=>a.min.x-b.min.x);assert.ok(l.max.x<=r.min.x+.03,'legs stay apart');
   // The wash: the middle of each thigh, front and back, is paler than the side seams.
