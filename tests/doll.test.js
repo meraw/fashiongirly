@@ -517,3 +517,13 @@ test('green cable sweater: rope cables in relief, raglan seams, a flag on her le
   assert.ok(width(skirted)>width(plain));assert.equal(skirted.getObjectByName('ribbon-knot'),undefined);
   disposeObject(skirted);disposeObject(plain);
 });
+
+test('every top records styling facts for later outfit selection',()=>{
+  // Relative warmth (1 light to 4 very warm) with what it is based on; silhouette, palette, pattern, coverage and material.
+  for(const [id,g] of Object.entries(GARMENTS).filter(([,g])=>g.slot==='top')){
+    const st=g.styling;assert.ok(st,`${id} has styling facts`);
+    assert.ok([1,2,3,4].includes(st.warmth)&&/^(user|inferred)/.test(st.warmthBasis),`${id} warmth and its basis`);
+    for(const key of ['silhouette','pattern','material','weather'])assert.equal(typeof st[key],'string',`${id} ${key}`);
+    assert.ok(Array.isArray(st.palette)&&st.palette.length);assert.ok(st.coverage?.neck&&st.coverage?.sleeves&&st.coverage?.midriff,`${id} coverage`);
+  }
+});
