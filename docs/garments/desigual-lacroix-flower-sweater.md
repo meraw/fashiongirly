@@ -1,6 +1,6 @@
 # Wardrobe item: Desigual × Christian Lacroix giant flower sweater
 
-Authored 8 October 2026. Status: first version, awaiting the user's visual review. Added by the tops chat (see “Parallel chats” in `AGENTS.md`).
+Authored 8 October 2026. Status: revised after the user's first look (jagged sleeve ends); awaiting their next review. Added by the tops chat (see “Parallel chats” in `AGENTS.md`).
 
 ## Source and reference reading
 
@@ -47,6 +47,15 @@ Catalog ID `desigual-lacroix-flower-sweater-v1`. No image asset is bundled. `lac
   The shared tests for sleeve clearance and covering the waist also run on this sweater.
 - `npm run build` succeeds.
 - Rendered in headless Chromium from the front, a turn, the side and the back, with the Mango black jeans. The authoring chat checked these renders; the user has not seen them yet.
+
+## Revision after user feedback
+
+The user said the sleeves looked jagged. The ends of the cuffs showed teeth. Two causes were found:
+
+- The cuff's rib ripples had only about two points per rib. Every ribbed band on the tops now has eight (`ribbed()` notes this).
+- The main cause: her thumb and mitten pushed through the snug cuffs, so the rippled surface cut in and out of them. `easeOverHand()` now pushes any cuff point that would sit inside her mitten or thumb out until it clears them, as a cuff stretches over a hand. It is applied to the cuffs of this sweater, the silver cable jumper, the stripe jumper and the Mango jumper.
+
+A new test checks that no cuff or sleeve end cuts through her hands, for every top except the bronze and lilac tops. Their sleeve hems come from the shared `makeReferenceTop()` and still cross the thumb. The test fails when the easing is switched off.
 
 ## Known differences
 

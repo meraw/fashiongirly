@@ -478,3 +478,25 @@ test('Lacroix flower sweater: giant violet flowers front and back, a peony, fore
   assert.ok(width(skirted)>width(plain));assert.equal(skirted.getObjectByName('ribbon-knot'),undefined);
   disposeObject(skirted);disposeObject(plain);
 });
+
+test('cuffs and sleeve ends never cut through her mittens or thumbs',()=>{
+  // Known exceptions: the bronze and lilac tops use the shared makeReferenceTop(), whose sleeve hems still cross the thumb.
+  const exceptions=['desigual-bronze-mesh-v1','lilac-portrait-mockneck-v1'];
+  const doll=makeDoll();doll.updateMatrixWorld(true);const hands=[];doll.traverse(o=>{if(['tiny-mitten','mitten-thumb'].includes(o.name))hands.push(o);});
+  const ray=new T.Raycaster(),p=new T.Vector3(),local=new T.Vector3(),origin=new T.Vector3();
+  for(const topId of Object.keys(GARMENTS).filter(id=>GARMENTS[id].slot==='top'&&!exceptions.includes(id))){
+    const outfit=makeOutfit({topId});outfit.updateMatrixWorld(true);const ends=[];
+    outfit.traverse(o=>{if(o.isMesh&&/cuff|sleeve/.test(o.name)){o.geometry.computeBoundingBox();ends.push(o);}});
+    for(const hand of hands){const pos=hand.geometry.attributes.position;
+      for(let i=0;i<pos.count;i++){p.fromBufferAttribute(pos,i).applyMatrix4(hand.matrixWorld);
+        for(const end of ends){const arm=end.parent;if(Math.sign(arm.getWorldPosition(origin).x)!==Math.sign(p.x))continue;
+          arm.worldToLocal(local.copy(p));const box=end.geometry.boundingBox;if(local.y>box.max.y-.002||local.y<box.min.y+.006)continue;
+          // Within the cuff's height, the hand must lie inside it: a ray from the arm's axis reaches the hand before the cuff.
+          origin.set(0,local.y,0);arm.localToWorld(origin);const d=p.distanceTo(origin);if(d<1e-4)continue;
+          ray.set(origin,p.clone().sub(origin).normalize());const hit=ray.intersectObject(end,false)[0];
+          assert.ok(!hit||hit.distance>=d,`${hand.name} cuts through ${end.name} of ${topId} at vertex ${i}`);}
+      }}
+    disposeObject(outfit);
+  }
+  disposeObject(doll);
+});

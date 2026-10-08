@@ -458,7 +458,21 @@ function woolMaterial(map){
   const stitch=weave('knit');stitch.repeat.set(26,18);
   return new T.MeshPhysicalMaterial({map,roughness:.97,sheen:.3,sheenColor:new T.Color('#c9b89c'),sheenRoughness:.95,bumpMap:stitch,bumpScale:.018,side:T.DoubleSide});
 }
+// Her mittens and thumbs, as makeDoll() builds them: centre, radii and tilt (in the doll's own units).
+const HAND_PARTS=side=>[[[side*.37,1.245,.025],[.077,.093,.068],side*.16],[[side*.322,1.265,.07],[.031,.042,.032],0]];
+function easeOverHand(mesh,side,clearance=.006){
+  // A snug cuff stretches over her hand: any point that would sit inside her mitten or thumb is pushed out from the arm's
+  // axis until it clears them. Without this the rippled cuff cuts through the thumb and its edge reads as jagged.
+  const arm=mesh.parent;arm.updateMatrix();const p=mesh.geometry.attributes.position,q=new T.Vector3();
+  const inside=()=>HAND_PARTS(side).some(([c,r,tilt])=>{const x=q.x-c[0],y=q.y-c[1],z=q.z-c[2],cs=Math.cos(tilt),sn=Math.sin(tilt),lx=x*cs+y*sn,ly=-x*sn+y*cs;
+    return (lx/(r[0]+clearance))**2+(ly/(r[1]+clearance))**2+(z/(r[2]+clearance))**2<1;});
+  for(let i=0;i<p.count;i++){const x=p.getX(i),y=p.getY(i),z=p.getZ(i);let k=1;
+    while(k<1.6&&(q.set(x*k,y,z*k).applyMatrix4(arm.matrix),inside()))k+=.01;
+    if(k>1)p.setXYZ(i,x*k,y,z*k);}
+  p.needsUpdate=true;mesh.geometry.computeVertexNormals();return mesh;
+}
 function ribbed(mesh,count,depth){
+  // Give the shell at least eight segments per rib: with fewer, the ripple turns into a zigzag along its open edges.
   const p=mesh.geometry.attributes.position;
   for(let i=0;i<p.count;i++){const x=p.getX(i),z=p.getZ(i),k=1+depth*Math.cos(Math.atan2(x,z)*count);p.setX(i,x*k);p.setZ(i,z*k);}
   p.needsUpdate=true;mesh.geometry.computeVertexNormals();return mesh;
@@ -472,14 +486,14 @@ function makePlaidJumper(id=PLAID_JUMPER_ID,overSkirt=false){
   // Her torso is much wider than tall, so three windows across the front (not the photo's two) keeps them square
   // and gives the photo's two rows. The middle window is centred on the front.
   body.material.map.offset.set(.5,0);mapByHeight(body,hem+band,1.885);
-  ribbed(shell(top,[[hem+band+.01,flare[0],flare[1]],[hem+band/2,flare[0]-.002,flare[1]-.001],[hem,flare[0]-.004,flare[1]-.002]],rib,'ribbed-hem-band',128),64,.012);
-  ribbed(shell(top,[[1.93,.112,.106],[1.905,.115,.108],[1.88,.121,.113]],rib,'ribbed-crew-neck',96),48,.02);
+  ribbed(shell(top,[[hem+band+.01,flare[0],flare[1]],[hem+band/2,flare[0]-.002,flare[1]-.001],[hem,flare[0]-.004,flare[1]-.002]],rib,'ribbed-hem-band',512),64,.012);
+  ribbed(shell(top,[[1.93,.112,.106],[1.905,.115,.108],[1.88,.121,.113]],rib,'ribbed-crew-neck',384),48,.02);
   for(const side of [-1,1]){
     const arm=new T.Group();arm.position.set(side*.242,1.815,0);arm.rotation.z=side*.22;
     // Straight, roomy sleeves that soften into the cuff instead of ballooning.
     const sleeve=shell(arm,[[.03,.125,.12],[-.06,.135,.13],[-.2,.137,.132],[-.33,.135,.13],[-.42,.128,.124],[-.47,.11,.106],[-.495,.098,.095]],woolMaterial(yarnTexture(pixels,2,1.8)),'knit-jumper-sleeve',64);
     roundSleeveCap(sleeve,side,.03);mapByHeight(sleeve,-.495,.03);
-    ribbed(shell(arm,[[-.485,.096,.093],[-.52,.089,.087],[-.56,.088,.086]],rib,'ribbed-cuff',64),32,.03);
+    easeOverHand(ribbed(shell(arm,[[-.485,.096,.093],[-.52,.089,.087],[-.56,.088,.086]],rib,'ribbed-cuff',256),32,.03),side);
     top.add(arm);
   }
   return top;
@@ -569,7 +583,7 @@ function makeStripeJumper(id=STRIPE_JUMPER_ID,overSkirt=false){
   // A narrow plain edge finishes the neckline all the way round.
   curve(top,Array.from({length:97},(_,n)=>[bp.getX(n)*1.012,bp.getY(n)+.003,bp.getZ(n)*1.012]),.0075,rib,'neckline-edge');
   // The band tucks just inside the body's lower edge, so the body blouses over it.
-  ribbed(shell(top,[[hem+band+.012,flare[0]-.008,flare[1]-.006],[hem+band/2,flare[0]-.004,flare[1]-.003],[hem,flare[0]-.006,flare[1]-.004]],rib,'ribbed-hem-band',128),72,.012);
+  ribbed(shell(top,[[hem+band+.012,flare[0]-.008,flare[1]-.006],[hem+band/2,flare[0]-.004,flare[1]-.003],[hem,flare[0]-.006,flare[1]-.004]],rib,'ribbed-hem-band',576),72,.012);
   for(const side of [-1,1]){
     const arm=new T.Group();arm.position.set(side*.242,1.815,0);arm.rotation.z=side*.22;arm.updateMatrix();
     // Long straight sleeves into deep ribbed cuffs.
@@ -586,7 +600,7 @@ function makeStripeJumper(id=STRIPE_JUMPER_ID,overSkirt=false){
     const suv=sleeve.geometry.attributes.uv,sp=sleeve.geometry.attributes.position;
     for(let n=0;n<suv.count;n++)suv.setXY(n,suv.getX(n)*3,(centre-1.815-sp.getY(n))/STRIPE_PITCH+.5);
     suv.needsUpdate=true;
-    ribbed(shell(arm,[[-.44,.1,.096],[-.5,.099,.096],[-.575,.099,.096]],rib,'ribbed-cuff',64),36,.03);
+    easeOverHand(ribbed(shell(arm,[[-.44,.1,.096],[-.5,.099,.096],[-.575,.099,.096]],rib,'ribbed-cuff',288),36,.03),side);
     top.add(arm);
   }
   return top;
@@ -635,9 +649,9 @@ function makePointelleJumper(id=POINTELLE_FLOWER_ID,overSkirt=false){
   for(let n=0;n<uv.count;n++)uv.setXY(n,uv.getX(n)*9,(bodyTop-bp.getY(n))/POINTELLE_PITCH);
   uv.needsUpdate=true;
   // Narrow plain bands finished with small scallops.
-  const neck=ribbed(shell(top,[[bodyTop+.026,.172,.122],[bodyTop+.012,.175,.125],[bodyTop-.004,.18,.13]],band,'scalloped-neckband',192),96,.006);
+  const neck=ribbed(shell(top,[[bodyTop+.026,.172,.122],[bodyTop+.012,.175,.125],[bodyTop-.004,.18,.13]],band,'scalloped-neckband',768),96,.006);
   waveEdge(neck,bodyTop+.026,.02,.007,44,true);
-  const hemBand=ribbed(shell(top,[[hem+edge+.008,flare[0]-.003,flare[1]-.002],[hem+edge/2,flare[0]-.002,flare[1]-.001],[hem,flare[0]-.002,flare[1]-.001]],band,'scalloped-hem-band',192),96,.006);
+  const hemBand=ribbed(shell(top,[[hem+edge+.008,flare[0]-.003,flare[1]-.002],[hem+edge/2,flare[0]-.002,flare[1]-.001],[hem,flare[0]-.002,flare[1]-.001]],band,'scalloped-hem-band',768),96,.006);
   waveEdge(hemBand,hem,.025,.008,56,false);
   for(const side of [-1,1]){
     const arm=new T.Group();arm.position.set(side*.242,1.815,0);arm.rotation.z=side*.22;
@@ -647,7 +661,7 @@ function makePointelleJumper(id=POINTELLE_FLOWER_ID,overSkirt=false){
     const suv=sleeve.geometry.attributes.uv,sp=sleeve.geometry.attributes.position;
     for(let n=0;n<suv.count;n++)suv.setXY(n,suv.getX(n)*4,(.03-sp.getY(n))/POINTELLE_PITCH);
     suv.needsUpdate=true;
-    const cuff=ribbed(shell(arm,[[-.498,.14,.134],[-.515,.141,.135],[-.532,.141,.135]],band,'scalloped-cuff',128),64,.008);
+    const cuff=ribbed(shell(arm,[[-.498,.14,.134],[-.515,.141,.135],[-.532,.141,.135]],band,'scalloped-cuff',512),64,.008);
     waveEdge(cuff,-.532,.02,.007,26,false);
     top.add(arm);
   }
@@ -745,15 +759,15 @@ function makeSilverCableJumper(id=SILVER_CABLE_ID){
   const body=shell(top,[[neck,.112,.104],[1.875,.17,.124],[1.83,.228,.154],[1.775,.265,.177],[1.65,.28,.185],[1.5,.282,.19],[1.4,.288,.2],[hem+band,.29,.205]],foilMaterial('body',2,1,.5),'silver-cable-body',96);
   mapByHeight(body,hem+band,neck);
   // The rib band tucks just inside the body's lower edge.
-  ribbed(shell(top,[[hem+band+.008,.281,.197],[hem+band/2,.288,.203],[hem,.287,.202]],foilMaterial('rib',120,8),'ribbed-hem-band',240),60,.008);
-  ribbed(shell(top,[[1.935,.108,.1],[1.915,.112,.104],[1.893,.118,.11]],foilMaterial('rib',64,3),'ribbed-crew-neck',192),32,.015);
+  ribbed(shell(top,[[hem+band+.008,.281,.197],[hem+band/2,.288,.203],[hem,.287,.202]],foilMaterial('rib',120,8),'ribbed-hem-band',480),60,.008);
+  ribbed(shell(top,[[1.935,.108,.1],[1.915,.112,.104],[1.893,.118,.11]],foilMaterial('rib',64,3),'ribbed-crew-neck',256),32,.015);
   for(const side of [-1,1]){
     const arm=new T.Group();arm.position.set(side*.242,1.815,0);arm.rotation.z=side*.22;
     // Fitted set-in sleeves, their big cable turned to the outer front of the arm; each blouses slightly over a long ribbed
     // cuff gathered narrower than the sleeve.
     const sleeve=shell(arm,[[.03,.106,.105],[-.05,.12,.115],[-.17,.118,.112],[-.29,.113,.108],[-.33,.108,.104],[-.35,.097,.094],[-.47,.091,.088]],foilMaterial('sleeve',1,1,side>0?.375:-.375),'knit-jumper-sleeve',64);
     roundSleeveCap(sleeve,side,.03);mapByHeight(sleeve,-.47,.03);
-    ribbed(shell(arm,[[-.325,.104,.1],[-.36,.1,.097],[-.45,.096,.093],[-.565,.094,.091]],foilMaterial('rib',40,6),'ribbed-cuff',120),20,.015);
+    easeOverHand(ribbed(shell(arm,[[-.325,.104,.1],[-.36,.1,.097],[-.45,.096,.093],[-.565,.094,.091]],foilMaterial('rib',40,6),'ribbed-cuff',160),20,.015),side);
     top.add(arm);
   }
   return top;
@@ -847,16 +861,16 @@ function makeLacroixSweater(id=LACROIX_FLOWER_ID,overSkirt=false){
   // A regular fit to the high hip; the print continues into the hem rib, which hugs the jeans or sits out over the skirt.
   const body=shell(top,[[neck,.112,.104],[1.875,.172,.126],[1.83,.235,.158],[1.775,.275,.183],[1.65,.292,.196],[1.45,.298,.206],[1.3,.306,.222],[hem+band+.012,overSkirt?.336:.31,overSkirt?.25:.228],[hem+band,flare[0],flare[1]]],knit('body',.5),'lacroix-body',128);
   mapByHeight(body,hem,neck);
-  const rib=ribbed(shell(top,[[hem+band+.01,flare[0]-.006,flare[1]-.004],[hem+band/2,flare[0]-.004,flare[1]-.003],[hem,flare[0]-.006,flare[1]-.004]],knit('body',.5),'printed-hem-rib',128),72,.012);
+  const rib=ribbed(shell(top,[[hem+band+.01,flare[0]-.006,flare[1]-.004],[hem+band/2,flare[0]-.004,flare[1]-.003],[hem,flare[0]-.006,flare[1]-.004]],knit('body',.5),'printed-hem-rib',576),72,.012);
   mapByHeight(rib,hem,neck);
-  ribbed(shell(top,[[1.935,.108,.1],[1.915,.112,.104],[1.893,.118,.11]],lilac,'lilac-crew-neck',96),40,.025);
+  ribbed(shell(top,[[1.935,.108,.1],[1.915,.112,.104],[1.893,.118,.11]],lilac,'lilac-crew-neck',320),40,.025);
   for(const side of [-1,1]){
     const arm=new T.Group();arm.position.set(side*.242,1.815,0);arm.rotation.z=side*.22;
     // Long, slightly loose sleeves; the forearm flower is turned to the outer front of each arm.
     const sleeve=shell(arm,[[.03,.112,.11],[-.06,.124,.119],[-.2,.122,.117],[-.33,.116,.111],[-.44,.108,.103],[-.48,.1,.096]],knit(side>0?'sleeve-left':'sleeve-right',side>0?.375:-.375),'knit-jumper-sleeve',64);
     roundSleeveCap(sleeve,side,.03);mapByHeight(sleeve,-.48,.03);
     // The cuff starts just inside the sleeve's end, so the sleeve blouses over it.
-    ribbed(shell(arm,[[-.465,.094,.09],[-.52,.094,.091],[-.57,.093,.09]],olive,'ribbed-cuff',64),30,.03);
+    easeOverHand(ribbed(shell(arm,[[-.465,.094,.09],[-.52,.094,.091],[-.57,.093,.09]],olive,'ribbed-cuff',240),30,.03),side);
     top.add(arm);
   }
   return top;
