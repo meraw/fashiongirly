@@ -1479,12 +1479,14 @@ export function makeOutfit(raw, atlas=null) {
   // Outerwear goes over every other layer. A closed jacket's elastic cuffs gather tighter than the sleeves under it, so
   // those sleeves are hidden inside it rather than pushing through. Every top builds its sleeves in arm groups tilted with
   // her arms; only those groups are hidden.
-  const outer=makeOuterwear(state.outerwearId,state.skirt);
-  if(outer){
-    if(GARMENTS[state.outerwearId].layering?.coversTopSleeves)for(const layer of root.children)layer.traverse(o=>{if(o.isGroup&&o.rotation.z!==0&&o.children.some(c=>c.isMesh&&/sleeve/.test(c.name)))o.visible=false;});
+  // A jacket that fits to what is under it measures those layers as they are worn, so it is built after the rules apply.
+  const outerwear=GARMENTS[state.outerwearId];
+  if(outerwear?.slot==='outerwear'){
+    if(outerwear.layering?.coversTopSleeves)for(const layer of root.children)layer.traverse(o=>{if(o.isGroup&&o.rotation.z!==0&&o.children.some(c=>c.isMesh&&/sleeve/.test(c.name)))o.visible=false;});
     // Zipped to the chin, it also closes over the striped shirt's collar points and a polo's collar.
-    if(GARMENTS[state.outerwearId].layering?.closed)root.traverse(o=>{if(o.name==='shirt-collar'||o.name.startsWith('polo-collar'))o.visible=false;});
-    root.add(outer);
+    if(outerwear.layering?.closed&&!state.outerwearOpen)root.traverse(o=>{if(o.name==='shirt-collar'||o.name.startsWith('polo-collar'))o.visible=false;});
+    const outer=makeOuterwear(state.outerwearId,state.skirt,{under:root,open:state.outerwearOpen});
+    if(outer)root.add(outer);
   }
   // Materials that were not used in the selected layers are not retained.
   const used=new Set();root.traverse(o=>{if(o.material)used.add(o.material);});

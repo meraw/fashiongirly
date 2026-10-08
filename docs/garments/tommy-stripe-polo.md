@@ -44,7 +44,7 @@ Slim and waist length, navy and off-white Breton-style stripes with navy trims, 
 
 ## Checks
 
-- `npm test`: 51 passing after merging `main`. The new test checks:
+- `npm test`: 53 passing after merging `main`. The new test checks:
   - the parts, with three buttons, two short sleeves, two rib bands and a three-colour flag
   - the monogram on her left chest and the flag on her left sleeve
   - navy at 60% of each stripe repeat
