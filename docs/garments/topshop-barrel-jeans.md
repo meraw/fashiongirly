@@ -36,6 +36,18 @@ Catalog ID `topshop-barrel-jeans-v1`; `makeBarrelJeans()` in `src/doll/model.js`
 
 The user found the first version did not fit like the jeans: it read as balloon-like (despite the “barrel” name the real legs are nearly straight), it was too short, and it was not differentiated enough, especially from the back. The first version bulged at the knee, tapered to a hem above the shoes, and had small, low-contrast details. The revision straightens the legs, takes them to the floor draped over the shoes, enlarges and brightens the distinguishing details, corrects the direction of the seam twist, adds the back knee seams and centre-back seam, and darkens the wash toward the photo. Renders were compared side by side with the back photo during authoring. A test now checks that the leg stays nearly straight from knee to hem and reaches the shoes; it fails on the first version.
 
+## Colour calibration
+
+After the revision, the user found the colour still off compared with the tops, whose image textures render accurately. The wash had been tuned by eye. It is now calibrated by measurement. Plain-denim areas of the three photos were sampled (sRGB average and brightness percentiles):
+
+| Source | Mean RGB | Brightness p10 / p50 / p90 |
+| --- | --- | --- |
+| Front on model | 61, 73, 80 | 38 / 67 / 110 |
+| Flat lay | 69, 77, 84 | 48 / 75 / 107 |
+| Back on model | 56, 66, 72 | 39 / 54 / 77 |
+
+The same areas of the headless-Chromium render were measured after each change. The first measurement was 71, 88, 98 (too bright, too blue, and much flatter: p10 73). The wash's dark and light colours, its contrast curve and the sheen were adjusted over five rounds. The sheen was removed (rigid denim has almost none). The noise was stretched vertically so the crinkle runs in fine streaks down the leg, as in the photos, instead of round blotches. Final render: front 63, 74, 81 (brightness 50 / 71 / 97); back 62, 73, 79. The remaining gap is mostly the deepest shadows: the photos get them from folds, which the smooth geometry lacks.
+
 ## Layering fix found by this item
 
 A new test checks that every waist-covering top hides every bottom between its hem and the waist. It found that the built-in jeans' hips, waistband and button showed through the front of the **bronze mesh top** above its hem, a pre-existing issue; the new jeans' belt loops and suede patch also poked through. The bronze top's lower torso and hem binding now ease out over the trousers, as the lilac top's did on `main`. Its upper body, print and sleeves are unchanged.
@@ -48,7 +60,7 @@ A new test checks that every waist-covering top hides every bottom between its h
 
 ## Known differences
 
-- The wash is procedural; it is not copied from the photos and has no whisker lines.
+- The wash is procedural; it is not copied from the photos and has no whisker lines. Its colour is calibrated to the photos (see above), but the texture repeats and the deepest shadows from folds are missing.
 - Her seat is short, so the back pockets sit close to where the legs separate.
 - The hem rests on the shoe as a smooth lift, without stacked folds.
 - The suede patch carries no lettering.

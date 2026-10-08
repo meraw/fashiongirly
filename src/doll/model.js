@@ -323,17 +323,18 @@ function acidWashData(){
   if(washPixels)return washPixels;
   // Tileable value noise: a crinkled, marbled wash with light veins over mid-dark grey-blue denim.
   const S=256,data=new Uint8Array(S*S*4),rand=random(83);
-  const lattice=n=>{const g=Array.from({length:n*n},()=>rand());return (x,y)=>{
-    const fx=x/S*n,fy=y/S*n,x0=Math.floor(fx),y0=Math.floor(fy),tx=fx-x0,ty=fy-y0,sx=tx*tx*(3-2*tx),sy=ty*ty*(3-2*ty);
-    const at=(i,j)=>g[((j%n+n)%n)*n+((i%n+n)%n)];
+  // nx and ny differ so the crinkles run as streaks down the leg rather than as round blotches.
+  const lattice=(n,m=n)=>{const g=Array.from({length:n*m},()=>rand());return (x,y)=>{
+    const fx=x/S*n,fy=y/S*m,x0=Math.floor(fx),y0=Math.floor(fy),tx=fx-x0,ty=fy-y0,sx=tx*tx*(3-2*tx),sy=ty*ty*(3-2*ty);
+    const at=(i,j)=>g[((j%m+m)%m)*n+((i%n+n)%n)];
     return (at(x0,y0)*(1-sx)+at(x0+1,y0)*sx)*(1-sy)+(at(x0,y0+1)*(1-sx)+at(x0+1,y0+1)*sx)*sy;};};
-  const octaves=[[lattice(4),.3],[lattice(8),.35],[lattice(16),.35]],veins=[[lattice(16),.45],[lattice(32),.35],[lattice(64),.2]];
-  const dark=[24,38,50],light=[100,118,128];
+  const octaves=[[lattice(4,2),.55],[lattice(16,4),.25],[lattice(32,8),.2]],veins=[[lattice(32,4),.45],[lattice(64,8),.35],[lattice(128,16),.2]];
+  const dark=[12,21,28],light=[118,136,148];
   for(let y=0;y<S;y++)for(let x=0;x<S;x++){
     let n=0,v=0;for(const [f,w] of octaves)n+=f(x,y)*w;for(const [f,w] of veins)v+=f(x,y)*w;
     // Thin light veins (ridges of the noise) crinkle over a mostly dark ground, with a soft mottled shift.
     const ridge=Math.pow(1-Math.abs(2*v-1),14),twill=((x+y)%4===0)?.92:1;
-    const t=Math.min(1,.12+.2*n+.42*ridge),i=(y*S+x)*4;
+    const t=Math.min(1,.04+.6*n*n+.5*ridge),i=(y*S+x)*4;
     for(let k=0;k<3;k++)data[i+k]=Math.max(0,Math.min(255,(dark[k]+(light[k]-dark[k])*t)*twill));data[i+3]=255;
   }
   washPixels={data,w:S,h:S};return washPixels;
@@ -354,12 +355,12 @@ function makeBarrelJeans(id=BARREL_JEANS_ID){
   const jeans=new T.Group();jeans.name='trousers';jeans.userData.garmentId=id;
   // The wash keeps one physical scale: the hips (short, wide) repeat it differently from the legs.
   // Only the hips and legs carry the per-vertex fade; small pieces (pockets, flaps, loops) use the plain wash.
-  const wash=(u=3,v=5,faded=false)=>{const map=yarnTexture(acidWashData(),u,v),twill=weave('denim');twill.repeat.set(14,14);
-    return new T.MeshPhysicalMaterial({map,roughness:.9,sheen:.15,sheenColor:new T.Color('#8fa0ad'),bumpMap:twill,bumpScale:.006,side:T.DoubleSide,vertexColors:faded});};
+  const wash=(u=5,v=8,faded=false)=>{const map=yarnTexture(acidWashData(),u,v),twill=weave('denim');twill.repeat.set(14,14);
+    return new T.MeshPhysicalMaterial({map,roughness:.95,bumpMap:twill,bumpScale:.006,side:T.DoubleSide,vertexColors:faded});};
   // Wear: paler down the front of the thighs and over the seat, darker toward the hem.
   const fade=mesh=>{const p=mesh.geometry.attributes.position,c=[];for(let i=0;i<p.count;i++){const y=p.getY(i),front=Math.max(0,p.getZ(i))/.19,thigh=Math.max(0,1-Math.abs(y-.82)/.32);
     const f=(1+.2*front*thigh+.08*Math.max(0,1-Math.abs(y-1.05)/.12))*(y<.3?.9+.1*y/.3:1);c.push(f,f,f);}mesh.geometry.setAttribute('color',new T.Float32BufferAttribute(c,3));return mesh;};
-  const denim=wash(),legDenim=wash(3,5,true),hipDenim=wash(5,1.4,true),thread=solid('#c99a5e',.75),fold=solid('#26303d',.9),metal=new T.MeshStandardMaterial({color:'#c9ccd0',metalness:.85,roughness:.3});
+  const denim=wash(),legDenim=wash(5,8,true),hipDenim=wash(8,2.2,true),thread=solid('#c99a5e',.75),fold=solid('#26303d',.9),metal=new T.MeshStandardMaterial({color:'#c9ccd0',metalness:.85,roughness:.3});
   // Low rise, but with room below the waistband for the yoke and the large flap pockets.
   // The hips widen to meet the wide legs, so there is no step where the legs begin.
   const hips=[[1.22,.255,.172],[1.13,.276,.193],[1.04,.292,.198],[.97,.302,.19]];
