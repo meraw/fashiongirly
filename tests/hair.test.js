@@ -37,3 +37,14 @@ test('hair selector saves and restores with looks and survives clothing preset c
   d.getElementById('save').click();select.value='wavy-v';select.dispatchEvent(new dom.window.Event('change'));d.getElementById('lookbook-open').click();d.querySelector('.saved-row button').click();assert.equal(app.getRecipe().hairId,'high-bun');assert.equal(select.value,'high-bun');
   app.dispose();assert.equal(d.getElementById('hair-select'),null);dom.window.close();
 });
+
+test('hairline roots follow the head rather than an offset cap',()=>{
+  const hair=makeHair('straight-v'),p=hair.getObjectByName('styled-scalp').geometry.attributes.position;
+  // Last ring is the complete hairline, including temples and nape.
+  for(let i=p.count-65;i<p.count;i++){
+    const x=p.getX(i),y=p.getY(i),z=p.getZ(i);
+    const radius=Math.sqrt((x/.5)**2+(y/.47)**2+(z/.405)**2);
+    assert.ok(radius>1&&radius<1.005,`root clearance ${radius}`);
+  }
+  disposeHair(hair);
+});

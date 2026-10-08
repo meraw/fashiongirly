@@ -7,18 +7,31 @@ function line(group,points,radius,material,name='hair-thread'){return mesh(group
 function material(){return new THREE.MeshPhysicalMaterial({color:HAIR_COLOUR,roughness:.88,sheen:.45,sheenColor:new THREE.Color('#6a5047'),sheenRoughness:.9,side:THREE.DoubleSide});}
 function scalp(group,mat,thread){
   const pos=[],index=[],cols=64,rows=24;
-  const surface=(u,v)=>{const a=u*Math.PI*2,phi=v*(1.08+1.60*(1-Math.cos(a))/2);return [.543*Math.sin(phi)*Math.sin(a),.035+.508*Math.cos(phi),.458*Math.sin(phi)*Math.cos(a)];};
+  // Follow the actual felt-head ellipsoid. The edge sits almost on the skin;
+  // volume grows inward from the hairline instead of leaving a raised cap rim.
+  const surface=(u,v)=>{
+    const a=u*Math.PI*2,back=(1-Math.cos(a))/2;
+    const edge=1.02+1.62*back+.025*Math.sin(a*5)*Math.sin(a)**2;
+    const phi=v*edge,root=Math.min(1,(1-v)/.22),lift=.0015+.022*root*root;
+    const x=.5*Math.sin(phi)*Math.sin(a),y=.47*Math.cos(phi),z=.405*Math.sin(phi)*Math.cos(a);
+    const n=new THREE.Vector3(x/.25,y/(.47*.47),z/(.405*.405)).normalize();
+    return [x+n.x*lift,y+n.y*lift,z+n.z*lift];
+  };
   for(let j=0;j<=rows;j++)for(let i=0;i<=cols;i++)pos.push(...surface(i/cols,j/rows));
   for(let j=0;j<rows;j++)for(let i=0;i<cols;i++){const a=j*(cols+1)+i,b=a+cols+1;index.push(a,b,a+1,a+1,b,b+1);}
   const geo=new THREE.BufferGeometry();geo.setAttribute('position',new THREE.Float32BufferAttribute(pos,3));geo.setIndex(index);geo.computeVertexNormals();mesh(group,geo,mat,'styled-scalp');
-  for(let i=0;i<34;i++){const path=[];for(let j=2;j<=24;j++){const p=surface(i/34,j/24);p[0]*=1.005;p[2]*=1.005;path.push(p);}line(group,path,.0022,thread,'combed-strand');}
+  for(let i=0;i<34;i++){const path=[];for(let j=2;j<=24;j++){const p=surface(i/34,j/24);path.push(p);}line(group,path,.0012,thread,'combed-strand');}
 }
 function curtain(group,mat,thread,wavy=false){
   const cols=48,rows=36,pos=[],index=[];
   const surface=(s,t,offset=0)=>{
     const end=-.48-.30*(1-Math.abs(s));
     const wave=wavy?.025*Math.sin(t*Math.PI*3+s*.7)*t:0;
-    return [s*(.51-.08*t)+wave,.2+(end-.2)*t,-(.465*Math.sqrt(1-(s*.87)**2))*(1-t)+(-.41+.025*s*s)*t+wave*.5-offset];
+    const x=s*(.46-.03*t)+wave,y=.16+(end-.16)*t;
+    const rootZ=-.405*Math.sqrt(Math.max(0,1-(s*.46/.5)**2-(.16/.47)**2))-.013;
+    const blend=Math.min(1,t/.30),smooth=blend*blend*(3-2*blend);
+    const drape=-.41+.025*s*s+wave*.5;
+    return [x,y,rootZ*(1-smooth)+drape*smooth-offset];
   };
   for(let j=0;j<=rows;j++)for(let i=0;i<=cols;i++)pos.push(...surface(i/cols*2-1,j/rows));
   for(let j=0;j<rows;j++)for(let i=0;i<cols;i++){const a=j*(cols+1)+i,b=a+cols+1;index.push(a,b,a+1,a+1,b,b+1);}

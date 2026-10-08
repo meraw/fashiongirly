@@ -26,3 +26,5 @@ Other agents can continue garment or shoe work. Keep the hair imports and the sm
 ## Checks and limits
 
 The existing garment suite and new hair tests pass on the integration snapshot. Geometry checks do not establish visual attractiveness or clearance against every future collar/hood. The separate in-chat hair preview keeps a classic outfit on her to make style comparison easy. Inspect long styles from the back and ponytails/buns from the side before approving their shapes.
+
+Root fit revision: the scalp surface now follows the actual felt-head ellipsoid, tapering to a 0.0015-unit skin clearance at the hairline with volume growing towards the crown. Long lengths start against the back of the head and ease out into their drape, instead of beginning as a detached sheet. Visual review remains pending.
