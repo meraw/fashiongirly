@@ -343,13 +343,15 @@ function subdivided(shape,levels=3,back=false){
   geo.setAttribute('position',new T.Float32BufferAttribute(pts.flatMap(([x,y])=>[x,y,0]),3));
   geo.setAttribute('uv',new T.Float32BufferAttribute(pts.flatMap(([x,y])=>[x*1.6,y*1.6]),2));return geo;
 }
-function makeBarrelJeans(id=BARREL_JEANS_ID){
+function makeBarrelJeans(id=BARREL_JEANS_ID,swatch=null){
   const jeans=new T.Group();jeans.name='trousers';jeans.userData.garmentId=id;
-  // The wash keeps one physical scale: the hips (short, wide) repeat it differently from the legs.
-  // Only the hips and legs carry the per-vertex fade; small pieces (pockets, flaps, loops) use the plain wash.
-  const wash=(u=5,v=8,faded=false)=>{const map=yarnTexture(acidWashData(),u,v),twill=weave('denim');twill.repeat.set(14,14);
+  // The denim is a swatch taken from the product flat lay (flat-lit, seamless). Repeats keep it at the photo's scale
+  // relative to the leg. Without the swatch (tests, or a failed load) a flat calibrated colour stands in.
+  // Only the hips and legs carry the per-vertex shading; small pieces (pockets, flaps, loops) use the plain denim.
+  const wash=(u=2.45,v=.66,faded=false)=>{let map;if(swatch){map=swatch.clone();map.wrapS=map.wrapT=T.RepeatWrapping;map.repeat.set(u,v);map.needsUpdate=true;}else map=yarnTexture(acidWashData(),u,v);
+    const twill=weave('denim');twill.repeat.set(14,14);
     return new T.MeshPhysicalMaterial({map,roughness:.95,bumpMap:twill,bumpScale:.006,side:T.DoubleSide,vertexColors:faded});};
-  const denim=wash(),legDenim=wash(5,8,true),hipDenim=wash(8,2.2,true),thread=solid('#8f744f',.85),fold=solid('#26303d',.9),metal=new T.MeshStandardMaterial({color:'#c9ccd0',metalness:.85,roughness:.3});
+  const denim=wash(),legDenim=wash(4,1,true),hipDenim=wash(6,.26,true),thread=solid('#8f744f',.85),fold=solid('#26303d',.9),metal=new T.MeshStandardMaterial({color:'#c9ccd0',metalness:.85,roughness:.3});
   // Low rise, but with room below the waistband for the yoke and the large flap pockets.
   // The hips widen to meet the wide legs, so there is no step where the legs begin.
   // At the crotch the hips curve back between the legs, so their lower edge sits recessed rather than as a ledge.
@@ -372,7 +374,7 @@ function makeBarrelJeans(id=BARREL_JEANS_ID){
   const whiskers=(x,y,z)=>{if(z<=0||y<.82||y>1.06)return 0;let w=0;for(let k=0;k<4;k++){const line=1.0-.035*k-.3*Math.max(0,Math.abs(x)-.04),gap=Math.abs(y-line);if(gap<.007)w=Math.max(w,(1-gap/.007)*Math.max(0,1-Math.abs(x)/.27));}return w;};
   const shade=(mesh,wear,side=0)=>{const p=mesh.geometry.attributes.position,c=[];for(let i=0;i<p.count;i++){
     const x=p.getX(i),y=mesh.userData.restY?.[i]??p.getY(i),z=p.getZ(i);let f=.86+.22*Math.min(1,Math.max(0,(y-.06)/1.14));
-    f*=1+9*(wear?.[i]||0)+.16*whiskers(x,y,z);
+    f*=1+6*(wear?.[i]||0)+.12*whiskers(x,y,z);
     if(side){const cx=lerpRows(legRows(side),y)[3],a=Math.atan2(x-cx,z);f*=1+.13*Math.exp(-((angleGap(a,outAngle(side,y))/.1)**2))+.1*Math.exp(-((angleGap(a,inAngle(side,y))/.1)**2))+(y<.085?.1*(1-(y-.06)/.025):0);}
     c.push(f,f,f);}mesh.geometry.setAttribute('color',new T.Float32BufferAttribute(c,3));return mesh;};
   shade(body[0]);
@@ -438,7 +440,7 @@ function makeBarrelJeans(id=BARREL_JEANS_ID){
 export function makeOutfit(raw, atlas=null) {
   const state=cleanRecipe(raw),root=new T.Group();root.name='wardrobe';
   const shirt=cloth('#e6e6de'),stripe=solid('#829bb9'),denim=cloth(state.trousers,'denim'),knit=cloth(state.sweater,'knit'),stitch=solid('#ae8c62');
-  const trousers=state.bottomId===BARREL_JEANS_ID?makeBarrelJeans():new T.Group();trousers.name='trousers';root.add(trousers);
+  const trousers=state.bottomId===BARREL_JEANS_ID?makeBarrelJeans(BARREL_JEANS_ID,atlas?.isTexture?null:atlas?.[BARREL_JEANS_ID]):new T.Group();trousers.name='trousers';root.add(trousers);
   if(state.bottomId==='classic'){
   // One pelvis shell overlaps leg roots; both are separate from the doll.
   shell(trousers,[[1.23,.252,.177],[1.15,.272,.194],[1.05,.267,.19],[.96,.235,.176]],denim,'jeans-hips');

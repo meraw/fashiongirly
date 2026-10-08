@@ -1,10 +1,10 @@
 # Wardrobe item: Topshop acid-wash barrel jeans
 
-Authored 8 October 2026. Status: revised after the user's first review; awaiting their second look. Second piece from the user's wardrobe list, and the first that is not a top.
+Authored 8 October 2026. Status: several revisions after user review; the user accepted the shape (“okay”) and asked for the texture to come from the jeans, which is now done. Awaiting their look at that. Second piece from the user's wardrobe list, and the first that is not a top.
 
 ## Source and reference reading
 
-The user sent four phone screenshots of the product gallery: front on a model, a back pocket close-up, the back at full length, and a front flat lay. No link was sent and no photos are stored in the repository.
+The user sent four phone screenshots of the product gallery: front on a model, a back pocket close-up, the back at full length, and a front flat lay. No link was sent. Only a processed fabric swatch from the flat lay is stored (see below).
 
 Features read from the screenshots:
 
@@ -63,6 +63,21 @@ The user found the flat version still not convincing (“if we can't do jeans th
 - The crotch curves back between the legs instead of ending in a ledge.
 
 Rendered plain denim measures 61, 74, 81 at the front, against the photo's 61, 73, 80.
+
+## Denim texture taken from the jeans
+
+The user found the rebuild acceptable in shape but still below the tops, and the texture “random instead of taken from the jeans”. The tops render well because their fabric comes from images of the garment; the jeans' denim had been invented. The denim is now a swatch from the product flat lay:
+
+- Crop: the middle of the lower left leg, clear of the outseam, inseam and knee dart (221 × 543 px of the 1280-px-wide screenshot). An earlier crop caught the inseam's stitching, which repeated as a bright line when tiled.
+- Flat lighting: the crop is divided by a heavy blur of itself, which keeps the fabric's own crinkle and grain but removes the photo's shading.
+- Calibration: multiplied to texel mean RGB 46, 58, 66, which renders as the photos' denim (front render 60, 72, 78 against the photo's 61, 73, 80).
+- Seamless: blended with a half-offset copy of itself, contrast restored where the copies average; resized to 256 × 640 and stored as WebP in `src/wardrobe/topshop-denim.js` (about 31 KB as a data URI).
+- Scale: four repeats around each leg and one down its length, matching the swatch's size relative to the leg in the photo. The hips, pockets and small pieces use matching scales.
+- The view loads it with the tops' atlases. Without it (tests, or a failed load) a flat calibrated colour stands in.
+
+The drape geometry and shape-derived shading are kept, with the wear shading reduced because the swatch now carries the fabric's variation.
+
+This is the first piece of a retailer's product photo bundled in the repository: a small processed fabric swatch, at the user's request. The other garments' textures are generated or drawn. If the repository is public, the user may want to consider this; the brief notes they may make it private later.
 
 ## Layering fix found by this item
 

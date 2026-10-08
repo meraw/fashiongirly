@@ -72,7 +72,7 @@ export const GARMENTS = Object.freeze({
     details: ['low rise', 'very wide barrel (horseshoe) legs, widest around the knee, full length resting on the shoes', 'side seams twisting forward toward the hem', 'horizontal darts across each knee', 'slanted front pockets', 'belt loops, silver shank button and zip fly', 'tan contrast topstitching', 'back yoke and patch pockets with pointed buttoned flaps', 'welt slit above the right back pocket', 'brown suede waistband patch', 'mid-dark blue marbled acid wash with a grey cast'],
     material: { construction: 'rigid denim', composition: 'not visible in the supplied screenshots', finish: 'marbled acid wash' },
     fit: { silhouette: 'barrel', rise: 'low', length: 'full, resting on the shoes', adjustment: 'fixed authored fit for review' },
-    uncertainties: ['wash pattern is procedural, not copied', 'exact pocket and dart placement adapted to the doll', 'brand text on the patch is not reproduced'],
-    authoring: { texture: 'procedural acidWashData() in src/doll/model.js', runtimeGeneration: false, sourcePhotosBundled: false },
+    uncertainties: ['folds are procedural', 'exact pocket and dart placement adapted to the doll', 'brand text on the patch is not reproduced'],
+    authoring: { texture: 'topshop-denim.js: flat-lit seamless swatch processed from the product flat lay (at the user\'s request)', runtimeGeneration: false, sourcePhotosBundled: 'fabric swatch only' },
   },
 });

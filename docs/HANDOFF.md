@@ -62,7 +62,7 @@ The user sends pictures or product links found online, not photos of their own c
 
 So far, large multi-brand shops and price-comparison sites block automated fetching; a brand's own site worked once. Screenshots of the product gallery are a reliable fallback.
 
-Fetching a page depends on both the environment's network settings and the shop. When a link fails, say so and ask for the pictures; do not guess the garment from its name. Do not commit downloaded product photos.
+Fetching a page depends on both the environment's network settings and the shop. When a link fails, say so and ask for the pictures; do not guess the garment from its name. Do not commit downloaded product photos. Exception, at the user's request: the barrel jeans bundle a small processed fabric swatch from the product flat lay, because invented denim never looked like the real jeans. Prefer textures taken from the garment's own pictures (processed swatches or generated atlases) over invented ones, and note any bundled photo-derived material in the garment record.
 
 ## The user's wardrobe and how to add it
 

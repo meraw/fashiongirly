@@ -185,6 +185,10 @@ test('bottom slot: barrel jeans replace the classic jeans and only accept bottom
   for(const name of ['jeans-hips','jeans-waistband','shank-button','twisted-side-seam','knee-dart','back-patch-pocket','pocket-flap','suede-patch'])assert.ok(outfit.getObjectByName(name),name);
   let legs=0;outfit.traverse(o=>{if(o.name==='barrel-leg')legs++;if(o.geometry)for(const v of o.geometry.attributes.position.array)assert.ok(Number.isFinite(v));});assert.equal(legs,2);
   assert.equal(outfit.getObjectByName('jean-cuff'),undefined,'classic jeans are not also built');
+  // With the bundled swatch loaded, every denim surface samples it rather than the fallback colour.
+  const swatch=new T.DataTexture(new Uint8Array([46,58,66,255]),1,1),withSwatch=makeOutfit({bottomId:id},{[id]:swatch});
+  withSwatch.traverse(o=>{if(['barrel-leg','jeans-hips','back-patch-pocket'].includes(o.name))assert.equal(o.material.map.source,swatch.source,o.name);});
+  disposeObject(withSwatch);swatch.dispose();
   // Fit from the photos: wide and nearly straight (not ballooning), and long enough to reach the shoes.
   outfit.updateMatrixWorld(true);const leg=[];outfit.traverse(o=>{if(o.name==='barrel-leg')leg.push(o);});
   const width=(y0,y1)=>{const b=new T.Box3(),p=new T.Vector3(),pos=leg[0].geometry.attributes.position;for(let i=0;i<pos.count;i++){p.fromBufferAttribute(pos,i);if(p.y>=y0&&p.y<=y1)b.expandByPoint(p);}return b.max.x-b.min.x;};
