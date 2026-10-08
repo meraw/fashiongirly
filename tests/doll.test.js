@@ -206,21 +206,37 @@ test('bottom slot: barrel jeans replace the classic jeans and only accept bottom
 test('every waist-covering top hides every bottom between its hem and the waist',()=>{
   const tops=Object.keys(GARMENTS).filter(id=>GARMENTS[id].layering?.coversWaistband);
   const bottoms=['classic',...Object.keys(GARMENTS).filter(id=>GARMENTS[id].slot==='bottom')];
-  for(const topId of tops)for(const bottomId of bottoms){
-    const outfit=makeOutfit({topId,bottomId});outfit.updateMatrixWorld(true);
+  for(const topId of tops){
     // The top's body (not its sleeves): her arms hang against her hips, so a high waistband passes inside the sleeves, hidden.
-    const covering=outfit.getObjectByName(topId).children.filter(o=>o.isMesh);
+    // The top is the same whatever is worn under it, so it is built and measured once for all bottoms.
+    const topOutfit=makeOutfit({topId});topOutfit.updateMatrixWorld(true);
+    const covering=topOutfit.getObjectByName(topId).children.filter(o=>o.isMesh);
     const hem=Math.min(...covering.map(o=>new T.Box3().setFromObject(o).min.y))/.76;
-    const ray=new T.Raycaster(),p=new T.Vector3(),origin=new T.Vector3();let checked=0;
+    // The top's triangles in world space, indexed by height band, so each ray only tests the triangles at its height.
+    const bands=new Map(),band=y=>Math.floor(y/.004);
+    for(const m of covering){const g=m.geometry,pos=g.attributes.position,idx=g.index,n=idx?idx.count:pos.count;
+      for(let i=0;i<n;i+=3){const tri=[0,1,2].map(k=>new T.Vector3().fromBufferAttribute(pos,idx?idx.getX(i+k):i+k).applyMatrix4(m.matrixWorld));
+        for(let b=band(Math.min(...tri.map(v=>v.y)));b<=band(Math.max(...tri.map(v=>v.y)));b++){if(!bands.has(b))bands.set(b,[]);bands.get(b).push(tri);}}}
+    const ray=new T.Ray(),hit=new T.Vector3(),axis=new T.Vector3(0,1,0);
+    // The top's surface distance is cached per small cell (0.001 high, 0.5 degrees around): nearby trouser vertices
+    // (stitch threads, fray) share one ray, which keeps this test quick without skipping any vertex.
+    const surface=new Map(),coverAt=(y,a)=>{const key=Math.round(y/.001)+':'+Math.round(a/(Math.PI/360));
+      if(!surface.has(key)){ray.origin.set(0,y,0);ray.direction.set(Math.sin(a),0,Math.cos(a)).applyAxisAngle(axis,1e-5);let best=0;
+        for(const [p0,p1,p2] of bands.get(band(y))||[])if(ray.intersectTriangle(p0,p1,p2,false,hit)){const d=hit.distanceTo(ray.origin);if(!best||d<best)best=d;}
+        surface.set(key,best);}
+      return surface.get(key);};
+    for(const bottomId of bottoms){
+    const outfit=makeOutfit({topId,bottomId});outfit.updateMatrixWorld(true);const p=new T.Vector3();let checked=0;
     outfit.getObjectByName('trousers').traverse(o=>{if(!o.geometry)return;const pos=o.geometry.attributes.position;
-      for(let i=0;i<pos.count;i+=3){
-        p.fromBufferAttribute(pos,i).applyMatrix4(o.matrixWorld);const y=p.y/.76;if(y<hem+.012||y>1.3)continue;
-        origin.set(0,p.y,0);const radius=p.distanceTo(origin);if(radius<.01)continue;
-        ray.set(origin,p.clone().sub(origin).normalize().applyAxisAngle(new T.Vector3(0,1,0),1e-5));
-        const hit=ray.intersectObjects(covering,false)[0];
-        assert.ok(hit&&hit.distance>radius+.001,`${o.name} shows through ${topId} over ${bottomId} at vertex ${i}`);checked++;
+      for(let i=0;i<pos.count;i++){
+        // Up to the top of the highest waistband (ultra high rise jeans reach her natural waist).
+        p.fromBufferAttribute(pos,i).applyMatrix4(o.matrixWorld);const y=p.y/.76;if(y<hem+.012||y>1.4)continue;
+        const radius=Math.hypot(p.x,p.z);if(radius<.01)continue;
+        assert.ok(coverAt(p.y,Math.atan2(p.x,p.z))>radius+.001,`${o.name} shows through ${topId} over ${bottomId} at vertex ${i}`);checked++;
       }});
     assert.ok(checked>50,`${topId}/${bottomId} checked ${checked}`);disposeObject(outfit);
+    }
+    disposeObject(topOutfit);
   }
 });
 
@@ -258,4 +274,28 @@ test("Levi's '94 jeans: wide full-length legs resting on the shoes, with their b
   assert.ok(width(legs[0],.32,.36).getSize(new T.Vector3()).x>width(legs[0],.55,.6).getSize(new T.Vector3()).x,'widens toward the hem');
   const [l,r]=legs.map(leg=>width(leg,.32,.4)).sort((a,b)=>a.min.x-b.min.x);assert.ok(l.max.x<=r.min.x+.012,'legs do not cross');
   disposeObject(doll);disposeObject(outfit);
+});
+
+test('Tommy mom jeans: ultra high rise, tapered to the ankle, with rivets, pocket bars and badges',()=>{
+  const id='tommy-ultra-high-mom-v1';assert.equal(cleanRecipe({bottomId:id}).bottomId,id);
+  const doll=makeDoll(),outfit=makeOutfit({bottomId:id});doll.updateMatrixWorld(true);outfit.updateMatrixWorld(true);
+  const count=name=>{let n=0;outfit.traverse(o=>{if(o.name===name)n++;});return n;};
+  assert.equal(count('rivet'),4);assert.equal(count('pocket-bar-stitch'),4,'two bars on each back pocket');assert.equal(count('pocket-badge'),1);
+  for(const name of ['coin-badge','flag-patch','patch-block','scoop-pocket-stitch','coin-pocket-stitch'])assert.ok(outfit.getObjectByName(name),name);
+  // Ultra high rise: the waistband sits higher than any other pair's.
+  const top=new T.Box3().setFromObject(outfit.getObjectByName('jeans-waistband')).max.y/.76;assert.ok(top>1.35,`waistband top ${top}`);
+  const legs=[];outfit.traverse(o=>{if(o.name==='jeans-leg')legs.push(o);});
+  const width=(leg,y0,y1)=>{const b=new T.Box3(),p=new T.Vector3(),pos=leg.geometry.attributes.position;for(let i=0;i<pos.count;i++){p.fromBufferAttribute(pos,i);if(p.y>=y0&&p.y<=y1)b.expandByPoint(p);}return b.getSize(new T.Vector3()).x;};
+  assert.ok(width(legs[0],.24,.27)<width(legs[0],.85,.9)*.87,'tapers to the ankle');
+  let shoeTop=-Infinity;doll.traverse(o=>{if(o.name==='loafer')shoeTop=Math.max(shoeTop,new T.Box3().setFromObject(o).max.y);});
+  const hem=Math.min(...legs.map(l=>new T.Box3().setFromObject(l).min.y));assert.ok(hem>shoeTop&&hem<.26*.76,'ends at the ankle, above the shoes');
+  // The tapered legs still cover her legs and socks all the way down to the hem.
+  const ray=new T.Raycaster(),p=new T.Vector3(),origin=new T.Vector3();let checked=0;
+  doll.traverse(o=>{if(o.name!=='leg'&&o.name!=='sock')return;const pos=o.geometry.attributes.position;
+    for(let i=0;i<pos.count;i++){p.fromBufferAttribute(pos,i).applyMatrix4(o.matrixWorld);if(p.y<hem+.004||p.y>.95*.76)continue;
+      const leg=legs.find(l=>Math.sign(new T.Box3().setFromObject(l).getCenter(new T.Vector3()).x)===Math.sign(p.x));
+      const c=new T.Box3().setFromObject(leg).getCenter(new T.Vector3());origin.set(c.x,p.y,0);const r=p.distanceTo(origin);if(r<.005)continue;
+      ray.set(origin,p.clone().sub(origin).normalize().applyAxisAngle(new T.Vector3(0,1,0),1e-4));const h=ray.intersectObject(leg,false)[0];
+      assert.ok(h&&h.distance>r+.001,`${o.name} vertex ${i} shows through the Tommy leg`);checked++;}});
+  assert.ok(checked>200);disposeObject(doll);disposeObject(outfit);
 });
