@@ -3,6 +3,7 @@
 export const MARIKOO_WINDBREAKER_ID = 'marikoo-two-tone-windbreaker-v1';
 // Shoes: built-in loafers are 'classic'; catalog shoes fill the 'shoes' slot.
 export const BUFFALO_ASPHA_ID = 'buffalo-aspha-mid-olive-v1';
+export const DM_COW_SLIDE_ID = 'dr-martens-cow-slide-v1';
 export const BRONZE_TOP_ID = 'desigual-bronze-mesh-v1';
 export const LILAC_TOP_ID = 'lilac-portrait-mockneck-v1';
 export const CROCHET_TOP_ID = 'desigual-crochet-flowers-v1';
@@ -21,6 +22,7 @@ export const STRADIVARIUS_RELAXED_ID = 'stradivarius-relaxed-v1';
 export const MANGO_BLACK_JEANS_ID = 'mango-washed-black-v1';
 export const BERSHKA_GREY_ID = 'bershka-grey-wide-leg-v1';
 export const TOMMY_CARPENTER_ID = 'tommy-remastered-carpenter-v1';
+export const ZARA_CARGO_ID = 'zara-cargo-joggers-v1';
 export const GARMENTS = Object.freeze({
   [BRONZE_TOP_ID]: {
     slot: 'top',
@@ -469,6 +471,40 @@ export const GARMENTS = Object.freeze({
         blocks: [[-.034, .0, 0, .02, '#6b6b72'], [0, .0, .034, .02, '#45454c']] },
     },
   },
+  [ZARA_CARGO_ID]: {
+    slot: 'bottom',
+    id: ZARA_CARGO_ID, name: 'Zara elastic-waist cargo trousers', family: 'cargo-joggers', version: 1,
+    status: 'reference-study-awaiting-visual-review', brandAsProvided: 'Zara',
+    source: { note: 'user supplied three phone screenshots of a resale listing on zara.com (“Pantaloni cargo con vita elasticizzata”, black, size M): front flat lay, back flat lay, front close-up; the listing text says light, cool trousers with an adjustable elastic drawstring waist' },
+    referenceViews: ['front flat lay', 'back flat lay', 'front close-up'],
+    details: ['gathered elastic waistband with a black drawstring and metal tips', 'black, light, slightly crinkled fabric with a soft sheen', 'relaxed legs tapering to gathered elastic cuffs at the ankle, the fabric blousing above them', 'slanted side pockets', 'cargo patch pockets with plain flaps on both outer thighs', 'plain back with a centre seam, no back pockets', 'tonal stitching'],
+    material: { construction: 'light woven (satin-like crinkle)', composition: 'not visible in the supplied screenshots', finish: 'black' },
+    fit: { silhouette: 'relaxed jogger, cuffed', rise: 'high, elastic at the waist', length: 'ankle, gathered into the cuffs', adjustment: 'fixed authored fit for review' },
+    uncertainties: ['folds and crinkle are procedural or from a small swatch', 'the cargo pockets\' exact size and placement are read from flat lays', 'how the user wears the waist and cuffs is not yet known'],
+    authoring: { texture: 'zara-cargo-fabric.js: flat-lit seamless swatch from the close-up, keeping only fine crinkle detail at reduced contrast', runtimeGeneration: false, sourcePhotosBundled: 'fabric swatch only' },
+    build: {
+      template: 'jeans', legName: 'jeans-leg', fallback: [26, 29, 37],
+      // Not denim: a light, smooth woven with a soft sheen and no twill.
+      surface: { roughness: .7, twill: 0, sheen: .3 },
+      crotch: { top: 1.14, y: .95 }, uvScale: [16, 8],
+      tiles: { small: [10, 5], legs: [1, 1], hips: [1, 1] },
+      hips: [[1.32, .256, .168], [1.24, .272, .184], [1.14, .29, .197], [1.04, .3, .2], [.97, .302, .19], [.935, .245, .105]],
+      // Relaxed legs tapering to the ankle, blousing over the elastic cuffs.
+      legs: [[1.03, .152, .182, .135], [.95, .16, .182, .152], [.75, .16, .176, .16], [.55, .153, .168, .162], [.4, .149, .162, .163], [.335, .155, .167, .163], [.295, .138, .15, .163], [.28, .133, .146, .163], [.24, .133, .146, .163]],
+      hem: 'ankle', folds: { base: .006, low: .012, stack: .005 }, gradient: [.92, .12], whiskers: 0,
+      cuff: { top: .285, count: 18, depth: .005 }, hemStitch: .045,
+      // Gathered elastic waistband with a drawstring.
+      waistband: { y: 1.285, rx: .254, rz: .167, h: .07, gathers: { count: 48, depth: .035 } },
+      drawstring: { colour: '#1c1d22', tip: '#c9ccd0', x: .016, length: .2 },
+      thread: '#3a3c44',
+      centreFront: [[0, 1.25], [0, 1.1], [0, .975]],
+      frontPocket: { type: 'slant', line: [[.175, 1.25], [.215, 1.185], [.258, 1.12]] },
+      // Cargo pockets with plain flaps on both outer thighs.
+      sidePocket: { top: .93, bottom: .63, span: [-.38, .58], flap: .055 },
+      seamEnd: .245,
+      centreBack: [[0, 1.25], [0, 1.1], [0, .985]],
+    },
+  },
   // Shoes.
   [BUFFALO_ASPHA_ID]: {
     slot: 'shoes',
@@ -500,6 +536,33 @@ export const GARMENTS = Object.freeze({
         straps: [[[.025, .128], [.07, .178]], [[.105, .125], [.15, .176]]],
         vamp: [[.265, .2], [.285, .16], [.3, .122]],
       },
+    },
+  },
+  [DM_COW_SLIDE_ID]: {
+    slot: 'shoes',
+    id: DM_COW_SLIDE_ID, name: 'Dr. Martens cow print platform slides', family: 'platform-slide-sandal', version: 1,
+    status: 'reference-study-awaiting-visual-review', brandAsProvided: 'Dr. Martens',
+    source: { note: 'user supplied five phone screenshots of a shop gallery (images 1, 3, 4, 5 and 7 of 7): side, front three-quarter pair, back pair, top pair, toe close-up; no model name visible' },
+    referenceViews: ['inner side', 'front three-quarter', 'back', 'top', 'toe close-up'],
+    details: ['open-toe, open-back slide', 'two wide crossed straps of black-and-white cow print pony hair, edged in black leather piping', 'thin black leather cords crossing over them in an X', 'black leather instep strap with a large silver buckle on the outer side', 'black suede footbed with the AirWair logo', 'black leather welt band with fine grooves and yellow welt stitching', 'chunky sculpted outsole in smoky translucent black: toe and heel blocks, a ribbed block and mountain peaks along the side, the tread lifting under the arch'],
+    material: { construction: 'pony-hair print leather and smooth leather straps on a moulded platform', composition: 'not visible in the supplied screenshots', finish: 'cow print pony hair, matte leather, slightly glossy translucent outsole' },
+    fit: { silhouette: 'chunky platform slide', platform: 'footbed about a fifth of the sole length high; raises her by the part above her normal foot level', adjustment: 'fixed authored fit for review' },
+    uncertainties: ['cow-print patches are procedural, not traced from the photos', 'footbed logo and buckle lettering are not reproduced', 'her bare feet are soft felt ovals like her mittens, with no toes', 'outsole sculpting simplified to blocks, a ribbed block and a row of peaks'],
+    authoring: { texture: 'procedural cowPrint() in src/doll/model.js', runtimeGeneration: false, sourcePhotosBundled: false },
+    // Construction for makePlatformSlide() in src/doll/model.js, in outfit units (x is widened by 1.06 and y squashed by .76).
+    build: {
+      template: 'platform-slide', cx: .16, baseFoot: .11, restCap: .26,
+      colours: { outsole: '#2d2c2f', leather: '#1d1c1e', footbed: '#2c2829', stitch: '#d9a21e', skin: '#dfb195', buckle: '#c7cacd' },
+      plan: { front: .35, back: -.15, halfWidth: .12, nFront: 3.4, nBack: 2.8, heelNarrow: .12, toeNarrow: .15 },
+      // Heights from the side photo: outsole, welt band (grooves, stitching) and leather top layer up to the footbed.
+      sole: { outsole: .081, welt: { grooves: [.088, .095], stitch: .103, top: .111 }, footbed: .138, top: .138, heelTop: .138, lugs: 26, archGap: .02 },
+      // Her bare foot as one smooth shape: slices [y, front, back, halfWidth] from just under the footbed up into her leg,
+      // with a soft rounded toe and heel (nFront, nBack); instepTop is the highest point straps drape over.
+      foot: { nFront: 2.5, nBack: 2.2, instepTop: .275, rows: [[.13, .29, -.115, .082], [.148, .312, -.128, .093], [.168, .31, -.132, .095], [.188, .282, -.13, .091], [.208, .22, -.122, .084], [.23, .14, -.108, .075], [.255, .085, -.092, .066], [.285, .055, -.072, .055], [.33, .045, -.06, .05], [.44, .045, -.06, .05]] },
+      // Straps as [z at the inner edge, z at the outer edge, width, gap above her foot]; cords as [z inner, z outer, gap].
+      cowBands: [[.27, .15, .11, .008], [.13, .25, .11, .016]],
+      cords: [[.29, .1, .024], [.1, .29, .024]],
+      instep: { z: [.1, .085], width: .068, gap: .01, buckleAt: .8 },
     },
   },
   // Outerwear.
