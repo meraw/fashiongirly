@@ -343,7 +343,9 @@ function makeReferenceTop(atlas, id=BRONZE_TOP_ID) {
       for(let i=0;i<sp.count;i++){const y=sp.getY(i);if(y<-.34&&y>-.51){const amount=1+.035*Math.sin((y+.51)/.17*Math.PI*6)*Math.sin((y+.51)/.17*Math.PI);sp.setX(i,sp.getX(i)*amount);sp.setZ(i,sp.getZ(i)*amount);}}
       sp.needsUpdate=true;sleeve.geometry.computeVertexNormals();
     }
-    ring(arm,-.515,.079,.081,binding,'fine-sleeve-hem',.018);
+    // The sleeve's end eases over her hand; the bound hem clears it a little further, so it stays on top of the sleeve.
+    easeOverHand(sleeve,side);
+    easeOverHand(ring(arm,-.515,.079,.081,binding,'fine-sleeve-hem',.018),side,.01);
     top.add(arm);
   }
   return top;

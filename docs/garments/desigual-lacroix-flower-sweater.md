@@ -55,7 +55,7 @@ The user said the sleeves looked jagged. The ends of the cuffs showed teeth. Two
 - The cuff's rib ripples had only about two points per rib. Every ribbed band on the tops now has eight (`ribbed()` notes this).
 - The main cause: her thumb and mitten pushed through the snug cuffs, so the rippled surface cut in and out of them. `easeOverHand()` now pushes any cuff point that would sit inside her mitten or thumb out until it clears them, as a cuff stretches over a hand. It is applied to the cuffs of this sweater, the silver cable jumper, the stripe jumper and the Mango jumper.
 
-A new test checks that no cuff or sleeve end cuts through her hands, for every top except the bronze and lilac tops. Their sleeve hems come from the shared `makeReferenceTop()` and still cross the thumb. The test fails when the easing is switched off.
+A new test checks that no cuff or sleeve end cuts through her hands, for every top. It fails when the easing is switched off. With the user's agreement, the shared `makeReferenceTop()` now eases the bronze and lilac sleeves and their bound hems over her hands too. The hems clear by a little more, so they stay on top of the sleeve. The built-in classic knit's cuff still touches her thumb slightly.
 
 ## Known differences
 

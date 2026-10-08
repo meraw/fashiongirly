@@ -480,11 +480,9 @@ test('Lacroix flower sweater: giant violet flowers front and back, a peony, fore
 });
 
 test('cuffs and sleeve ends never cut through her mittens or thumbs',()=>{
-  // Known exceptions: the bronze and lilac tops use the shared makeReferenceTop(), whose sleeve hems still cross the thumb.
-  const exceptions=['desigual-bronze-mesh-v1','lilac-portrait-mockneck-v1'];
   const doll=makeDoll();doll.updateMatrixWorld(true);const hands=[];doll.traverse(o=>{if(['tiny-mitten','mitten-thumb'].includes(o.name))hands.push(o);});
   const ray=new T.Raycaster(),p=new T.Vector3(),local=new T.Vector3(),origin=new T.Vector3();
-  for(const topId of Object.keys(GARMENTS).filter(id=>GARMENTS[id].slot==='top'&&!exceptions.includes(id))){
+  for(const topId of Object.keys(GARMENTS).filter(id=>GARMENTS[id].slot==='top')){
     const outfit=makeOutfit({topId});outfit.updateMatrixWorld(true);const ends=[];
     outfit.traverse(o=>{if(o.isMesh&&/cuff|sleeve/.test(o.name)){o.geometry.computeBoundingBox();ends.push(o);}});
     for(const hand of hands){const pos=hand.geometry.attributes.position;
