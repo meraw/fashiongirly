@@ -15,7 +15,7 @@ Read [PRODUCT_BRIEF.md](PRODUCT_BRIEF.md) for the product's intent and agreed co
 - Sweater and denim colours, sweater sleeve volume and hem, trouser volume, and layer toggles.
 - Bounded text parser, turn controls, draft persistence and a 24-look browser lookbook.
 - Earlier vector implementation retained at `illustration.html`.
-- Seventeen tests were passing and the static build succeeded at this handoff. Geometry and UI checks do not establish visual quality; full device/WebGL appearance and performance still require review.
+- Eighteen tests were passing and the static build succeeded at this handoff. Geometry and UI checks do not establish visual quality; full device/WebGL appearance and performance still require review.
 
 ## Code landmarks
 
@@ -31,7 +31,7 @@ Read [PRODUCT_BRIEF.md](PRODUCT_BRIEF.md) for the product's intent and agreed co
 | `scripts/build.mjs` | Static build including local Three.js dependencies |
 | `.github/workflows/pages.yml` | Manually dispatched Pages deployment |
 
-The current flat recipe is not a garment database. It holds colours, bounded numeric controls and layer booleans for the procedural study. Three catalog entries now exist, selected by `topId`: `desigual-bronze-mesh-v1` and `lilac-portrait-mockneck-v1` use fitted geometry and bundled generated textures; `desigual-crochet-flowers-v1` uses its own boxy, scalloped geometry and a texture drawn procedurally in `model.js`. The other pieces still use the flat recipe. There is no general import pipeline, fitting rig or automatic reference reconstruction yet.
+The current flat recipe is not a garment database. It holds colours, bounded numeric controls and layer booleans for the procedural study. Four catalog entries now exist, selected by `topId`: `desigual-bronze-mesh-v1` and `lilac-portrait-mockneck-v1` use fitted geometry and bundled generated textures; `desigual-crochet-flowers-v1` and `mango-plaid-jumper-v1` use their own geometry and textures drawn procedurally in `model.js`. A catalog `layering.coversWaistband` flag hides the skirt's ribbon bow under tops whose hem covers the waist. Only tops can be swapped: trousers, skirt and shoes are still the built-in procedural pieces in the flat recipe. There is no general import pipeline, fitting rig or automatic reference reconstruction yet.
 
 ## Latest decisions
 
@@ -57,8 +57,32 @@ The user sends pictures or product links found online, not photos of their own c
 
 - ASOS (`www.asos.com`): failed. First blocked by the environment's network policy. After the user allowed it, the site closed the connection, which looks like bot protection. Do not try to evade it.
 - Desigual (`www.desigual.com`): worked with a plain download, giving the description, composition and four distinct product views. The web-reading tool still reported the domain blocked, so use a direct download.
+- Zalando (`www.zalando.ie`): failed with an Akamai bot-protection block page. The user sent phone screenshots instead, which worked well.
+- Ceneo (`www.ceneo.pl`): failed with a captcha.
+
+So far, large multi-brand shops and price-comparison sites block automated fetching; a brand's own site worked once. Screenshots of the product gallery are a reliable fallback.
 
 Fetching a page depends on both the environment's network settings and the shop. When a link fails, say so and ask for the pictures; do not guess the garment from its name. Do not commit downloaded product photos.
+
+## The user's wardrobe and how to add it
+
+The user wants to add their whole wardrobe, **one item at a time**, reviewing each piece before the next. Their rough inventory (8 October 2026):
+
+- about a dozen sweaters/jumpers, some heavier than others
+- a few mesh shirts, some with buttons
+- a few button-downs
+- about ten pairs of jeans and about five non-denim trousers
+- three or four dresses
+- a few short-sleeved tops
+- a few hoodies
+- about seven coats and other outerwear (layering matters)
+- about ten pairs of shoes (the user expects these to be harder)
+
+Each new kind of garment needs its slot the first time it appears. Only the top slot exists today. Bottoms, dresses, outerwear and shoes each need a slot with layering rules. Button-downs need collar, placket and button details; hoodies need a hood that clears her large head and hair.
+
+Items added so far: [Mango windowpane jumper](garments/mango-windowpane-jumper.md). First version: the user found it awkward (balloon-like rather than boxy) and the check a different pattern. Revised; awaiting their second look.
+
+Lessons from that review: read “oversized” as the garment's actual cut (boxy, dropped shoulders, straight sleeves), not as extra volume. Before rendering, compare the drawn pattern side by side with the clearest reference crop, and check the count and proportion of motifs on her wide, short torso.
 
 ## Operational notes
 

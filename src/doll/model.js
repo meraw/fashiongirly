@@ -1,6 +1,6 @@
 import * as T from 'three';
 import { cleanRecipe } from './recipe.js';
-import { BRONZE_TOP_ID, LILAC_TOP_ID, CROCHET_TOP_ID } from '../wardrobe/catalog.js';
+import { BRONZE_TOP_ID, LILAC_TOP_ID, CROCHET_TOP_ID, PLAID_JUMPER_ID, GARMENTS } from '../wardrobe/catalog.js';
 // Body and wardrobe share one toy proportion system; the face stays unscaled.
 const BODY_HEIGHT = .76;
 const BODY_WIDTH = 1.06;
@@ -257,6 +257,66 @@ function makeCrochetTop(id=CROCHET_TOP_ID){
   }
   return top;
 }
+// Brushed windowpane jumper: the knitted-in check is drawn here from the reference reading.
+// Darker than the photographed wool: exposure, tone mapping and the brushed sheen lift these values.
+const WOOL={cream:[214,202,180],haze:[198,190,176],blue:[168,182,192],brown:[100,62,44],salmon:[180,128,108],grey:[114,108,102]};
+let plaidPixels=null;
+function plaidData(){
+  if(plaidPixels)return plaidPixels;
+  // One repeat across (and down): hatched frame, cream square, pale-blue cross line, cream square,
+  // hatched frame, then the pale-blue separator between neighbouring windows.
+  const S=512,profile=[['hatch',.16],['cream',.3],['line',.035],['cream',.3],['hatch',.16],['gap',.045]];
+  const kind=new Array(S);{let i=0;for(const [k,w] of profile){const end=Math.round((i/S+w)*S);for(;i<end&&i<S;i++)kind[i]=k;}for(;i<S;i++)kind[i]='gap';}
+  const strokes=[WOOL.brown,WOOL.grey,WOOL.salmon,WOOL.brown,WOOL.grey],data=new Uint8Array(S*S*4),rand=random(57);
+  for(let y=0;y<S;y++)for(let x=0;x<S;x++){
+    const kx=kind[x],ky=kind[y];let colour=WOOL.cream;
+    // The pale-blue lines are broken where the knit carries the other yarn.
+    const vLine=(kx==='line'||kx==='gap')&&y%12<10,hLine=(ky==='line'||ky==='gap')&&x%12<10;
+    if(vLine||hLine)colour=WOOL.blue;
+    else if(kx==='hatch'||ky==='hatch'){
+      // Chunky jacquard stitches on a 9 x 7 px grid. Each diagonal stroke takes the next yarn in turn:
+      // mostly brown and grey, with an occasional salmon stroke.
+      const sx=Math.floor(x/9),sy=Math.floor(y/7),d=sx-sy+1024;
+      colour=(d%4)<3?strokes[Math.floor(d/4)%5]:WOOL.haze;
+    }
+    const i=(y*S+x)*4,grain=(rand()-.5)*20;
+    for(let k=0;k<3;k++)data[i+k]=Math.max(0,Math.min(255,colour[k]+grain));data[i+3]=255;
+  }
+  // Brushed halo: soften every stitch into its neighbours (3 x 3 box blur, wrapping at the edges).
+  const src=data.slice();
+  for(let y=0;y<S;y++)for(let x=0;x<S;x++)for(let k=0;k<3;k++){let sum=0;for(let dy=-1;dy<=1;dy++)for(let dx=-1;dx<=1;dx++)sum+=src[(((y+dy+S)%S)*S+((x+dx+S)%S))*4+k];data[(y*S+x)*4+k]=sum/9;}
+  plaidPixels={data,w:S,h:S};return plaidPixels;
+}
+function woolMaterial(map){
+  const stitch=weave('knit');stitch.repeat.set(26,18);
+  return new T.MeshPhysicalMaterial({map,roughness:.97,sheen:.3,sheenColor:new T.Color('#c9b89c'),sheenRoughness:.95,bumpMap:stitch,bumpScale:.018,side:T.DoubleSide});
+}
+function ribbed(mesh,count,depth){
+  const p=mesh.geometry.attributes.position;
+  for(let i=0;i<p.count;i++){const x=p.getX(i),z=p.getZ(i),k=1+depth*Math.cos(Math.atan2(x,z)*count);p.setX(i,x*k);p.setZ(i,z*k);}
+  p.needsUpdate=true;mesh.geometry.computeVertexNormals();return mesh;
+}
+function makePlaidJumper(id=PLAID_JUMPER_ID,overSkirt=false){
+  const top=new T.Group();top.name=id;
+  // Oversized means boxy here: the body falls straight from dropped shoulders to a ribbed hip band.
+  // The band hugs the jeans, or sits out over the skirt's fullness when one is worn.
+  const pixels=plaidData(),rib=woolMaterial(null),hem=1.14,band=.075,flare=overSkirt?[.338,.252]:[.312,.233];rib.color.set('#cbb894');
+  const body=shell(top,[[1.885,.114,.108],[1.85,.2,.15],[1.81,.27,.19],[1.76,.305,.21],[1.6,.314,.217],[1.4,.316,.224],[hem+band+.012,overSkirt?.336:.318,overSkirt?.25:.232],[hem+band,flare[0],flare[1]]],woolMaterial(yarnTexture(pixels,6,2)),'plaid-jumper-body',96);
+  // Her torso is much wider than tall, so three windows across the front (not the photo's two) keeps them square
+  // and gives the photo's two rows. The middle window is centred on the front.
+  body.material.map.offset.set(.5,0);mapByHeight(body,hem+band,1.885);
+  ribbed(shell(top,[[hem+band+.01,flare[0],flare[1]],[hem+band/2,flare[0]-.002,flare[1]-.001],[hem,flare[0]-.004,flare[1]-.002]],rib,'ribbed-hem-band',128),64,.012);
+  ribbed(shell(top,[[1.93,.112,.106],[1.905,.115,.108],[1.88,.121,.113]],rib,'ribbed-crew-neck',96),48,.02);
+  for(const side of [-1,1]){
+    const arm=new T.Group();arm.position.set(side*.242,1.815,0);arm.rotation.z=side*.22;
+    // Straight, roomy sleeves that soften into the cuff instead of ballooning.
+    const sleeve=shell(arm,[[.03,.125,.12],[-.06,.135,.13],[-.2,.137,.132],[-.33,.135,.13],[-.42,.128,.124],[-.47,.11,.106],[-.495,.098,.095]],woolMaterial(yarnTexture(pixels,2,1.8)),'knit-jumper-sleeve',64);
+    roundSleeveCap(sleeve,side,.03);mapByHeight(sleeve,-.495,.03);
+    ribbed(shell(arm,[[-.485,.096,.093],[-.52,.089,.087],[-.56,.088,.086]],rib,'ribbed-cuff',64),32,.03);
+    top.add(arm);
+  }
+  return top;
+}
 export function makeOutfit(raw, atlas=null) {
   const state=cleanRecipe(raw),root=new T.Group();root.name='wardrobe';
   const shirt=cloth('#e6e6de'),stripe=solid('#829bb9'),denim=cloth(state.trousers,'denim'),knit=cloth(state.sweater,'knit'),stitch=solid('#ae8c62');
@@ -273,6 +333,7 @@ export function makeOutfit(raw, atlas=null) {
   }
   oval(trousers,[0,1.205,.187],[.019,.019,.01],solid('#bca16a'),'waist-button');
   if(state.topId===CROCHET_TOP_ID)root.add(makeCrochetTop());
+  else if(state.topId===PLAID_JUMPER_ID)root.add(makePlaidJumper(PLAID_JUMPER_ID,state.skirt));
   else if(state.topId!== 'classic')root.add(makeReferenceTop(atlas?.isTexture?atlas:atlas?.[state.topId],state.topId));
   if(state.shirt){
     const layer=new T.Group();layer.name='shirt';root.add(layer);
@@ -305,12 +366,15 @@ export function makeOutfit(raw, atlas=null) {
     }
     positions.needsUpdate=true;panel.geometry.computeVertexNormals();
     ring(skirt,1.238,.294,.221,satin,'skirt-waistband',.04);
+    // A top that covers the waistband hides the bow, which would otherwise poke through its hem.
+    if(!GARMENTS[state.topId]?.layering?.coversWaistband){
     const ribbon=cloth(state.skirtColour);
     for(const side of [-1,1]){
       const loop=oval(skirt,[.22+side*.042,1.208,.193],[.052,.026,.019],ribbon,'ribbon-loop');loop.rotation.z=side*.35;
       curve(skirt,[[.22,1.20,.206],[.22+side*.029,1.14,.226],[.22+side*.045,1.095,.239]],.009,ribbon,'ribbon-tail');
     }
     oval(skirt,[.22,1.208,.219],[.019,.021,.013],ribbon,'ribbon-knot');
+    }
   }
   // Materials that were not used in the selected layers are not retained.
   const used=new Set();root.traverse(o=>{if(o.material)used.add(o.material);});

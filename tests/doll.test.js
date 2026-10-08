@@ -94,7 +94,7 @@ test('reference sleeves cover the upper arm with clearance and round over the sh
   doll.updateMatrixWorld(true);outfit.updateMatrixWorld(true);
   const arms=[],sleeves=[];
   doll.traverse(o=>{if(o.name==='arm')arms.push(o);});
-  outfit.traverse(o=>{if(o.name==='reference-fitted-sleeve'||o.name==='crochet-flared-sleeve')sleeves.push(o);});
+  outfit.traverse(o=>{if(['reference-fitted-sleeve','crochet-flared-sleeve','knit-jumper-sleeve'].includes(o.name))sleeves.push(o);});
   const ray=new T.Raycaster(),point=new T.Vector3(),origin=new T.Vector3();let checked=0;
   for(let side=0;side<2;side++){
     const arm=arms[side],sleeve=sleeves[side],vertices=arm.geometry.attributes.position;
@@ -149,3 +149,27 @@ test('crochet top keeps open motifs, scalloped edges and clears the skirt',()=>{
   disposeObject(outfit);
 });
 
+
+test('windowpane jumper keeps its ribbing and covers trousers, skirt and the hidden bow',()=>{
+  const id='mango-plaid-jumper-v1',recipe=cleanRecipe({topId:id,knit:true,shirt:true});
+  assert.equal(recipe.knit,false);assert.equal(recipe.shirt,false);
+  for(const skirt of [false,true])for(const barrel of [0,.5,1]){
+    const outfit=makeOutfit({topId:id,skirt,barrel});outfit.updateMatrixWorld(true);
+    for(const name of ['plaid-jumper-body','ribbed-hem-band','ribbed-crew-neck'])assert.ok(outfit.getObjectByName(name),name);
+    let cuffs=0;outfit.traverse(o=>{if(o.name==='ribbed-cuff')cuffs++;});assert.equal(cuffs,2);
+    assert.equal(outfit.getObjectByName('ribbon-knot'),undefined,'bow is hidden under the jumper');
+    const jumper=[outfit.getObjectByName('plaid-jumper-body'),outfit.getObjectByName('ribbed-hem-band')];
+    const ray=new T.Raycaster(),p=new T.Vector3(),origin=new T.Vector3(),local=new T.Vector3();let checked=0;
+    for(const layer of ['trousers','layered-skirt'].map(n=>outfit.getObjectByName(n)).filter(Boolean))layer.traverse(o=>{if(!o.geometry)return;const pos=o.geometry.attributes.position;
+      for(let i=0;i<pos.count;i+=2){
+        p.fromBufferAttribute(pos,i).applyMatrix4(o.matrixWorld);local.copy(p);jumper[0].worldToLocal(local);
+        if(local.y<1.145||local.y>1.32)continue;
+        origin.set(0,local.y,0);jumper[0].localToWorld(origin);const radius=p.distanceTo(origin);if(radius<.01)continue;
+        ray.set(origin,p.clone().sub(origin).normalize().applyAxisAngle(new T.Vector3(0,1,0),1e-5));
+        const hit=ray.intersectObjects(jumper,false)[0];
+        assert.ok(hit&&hit.distance>radius+.002,`${o.name} vertex ${i} shows through (skirt ${skirt}, barrel ${barrel})`);checked++;
+      }});
+    assert.ok(checked>100);disposeObject(outfit);
+  }
+  const cropped=makeOutfit({topId:'desigual-crochet-flowers-v1',skirt:true});assert.ok(cropped.getObjectByName('ribbon-knot'),'cropped top still shows the bow');disposeObject(cropped);
+});
