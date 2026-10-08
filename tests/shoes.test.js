@@ -3,10 +3,10 @@ import assert from 'node:assert/strict';
 import * as T from 'three';
 import { JSDOM } from 'jsdom';
 import { readFileSync } from 'node:fs';
-import { makeDoll, makeOutfit, disposeObject } from '../src/doll/model.js';
+import { makeDoll, makeOutfit, disposeObject, fitDoll } from '../src/doll/model.js';
 import { OUTFITS, cleanRecipe } from '../src/doll/recipe.js';
 import { startStudio } from '../src/doll/app.js';
-import { GARMENTS, BUFFALO_ASPHA_ID } from '../src/wardrobe/catalog.js';
+import { GARMENTS, BUFFALO_ASPHA_ID, DM_COW_SLIDE_ID } from '../src/wardrobe/catalog.js';
 const shoes=Object.keys(GARMENTS).filter(id=>GARMENTS[id].slot==='shoes');
 const named=(root,name)=>{const found=[];root.traverse(o=>{if(o.name===name)found.push(o);});return found;};
 // Ray from an axis at the point's height out through the point: the first hit on `targets`, and the point's distance.
@@ -51,13 +51,21 @@ test('Buffalo boots: lug platform, padded collar, logo tabs and lacing, holding 
   assert.ok(checked>200,`checked ${checked}`);disposeObject(doll);disposeObject(outfit);
 });
 
-test('jeans drape over every shoe or sit on a boot collar, and the classic jeans tuck in',()=>{
+test('jeans drape over every shoe or sit on a boot collar, and the classic jeans tuck into boots',()=>{
   const bottoms=['classic',...Object.keys(GARMENTS).filter(id=>GARMENTS[id].slot==='bottom')];
   for(const shoesId of shoes)for(const bottomId of bottoms){
     const outfit=makeOutfit({bottomId,shoesId});outfit.updateMatrixWorld(true);
     const build=GARMENTS[shoesId].build,boots=outfit.getObjectByName('shoes'),trousers=outfit.getObjectByName('trousers');let checked=0;
-    const hem=GARMENTS[bottomId]?.build?.hem,top=Math.max(...Object.values(build.collar)),low=Math.min(...Object.values(build.collar));
-    if(GARMENTS[bottomId]?.build?.template==='jeans'&&trousers.userData.hemOnCollar){
+    const hem=GARMENTS[bottomId]?.build?.hem,boot=build.template==='lug-boot',low=boot?Math.min(...Object.values(build.collar)):0;
+    if(!boot){
+      // Open shoes: wherever the trousers come down over the shoe, no part of it (straps, buckle, her bare ankle) pokes
+      // through them, and a full-length hem still reaches down to the footbed.
+      const legs=named(trousers,GARMENTS[bottomId]?.build?.legName||'barrel-leg');
+      eachVertex(boots,(p,o,i)=>{if(p.y/.76<.2)return;const leg=legs.find(l=>Math.sign(new T.Box3().setFromObject(l).getCenter(new T.Vector3()).x)===Math.sign(p.x));
+        const c=cast([leg],new T.Box3().setFromObject(leg).getCenter(new T.Vector3()).x,p);if(!c)return;checked++;
+        assert.ok(!c.hit||c.hit.distance>c.r+.002,`${o.name} vertex ${i} pokes through ${bottomId} over ${shoesId}`);});
+      if(hem==='rests-on-shoe'){let floor=Infinity;for(const leg of legs)floor=Math.min(floor,new T.Box3().setFromObject(leg).min.y/.76);assert.ok(floor<build.sole.footbed+.01,`${bottomId} hem reaches the footbed`);}
+    }else if(GARMENTS[bottomId]?.build?.template==='jeans'&&trousers.userData.hemOnCollar){
       // A shorter, slimmer leg whose hem would end inside the boot sits on top of its padded collar instead.
       const legs=named(trousers,GARMENTS[bottomId].build.legName);
       for(const leg of legs){const low=new T.Box3().setFromObject(leg).min.y/.76;assert.ok(low>Math.min(...Object.values(build.collar))+.017,`${bottomId} hem sits on the collar (${low.toFixed(3)})`);checked+=100;}
@@ -84,6 +92,28 @@ test('jeans drape over every shoe or sit on a boot collar, and the classic jeans
     }
     assert.ok(checked>50,`${shoesId}/${bottomId} checked ${checked}`);disposeObject(outfit);
   }
+});
+
+test('Dr. Martens slides: platform raises her, bare feet with the straps clear of them, and her socks hidden',()=>{
+  const spec=GARMENTS[DM_COW_SLIDE_ID].build,outfit=makeOutfit({shoesId:DM_COW_SLIDE_ID,bottomId:'desigual-davinia-jeans-v1'}),doll=makeDoll();fitDoll(doll,outfit);
+  doll.updateMatrixWorld(true);outfit.updateMatrixWorld(true);const shoesGroup=outfit.getObjectByName('shoes');
+  for(const name of ['slide-outsole','slide-welt','welt-stitch','slide-platform','footbed','cow-strap','strap-piping','strap-cord','instep-strap','buckle','bare-foot','bare-ankle'])assert.ok(shoesGroup.getObjectByName(name),name);
+  // Anchored to the floor: the sole stands on it, and she and her clothes rise by the footbed's height above her normal foot.
+  const lift=spec.sole.footbed-spec.baseFoot;assert.ok(lift>.02);assert.ok(Math.abs(outfit.userData.lift-lift)<1e-9);
+  assert.ok(Math.abs(new T.Box3().setFromObject(shoesGroup).min.y)<.002,'sole on the floor');
+  assert.ok(Math.abs(doll.position.y-lift*.76)<1e-9,'doll raised');assert.ok(Math.abs(outfit.getObjectByName('trousers').position.y-lift)<1e-9,'clothes raised');
+  let socks=0;doll.traverse(o=>{if(o.name==='sock'){socks++;assert.equal(o.visible,false);}});assert.equal(socks,2);
+  // Her raised legs end inside her bare ankles, and the feet stand on the footbed.
+  const ankles=named(shoesGroup,'bare-ankle');let legBottom=Infinity;doll.traverse(o=>{if(o.name==='leg')legBottom=Math.min(legBottom,new T.Box3().setFromObject(o).min.y);});
+  for(const a of ankles){const b=new T.Box3().setFromObject(a);assert.ok(b.min.y<legBottom&&b.max.y>legBottom+.04,'ankle reaches up into the leg');}
+  for(const f of named(shoesGroup,'bare-foot'))assert.ok(Math.abs(new T.Box3().setFromObject(f).min.y/.76-spec.sole.footbed)<.03,'foot on the footbed');
+  // The straps clear her foot: no foot vertex lies above a strap at the same place.
+  const straps=[...named(shoesGroup,'cow-strap'),...named(shoesGroup,'instep-strap')],ray=new T.Raycaster();let checked=0;
+  for(const f of named(shoesGroup,'bare-foot'))eachVertex(f,p=>{ray.set(p.clone().setY(2),new T.Vector3(0,-1,0));const h=ray.intersectObjects(straps,false)[0];if(!h)return;checked++;assert.ok(h.point.y>p.y+.003,`foot pokes through a strap at ${p.x.toFixed(3)}, ${p.z.toFixed(3)}`);});
+  assert.ok(checked>50,`checked ${checked}`);
+  // With the loafers she stands where she always has, with her socks on.
+  const plain=makeOutfit({}),d2=makeDoll();fitDoll(d2,plain);assert.equal(d2.position.y,0);d2.traverse(o=>{if(o.name==='sock')assert.equal(o.visible,true);});
+  [outfit,doll,plain,d2].forEach(disposeObject);
 });
 
 test('UI: choosing shoes is saved with the look, and the boots study wears them',async()=>{
