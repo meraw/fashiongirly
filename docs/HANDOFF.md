@@ -15,7 +15,7 @@ Read [PRODUCT_BRIEF.md](PRODUCT_BRIEF.md) for the product's intent and agreed co
 - Sweater and denim colours, sweater sleeve volume and hem, trouser volume, and layer toggles.
 - Bounded text parser, turn controls, draft persistence and a 24-look browser lookbook.
 - Earlier vector implementation retained at `illustration.html`.
-- Sixteen tests were passing and the static build succeeded at this handoff. Geometry and UI checks do not establish visual quality; full device/WebGL appearance and performance still require review.
+- Seventeen tests were passing and the static build succeeded at this handoff. Geometry and UI checks do not establish visual quality; full device/WebGL appearance and performance still require review.
 
 ## Code landmarks
 
@@ -66,3 +66,8 @@ Fetching a page depends on both the environment's network settings and the shop.
 - Deployment is separate from committing. Pages requires the repository setting and a manual workflow run; no live deployment is established by this handoff.
 - Reference concept images are not in the repo. Do not assume access to prior chat attachments or scratch paths. Request the image again when exact comparison is necessary.
 - Update this handoff when capabilities or the next milestone change. Record actual checks and distinguish visual approval from passing tests.
+
+
+## Latest lilac hem correction
+
+The user reported trousers showing through both lower sides of the lilac shirt. The lower torso and hem now ease over the trouser hips and seams; a regression check covers narrow, medium and wide jeans. Visual confirmation is next. The crochet sweater added in another chat is preserved.

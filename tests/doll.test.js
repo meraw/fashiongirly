@@ -7,6 +7,24 @@ import { makeDoll, makeOutfit, disposeObject } from '../src/doll/model.js';
 import { DEFAULT, OUTFITS, cleanRecipe, editRecipe } from '../src/doll/recipe.js';
 import { startStudio } from '../src/doll/app.js';
 import { GARMENTS } from '../src/wardrobe/catalog.js';
+test('lilac shirt clears the trousers and seams around its lower hem',()=>{
+  for(const barrel of [0,.5,1]){
+    const outfit=makeOutfit({topId:'lilac-portrait-mockneck-v1',barrel});outfit.updateMatrixWorld(true);
+    const shirt=outfit.getObjectByName('reference-top-body'),pants=outfit.getObjectByName('trousers');
+    const ray=new T.Raycaster(),p=new T.Vector3(),origin=new T.Vector3();let checked=0;
+    pants.traverse(o=>{if(!o.geometry)return;const pos=o.geometry.attributes.position;
+      for(let i=0;i<pos.count;i++){
+        p.fromBufferAttribute(pos,i).applyMatrix4(o.matrixWorld);shirt.worldToLocal(p);
+        if(p.y<1.106||p.y>1.30)continue;
+        origin.set(0,p.y,0);shirt.localToWorld(origin);shirt.localToWorld(p);
+        const radius=p.distanceTo(origin);if(radius<.01)continue;
+        ray.set(origin,p.clone().sub(origin).normalize().applyAxisAngle(new T.Vector3(0,1,0),1e-5));const hit=ray.intersectObject(shirt,false)[0];
+        assert.ok(hit&&hit.distance>radius+.002,`${o.name} protrudes at vertex ${i}, barrel ${barrel}`);checked++;
+      }
+    });
+    assert.ok(checked>100);disposeObject(outfit);
+  }
+});
 test('doll and garment geometry stays finite for extreme supported silhouettes',()=>{
   for(const state of [...OUTFITS.map(look=>look.recipe),DEFAULT,{sleeve:0,hem:0,barrel:0},{sleeve:1,hem:1,barrel:1},{knit:false,shirt:false}]){
     const model=new T.Group();model.add(makeDoll(),makeOutfit(state));let triangles=0;
@@ -125,3 +143,4 @@ test('crochet top keeps open motifs, scalloped edges and clears the skirt',()=>{
   assert.ok(high-low>.02,'hem is scalloped');
   disposeObject(outfit);
 });
+
