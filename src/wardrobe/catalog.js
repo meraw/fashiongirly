@@ -3,6 +3,7 @@
 export const MARIKOO_WINDBREAKER_ID = 'marikoo-two-tone-windbreaker-v1';
 // Shoes: built-in loafers are 'classic'; catalog shoes fill the 'shoes' slot.
 export const BUFFALO_ASPHA_ID = 'buffalo-aspha-mid-olive-v1';
+export const DM_COW_SLIDE_ID = 'dr-martens-cow-slide-v1';
 export const BRONZE_TOP_ID = 'desigual-bronze-mesh-v1';
 export const LILAC_TOP_ID = 'lilac-portrait-mockneck-v1';
 export const CROCHET_TOP_ID = 'desigual-crochet-flowers-v1';
@@ -483,6 +484,33 @@ export const GARMENTS = Object.freeze({
         straps: [[[.025, .128], [.07, .178]], [[.105, .125], [.15, .176]]],
         vamp: [[.265, .2], [.285, .16], [.3, .122]],
       },
+    },
+  },
+  [DM_COW_SLIDE_ID]: {
+    slot: 'shoes',
+    id: DM_COW_SLIDE_ID, name: 'Dr. Martens cow print platform slides', family: 'platform-slide-sandal', version: 1,
+    status: 'reference-study-awaiting-visual-review', brandAsProvided: 'Dr. Martens',
+    source: { note: 'user supplied five phone screenshots of a shop gallery (images 1, 3, 4, 5 and 7 of 7): side, front three-quarter pair, back pair, top pair, toe close-up; no model name visible' },
+    referenceViews: ['inner side', 'front three-quarter', 'back', 'top', 'toe close-up'],
+    details: ['open-toe, open-back slide', 'two wide crossed straps of black-and-white cow print pony hair, edged in black leather piping', 'thin black leather cords crossing over them in an X', 'black leather instep strap with a large silver buckle on the outer side', 'black suede footbed with the AirWair logo', 'black leather welt band with fine grooves and yellow welt stitching', 'chunky sculpted outsole in smoky translucent black: toe and heel blocks, a ribbed block and mountain peaks along the side, the tread lifting under the arch'],
+    material: { construction: 'pony-hair print leather and smooth leather straps on a moulded platform', composition: 'not visible in the supplied screenshots', finish: 'cow print pony hair, matte leather, slightly glossy translucent outsole' },
+    fit: { silhouette: 'chunky platform slide', platform: 'footbed about a fifth of the sole length high; raises her by the part above her normal foot level', adjustment: 'fixed authored fit for review' },
+    uncertainties: ['cow-print patches are procedural, not traced from the photos', 'footbed logo and buckle lettering are not reproduced', 'her bare feet are soft felt ovals like her mittens, with no toes', 'outsole sculpting simplified to blocks, a ribbed block and a row of peaks'],
+    authoring: { texture: 'procedural cowPrint() in src/doll/model.js', runtimeGeneration: false, sourcePhotosBundled: false },
+    // Construction for makePlatformSlide() in src/doll/model.js, in outfit units (x is widened by 1.06 and y squashed by .76).
+    build: {
+      template: 'platform-slide', cx: .16, baseFoot: .11, restCap: .26,
+      colours: { outsole: '#2d2c2f', leather: '#1d1c1e', footbed: '#2c2829', stitch: '#d9a21e', skin: '#dfb195', buckle: '#c7cacd' },
+      plan: { front: .35, back: -.15, halfWidth: .12, nFront: 3.4, nBack: 2.8, heelNarrow: .12, toeNarrow: .15 },
+      // Heights from the side photo: outsole, welt band (grooves, stitching) and leather top layer up to the footbed.
+      sole: { outsole: .081, welt: { grooves: [.088, .095], stitch: .103, top: .111 }, footbed: .138, top: .138, heelTop: .138, lugs: 26, archGap: .02 },
+      // Her bare foot as one smooth shape: slices [y, front, back, halfWidth] from just under the footbed up into her leg,
+      // with a soft rounded toe and heel (nFront, nBack); instepTop is the highest point straps drape over.
+      foot: { nFront: 2.5, nBack: 2.2, instepTop: .275, rows: [[.13, .29, -.115, .082], [.148, .312, -.128, .093], [.168, .31, -.132, .095], [.188, .282, -.13, .091], [.208, .22, -.122, .084], [.23, .14, -.108, .075], [.255, .085, -.092, .066], [.285, .055, -.072, .055], [.33, .045, -.06, .05], [.44, .045, -.06, .05]] },
+      // Straps as [z at the inner edge, z at the outer edge, width, gap above her foot]; cords as [z inner, z outer, gap].
+      cowBands: [[.27, .15, .11, .008], [.13, .25, .11, .016]],
+      cords: [[.29, .1, .024], [.1, .29, .024]],
+      instep: { z: [.1, .085], width: .068, gap: .01, buckleAt: .8 },
     },
   },
   // Outerwear.
