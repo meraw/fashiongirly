@@ -518,12 +518,17 @@ function makeJeans(id,spec,swatch=null){
   // Real denim reads through its shape: wear is paler on raised folds and darker in hollows, seams and the hem
   // are paler where the fabric rolls ("roping"), and faint whiskers fan out at the top of the thighs.
   const angleGap=(a,b)=>Math.abs(Math.atan2(Math.sin(a-b),Math.cos(a-b)));
-  const whiskers=(x,y,z)=>{if(z<=0||y<.82||y>1.06)return 0;let w=0;for(let k=0;k<4;k++){const line=1.0-.035*k-.3*Math.max(0,Math.abs(x)-.04),gap=Math.abs(y-line);if(gap<.007)w=Math.max(w,(1-gap/.007)*Math.max(0,1-Math.abs(x)/.27));}return w;};
+  // Whisker lines across the front (and the back too when the spec says so); the defaults are the original faint set.
+  const wl={top:1.0,count:4,spacing:.035,width:.007,lo:.82,hi:1.06,back:false,...spec.whiskerLines};
+  const whiskers=(x,y,z)=>{if((z<=0&&!wl.back)||y<wl.lo||y>wl.hi)return 0;let w=0;for(let k=0;k<wl.count;k++){const line=wl.top-wl.spacing*k-.3*Math.max(0,Math.abs(x)-.04),gap=Math.abs(y-line);if(gap<wl.width)w=Math.max(w,(1-gap/wl.width)*Math.max(0,1-Math.abs(x)/.27));}return w;};
   const hemY=spec.legs[spec.legs.length-1][0],[gLow,gRange]=spec.gradient;
   const shade=(mesh,wear,side=0)=>{const p=mesh.geometry.attributes.position,c=[];for(let i=0;i<p.count;i++){
     const x=p.getX(i),y=mesh.userData.restY?.[i]??p.getY(i),z=p.getZ(i);let f=gLow+gRange*Math.min(1,Math.max(0,(y-.06)/1.14));
     f*=1+6*(wear?.[i]||0)+spec.whiskers*whiskers(x,y,z);
     if(spec.thighFade&&z>0)f*=1+spec.thighFade*Math.max(0,1-Math.abs(y-.78)/.3)*Math.min(1,z/.1);
+    // Bleached panels down the middle of each leg, front and back, fading out toward the side seams and the hem.
+    if(spec.centreFade){const cf=spec.centreFade,legX=side?lerpRows(legRows(side),y)[3]:Math.sign(x)*.15,a=Math.atan2(x-legX,Math.abs(z)),across=Math.max(0,Math.cos(a))**cf.width;
+      f*=1+cf.strength*across*Math.max(0,1-Math.abs(y-cf.peak)/cf.reach);}
     if(side){const cx=lerpRows(legRows(side),y)[3],a=Math.atan2(x-cx,z);const rope=spec.roping||1;f*=1+rope*(.13*Math.exp(-((angleGap(a,outAngle(side,y))/.1)**2))+.1*Math.exp(-((angleGap(a,inAngle(side,y))/.1)**2))+(y<hemY+.025?.1*(1-(y-hemY)/.025):0));}
     c.push(f,f,f);}mesh.geometry.setAttribute('color',new T.Float32BufferAttribute(c,3));return mesh;};
   shade(body[0]);

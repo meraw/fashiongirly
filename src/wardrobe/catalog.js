@@ -10,6 +10,7 @@ export const LEVIS_94_ID = 'levis-94-wide-leg-v1';
 export const TOMMY_MOM_ID = 'tommy-ultra-high-mom-v1';
 export const STRADIVARIUS_RELAXED_ID = 'stradivarius-relaxed-v1';
 export const MANGO_BLACK_JEANS_ID = 'mango-washed-black-v1';
+export const BERSHKA_GREY_ID = 'bershka-grey-wide-leg-v1';
 export const GARMENTS = Object.freeze({
   [BRONZE_TOP_ID]: {
     slot: 'top',
@@ -297,6 +298,42 @@ export const GARMENTS = Object.freeze({
       backPocket: { x: .12, outline: [[-.068, 1.222], [.068, 1.222], [.064, 1.11], [0, 1.085], [-.064, 1.11]], stitchBelow: 1.2 },
       centreBack: [[.004, 1.26], [.004, 1.1], [0, 1.0]],
       labelPatch: { name: 'leather-patch', size: [.072, .04, .005], colour: '#1c1b1c', position: [-.08, 1.288, -(.17 + .004)], rotationY: Math.PI + .3 },
+    },
+  },
+  [BERSHKA_GREY_ID]: {
+    slot: 'bottom',
+    id: BERSHKA_GREY_ID, name: 'Bershka grey wide-leg jeans', family: 'wide-leg-jeans', version: 1,
+    status: 'reference-study-awaiting-visual-review', brandAsProvided: 'Bershka',
+    source: { note: 'user supplied five phone screenshots of the product gallery: front close-up and full front on model, back on model, waist close-up, front flat lay' },
+    referenceViews: ['front on model (close)', 'front on model', 'back on model', 'waist close-up', 'front flat lay'],
+    details: ['low to mid rise', 'wide straight legs, full length, resting on the shoes', 'mid grey wash with a fine crinkled texture', 'bleached paler panels down the middle of each thigh and knee, darker sides and hem', 'strong pale whiskers across the hips and upper thighs, front and back', 'silver button and rivets, tonal grey stitching', 'plain back patch pockets'],
+    material: { construction: 'rigid denim', composition: 'not visible in the supplied screenshots', finish: 'grey wash with whiskers and fade' },
+    fit: { silhouette: 'wide leg', rise: 'low to mid', length: 'full, resting on the shoes', adjustment: 'fixed authored fit for review' },
+    uncertainties: ['folds are procedural', 'whisker and fade placement is an interpretation of the photos', 'label lettering not reproduced'],
+    authoring: { texture: 'bershka-grey-denim.js: flat-lit seamless swatch processed from the flat lay; fade and whiskers are shaded on the geometry', runtimeGeneration: false, sourcePhotosBundled: 'fabric swatch only' },
+    build: {
+      template: 'jeans', legName: 'jeans-leg', fallback: [61, 64, 65],
+      crotch: { top: 1.18, y: .95 }, uvScale: [5, 2.7],
+      tiles: { small: [4, 1.8], legs: [1, 1], hips: [1, 1] },
+      hips: [[1.235, .256, .172], [1.14, .276, .193], [1.04, .294, .198], [.97, .306, .19], [.935, .25, .11]],
+      legs: [[1.03, .15, .18, .13], [.95, .158, .181, .154], [.75, .166, .184, .168], [.55, .172, .187, .174], [.35, .178, .19, .18], [.18, .183, .193, .185], [.06, .186, .196, .188]],
+      hem: 'rests-on-shoe', folds: { base: .005, low: .011, stack: .01 },
+      // The wash: darker toward the hem, bleached panels down each thigh and knee, and strong whiskers across the hips.
+      gradient: [.6, .5], whiskers: 1.3,
+      whiskerLines: { top: 1.16, count: 6, spacing: .034, width: .012, lo: .93, hi: 1.2, back: true },
+      centreFade: { strength: 1.5, width: 2.4, peak: .72, reach: .5 },
+      waistband: { y: 1.21, rx: .258, rz: .175, h: .05 },
+      loops: [-2.7, -1.45, -.55, .55, 1.45, 2.7, Math.PI],
+      button: { colour: '#c9ccd0' }, thread: '#8b8986',
+      fly: [[.034, 1.183], [.036, 1.09], [.02, 1.05], [0, 1.04]],
+      frontPocket: { type: 'scoop', line: [[.15, 1.184], [.165, 1.14], [.2, 1.112], [.262, 1.1]] },
+      coinPocket: { outline: [[-.236, 1.18], [-.19, 1.18], [-.194, 1.128], [-.233, 1.128], [-.236, 1.18]] },
+      rivets: [[.152, 1.18], [.262, 1.105]],
+      seamEnd: .1,
+      backYoke: [[.268, 1.182], [.14, 1.162], [.004, 1.142]],
+      backPocket: { x: .122, outline: [[-.074, 1.128], [.074, 1.128], [.07, 1.0], [0, .972], [-.07, 1.0]], stitchBelow: 1.07 },
+      centreBack: [[.004, 1.142], [.004, 1.05], [0, .985]],
+      labelPatch: { name: 'woven-label', size: [.032, .02, .003], colour: '#d8d6d0', position: [-.06, 1.21, -(.175 + .004)], rotationY: Math.PI + .25 },
     },
   },
 });
