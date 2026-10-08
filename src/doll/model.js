@@ -1,6 +1,6 @@
 import * as T from 'three';
 import { cleanRecipe } from './recipe.js';
-import { BRONZE_TOP_ID, LILAC_TOP_ID, CROCHET_TOP_ID, PLAID_JUMPER_ID, STRIPE_JUMPER_ID, POINTELLE_FLOWER_ID, SILVER_CABLE_ID, GARMENTS } from '../wardrobe/catalog.js';
+import { BRONZE_TOP_ID, LILAC_TOP_ID, CROCHET_TOP_ID, PLAID_JUMPER_ID, STRIPE_JUMPER_ID, POINTELLE_FLOWER_ID, SILVER_CABLE_ID, LACROIX_FLOWER_ID, GARMENTS } from '../wardrobe/catalog.js';
 // Body and wardrobe share one toy proportion system; the face stays unscaled.
 const BODY_HEIGHT = .76;
 const BODY_WIDTH = 1.06;
@@ -758,6 +758,109 @@ function makeSilverCableJumper(id=SILVER_CABLE_ID){
   }
   return top;
 }
+// Lacroix flower sweater: fuzzy olive knit painted with giant violet flowers. The artwork is painted here from the photos,
+// in body units (metres of her body, seen from the front or the back), so the flowers stay round on her squat torso.
+// Darker than the photographed yarn: exposure, tone mapping and the brushed sheen lift these values.
+const LACROIX={olive:[65,75,9],violet:[74,39,133],lilac:[147,136,200],white:[210,204,222],mint:[150,196,128],black:[20,16,20]};
+const mixRGB=(a,b,t)=>a.map((v,k)=>v+(b[k]-v)*Math.max(0,Math.min(1,t)));
+function hash2(x,y){const s=Math.sin(x*127.1+y*311.7)*43758.5453;return s-Math.floor(s);}
+// Front flowers. Petals: [angle in degrees (0 = towards her left, 90 = up), length, half-width in degrees, black outline].
+const LACROIX_FRONT=[
+  {kind:'violet',x:.04,y:.37,petals:[[150,.4,46,1],[45,.33,44,0],[-12,.36,40,1],[-88,.33,44,0],[-150,.34,34,0]],stem:[[-.34,.52],[-.16,.49],[.03,.38]]},
+  {kind:'violet',x:-.3,y:.03,petals:[[55,.3,40,1],[8,.26,34,0],[100,.24,36,0]],stem:[[.04,.2],[-.12,.12],[-.3,.04]]},
+  {kind:'peony',x:.21,y:.09,r:.15},
+];
+const LACROIX_BACK=[
+  {kind:'violet',x:.04,y:.4,petals:[[112,.33,44,1],[30,.34,44,0],[-42,.32,40,1],[-110,.3,40,0],[-178,.31,36,0]],stem:[[.3,.5],[.15,.45],[.04,.4]]},
+  {kind:'violet',x:-.31,y:.04,petals:[[60,.26,40,1],[10,.22,34,0]]},
+];
+function flowerColour(px,py,f){
+  const dx=px-f.x,dy=py-f.y,d=Math.hypot(dx,dy),ang=Math.atan2(dy,dx)*180/Math.PI;
+  if(f.kind==='peony'){
+    // Ruffled white petals with mint at the heart, lilac towards the edge and black sketched ruffles.
+    const th=Math.atan2(dy,dx),edge=f.r*(.8+.2*Math.abs(Math.sin(th*7))+.04*Math.sin(th*23));if(d>edge)return null;
+    const t=d/edge,ruffle=Math.abs(Math.sin(t*16+2.5*Math.sin(th*5)+th*3));
+    let c=t<.3?mixRGB(LACROIX.mint,LACROIX.white,t/.3):mixRGB(LACROIX.white,LACROIX.lilac,(t-.55)/.45*(.5+.5*Math.sin(th*3+1)));
+    if(t<.22&&Math.sin(th*9)>.2)c=mixRGB(c,LACROIX.mint,.6);
+    if(ruffle<.09||t>.95)c=LACROIX.black;
+    return c;
+  }
+  let best=null,second=0;
+  for(const [k,[a,len,half,outline]] of f.petals.entries()){
+    let diff=((ang-a)%360+540)%360-180;if(Math.abs(diff)>half)continue;
+    const edge=len*Math.pow(Math.cos(diff/half*Math.PI/2),.45);if(d>edge)continue;
+    const t=d/edge,depth=1-Math.abs(diff)/half;
+    if(best&&best.depth>depth){second=Math.max(second,depth);continue;}
+    if(best)second=Math.max(second,best.depth);
+    // Streaked petal: white and mint at the throat, lilac, then violet streaks thickening towards the edge.
+    // Blotchy streaks: fine radial strokes, broken up along their length and from stroke to stroke.
+    const th=Math.atan2(dy,dx),bin=Math.round(th*55+k*9),streak=Math.max(0,Math.min(1,.5+.5*Math.sin(th*70+k*5+4*Math.sin(th*11+k))*Math.sin(th*23+k)+.45*(hash2(bin,Math.round(t*7))-.5)));
+    let c=t<.12?mixRGB(LACROIX.mint,LACROIX.white,t/.12):t<.28?mixRGB(LACROIX.white,LACROIX.lilac,(t-.12)/.16):LACROIX.lilac;
+    c=mixRGB(c,LACROIX.violet,Math.max(0,(t-.2)*1.7)*(.45+.75*streak));
+    // Black stamens radiating from the heart, each ending in a dot; a dark line where petals meet; an inked edge on some
+    // petals.
+    const sx=Math.abs(Math.sin(th*14+k)),dotT=.27+.05*hash2(Math.round((th*14+k)/Math.PI),k);
+    if(t>.05&&t<dotT&&sx<.05)c=LACROIX.black;
+    if(Math.abs(t-dotT)<.035&&sx<.16)c=LACROIX.black;
+    if(Math.abs(diff)>half*.93||(outline&&t>.95))c=mixRGB(c,LACROIX.black,.85);
+    best={c,depth};
+  }
+  // Where two petals overlap, a dark violet line marks the one in front.
+  if(best&&best.depth-second<.05)return mixRGB(best.c,LACROIX.violet,.5).map(v=>v*.7);
+  return best&&best.c;
+}
+let lacroixPixels={};
+function lacroixData(part){
+  if(lacroixPixels[part])return lacroixPixels[part];
+  const body=part==='body',w=body?1024:512,h=512,data=new Uint8Array(w*h*4);
+  const stroke=(px,py,points,width)=>{for(let i=0;i<points.length-1;i++){const [ax,ay]=points[i],[bx,by]=points[i+1],vx=bx-ax,vy=by-ay,t=Math.max(0,Math.min(1,((px-ax)*vx+(py-ay)*vy)/(vx*vx+vy*vy)));if(Math.hypot(px-ax-vx*t,py-ay-vy*t)<width)return true;}return false;};
+  const smooth=points=>{const c=new T.CatmullRomCurve3(points.map(([x,y])=>V(x,y,0)));return c.getPoints(24).map(p=>[p.x,p.y]);};
+  const stems=(body?[...LACROIX_FRONT,...LACROIX_BACK]:[]).filter(f=>f.stem).map(f=>({f,line:smooth(f.stem)}));
+  for(let y=0;y<h;y++)for(let x=0;x<w;x++){
+    const a=(x/w)*Math.PI*2-Math.PI,v=y/h;let c=null;
+    if(body){
+      // Front and back are each seen straight on; her body is 0.318 wide either side and 0.56 tall (in metres of the doll).
+      const front=Math.cos(a)>=0,px=(front?1:-1)*Math.sin(a)*.318,py=v*.56,set=front?LACROIX_FRONT:LACROIX_BACK;
+      for(const f of set){const fc=flowerColour(px,py,f);if(fc){c=fc;break;}}
+      for(const s of stems)if(set.includes(s.f)&&stroke(px,py,s.line,.011))c=LACROIX.black;
+    }else{
+      // Forearm flowers on the outer front of the sleeve (the tile is turned per sleeve), below the elbow.
+      const px=a*.12,py=v*.4,f=part==='sleeve-left'?{kind:'peony',x:.02,y:.11,r:.12}:{kind:'violet',x:.01,y:.07,petals:[[90,.18,44,1],[20,.17,40,0],[160,.16,40,0],[-60,.12,40,0],[-130,.12,40,0]]};
+      c=flowerColour(px,py,f);
+      if(!c&&part==='sleeve-left')c=flowerColour(px,py,{kind:'violet',x:-.1,y:.02,petals:[[150,.14,44,1],[-150,.12,40,0],[60,.1,36,0]]});
+    }
+    c=c||LACROIX.olive;
+    // Brushed yarn: a soft, uneven halo.
+    const i=(y*w+x)*4,grain=1+(hash2(x,y)-.5)*.16;
+    for(let k=0;k<3;k++)data[i+k]=Math.max(0,Math.min(255,c[k]*grain));data[i+3]=255;
+  }
+  // Soften everything slightly, as the fuzzy yarn does.
+  const src=data.slice();
+  for(let y=0;y<h;y++)for(let x=0;x<w;x++)for(let k=0;k<3;k++){let sum=0;for(let dy=-1;dy<=1;dy++)for(let dx=-1;dx<=1;dx++)sum+=src[(((y+dy+h)%h)*w+((x+dx+w)%w))*4+k];data[(y*w+x)*4+k]=sum/9;}
+  lacroixPixels[part]={data,w,h};return lacroixPixels[part];
+}
+function makeLacroixSweater(id=LACROIX_FLOWER_ID,overSkirt=false){
+  const top=new T.Group();top.name=id;
+  const hem=1.165,band=.06,neck=1.905,flare=overSkirt?[.338,.252]:[.31,.228];
+  const knit=(part,offset=0)=>{const map=yarnTexture(lacroixData(part),1,1);map.offset.set(offset,0);const m=woolMaterial(map);m.sheen=.45;m.bumpMap.repeat.set(30,20);m.bumpScale=.01;return m;};
+  const olive=woolMaterial(null);olive.color.set('#454f0c');const lilac=woolMaterial(null);lilac.color.set('#b6a2cf');
+  // A regular fit to the high hip; the print continues into the hem rib, which hugs the jeans or sits out over the skirt.
+  const body=shell(top,[[neck,.112,.104],[1.875,.172,.126],[1.83,.235,.158],[1.775,.275,.183],[1.65,.292,.196],[1.45,.298,.206],[1.3,.306,.222],[hem+band+.012,overSkirt?.336:.31,overSkirt?.25:.228],[hem+band,flare[0],flare[1]]],knit('body',.5),'lacroix-body',128);
+  mapByHeight(body,hem,neck);
+  const rib=ribbed(shell(top,[[hem+band+.01,flare[0]-.006,flare[1]-.004],[hem+band/2,flare[0]-.004,flare[1]-.003],[hem,flare[0]-.006,flare[1]-.004]],knit('body',.5),'printed-hem-rib',128),72,.012);
+  mapByHeight(rib,hem,neck);
+  ribbed(shell(top,[[1.935,.108,.1],[1.915,.112,.104],[1.893,.118,.11]],lilac,'lilac-crew-neck',96),40,.025);
+  for(const side of [-1,1]){
+    const arm=new T.Group();arm.position.set(side*.242,1.815,0);arm.rotation.z=side*.22;
+    // Long, slightly loose sleeves; the forearm flower is turned to the outer front of each arm.
+    const sleeve=shell(arm,[[.03,.112,.11],[-.06,.124,.119],[-.2,.122,.117],[-.33,.116,.111],[-.44,.108,.103],[-.48,.1,.096]],knit(side>0?'sleeve-left':'sleeve-right',side>0?.375:-.375),'knit-jumper-sleeve',64);
+    roundSleeveCap(sleeve,side,.03);mapByHeight(sleeve,-.48,.03);
+    // The cuff starts just inside the sleeve's end, so the sleeve blouses over it.
+    ribbed(shell(arm,[[-.465,.094,.09],[-.52,.094,.091],[-.57,.093,.09]],olive,'ribbed-cuff',64),30,.03);
+    top.add(arm);
+  }
+  return top;
+}
 // Acid-wash barrel jeans: construction is read from the product photos.
 let washPixels=null;
 function acidWashData(base=[48,61,70]){
@@ -1063,6 +1166,7 @@ export function makeOutfit(raw, atlas=null) {
   else if(state.topId===STRIPE_JUMPER_ID)root.add(makeStripeJumper(STRIPE_JUMPER_ID,state.skirt));
   else if(state.topId===POINTELLE_FLOWER_ID)root.add(makePointelleJumper(POINTELLE_FLOWER_ID,state.skirt));
   else if(state.topId===SILVER_CABLE_ID)root.add(makeSilverCableJumper());
+  else if(state.topId===LACROIX_FLOWER_ID)root.add(makeLacroixSweater(LACROIX_FLOWER_ID,state.skirt));
   else if(state.topId!== 'classic')root.add(makeReferenceTop(atlas?.isTexture?atlas:atlas?.[state.topId],state.topId));
   if(state.shirt){
     const layer=new T.Group();layer.name='shirt';root.add(layer);

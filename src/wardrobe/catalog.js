@@ -8,6 +8,7 @@ export const PLAID_JUMPER_ID = 'mango-plaid-jumper-v1';
 export const STRIPE_JUMPER_ID = 'bershka-asymmetric-stripe-jumper-v1';
 export const POINTELLE_FLOWER_ID = 'cream-pointelle-flower-jumper-v1';
 export const SILVER_CABLE_ID = 'desigual-silver-cable-jumper-v1';
+export const LACROIX_FLOWER_ID = 'desigual-lacroix-flower-sweater-v1';
 export const BARREL_JEANS_ID = 'topshop-barrel-jeans-v1';
 export const DAVINIA_JEANS_ID = 'desigual-davinia-jeans-v1';
 export const LEVIS_94_ID = 'levis-94-wide-leg-v1';
@@ -116,6 +117,20 @@ export const GARMENTS = Object.freeze({
     exclusions: ['striped-shirt','knit-sweater'],
     uncertainties: ['the lattice and cables are drawn procedurally, not stitch for stitch', 'the exact order of the narrow columns beside the panel is simplified', 'silver is shaded with the studio lights only; there is no reflected environment'],
     authoring: { texture: 'procedural silverKnitData() in src/doll/model.js, drawn locally when first worn', runtimeGeneration: false, sourcePhotosBundled: false },
+  },
+  [LACROIX_FLOWER_ID]: {
+    slot: 'top',
+    id: LACROIX_FLOWER_ID, name: 'Lacroix giant flower sweater', family: 'printed-knit-sweater', version: 1,
+    status: 'reference-study-awaiting-visual-review', brandAsProvided: 'Desigual, designed by Christian Lacroix',
+    source: { note: 'user supplied five phone screenshots of the desigual.com (NZ) listing "Sweater designed by Mr. Christian Lacroix": flat lay, front and back on a model, a neckline close-up and a front close-up' },
+    referenceViews: ['front flat lay', 'front on model', 'back on model', 'neckline close-up', 'front close-up'],
+    details: ['fuzzy olive-green knit', 'one giant painterly violet flower across the front: five streaked petals fading to lilac and white, a mint throat, black stamens and a thick black stem from her right shoulder', 'a second violet flower low on her right with a diagonal black stem, and a white and mint peony sketched in black low on her left', 'a giant violet flower across the upper back', 'flowers on both forearms: violet on her right, the peony and violet on her left', 'olive ribbed cuffs, a lilac ribbed crew neck, and a hem rib that carries the print', 'regular fit to the high hip'],
+    material: { construction: 'brushed (fuzzy) knit with a knitted-in print', composition: 'not visible in the supplied screenshots', finish: 'soft halo' },
+    fit: { silhouette: 'regular, close but not tight', sleeve: 'long, slightly loose, ribbed cuffs', hem: 'high hip', adjustment: 'fixed authored fit for review' },
+    exclusions: ['striped-shirt','knit-sweater'],
+    layering: { coversWaistband: true },
+    uncertainties: ['the flowers are painted procedurally from the photos, not copied; their shapes and streaks are an interpretation', 'flower sizes are adapted to her short, wide torso', 'the back is read from one model photo partly hidden by hair'],
+    authoring: { texture: 'procedural lacroixData() in src/doll/model.js, painted locally when first worn', runtimeGeneration: false, sourcePhotosBundled: false },
   },
   [BARREL_JEANS_ID]: {
     slot: 'bottom',

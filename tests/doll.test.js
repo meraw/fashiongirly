@@ -453,3 +453,28 @@ test('Bershka grey jeans: whiskers and pale thigh panels, wide full-length legs 
     const mean=v=>v.reduce((s,x)=>s+x,0)/v.length;assert.ok(mean(mid)>mean(side)*1.25,`pale thigh panel ${mean(mid)} vs ${mean(side)}`);}
   disposeObject(doll);disposeObject(outfit);
 });
+
+test('Lacroix flower sweater: giant violet flowers front and back, a peony, forearm flowers and olive ribbing',()=>{
+  const id='desigual-lacroix-flower-sweater-v1',recipe=cleanRecipe({topId:id,knit:true,shirt:true});
+  assert.equal(recipe.knit,false);assert.equal(recipe.shirt,false);
+  const outfit=makeOutfit({topId:id});
+  for(const name of ['lacroix-body','printed-hem-rib','lilac-crew-neck'])assert.ok(outfit.getObjectByName(name),name);
+  let cuffs=0;outfit.traverse(o=>{if(o.name==='ribbed-cuff')cuffs++;});assert.equal(cuffs,2);
+  // The body's painting: front (middle half of the texture) and back (outer quarters) are each mostly flower.
+  const body=outfit.getObjectByName('lacroix-body'),{data,width:w,height:h}=body.material.map.image;
+  const share=(test,front)=>{let n=0,all=0;for(let y=0;y<h;y+=2)for(let x=0;x<w;x+=2){const f=x>w/4&&x<w*3/4;if(f!==front)continue;const i=(y*w+x)*4;all++;if(test(data[i],data[i+1],data[i+2]))n++;}return n/all;};
+  const violet=(r,g,b)=>b>g+40&&r>g,white=(r,g,b)=>r>185&&g>185&&b>185,black=(r,g,b)=>r+g+b<120,olive=(r,g,b)=>g>b+30&&r>b+20&&b<60;
+  for(const front of [true,false]){assert.ok(share(violet,front)>.3,`violet ${front?'front':'back'}`);assert.ok(share(olive,front)>.1,`olive ${front?'front':'back'}`);assert.ok(share(black,front)>.003,'black stems');}
+  assert.ok(share(white,true)>.03&&share(white,true)>share(white,false)*2,'the white peony is on the front');
+  // The hem rib carries the same print; the forearm prints differ: the peony is on her left sleeve.
+  assert.equal(outfit.getObjectByName('printed-hem-rib').material.map.image.data,body.material.map.image.data);
+  const sleeves=[];outfit.traverse(o=>{if(o.name==='knit-jumper-sleeve')sleeves.push(o);});assert.equal(sleeves.length,2);
+  const whiteIn=img=>{let n=0;for(let i=0;i<img.data.length;i+=16)if(white(img.data[i],img.data[i+1],img.data[i+2]))n++;return n;};
+  assert.ok(whiteIn(sleeves[1].material.map.image)>whiteIn(sleeves[0].material.map.image)*3,'peony on her left forearm');
+  disposeObject(outfit);
+  // The hem hugs the jeans, or sits out over the skirt; the bow stays hidden.
+  const skirted=makeOutfit({topId:id,skirt:true}),plain=makeOutfit({topId:id});
+  const width=o=>new T.Box3().setFromObject(o.getObjectByName('printed-hem-rib')).getSize(new T.Vector3()).x;
+  assert.ok(width(skirted)>width(plain));assert.equal(skirted.getObjectByName('ribbon-knot'),undefined);
+  disposeObject(skirted);disposeObject(plain);
+});
