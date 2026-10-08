@@ -33,6 +33,8 @@ Preserve distinguishing features such as:
 - Knit scale, ribbing, folds, pleats, hems, cuffs, patterns and trims.
 - Material character: a chunky knit should read differently from a fine cardigan or a crisp shirt.
 
+Outerwear is worn intentionally (the user's decision, 8 October 2026): zipped or buttoned closed, or put away. A coat or jacket is shown open only when it looks good open or is designed to be worn open.
+
 Two cardigans should remain distinguishable even in the same colour if their construction differs. Fit controls must respect each garment's intended shape; increasing volume should not simply inflate every part. Evaluate clothes from the front, side and back, and together with supported layers. The first quality milestone is one reference garment fitted convincingly to this particular doll.
 
 Full cloth simulation is not a confirmed requirement. Carefully authored geometry, controlled deformations, sculpted folds and explicit layering rules may be sufficient. The result matters more than the technique. Do not promise automatic sewing-pattern reconstruction or production-quality fit from a single picture.

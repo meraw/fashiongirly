@@ -206,7 +206,7 @@ test('bottom slot: barrel jeans replace the classic jeans and only accept bottom
 });
 
 test('every waist-covering top hides every bottom between its hem and the waist',()=>{
-  const tops=Object.keys(GARMENTS).filter(id=>GARMENTS[id].layering?.coversWaistband);
+  const tops=Object.keys(GARMENTS).filter(id=>GARMENTS[id].slot==='top'&&GARMENTS[id].layering?.coversWaistband);
   const bottoms=['classic',...Object.keys(GARMENTS).filter(id=>GARMENTS[id].slot==='bottom')];
   for(const topId of tops){
     // The top's body (not its sleeves): her arms hang against her hips, so a high waistband passes inside the sleeves, hidden.

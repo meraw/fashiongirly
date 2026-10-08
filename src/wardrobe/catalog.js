@@ -1,4 +1,6 @@
 // Authored wardrobe entries. These describe assets, not runtime AI requests.
+// Outerwear: none by default ('none'); catalog coats and jackets fill the 'outerwear' slot.
+export const MARIKOO_WINDBREAKER_ID = 'marikoo-two-tone-windbreaker-v1';
 // Shoes: built-in loafers are 'classic'; catalog shoes fill the 'shoes' slot.
 export const BUFFALO_ASPHA_ID = 'buffalo-aspha-mid-olive-v1';
 export const BRONZE_TOP_ID = 'desigual-bronze-mesh-v1';
@@ -481,6 +483,54 @@ export const GARMENTS = Object.freeze({
         straps: [[[.025, .128], [.07, .178]], [[.105, .125], [.15, .176]]],
         vamp: [[.265, .2], [.285, .16], [.3, .122]],
       },
+    },
+  },
+  // Outerwear.
+  [MARIKOO_WINDBREAKER_ID]: {
+    slot: 'outerwear',
+    id: MARIKOO_WINDBREAKER_ID, name: 'Marikoo two-tone hooded windbreaker', family: 'zip-hooded-windbreaker', version: 1,
+    status: 'reference-study-awaiting-visual-review', brandAsProvided: 'Marikoo',
+    source: { note: 'user supplied seven phone screenshots of a product gallery: front, back and side on a model, front and back flat lays (zipped), a zipped flat lay with the hood up, and the open jacket showing its lining' },
+    referenceViews: ['front on model', 'back on model', 'side on model, open', 'front flat lay', 'back flat lay', 'front flat lay, collar close', 'inside'],
+    details: ['slate-blue shell with an ecru yoke over the shoulders and upper sleeves', 'front yoke ends in a shallow V pointing down to the zip; across the back it ends straight, as a stitched flap', 'yoke colour ends diagonally on the sleeves, higher outside than underneath', 'gunmetal coil zip from hem to the top of the stand collar', 'hood worn down, blue outside with ecru lining, ecru drawcords with blue-and-white tips', 'vertical welt pockets low on each front, each closed by two white snaps', 'elastic gathered hem band and cuffs; the body and sleeves blouse into them', 'embroidered blue script on the yoke at her left chest', 'round white rubber badge on the upper left sleeve', 'small woven labels on the hood and low on the back'],
+    material: { construction: 'woven windbreaker shell, jersey-lined body', composition: 'not visible in the supplied screenshots', finish: 'matte with a soft sheen' },
+    fit: { silhouette: 'boxy and relaxed, dropped shoulders', length: 'hip, just below the waistband', sleeve: 'long and relaxed, gathered at the wrist', wear: 'zipped closed: the user wears outerwear closed unless it is designed to be worn open', adjustment: 'fixed authored fit for review' },
+    // A closed jacket covers the top's sleeves and the skirt's bow.
+    layering: { closed: true, coversTopSleeves: true, coversWaistband: true },
+    // For choosing outfits later. Observed: seen in the photos; user: the user's own words; inferred: read from the
+    // construction, not stated anywhere.
+    styling: {
+      observed: { palette: ['slate blue', 'ecru'], pattern: 'colour-blocked: ecru yoke ending in a V at the front', silhouette: 'boxy hip-length blouson, dropped shoulders', coverage: 'torso and arms to the wrist; neck when zipped; hood (modelled down)', material: 'woven windbreaker shell with a grey jersey lining in the body' },
+      user: { wear: 'zipped closed, or not worn' },
+      inferred: { warmth: 'light layer: unpadded shell and a thin lining', weather: 'mild, breezy or cool days; the hood suits light showers', unknown: ['waterproofing', 'fibre composition'] },
+    },
+    uncertainties: ['the embroidered script is suggested by small joined loops, not the brand lettering', 'the hood lies down on her back; her large head and hair hide its upper part and the collar', 'badge and labels carry no lettering', 'lining is not modelled beyond the collar and the hood edge'],
+    authoring: { texture: 'procedural colour layout and zip teeth drawn locally in src/doll/outerwear.js; colours measured from the photos', runtimeGeneration: false, sourcePhotosBundled: false },
+    // Construction for makeZipWindbreaker() in src/doll/outerwear.js, in outfit units. Body rows are [y, rx, rz] from the
+    // collar down; sleeve rows are along the arm from the shoulder.
+    build: {
+      template: 'zip-windbreaker', roughness: .78,
+      colours: { shell: '#31425a', yoke: '#c3c5b9', embroidery: '#5f82b4', stitch: '#3b4b61', snap: '#ecebe6', cord: '#e2e0d8', zip: '#5b5850', opening: '#222a35' },
+      body: {
+        rows: [[1.975, .13, .124], [1.935, .131, .125], [1.9, .14, .13], [1.875, .2, .16], [1.84, .268, .205], [1.8, .318, .24], [1.75, .345, .258], [1.65, .357, .27], [1.5, .36, .276], [1.35, .362, .28], [1.22, .362, .282], [1.16, .356, .277], [1.135, .346, .266], [1.118, .338, .258]],
+        overSkirt: [[1.975, .13, .124], [1.935, .131, .125], [1.9, .14, .13], [1.875, .2, .16], [1.84, .268, .205], [1.8, .318, .24], [1.75, .345, .258], [1.65, .357, .27], [1.5, .36, .276], [1.35, .365, .282], [1.22, .374, .288], [1.16, .376, .288], [1.135, .374, .282], [1.118, .37, .276]],
+        hem: 1.06, band: .06, bandRadius: [.336, .255], bandOverSkirt: [.372, .274], bandPuckers: 72,
+        gathers: 34, gatherDepth: .012, gatherHeight: .09,
+        collarBase: 1.89, collarTop: 1.975, collarRadius: [.13, .124],
+      },
+      // Colour layout, measured as fractions of the flat lays and placed on her short torso.
+      yoke: { frontCentre: 1.43, frontSide: 1.53, back: 1.55, backSeam: .035, collar: 1.89, sleeveOuter: -.11, sleeveInner: -.29,
+        script: { angle: .6, above: .012, width: .04, height: .022 } },
+      sleeve: {
+        rows: [[.05, .135, .126], [0, .152, .143], [-.1, .158, .15], [-.25, .156, .148], [-.38, .152, .145], [-.47, .146, .14], [-.51, .132, .127], [-.53, .121, .116]],
+        cuff: [-.522, -.575], cuffRadius: [.12, .118], cuffPuckers: 36, gathers: 14, gatherDepth: .02, gatherHeight: .08,
+        badge: { y: -.17, radius: .026 },
+      },
+      zip: { width: .016, stitch: .02 },
+      pockets: { x: .235, slant: 0, top: 1.36, bottom: 1.2, width: .04, snaps: [1.33, 1.235], snap: .0125 },
+      cords: { x: .05, top: 1.87, end: 1.7, drift: .01, radius: .0055 },
+      hood: { top: 1.88, bottom: 1.58, round: .07, halfWidth: .21, lift: .09, edge: .011, opening: { from: .25, rise: .05, out: .03, radius: .016 } },
+      backLabel: { x: .2 },
     },
   },
 });
