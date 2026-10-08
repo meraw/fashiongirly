@@ -1,6 +1,6 @@
 # Wardrobe item: Topshop acid-wash barrel jeans
 
-Authored 8 October 2026. Status: several revisions after user review; the user accepted the shape (“okay”) and asked for the texture to come from the jeans, which is now done. Awaiting their look at that. Second piece from the user's wardrobe list, and the first that is not a top.
+Authored 8 October 2026. Status: approved by the user (“Ok, that works”) after several revisions, with denim taken from the product photo. Second piece from the user's wardrobe list, and the first that is not a top.
 
 ## Source and reference reading
 
@@ -78,6 +78,10 @@ The user found the rebuild acceptable in shape but still below the tops, and the
 The drape geometry and shape-derived shading are kept, with the wear shading reduced because the swatch now carries the fabric's variation.
 
 This is the first piece of a retailer's product photo bundled in the repository: a small processed fabric swatch, at the user's request. The other garments' textures are generated or drawn. If the repository is public, the user may want to consider this; the brief notes they may make it private later.
+
+## Crotch rebuilt with the Davinia fix
+
+When the user found the Davinia jeans strange at the crotch, the barrel jeans showed the same pouch, ledge and step. They were moved onto the same crotch construction (see the Davinia record): `crotch: { top: 1.2, y: .95 }` (a longer transition because these legs are fuller than the hips above them) and `uvScale: [3.7, 1.03]`, which keeps their previous denim scale. This changes only the hips and the top of the legs; the fingerprint recorded before the template refactor no longer applies.
 
 ## Layering fix found by this item
 

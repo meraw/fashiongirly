@@ -4,6 +4,7 @@ export const LILAC_TOP_ID = 'lilac-portrait-mockneck-v1';
 export const CROCHET_TOP_ID = 'desigual-crochet-flowers-v1';
 export const PLAID_JUMPER_ID = 'mango-plaid-jumper-v1';
 export const BARREL_JEANS_ID = 'topshop-barrel-jeans-v1';
+export const DAVINIA_JEANS_ID = 'desigual-davinia-jeans-v1';
 export const GARMENTS = Object.freeze({
   [BRONZE_TOP_ID]: {
     slot: 'top',
@@ -66,7 +67,7 @@ export const GARMENTS = Object.freeze({
   [BARREL_JEANS_ID]: {
     slot: 'bottom',
     id: BARREL_JEANS_ID, name: 'Acid-wash barrel jeans', family: 'barrel-leg-jeans', version: 1,
-    status: 'reference-study-awaiting-visual-review', brandAsProvided: 'Topshop',
+    status: 'user-approved-after-revisions', brandAsProvided: 'Topshop',
     source: { note: 'user supplied four phone screenshots of the product gallery (front on model, back detail, back full length, flat lay)' },
     referenceViews: ['front on model', 'back pocket close-up', 'back full length', 'front flat lay'],
     details: ['low rise', 'very wide barrel (horseshoe) legs, widest around the knee, full length resting on the shoes', 'side seams twisting forward toward the hem', 'horizontal darts across each knee', 'slanted front pockets', 'belt loops, silver shank button and zip fly', 'tan contrast topstitching', 'back yoke and patch pockets with pointed buttoned flaps', 'welt slit above the right back pocket', 'brown suede waistband patch', 'mid-dark blue marbled acid wash with a grey cast'],
@@ -74,5 +75,64 @@ export const GARMENTS = Object.freeze({
     fit: { silhouette: 'barrel', rise: 'low', length: 'full, resting on the shoes', adjustment: 'fixed authored fit for review' },
     uncertainties: ['folds are procedural', 'exact pocket and dart placement adapted to the doll', 'brand text on the patch is not reproduced'],
     authoring: { texture: 'topshop-denim.js: flat-lit seamless swatch processed from the product flat lay (at the user\'s request)', runtimeGeneration: false, sourcePhotosBundled: 'fabric swatch only' },
+    // Construction for makeJeans() in src/doll/model.js. Rows are [y, rx, rz] (hips) and [y, rx, rz, cx] (legs).
+    build: {
+      template: 'jeans', legName: 'barrel-leg',
+      // Hips flow into the legs at the crotch; hips and legs are mapped by distance along the fabric at the same denim
+      // scale as before (about 3.7 repeats per unit around, 1.03 per unit down), so their tiles are 1.
+      crotch: { top: 1.2, y: .95 }, uvScale: [3.7, 1.03],
+      tiles: { small: [2.45, .66], legs: [1, 1], hips: [1, 1] },
+      hips: [[1.22, .255, .172], [1.13, .276, .193], [1.04, .292, .198], [.97, .3, .186], [.935, .25, .11]],
+      legs: [[1.03, .145, .185, .13], [.95, .158, .185, .158], [.75, .168, .188, .172], [.55, .172, .188, .176], [.35, .17, .186, .174], [.18, .167, .184, .17], [.06, .166, .183, .168]],
+      hem: 'rests-on-shoe', folds: { base: .005, low: .011, stack: .011 }, twist: Math.PI / 4, kneeSeams: .64,
+      gradient: [.86, .22], whiskers: .12,
+      waistband: { y: 1.195, rx: .258, rz: .175, h: .05 },
+      loops: [-2.7, -1.45, -.55, .55, 1.45, 2.7, Math.PI],
+      button: { colour: '#c9ccd0' }, thread: '#8f744f',
+      fly: [[.034, 1.168], [.036, 1.08], [.02, 1.045], [0, 1.035]],
+      frontPocket: { type: 'slant', line: [[.165, 1.168], [.218, 1.11], [.265, 1.065]] },
+      sideSeamTop: [[.278, 1.12], [.29, 1.04]], seamEnd: .1,
+      backYoke: [[.272, 1.165], [.14, 1.148], [.004, 1.13]],
+      backPocket: { x: .122, outline: [[-.076, 1.11], [.076, 1.11], [.073, .99], [0, .958], [-.073, .99]], stitchBelow: 1.05,
+        flap: [[-.082, 1.128], [.082, 1.128], [.08, 1.084], [0, 1.062], [-.08, 1.084]],
+        flapStitch: [[-.074, 1.12], [.074, 1.12], [.072, 1.088], [0, 1.07], [-.072, 1.088], [-.074, 1.12]], button: 1.076 },
+      centreBack: [[.004, 1.13], [.004, 1.05], [0, .99]],
+      welt: [[-.19, 1.14], [-.07, 1.137]],
+      labelPatch: { name: 'suede-patch', size: [.088, .05, .005], colour: '#a87348', position: [.07, 1.2, -(.177 + .004)], rotationY: Math.PI - .27 },
+    },
+  },
+  [DAVINIA_JEANS_ID]: {
+    slot: 'bottom',
+    id: DAVINIA_JEANS_ID, name: 'Davinia heart jeans', family: 'high-rise-straight-cropped-jeans', version: 1,
+    status: 'reference-study-awaiting-visual-review', brandAsProvided: 'Desigual',
+    source: { note: 'user supplied four phone screenshots of a Ceneo listing (Desigual Jeansy Davinia 22SWDD01): front on model, waist close-up, flat lay, back on model' },
+    referenceViews: ['front on model', 'waist and pocket close-up', 'front flat lay', 'back on model'],
+    details: ['high rise', 'slim straight legs cropped at the ankle with a raw frayed hem', 'light blue acid wash, paler on the thighs', 'raw frayed top edge on the waistband', 'copper shank button and orange contrast stitching', 'scoop front pockets', 'coin pocket with a small red embroidered heart', 'small light abrasions near the pocket and on the thigh', 'plain back patch pockets, V yoke and a brown leather patch'],
+    material: { construction: 'rigid denim', composition: 'not visible in the supplied screenshots', finish: 'acid wash' },
+    fit: { silhouette: 'straight, slim', rise: 'high', length: 'cropped at the ankle', adjustment: 'fixed authored fit for review' },
+    uncertainties: ['folds are procedural', 'pocket and abrasion placement adapted to the doll', 'leather patch lettering is not reproduced'],
+    authoring: { texture: 'desigual-davinia-denim.js: flat-lit seamless swatch processed from the product flat lay', runtimeGeneration: false, sourcePhotosBundled: 'fabric swatch only' },
+    build: {
+      template: 'jeans', legName: 'jeans-leg', fallback: [110, 123, 146], frayColour: '#d8dfe6',
+      // Hips and legs are mapped by distance along the fabric (uvScale, repeats per unit), so their tiles are 1.
+      tiles: { small: [2.8, .38], legs: [1, 1], hips: [1, 1] },
+      // Slim straight legs, taken in as far as the doll's legs allow; the hips blend into them at the crotch.
+      hips: [[1.3, .262, .168], [1.2, .27, .184], [1.1, .28, .19], [1.02, .276, .178], [.97, .262, .162], [.935, .2, .085]],
+      legs: [[1.12, .13, .165, .128], [1.03, .132, .162, .128], [.95, .128, .155, .136], [.8, .118, .14, .148], [.6, .106, .124, .155], [.45, .101, .116, .157], [.34, .1, .112, .158]],
+      crotch: { top: 1.1, y: .95 }, uvScale: [4, .66],
+      hem: 'raw-crop', folds: { base: .002, low: .003 }, gradient: [.92, .12], whiskers: .1, thighFade: .1,
+      waistband: { y: 1.275, rx: .264, rz: .17, h: .05, frayed: true },
+      loops: [-2.6, -1.5, -.62, .62, 1.5, 2.6, Math.PI],
+      button: { colour: '#a8743a' }, thread: '#b5783f',
+      fly: [[.036, 1.25], [.038, 1.13], [.022, 1.085], [0, 1.075]],
+      frontPocket: { type: 'scoop', line: [[.15, 1.25], [.165, 1.2], [.2, 1.172], [.258, 1.16]] },
+      coinPocket: { outline: [[-.235, 1.245], [-.185, 1.245], [-.19, 1.19], [-.232, 1.19], [-.235, 1.245]], heart: [-.21, 1.218] },
+      abrasions: [[-.19, 1.13, .026], [-.205, 1.112, .018], [.13, .99, .022], [-.11, .87, .016]],
+      sideSeamTop: [[.266, 1.25], [.282, 1.12], [.284, 1.04]], seamEnd: .345,
+      backYoke: [[.268, 1.21], [.14, 1.19], [.004, 1.165]],
+      backPocket: { x: .12, outline: [[-.072, 1.15], [.072, 1.15], [.07, 1.03], [0, 1.0], [-.07, 1.03]], stitchBelow: 1.1 },
+      centreBack: [[.004, 1.165], [.004, 1.07], [0, 1.0]],
+      labelPatch: { name: 'leather-patch', size: [.07, .04, .005], colour: '#9b6a42', position: [-.07, 1.275, -(.17 + .004)], rotationY: Math.PI + .27 },
+    },
   },
 });

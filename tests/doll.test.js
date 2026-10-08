@@ -205,10 +205,12 @@ test('bottom slot: barrel jeans replace the classic jeans and only accept bottom
 
 test('every waist-covering top hides every bottom between its hem and the waist',()=>{
   const tops=Object.keys(GARMENTS).filter(id=>GARMENTS[id].layering?.coversWaistband);
-  for(const topId of tops)for(const bottomId of ['classic','topshop-barrel-jeans-v1']){
+  const bottoms=['classic',...Object.keys(GARMENTS).filter(id=>GARMENTS[id].slot==='bottom')];
+  for(const topId of tops)for(const bottomId of bottoms){
     const outfit=makeOutfit({topId,bottomId});outfit.updateMatrixWorld(true);
-    const covering=[];outfit.getObjectByName(topId).traverse(o=>{if(o.isMesh)covering.push(o);});
-    const hem=Math.min(...covering.filter(o=>!o.parent||o.parent.name===topId).map(o=>new T.Box3().setFromObject(o).min.y))/.76;
+    // The top's body (not its sleeves): her arms hang against her hips, so a high waistband passes inside the sleeves, hidden.
+    const covering=outfit.getObjectByName(topId).children.filter(o=>o.isMesh);
+    const hem=Math.min(...covering.map(o=>new T.Box3().setFromObject(o).min.y))/.76;
     const ray=new T.Raycaster(),p=new T.Vector3(),origin=new T.Vector3();let checked=0;
     outfit.getObjectByName('trousers').traverse(o=>{if(!o.geometry)return;const pos=o.geometry.attributes.position;
       for(let i=0;i<pos.count;i+=3){
@@ -220,4 +222,23 @@ test('every waist-covering top hides every bottom between its hem and the waist'
       }});
     assert.ok(checked>50,`${topId}/${bottomId} checked ${checked}`);disposeObject(outfit);
   }
+});
+
+test('Davinia jeans: cropped slim legs clear her legs and socks, with their details',()=>{
+  const id='desigual-davinia-jeans-v1';assert.equal(cleanRecipe({bottomId:id}).bottomId,id);
+  const doll=makeDoll(),outfit=makeOutfit({bottomId:id});doll.updateMatrixWorld(true);outfit.updateMatrixWorld(true);
+  for(const name of ['frayed-waistband','scoop-pocket-stitch','coin-pocket-stitch','embroidered-heart','abrasion','leather-patch','frayed-hem','back-patch-pocket'])assert.ok(outfit.getObjectByName(name),name);
+  assert.equal(outfit.getObjectByName('pocket-flap'),undefined,'plain back pockets');
+  const legs=[];outfit.traverse(o=>{if(o.name==='jeans-leg')legs.push(o);});assert.equal(legs.length,2);
+  const hem=Math.min(...legs.map(l=>new T.Box3().setFromObject(l).min.y));assert.ok(hem>.33*.76,'cropped above the ankle');
+  // Every doll leg and sock vertex between the hem and the crotch lies inside its jeans leg.
+  const ray=new T.Raycaster(),p=new T.Vector3(),origin=new T.Vector3();let checked=0;
+  doll.traverse(o=>{if(o.name!=='leg'&&o.name!=='sock')return;const pos=o.geometry.attributes.position;
+    for(let i=0;i<pos.count;i++){p.fromBufferAttribute(pos,i).applyMatrix4(o.matrixWorld);if(p.y<hem+.004||p.y>.95*.76)continue;
+      const leg=legs.find(l=>Math.sign(new T.Box3().setFromObject(l).getCenter(new T.Vector3()).x)===Math.sign(p.x));
+      const c=new T.Box3().setFromObject(leg).getCenter(new T.Vector3());origin.set(c.x,p.y,0);const r=p.distanceTo(origin);if(r<.005)continue;
+      // Nudged off the leg's closing seam, where a ray along the shared edge can slip between its two triangles.
+      ray.set(origin,p.clone().sub(origin).normalize().applyAxisAngle(new T.Vector3(0,1,0),1e-4));const h=ray.intersectObject(leg,false)[0];
+      assert.ok(h&&h.distance>r+.001,`${o.name} vertex ${i} shows through the Davinia leg`);checked++;}});
+  assert.ok(checked>200,`checked ${checked}`);disposeObject(doll);disposeObject(outfit);
 });
