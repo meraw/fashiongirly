@@ -45,8 +45,8 @@ function mapStripes(mesh,toOutfit=v=>v){
   for(let i=0;i<p.count;i++){v.fromBufferAttribute(p,i);toOutfit(v);uv.setY(i,(BODY_HEM-v.y)/PITCH+40);}
   uv.needsUpdate=true;
 }
-// A surface built from a function over a (u, v) grid.
-function grid(group,nu,nv,at,mat,name){
+// A surface built from a function over a (u, v) grid (also used by the button-down shirts).
+export function grid(group,nu,nv,at,mat,name){
   const pos=[],uv=[],idx=[];
   for(let j=0;j<=nv;j++)for(let i=0;i<=nu;i++){pos.push(...at(i/nu,j/nv));uv.push(i/nu,j/nv);}
   for(let j=0;j<nv;j++)for(let i=0;i<nu;i++){const a=j*(nu+1)+i,b=a+nu+1;idx.push(a,b,a+1,a+1,b,b+1);}

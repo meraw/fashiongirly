@@ -282,6 +282,42 @@ test('stripe knit polo: navy collar, open placket with three buttons, short slee
   assert.ok(checked>200,`checked ${checked}`);
 });
 
+test('tie-dye mesh shirt: point collar with black topstitching, seven black buttons, long sleeves, cropped hem',()=>{
+  const id='motel-tie-dye-mesh-shirt-v1',recipe=cleanRecipe({topId:id,knit:true,shirt:true});
+  assert.equal(recipe.knit,false);assert.equal(recipe.shirt,false);
+  const outfit=makeOutfit({topId:id});outfit.updateMatrixWorld(true);
+  for(const name of ['mesh-shirt-body','shirt-collar-fall','shirt-collar-stand','shirt-collar-topstitch','hem-stitch'])assert.ok(outfit.getObjectByName(name),name);
+  const all=name=>{const found=[];outfit.traverse(o=>{if(o.name===name)found.push(o);});return found;};
+  assert.equal(all('shirt-button').length,7);assert.equal(all('mesh-shirt-sleeve').length,2);assert.equal(all('placket-stitch').length,2);assert.equal(all('sleeve-hem-stitch').length,2);
+  // Buttons run down the centre front, from just under the collar to near the hem.
+  const ys=all('shirt-button').map(b=>b.getWorldPosition(new T.Vector3())).map(p=>{assert.ok(Math.abs(p.x)<.01&&p.z>.1,'button on the centre front');return p.y/.76;});
+  assert.ok(Math.max(...ys)>1.84&&Math.min(...ys)<1.4,`buttons from ${Math.max(...ys)} to ${Math.min(...ys)}`);
+  // The tie-dye spreads evenly from dark to pale, as measured in the photos: every band of brightness is well represented.
+  const px=outfit.getObjectByName('mesh-shirt-body').material.map.image.data,bands=[0,0,0,0,0];
+  for(let i=0;i<px.length;i+=4)bands[Math.min(4,Math.floor((px[i]+px[i+1]+px[i+2])/3/36))]++;
+  for(const b of bands)assert.ok(b/(px.length/4)>.08,`brightness bands ${bands}`);
+  // Long sleeves reach her wrist.
+  for(const s of all('mesh-shirt-sleeve'))assert.ok(new T.Box3().setFromObject(s).min.y/.76<1.32,'sleeve reaches the wrist');
+  disposeObject(outfit);
+  // Cropped at the waist: it ends above the skirt, whose bow stays visible.
+  const skirted=makeOutfit({topId:id,skirt:true});skirted.updateMatrixWorld(true);assert.ok(skirted.getObjectByName('ribbon-knot'));
+  const hem=new T.Box3().setFromObject(skirted.getObjectByName('mesh-shirt-body')).min.y/.76;assert.ok(hem>1.24&&hem<1.28,`hem at ${hem}`);
+  disposeObject(skirted);
+  // Every waistband that reaches above the hem passes inside the body.
+  const q=new T.Vector3(),axis=new T.Vector3(0,1,0);let checked=0;
+  for(const bottomId of ['classic',...Object.keys(GARMENTS).filter(b=>GARMENTS[b].slot==='bottom')]){
+    const dressed=makeOutfit({topId:id,bottomId,skirt:bottomId==='classic'});dressed.updateMatrixWorld(true);
+    const band=levelCaster([dressed.getObjectByName('mesh-shirt-body')],{axis:[0,0]}),seen=new Map();
+    for(const layer of ['trousers','layered-skirt'].map(name=>dressed.getObjectByName(name)).filter(Boolean))layer.traverse(o=>{if(!o.geometry)return;const pos=o.geometry.attributes.position;
+      for(let i=0;i<pos.count;i++){q.fromBufferAttribute(pos,i).applyMatrix4(o.matrixWorld);const y=q.y/.76;if(y<hem+.006||y>1.4)continue;
+        const r=Math.hypot(q.x,q.z),a=Math.atan2(q.x,q.z),key=Math.round(y/.002)+':'+Math.round(a/(Math.PI/180));
+        if(!seen.has(key))seen.set(key,band(new T.Vector3(0,q.y,0),new T.Vector3(Math.sin(a),0,Math.cos(a)).applyAxisAngle(axis,1e-5))?.distance||0);
+        assert.ok(seen.get(key)>r+.001,`${o.name} pokes through the shirt over ${bottomId} at vertex ${i}`);checked++;}});
+    disposeObject(dressed);
+  }
+  assert.ok(checked>200,`checked ${checked}`);
+});
+
 test('every top records styling facts for later outfit selection',()=>{
   // Relative warmth (1 light to 4 very warm) with what it is based on; silhouette, palette, pattern, coverage and material.
   for(const [id,g] of Object.entries(GARMENTS).filter(([,g])=>g.slot==='top')){

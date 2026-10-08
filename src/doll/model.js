@@ -2,8 +2,9 @@ import * as T from 'three';
 import { cleanRecipe } from './recipe.js';
 import { makeOuterwear } from './outerwear.js';
 import { levelCaster } from './level-caster.js';
-import { BRONZE_TOP_ID, LILAC_TOP_ID, CROCHET_TOP_ID, PLAID_JUMPER_ID, STRIPE_JUMPER_ID, POINTELLE_FLOWER_ID, SILVER_CABLE_ID, LACROIX_FLOWER_ID, TOMMY_CABLE_ID, PETIT_BATEAU_CARDIGAN_ID, TOMMY_STRIPE_POLO_ID, GARMENTS } from '../wardrobe/catalog.js';
+import { BRONZE_TOP_ID, LILAC_TOP_ID, CROCHET_TOP_ID, PLAID_JUMPER_ID, STRIPE_JUMPER_ID, POINTELLE_FLOWER_ID, SILVER_CABLE_ID, LACROIX_FLOWER_ID, TOMMY_CABLE_ID, PETIT_BATEAU_CARDIGAN_ID, TOMMY_STRIPE_POLO_ID, MOTEL_TIE_DYE_SHIRT_ID, GARMENTS } from '../wardrobe/catalog.js';
 import { makeKnitPolo } from './polo.js';
+import { makeButtonShirt } from './shirts.js';
 // Body and wardrobe share one toy proportion system; the face stays unscaled.
 const BODY_HEIGHT = .76;
 const BODY_WIDTH = 1.06;
@@ -1627,7 +1628,7 @@ export function makeOutfit(raw, atlas=null) {
   const makeTop=id=>id===CROCHET_TOP_ID?makeCrochetTop():id===PLAID_JUMPER_ID?makePlaidJumper(id,state.skirt):id===STRIPE_JUMPER_ID?makeStripeJumper(id,state.skirt)
     :id===POINTELLE_FLOWER_ID?makePointelleJumper(id,state.skirt):id===SILVER_CABLE_ID?makeSilverCableJumper():id===LACROIX_FLOWER_ID?makeLacroixSweater(id,state.skirt)
     :id===TOMMY_CABLE_ID?makeTommyCableSweater(id,state.skirt):id===PETIT_BATEAU_CARDIGAN_ID?makeStripedCardigan(id,state.skirt)
-    :id===TOMMY_STRIPE_POLO_ID?makeKnitPolo(id)
+    :id===TOMMY_STRIPE_POLO_ID?makeKnitPolo(id):id===MOTEL_TIE_DYE_SHIRT_ID?makeButtonShirt(id)
     :makeReferenceTop(atlas?.isTexture?atlas:atlas?.[id],id);
   if(state.topId!=='classic')root.add(makeTop(state.topId));
   // A top that can be worn over another top (layering.overTop, such as a cardigan) may have a slim top under it
@@ -1690,8 +1691,8 @@ export function makeOutfit(raw, atlas=null) {
   const outerwear=GARMENTS[state.outerwearId];
   if(outerwear?.slot==='outerwear'){
     if(outerwear.layering?.coversTopSleeves)for(const layer of root.children)layer.traverse(o=>{if(o.isGroup&&o.rotation.z!==0&&o.children.some(c=>c.isMesh&&/sleeve/.test(c.name)))o.visible=false;});
-    // Zipped to the chin, it also closes over the striped shirt's collar points and a polo's collar.
-    if(outerwear.layering?.closed&&!state.outerwearOpen)root.traverse(o=>{if(o.name==='shirt-collar'||o.name.startsWith('polo-collar'))o.visible=false;});
+    // Zipped to the chin, it also closes over the striped shirt's collar points and a polo's or button-down's collar.
+    if(outerwear.layering?.closed&&!state.outerwearOpen)root.traverse(o=>{if(o.name.startsWith('shirt-collar')||o.name.startsWith('polo-collar'))o.visible=false;});
     const outer=makeOuterwear(state.outerwearId,state.skirt,{under:root,open:state.outerwearOpen});
     if(outer)root.add(outer);
   }
@@ -1706,4 +1707,4 @@ export function makeOutfit(raw, atlas=null) {
 }
 export function disposeObject(root) { const geometries=new Set(),materials=new Set(),textures=new Set();root.traverse(o=>{if(o.geometry)geometries.add(o.geometry);if(o.material)for(const m of Array.isArray(o.material)?o.material:[o.material])materials.add(m);});for(const m of materials)for(const value of Object.values(m))if(value?.isTexture)textures.add(value);geometries.forEach(g=>g.dispose());textures.forEach(t=>t.dispose());materials.forEach(m=>m.dispose()); }
 // Shared builders for garments made in their own modules (outerwear.js).
-export { V, random, weave, solid, put, oval, curve, shell, ringShell, ribbon, ribbed, roundSleeveCap, surfaceProbe, trimToEdge };
+export { V, random, weave, solid, put, oval, curve, shell, ringShell, ribbon, ribbed, roundSleeveCap, surfaceProbe, trimToEdge, easeOverHand };

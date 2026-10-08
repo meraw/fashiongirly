@@ -17,6 +17,7 @@ export const LACROIX_FLOWER_ID = 'desigual-lacroix-flower-sweater-v1';
 export const TOMMY_CABLE_ID = 'tommy-green-cable-sweater-v1';
 export const PETIT_BATEAU_CARDIGAN_ID = 'petit-bateau-striped-cardigan-v1';
 export const TOMMY_STRIPE_POLO_ID = 'tommy-stripe-knit-polo-v1';
+export const MOTEL_TIE_DYE_SHIRT_ID = 'motel-tie-dye-mesh-shirt-v1';
 export const BARREL_JEANS_ID = 'topshop-barrel-jeans-v1';
 export const DAVINIA_JEANS_ID = 'desigual-davinia-jeans-v1';
 export const LEVIS_94_ID = 'levis-94-wide-leg-v1';
@@ -201,6 +202,20 @@ export const GARMENTS = Object.freeze({
     uncertainties: ['about eleven stripe repeats from hem band to neck on her short torso, where the photos show about ten to thirteen', 'the monogram is a drawn suggestion of the script, not the brand\'s lettering', 'the sleeve flag is a simple three-colour tab', 'worn with the top button open, as on the model; the flat lay is fully buttoned'],
     styling: { silhouette: 'slim, waist length', palette: ['navy', 'off-white'], pattern: 'even horizontal Breton-style stripes with a navy collar, placket and bands', coverage: { neck: 'polo collar, top button open', sleeves: 'short', midriff: 'covered to the waist' }, material: 'fine-gauge knit, composition unknown', warmth: 1, warmthBasis: 'inferred: fine knit with short sleeves', weather: 'mild to warm days; layers under a jacket' },
     authoring: { texture: 'procedural stripeData() in src/doll/polo.js, drawn locally when first worn', runtimeGeneration: false, sourcePhotosBundled: false },
+  },
+  [MOTEL_TIE_DYE_SHIRT_ID]: {
+    slot: 'top',
+    id: MOTEL_TIE_DYE_SHIRT_ID, name: 'Tie-dye mesh button-down shirt', family: 'fitted-mesh-button-down-shirt', version: 1,
+    status: 'reference-study-awaiting-visual-review', brandAsProvided: 'Motel',
+    source: { note: 'user supplied six photos: front and back on a model (shop photos), the shirt laid flat on a rug with a close-up of the collar, and the front and back on a hanger' },
+    referenceViews: ['front on model', 'back on model', 'flat lay', 'collar close-up', 'front on hanger', 'back on hanger'],
+    details: ['sheer stretch mesh printed with a warm grey-mauve tie-dye: dark brown-grey clouds bleeding into pale pinkish beige', 'point collar on a stand, with black topstitching inside its edges', 'black facing inside the back neck, showing between the collar points', 'front placket edged with black stitching, seven glossy black buttons from the collar to the hem', 'long fitted set-in sleeves to the wrist, plain stitched hems', 'black overlocked hem', 'slim, cropped at the waist'],
+    material: { construction: 'stretch mesh', composition: 'not visible in the supplied photos', finish: 'slight sheen; sheer, most visibly on the sleeves' },
+    fit: { silhouette: 'slim, fitted', sleeve: 'long and fitted, to the wrist', hem: 'cropped at the waist, straight', adjustment: 'fixed authored fit for review' },
+    exclusions: ['striped-shirt','knit-sweater'],
+    uncertainties: ['the tie-dye is drawn procedurally to match the photos\' colours and patch size, not copied', 'worn buttoned to the top, as on the hanger; the model wears it open at the neck', 'only the sleeves are drawn sheer; over her body (cream felt, not skin) sheer mesh would show the felt', 'button count read as seven from the hanger photo'],
+    styling: { silhouette: 'slim, cropped at the waist', palette: ['grey-brown', 'mauve', 'pale pinkish beige', 'black'], pattern: 'cloudy tie-dye all over, with black buttons and topstitching', coverage: { neck: 'point collar, buttoned', sleeves: 'long, sheer', midriff: 'cropped at the waist' }, material: 'sheer stretch mesh, composition unknown', warmth: 1, warmthBasis: 'inferred: thin sheer mesh, though long-sleeved', weather: 'mild days, or as a layer; sheer' },
+    authoring: { texture: 'procedural tieDyeData() and meshNetData() in src/doll/shirts.js, drawn locally when first worn', runtimeGeneration: false, sourcePhotosBundled: false },
   },
   [BARREL_JEANS_ID]: {
     slot: 'bottom',
