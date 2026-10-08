@@ -144,7 +144,7 @@ export const GARMENTS = Object.freeze({
     referenceViews: ['back pocket close-up', 'front flat lay', 'front on model', 'back on model', 'side on model', 'full-length front'],
     details: ['low-to-mid rise', 'wide legs falling straight and widening slightly to the hem, full length pooling over the shoes', 'washed black faded to charcoal, faint whiskers across the upper thighs, visible twill', 'raw frayed edges on the front pocket openings', 'coin pocket, belt loops, dark metal button', 'back yoke, five-pocket back pockets with tonal double-arc stitching and frayed nicks on their tops', 'red tab on the wearer\'s right back pocket', 'tan printed patch on the back waistband'],
     material: { construction: 'rigid denim', composition: 'not visible in the supplied images', finish: 'washed black' },
-    fit: { silhouette: 'wide leg', rise: 'low to mid', length: 'full, pooling over the shoes', adjustment: 'fixed authored fit for review' },
+    fit: { silhouette: 'wide leg', rise: 'low to mid', length: 'full, resting on the shoes (confirmed by the user)', adjustment: 'fixed authored fit for review' },
     uncertainties: ['folds are procedural', 'photos disagree on brightness (studio lighting); colour aims between the flat lay and the model shots', 'patch and tab carry no lettering or logo'],
     authoring: { texture: 'levis-94-denim.js: flat-lit seamless swatch processed from the product flat lay', runtimeGeneration: false, sourcePhotosBundled: 'fabric swatch only' },
     build: {
@@ -152,10 +152,10 @@ export const GARMENTS = Object.freeze({
       crotch: { top: 1.18, y: .95 }, uvScale: [3.7, 1.03],
       tiles: { small: [2.45, .66], legs: [1, 1], hips: [1, 1] },
       hips: [[1.235, .256, .172], [1.14, .276, .193], [1.04, .294, .198], [.97, .306, .19], [.935, .25, .11]],
-      // Wide legs: straight from the hip and widening gently to the hem. On the user they end at the ankle, just above
-      // the shoes, rather than pooling over them as on the photographed model.
-      legs: [[1.03, .148, .18, .13], [.95, .155, .18, .152], [.75, .163, .183, .168], [.55, .171, .186, .176], [.35, .179, .19, .184], [.21, .184, .193, .188]],
-      hem: 'ankle', folds: { base: .005, low: .009 },
+      // Wide legs: straight from the hip and widening gently to the hem, full length, resting on the shoes (the user
+      // confirmed this length is right on them).
+      legs: [[1.03, .148, .18, .13], [.95, .155, .18, .152], [.75, .163, .183, .168], [.55, .171, .186, .176], [.35, .179, .19, .184], [.18, .186, .194, .19], [.06, .19, .197, .194]],
+      hem: 'rests-on-shoe', folds: { base: .005, low: .011, stack: .008 },
       gradient: [.86, .22], whiskers: .15, thighFade: .1,
       waistband: { y: 1.21, rx: .258, rz: .175, h: .05 },
       loops: [-2.7, -1.45, -.55, .55, 1.45, 2.7, Math.PI],
@@ -163,7 +163,7 @@ export const GARMENTS = Object.freeze({
       fly: [[.034, 1.183], [.036, 1.09], [.02, 1.05], [0, 1.04]],
       frontPocket: { type: 'slant', line: [[.15, 1.184], [.205, 1.178], [.245, 1.158], [.27, 1.115]], fray: true },
       coinPocket: { outline: [[-.225, 1.183], [-.18, 1.181], [-.184, 1.135], [-.222, 1.137], [-.225, 1.183]] },
-      seamEnd: .215,
+      seamEnd: .1,
       backYoke: [[.268, 1.182], [.14, 1.162], [.004, 1.142]],
       backPocket: { x: .12, outline: [[-.07, 1.128], [.07, 1.128], [.066, 1.005], [0, .978], [-.066, 1.005]], stitchBelow: 1.07,
         arcuate: [.052, 1.085, .03], arcuateColour: '#161416', nicks: [-.035, .02],

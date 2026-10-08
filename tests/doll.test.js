@@ -243,19 +243,19 @@ test('Davinia jeans: cropped slim legs clear her legs and socks, with their deta
   assert.ok(checked>200,`checked ${checked}`);disposeObject(doll);disposeObject(outfit);
 });
 
-test("Levi's '94 jeans: wide ankle-length legs above the shoes, with their back-pocket details",()=>{
+test("Levi's '94 jeans: wide full-length legs resting on the shoes, with their back-pocket details",()=>{
   const id='levis-94-wide-leg-v1';assert.equal(cleanRecipe({bottomId:id}).bottomId,id);
   const doll=makeDoll(),outfit=makeOutfit({bottomId:id});doll.updateMatrixWorld(true);outfit.updateMatrixWorld(true);
   for(const name of ['arcuate-stitch','pocket-tab','frayed-pocket-edge','pocket-nick','printed-patch','patch-print','coin-pocket-stitch','back-patch-pocket'])assert.ok(outfit.getObjectByName(name),name);
   let tabs=0;outfit.traverse(o=>{if(o.name==='pocket-tab')tabs++;});assert.equal(tabs,1,'one tab, on the right back pocket');
   const legs=[];outfit.traverse(o=>{if(o.name==='jeans-leg')legs.push(o);});assert.equal(legs.length,2);
-  // On the user these end at the ankle: the hem clears the top of the loafers but covers most of the sock.
-  let shoeTop=-Infinity,sockTop=-Infinity;doll.traverse(o=>{if(o.name==='loafer')shoeTop=Math.max(shoeTop,new T.Box3().setFromObject(o).max.y);if(o.name==='sock')sockTop=Math.max(sockTop,new T.Box3().setFromObject(o).max.y);});
+  // Full length, as the user wears them: the hem comes down over the shoes to the floor around them.
+  let shoeTop=-Infinity;doll.traverse(o=>{if(o.name==='loafer')shoeTop=Math.max(shoeTop,new T.Box3().setFromObject(o).max.y);});
   const hem=Math.min(...legs.map(l=>new T.Box3().setFromObject(l).min.y));
-  assert.ok(hem>shoeTop,'hem clears the shoes');assert.ok(hem<sockTop-(sockTop-shoeTop)*.6,'hem reaches the ankle');
+  assert.ok(hem<shoeTop*.6,'hem reaches down over the shoes');
   // Wide leg: the hem is wider than the knee, and the two legs never cross each other.
   const width=(leg,y0,y1)=>{const b=new T.Box3(),p=new T.Vector3(),pos=leg.geometry.attributes.position;for(let i=0;i<pos.count;i++){p.fromBufferAttribute(pos,i);if(p.y>=y0&&p.y<=y1)b.expandByPoint(p);}return b;};
-  assert.ok(width(legs[0],.21,.25).getSize(new T.Vector3()).x>width(legs[0],.55,.6).getSize(new T.Vector3()).x,'widens toward the hem');
-  const [l,r]=legs.map(leg=>width(leg,.21,.3)).sort((a,b)=>a.min.x-b.min.x);assert.ok(l.max.x<=r.min.x+.012,'legs do not cross');
+  assert.ok(width(legs[0],.32,.36).getSize(new T.Vector3()).x>width(legs[0],.55,.6).getSize(new T.Vector3()).x,'widens toward the hem');
+  const [l,r]=legs.map(leg=>width(leg,.32,.4)).sort((a,b)=>a.min.x-b.min.x);assert.ok(l.max.x<=r.min.x+.012,'legs do not cross');
   disposeObject(doll);disposeObject(outfit);
 });
