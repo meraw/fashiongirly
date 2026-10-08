@@ -1,6 +1,6 @@
 # Wardrobe item: Marikoo two-tone hooded windbreaker
 
-Authored 8 October 2026. Status: first version, awaiting the user's visual review. It is the first piece of outerwear and added the outerwear slot. Added by the outerwear chat (see [AGENTS.md](../../AGENTS.md)).
+Authored 8 October 2026. Status: approved by the user on the first version (“Yes, it's good”). It is the first piece of outerwear and added the outerwear slot. Added by the outerwear chat (see [AGENTS.md](../../AGENTS.md)).
 
 ## Source and reference reading
 
@@ -88,7 +88,7 @@ Catalog ID `marikoo-two-tone-windbreaker-v1` (slot `outerwear`). It is built by 
   - the lilac top with the Levi's, boots and long straight hair, where the hair lies over the jacket and the hood is hidden under it
   - the stripe jumper with the high bun
 
-  The authoring chat checked these renders; the user has not seen them yet.
+  The user reviewed renders from the front, a turn, the side and the back (with the bob and with the bun) and a front close-up, and approved it.
 
 ## Known differences
 
