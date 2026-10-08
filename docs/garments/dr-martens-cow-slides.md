@@ -28,7 +28,7 @@ Catalog ID `dr-martens-cow-slide-v1` (slot `shoes`), built by `makePlatformSlide
 
 ## Checks
 
-- `npm test`: 39 passing. A new test checks:
+- `npm test`: 41 passing. A new test checks:
   - the slide's parts;
   - that the sole stands on the floor while she and her clothes are raised by the footbed's height;
   - that her socks are hidden, her legs end inside her bare ankles, and her feet stand on the footbed;
