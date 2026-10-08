@@ -1,6 +1,6 @@
 # Wardrobe item: Desigual black faux-leather jacket
 
-Authored 8 October 2026. Status: second version, awaiting the user's visual review. The user found the first version bloated on the doll, though the real jacket has a great fit, and said they often wear it open. Second piece of outerwear, added by the outerwear chat.
+Authored 8 October 2026. Status: third version, awaiting the user's visual review. The user found the first version bloated on the doll, though the real jacket has a great fit, and said they often wear it open. On the second version, they preferred it zipped and found the open version warped at the middle. Second piece of outerwear, added by the outerwear chat.
 
 ## Source and reference reading
 
@@ -41,11 +41,15 @@ The second version:
 - **Fits to what is under it.** It is built at its own slim fit on her (about 0.31 by 0.23 at the chest, close to the slim tops). It eases out, height by height, only where the layers worn under it need room, with a 0.009 gap (`easeOver()` in `src/doll/outerwear.js`). Over the silver cable jumper it stays slim; over the plaid jumper or the skirt it grows just enough. The rib band does the same, with a little extra room for its ribs. Points covered by the jacket's sleeves, and the open front, are not counted.
 - **Slimmer sleeves.** About 0.125 round, fitted to her arm, still clearing her thumbs at the cuff.
 - **Worn open.**
-  - The fronts hang apart, with their edges at a set x by height, about 0.07 at the neck and 0.115 at the chest and hem. The fronts move outward most near their edges.
-  - The collar spreads with them.
+  - Each front slides out sideways to hang 0.11 from the centre, in front of her chest. The slide fades out by the side seam, so the fronts keep their depth and hang forward rather than wrapping round her.
+  - The collar spreads with them, and the rib band parts at the same edges.
   - The zip becomes two halves along turned leather facings, with the slider left at the hem on her right.
-  - The rib band parts at the same edges.
   - The classic shirt's collar stays out, as it would.
+
+## Revision after the user's second review
+
+The user said the zipped version looks better, and that the open one seemed to warp at the middle. In the open version, the fronts had been turned round her body by an amount that changed with height. That bent the panel seams, pockets and front edges, and curled the fronts back round her sides. The fronts now slide out sideways by the same amount from collar to hem (`openShift()` in `src/doll/outerwear.js`). Seams and pockets stay straight, both pockets show from the front, and the band's ends line up with the fronts on their own.
+
 
 
 Catalog ID `desigual-black-faux-leather-jacket-v1` (slot `outerwear`). It is built by `makeLeatherJacket()` in `src/doll/outerwear.js` from its catalog `build` spec (template `leather-zip-jacket`). Worn zipped closed, as the user wears outerwear.
@@ -93,4 +97,4 @@ Under the first version, the pointelle jumper's raglan seams poked through near 
 - The logo lining is not modelled.
 - In the flat lay, the side panels under the arms may be a matte material; here they are leather.
 - The crinkle is procedural and does not copy the photo's creases. The cuff tab's position is read from one photo.
-- On her short, wide torso the pockets sit close to the sleeves. Worn open, the fronts move outward and the pockets sit mostly at her sides: they show from a turn, less from straight in front.
+- On her short, wide torso the pockets sit close to the sleeves, so from straight in front their outer ends are partly behind her arms.

@@ -628,8 +628,8 @@ export const GARMENTS = Object.freeze({
         gathers: 18, gatherDepth: .006, gatherHeight: .06, crease: .005,
         collarBase: 1.875, collarTop: 1.955,
       },
-      // Worn open, each front edge hangs at this x by height (outfit units).
-      open: { edge: [[1.955, .07], [1.875, .085], [1.75, .105], [1.5, .115], [1.13, .115]] },
+      // Worn open, each front edge hangs this far out from the centre, in front of her chest.
+      open: { shift: .11 },
       collar: { gap: .1, gapOpen: .02, spread: .3, foldFront: 1.93, foldBack: 1.97, dropFront: .18, dropBack: .1, lift: .014 },
       front: { yoke: 1.73, yokeTo: .3, panelX: .17 },
       pockets: { x0: .09, x1: .3, zip: { y: 1.53, height: .03 }, flap: { top: 1.485, height: .042, point: .008 }, bottom: 1.27, pleat: .018 },

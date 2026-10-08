@@ -86,31 +86,30 @@ function fabric(map,colour,spec){
 // the radius) below the collar. Returns tools for placing details on that surface: the point at angle a (0 = centre
 // front, the shell's own parameter) and height y, its outward normal, a point lifted off it, and the angle at which a
 // given x lies on the front (or the back).
-// Options: `fit(y)` scales the whole row (a jacket easing over the layers under it); `open(y)` is the angle either side
-// of centre front where the open fronts' edges hang. Each front panel then spans from its edge round to the centre back,
-// so details placed by angle move outward with the panel.
+// Options: `fit(y)` scales the whole row (a jacket easing over the layers under it); `open` is how far each front edge
+// moves out sideways when the jacket hangs open (see openShift). Details placed by angle move with their panel.
 function jacketBody(jacket,rows,mat,collarBase,deform=()=>1,seg=128,{fit=null,open=null}={}){
   const mesh=shell(jacket,rows.map(r=>r.slice()),mat,'jacket-body',seg);mesh.userData.covering=true;
   const p=mesh.geometry.attributes.position,uv=mesh.geometry.attributes.uv,n=p.count/(seg+1);
   // The smooth profile (before deforming): rx and rz by height.
   const prof=[];for(let j=0;j<n;j++)prof.push([p.getY(j*(seg+1)),p.getX(j*(seg+1)+seg/4),p.getZ(j*(seg+1))]);
   const radii=y=>{let j=0;while(j<prof.length-2&&prof[j+1][0]>y)j++;const [y0,x0,z0]=prof[j],[y1,x1,z1]=prof[j+1],t=Math.max(0,Math.min(1,(y0-y)/(y0-y1)));return [x0+(x1-x0)*t,z0+(z1-z0)*t];};
-  const turn=(a,y)=>open?openTurn(a<0?a+Math.PI*2:a>Math.PI*2?a-Math.PI*2:a,open(y)):a;
   const scale=y=>fit?fit(y):1;
   for(let j=0;j<n;j++)for(let i=0;i<=seg;i++){const k=j*(seg+1)+i,y=p.getY(k);
     if(!fit&&!open){const a=i/seg*Math.PI*2,g=y<collarBase?deform(a,y):1;p.setX(k,p.getX(k)*g);p.setZ(k,p.getZ(k)*g);}
-    else{const [rx,rz]=prof[j].slice(1),a=turn(i/seg*Math.PI*2,y),g=(y<collarBase?deform(a,y):1)*scale(y);p.setX(k,Math.sin(a)*rx*g);p.setZ(k,Math.cos(a)*rz*g);}
+    else{const [rx,rz]=prof[j].slice(1),a=i/seg*Math.PI*2,g=(y<collarBase?deform(a,y):1)*scale(y);p.setX(k,Math.sin(a)*rx*g+(open?openShift(a,open):0));p.setZ(k,Math.cos(a)*rz*g);}
     uv.setXY(k,i/seg,y-1);}
   p.needsUpdate=true;uv.needsUpdate=true;mesh.geometry.computeVertexNormals();
-  const surf=(a,y)=>{const [rx,rz]=radii(y),t=turn(a,y),g=(y<collarBase?deform(t,y):1)*scale(y);return V(Math.sin(t)*rx*g,y,Math.cos(t)*rz*g);};
+  const surf=(a,y)=>{const [rx,rz]=radii(y),g=(y<collarBase?deform(a,y):1)*scale(y);return V(Math.sin(a)*rx*g+(open?openShift(a,open):0),y,Math.cos(a)*rz*g);};
   const normal=(a,y)=>{const ta=surf(a+1e-3,y).sub(surf(a-1e-3,y)),ty=surf(a,y+1e-3).sub(surf(a,y-1e-3));return new T.Vector3().crossVectors(ta,ty).normalize();};
   const at=(a,y,off)=>surf(a,y).addScaledVector(normal(a,y),off);
   const angleFor=(x,y,back=false)=>{const a=Math.asin(Math.max(-1,Math.min(1,x/radii(y)[0])));return back?Math.PI-a:a;};
-  return {mesh,surf,normal,at,angleFor,radii,turn,scale};
+  return {mesh,surf,normal,at,angleFor,radii,scale};
 }
-// An open front: the panel at angle q (0 to 2pi round from centre front) moves round so its edge hangs at o. The fronts part
-// most near their edges and less toward the sides, as a jacket hanging open does; the centre back stays put.
-function openTurn(q,o){const half=a=>a+o*(1-a/Math.PI)**1.5;return q<=Math.PI?half(q):Math.PI*2-half(Math.PI*2-q);}
+// An open front: each front panel slides out sideways by d at its edge (angle 0 for her left front, 2pi for her right),
+// less toward the side seam and not at all behind it. The fronts keep their depth, so they hang forward over what is under
+// them instead of wrapping round her, and their seams and pockets stay straight.
+function openShift(a,d){if(a<0)a+=Math.PI*2;const q=a<=Math.PI?a:Math.PI*2-a,side=a<Math.PI?1:-1;return side*d*Math.max(0,1-q/(Math.PI/2))**1.5;}
 // How much a fitted jacket must ease out, by height, to clear the layers already worn under it (`under`: the outfit so
 // far). Each visible vertex between `low` and `high` asks for the scale that puts the jacket's own row (`radii`) a `gap`
 // outside it. Points the jacket's sleeves cover, and points in an open front, are skipped. The result is spread over
@@ -268,27 +267,24 @@ function makeLeatherJacket(id,spec,overSkirt,under=null,open=false){
   const knitBump=weave('knit');knitBump.repeat.set(40,2);
   const rib=new T.MeshStandardMaterial({color:C.rib,roughness:.95,bumpMap:knitBump,bumpScale:.01,side:T.DoubleSide});
   // Open, each front edge hangs at x = spec.open.edge(y); the angle it makes depends on how far the jacket has eased out.
-  const own=rowRadii(B.rows),edgeX=y=>along(spec.open.edge,y);
-  // The edge's angle on the jacket's own ellipse (its parameter), and seen from her centre line (polar, for what shows).
-  const openAt=open?(y,k=1)=>Math.asin(Math.min(.95,edgeX(y)/(own(y)[0]*k))):null;
-  const polar=open?(y,k=1)=>{const a=openAt(y,k),[rx,rz]=own(y);return Math.atan2(Math.sin(a)*rx,Math.cos(a)*rz);}:null;
+  // Open, each front edge hangs out at x = ±D, at the front of her chest. `polar` is that edge seen from her centre line, for
+  // what shows between the fronts.
+  const own=rowRadii(B.rows),D=spec.open.shift;
+  const polar=open?(y,k=1)=>Math.atan2(D,own(y)[1]*k):null;
   const fit=under?easeOver(under,{low:B.hem-.01,high:B.collarTop,gap:spec.fit.gap,radii:own,sleeve:S,openAt:polar}):null;
   // The band's ribs dip about 1% inside its radius, so it keeps a little more room.
   const bandFit=under?easeOver(under,{low:B.hem-.005,high:bandTop+.01,gap:spec.fit.gap+.004,radii:()=>B.bandRadius,sleeve:S,openAt:polar}):null;
   const kb=bandFit?Math.max(...Array.from({length:9},(_,k)=>bandFit(B.hem+(B.band+.005)*k/8))):1;
-  const openAngle=open?y=>openAt(y,fit?fit(y):1):null;
   jacket.userData.opening=open?y=>polar(y,fit?fit(y):1):()=>0;
   // Leather keeps soft, broad creases rather than gathers; it eases into the rib band above the hem.
   const deform=(a,y)=>{const t=Math.max(0,1-(y-bandTop)/B.gatherHeight);
     return 1+B.gatherDepth*t*t*Math.cos(a*B.gathers)+B.crease*Math.sin(4*a+23*y)*Math.sin(2.6*a-9*y+1);};
-  const tools=jacketBody(jacket,B.rows,skin,B.collarBase,deform,128,{fit,open:openAngle}),{surf,normal,at,angleFor,turn}=tools;
+  const tools=jacketBody(jacket,B.rows,skin,B.collarBase,deform,128,{fit,open:open?D:null}),{surf,normal,at,angleFor,turn}=tools;
   // Rib-knit hem band, narrower than the body, which eases into it. Open, it parts with the fronts.
   const band=B.bandRadius.map(r=>r*kb),seg=192;
   const bandMesh=shell(jacket,[[bandTop+.004,band[0],band[1]],[bandTop-.006,band[0],band[1]],[B.hem+.006,band[0],band[1]],[B.hem,band[0]-.005,band[1]-.005]],rib,'rib-hem-band',seg);
-  // Open, its ends line up with the fronts' edges (the same x), on the band's own oval.
-  if(open){const bp=bandMesh.geometry.attributes.position,rows=[];for(let k=0;k<bp.count;k+=seg+1)rows.push([bp.getX(k+seg/4),bp.getZ(k)]);
-    for(let k=0;k<bp.count;k++){const i=k%(seg+1),[rx,rz]=rows[(k-i)/(seg+1)],y=bp.getY(k),a=openTurn(i/seg*Math.PI*2,Math.asin(Math.min(.95,edgeX(y)/rx)));
-      bp.setX(k,Math.sin(a)*rx);bp.setZ(k,Math.cos(a)*rz);}bp.needsUpdate=true;}
+  // Open, it parts with the fronts: the same sideways shift, so its ends line up with their edges.
+  if(open){const bp=bandMesh.geometry.attributes.position;for(let k=0;k<bp.count;k++)bp.setX(k,bp.getX(k)+openShift((k%(seg+1))/seg*Math.PI*2,D));bp.needsUpdate=true;}
   ribbed(bandMesh,B.ribs,.008).userData.covering=true;
   // Lines that follow the surface: seams are a slight ridge with a row of topstitching beside them.
   const line=(pts,off,r,mat,name)=>curve(jacket,pts.map(([a,y])=>at(a,y,off).toArray()),r,mat,name);
