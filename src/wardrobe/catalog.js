@@ -66,7 +66,7 @@ export const GARMENTS = Object.freeze({
   [BARREL_JEANS_ID]: {
     slot: 'bottom',
     id: BARREL_JEANS_ID, name: 'Acid-wash barrel jeans', family: 'barrel-leg-jeans', version: 1,
-    status: 'reference-study-awaiting-visual-review', brandAsProvided: 'Topshop',
+    status: 'user-approved-after-revisions', brandAsProvided: 'Topshop',
     source: { note: 'user supplied four phone screenshots of the product gallery (front on model, back detail, back full length, flat lay)' },
     referenceViews: ['front on model', 'back pocket close-up', 'back full length', 'front flat lay'],
     details: ['low rise', 'very wide barrel (horseshoe) legs, widest around the knee, full length resting on the shoes', 'side seams twisting forward toward the hem', 'horizontal darts across each knee', 'slanted front pockets', 'belt loops, silver shank button and zip fly', 'tan contrast topstitching', 'back yoke and patch pockets with pointed buttoned flaps', 'welt slit above the right back pocket', 'brown suede waistband patch', 'mid-dark blue marbled acid wash with a grey cast'],

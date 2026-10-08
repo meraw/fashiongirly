@@ -1,6 +1,6 @@
 # Wardrobe item: Topshop acid-wash barrel jeans
 
-Authored 8 October 2026. Status: several revisions after user review; the user accepted the shape (“okay”) and asked for the texture to come from the jeans, which is now done. Awaiting their look at that. Second piece from the user's wardrobe list, and the first that is not a top.
+Authored 8 October 2026. Status: approved by the user (“Ok, that works”) after several revisions, with denim taken from the product photo. Second piece from the user's wardrobe list, and the first that is not a top.
 
 ## Source and reference reading
 
