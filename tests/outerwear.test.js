@@ -6,7 +6,7 @@ import { readFileSync } from 'node:fs';
 import { makeDoll, makeOutfit, disposeObject } from '../src/doll/model.js';
 import { OUTFITS, cleanRecipe } from '../src/doll/recipe.js';
 import { startStudio } from '../src/doll/app.js';
-import { GARMENTS, MARIKOO_WINDBREAKER_ID } from '../src/wardrobe/catalog.js';
+import { GARMENTS, MARIKOO_WINDBREAKER_ID, DESIGUAL_LEATHER_JACKET_ID } from '../src/wardrobe/catalog.js';
 const outerwear=Object.keys(GARMENTS).filter(id=>GARMENTS[id].slot==='outerwear');
 const tops=['classic',...Object.keys(GARMENTS).filter(id=>GARMENTS[id].slot==='top')];
 const bottoms=['classic',...Object.keys(GARMENTS).filter(id=>GARMENTS[id].slot==='bottom')];
@@ -21,7 +21,7 @@ test('outerwear slot: none by default, and only outerwear fills it',()=>{
 });
 
 test('Marikoo windbreaker: zipped closed, with its yoke, hood, cords, snap pockets and elastic hem and cuffs',()=>{
-  const outfit=makeOutfit({outerwearId:MARIKOO_WINDBREAKER_ID}),jacket=outfit.getObjectByName('outerwear');
+  const outfit=makeOutfit({outerwearId:MARIKOO_WINDBREAKER_ID}),jacket=outfit.getObjectByName('outerwear');outfit.updateMatrixWorld(true);
   for(const [name,count] of [['jacket-body',1],['elastic-hem-band',1],['collar-lining',1],['coil-zip',1],['zip-slider',1],['zip-stop',1],['pocket-welt',2],['pocket-opening',2],['snap-button',4],['drawcord',2],['cord-eyelet',2],['hood',1],['hood-edge',1],['hood-seam',1],['hood-opening',1],['hood-label',1],['back-label',1],['jacket-sleeve',2],['elastic-cuff',2],['sleeve-badge',1]])
     assert.equal(named(jacket,name).length,count,name);
   jacket.traverse(o=>{if(o.geometry)for(const v of o.geometry.attributes.position.array)assert.ok(Number.isFinite(v),o.name);});
@@ -51,7 +51,8 @@ test('closed outerwear covers every top, every bottom and the skirt from its hem
     // once by height band, and each ray only tests the triangles at its height. A point is covered when it lies inside the
     // jacket's outermost surface along the ray from her centre line: the body, or a sleeve where a top wraps over her arm.
     const base=makeOutfit({outerwearId:id,skirt});base.updateMatrixWorld(true);
-    const covering=['jacket-body','elastic-hem-band','jacket-sleeve','elastic-cuff'].flatMap(n=>named(base,n)),spec=GARMENTS[id].build.body;
+    const covering=[];base.traverse(o=>{if(o.userData.covering)covering.push(o);});const spec=GARMENTS[id].build.body;
+    assert.ok(covering.length>=5,`${id}: body, band, sleeves and cuffs cover`);
     const bands=new Map(),band=y=>Math.floor(y/.004);
     for(const m of covering){const g=m.geometry,pos=g.attributes.position,idx=g.index;
       for(let i=0;i<idx.count;i+=3){const tri=[0,1,2].map(k=>new T.Vector3().fromBufferAttribute(pos,idx.getX(i+k)).applyMatrix4(m.matrixWorld));
@@ -88,7 +89,7 @@ test('under closed outerwear the top sleeves are hidden, and her arms and hands 
   }
   for(const id of outerwear){
     const doll=makeDoll(),outfit=makeOutfit({outerwearId:id});doll.updateMatrixWorld(true);outfit.updateMatrixWorld(true);
-    const sleeves=named(outfit,'jacket-sleeve'),cuffs=named(outfit,'elastic-cuff'),S=GARMENTS[id].build.sleeve,ray=new T.Raycaster(),p=new T.Vector3(),origin=new T.Vector3();let checked=0;
+    const sleeves=named(outfit,'jacket-sleeve'),cuffs=[];outfit.traverse(o=>{if(o.userData.cuff)cuffs.push(o);});const S=GARMENTS[id].build.sleeve,ray=new T.Raycaster(),p=new T.Vector3(),origin=new T.Vector3();let checked=0;
     // Every point of her arms, hands and thumbs down to the cuff's lower edge is inside the sleeve, with clearance.
     const parts=['arm','tiny-mitten','mitten-thumb'].flatMap(n=>named(doll,n));
     for(let side=0;side<2;side++){const sleeve=sleeves[side],cuff=cuffs[side],sign=side?1:-1;
@@ -101,6 +102,24 @@ test('under closed outerwear the top sleeves are hidden, and her arms and hands 
   }
 });
 
+test('Desigual leather jacket: crinkled gloss, point collar, zip and flap pockets, rib band and tabbed cuffs',()=>{
+  const outfit=makeOutfit({outerwearId:DESIGUAL_LEATHER_JACKET_ID}),jacket=outfit.getObjectByName('outerwear');
+  outfit.updateMatrixWorld(true);
+  for(const [name,count] of [['jacket-body',1],['rib-hem-band',1],['metal-zip',1],['zip-slider',1],['point-collar',1],['collar-fold',1],['yoke-seam',2],['panel-seam',2],['zip-pocket-welt',2],['pocket-zip',2],['pocket-zip-pull',2],['flap-pocket',2],['pocket-flap',2],['pocket-snap',2],['centre-back-seam',1],['back-panel-seam',2],['jacket-sleeve',2],['leather-cuff',2],['cuff-tab',2],['cuff-stud',2]])
+    assert.equal(named(jacket,name).length,count,name);
+  jacket.traverse(o=>{if(o.geometry)for(const v of o.geometry.attributes.position.array)assert.ok(Number.isFinite(v),o.name);});
+  // Glossy crinkled leather: a coat over the leather, both with the crinkle's normal map; a matte rib band.
+  const leather=named(jacket,'jacket-body')[0].material;
+  assert.ok(leather.clearcoat>.4&&leather.normalMap&&leather.clearcoatNormalMap===leather.normalMap,'crinkled gloss');
+  assert.ok(named(jacket,'rib-hem-band')[0].material.roughness>.9,'matte rib');
+  // The collar's points lie on her chest either side of the zip, below the fold.
+  const box=new T.Box3().setFromObject(named(jacket,'point-collar')[0]);assert.ok(box.min.y/.76<1.8,`collar points reach ${(box.min.y/.76).toFixed(3)}`);
+  // Cropped at the waist: the band ends above the windbreaker's hip-length hem.
+  const band=new T.Box3().setFromObject(named(jacket,'rib-hem-band')[0]);assert.ok(band.min.y/.76>1.11&&band.min.y/.76<1.16,`hem at ${band.min.y/.76}`);
+  disposeObject(outfit);
+  const t0=performance.now();disposeObject(makeOutfit({outerwearId:DESIGUAL_LEATHER_JACKET_ID}));assert.ok(performance.now()-t0<600,'outfit build time');
+});
+
 test('UI: choosing outerwear is saved with the look, and its study wears it',async()=>{
   const dom=new JSDOM(readFileSync('index.html','utf8'),{url:'https://example.com/'}),d=dom.window.document;let last=null;
   const app=await startStudio(d,()=>({update(r){last=r;},turn(){},dispose(){}}));
@@ -109,7 +128,8 @@ test('UI: choosing outerwear is saved with the look, and its study wears it',asy
   assert.equal(app.getRecipe().outerwearId,MARIKOO_WINDBREAKER_ID);assert.equal(last.outerwearId,MARIKOO_WINDBREAKER_ID);
   d.getElementById('save').click();assert.equal(JSON.parse(dom.window.localStorage.getItem('fashiongirly.plush-looks.v1'))[0].outerwearId,MARIKOO_WINDBREAKER_ID);
   d.getElementById('reset').click();assert.equal(app.getRecipe().outerwearId,'none');assert.equal(select.value,'none');
-  const study=OUTFITS.find(look=>look.recipe.outerwearId===MARIKOO_WINDBREAKER_ID);assert.ok(study,'a study preset wears the jacket');
+  for(const id of outerwear)assert.ok(OUTFITS.some(look=>look.recipe.outerwearId===id),`a study preset wears ${id}`);
+  const study=OUTFITS.find(look=>look.recipe.outerwearId===MARIKOO_WINDBREAKER_ID);
   [...d.getElementById('outfit-ideas').children].find(b=>b.textContent===study.name).click();assert.equal(select.value,MARIKOO_WINDBREAKER_ID);
   app.dispose();dom.window.close();
 });
