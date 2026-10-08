@@ -6,6 +6,7 @@ import { readFileSync } from 'node:fs';
 import { makeDoll, makeOutfit, disposeObject } from '../src/doll/model.js';
 import { DEFAULT, OUTFITS, cleanRecipe, editRecipe } from '../src/doll/recipe.js';
 import { startStudio } from '../src/doll/app.js';
+import { GARMENTS } from '../src/wardrobe/catalog.js';
 test('doll and garment geometry stays finite for extreme supported silhouettes',()=>{
   for(const state of [...OUTFITS.map(look=>look.recipe),DEFAULT,{sleeve:0,hem:0,barrel:0},{sleeve:1,hem:1,barrel:1},{knit:false,shirt:false}]){
     const model=new T.Group();model.add(makeDoll(),makeOutfit(state));let triangles=0;
@@ -70,12 +71,12 @@ test('reference garment keeps its identity, mapped details and layer exclusions'
   app.dispose();dom.window.close();
 });
 test('reference sleeves enclose both elbows with clearance',()=>{
-  for(const topId of ['desigual-bronze-mesh-v1','lilac-portrait-mockneck-v1']){
+  for(const topId of Object.keys(GARMENTS)){
   const doll=makeDoll(),outfit=makeOutfit({topId});
   doll.updateMatrixWorld(true);outfit.updateMatrixWorld(true);
   const arms=[],sleeves=[];
   doll.traverse(o=>{if(o.name==='arm')arms.push(o);});
-  outfit.traverse(o=>{if(o.name==='reference-fitted-sleeve')sleeves.push(o);});
+  outfit.traverse(o=>{if(o.name==='reference-fitted-sleeve'||o.name==='crochet-flared-sleeve')sleeves.push(o);});
   const ray=new T.Raycaster(),point=new T.Vector3(),origin=new T.Vector3();let checked=0;
   for(let side=0;side<2;side++){
     const arm=arms[side],sleeve=sleeves[side],vertices=arm.geometry.attributes.position;
@@ -106,4 +107,21 @@ test('lilac top has distinct front/back materials and its own collar, without me
     assert.ok(group.materialIndex===0?z>=0:z<0);
   }
   disposeObject(outfit);atlas.dispose();
+});
+
+test('crochet top keeps open motifs, scalloped edges and clears the skirt',()=>{
+  const id='desigual-crochet-flowers-v1',recipe=cleanRecipe({topId:id,knit:true,shirt:true,skirt:true}),outfit=makeOutfit(recipe);
+  assert.equal(recipe.knit,false);assert.equal(recipe.shirt,false);
+  for(const name of ['crochet-body','filet-neckband','scalloped-hem-trim'])assert.ok(outfit.getObjectByName(name),name);
+  let sleeves=0,cuffs=0;outfit.traverse(o=>{if(o.name==='crochet-flared-sleeve')sleeves++;if(o.name==='scalloped-cuff-trim')cuffs++;});assert.equal(sleeves,2);assert.equal(cuffs,2);
+  const body=outfit.getObjectByName('crochet-body'),map=body.material.map,pixels=map.image.data;
+  let open=0;for(let i=3;i<pixels.length;i+=4)if(!pixels[i])open++;
+  const fraction=open/(map.image.width*map.image.height);assert.ok(fraction>.05&&fraction<.3,`openwork fraction ${fraction}`);assert.ok(body.material.alphaTest>0);
+  for(const v of body.geometry.attributes.uv.array)assert.ok(v>=0&&v<=1);
+  // Scallops: the hem edge rises and falls, and every hem vertex sits outside the skirt waistband.
+  const p=body.geometry.attributes.position;let low=Infinity,high=-Infinity;
+  for(let i=0;i<p.count;i++){const y=p.getY(i);if(y>1.3)continue;low=Math.min(low,y);high=Math.max(high,y);
+    assert.ok(y>1.258||(p.getX(i)/.294)**2+(p.getZ(i)/.221)**2>1,`hem vertex ${i} inside the skirt waistband`);}
+  assert.ok(high-low>.02,'hem is scalloped');
+  disposeObject(outfit);
 });

@@ -1,6 +1,6 @@
 import * as T from 'three';
 import { cleanRecipe } from './recipe.js';
-import { BRONZE_TOP_ID, LILAC_TOP_ID } from '../wardrobe/catalog.js';
+import { BRONZE_TOP_ID, LILAC_TOP_ID, CROCHET_TOP_ID } from '../wardrobe/catalog.js';
 // Body and wardrobe share one toy proportion system; the face stays unscaled.
 const BODY_HEIGHT = .76;
 const BODY_WIDTH = 1.06;
@@ -169,6 +169,81 @@ function makeReferenceTop(atlas, id=BRONZE_TOP_ID) {
   }
   return top;
 }
+// Crochet flower sweater: motif artwork is drawn here from the reference reading, not copied from the product photos.
+// Darker than the photographed yarn: the studio's exposure and tone mapping lift these values.
+const YARN={cream:[214,200,170],navy:[18,26,82],wheel:[10,16,58],teal:[14,146,196],tealDark:[8,98,148],pale:[124,166,214]};
+const MOTIFS=['ABCADBCAB','CACBCABDA','BDABCACBA','CBCADBCAB'];
+let crochetPixels=null;
+function crochetData(){
+  if(crochetPixels)return crochetPixels;
+  // Hexagonal lattice that repeats seamlessly: 9 motifs across, 4 offset rows.
+  const cols=MOTIFS[0].length,step=128,rowStep=111,w=cols*step,h=4*rowStep,R=step/2,data=new Uint8Array(w*h*4),rand=random(91);
+  const wrap=(d,size)=>d-size*Math.round(d/size);
+  for(let y=0;y<h;y++)for(let x=0;x<w;x++){
+    let best=1e9,dx=0,dy=0,kind='C';
+    for(let r=0;r<4;r++){const cy=r*rowStep+rowStep/2,off=(r%2)*step/2;
+      for(let c=0;c<cols;c++){const ex=wrap(x-(c*step+step/2+off),w),ey=wrap(y-cy,h),d=ex*ex+ey*ey;if(d<best){best=d;dx=ex;dy=ey;kind=MOTIFS[r][c];}}}
+    const n=Math.sqrt(best)/R,a=Math.atan2(dy,dx),petal=kind==='D'?.5:.64+.19*Math.sqrt(Math.abs(Math.cos(4*a)));
+    const rounds=.5+.5*Math.cos(n*Math.PI*14),spokes=.5+.5*Math.cos(a*24);
+    let colour=YARN.cream,open=false,shade=.86+.07*rounds+.07*spokes;
+    if(n<petal){
+      if(kind==='D')colour=Math.cos(a*12)>.8?YARN.wheel:YARN.navy;
+      else if(kind==='A')colour=n<.4?(Math.cos(a*16)>.75?YARN.tealDark:YARN.teal):YARN.navy;
+      else{colour=n<.15?YARN.navy:kind==='B'?YARN.pale:YARN.cream;open=n>.19&&n<.25&&Math.cos(8*a+Math.PI)>.6;
+        // Cream petals read through their open outlines.
+        if(kind==='C'){open||=n>petal-.045||(n>.3&&Math.abs(Math.cos(4*a))<.09);shade*=.97;}}
+      shade*=.92+.08*Math.min(1,(petal-n)*12);
+    }else if(n<.93)open=n>.8&&n<.9&&Math.cos(a*20)>.3;
+    else open=n>1.0&&Math.sin(x*.42)*Math.sin(y*.42)>.25;
+    const i=(y*w+x)*4,grain=(rand()-.5)*14;
+    for(let k=0;k<3;k++)data[i+k]=Math.max(0,Math.min(255,colour[k]*shade+grain));
+    data[i+3]=open?0:255;
+  }
+  crochetPixels={data,w,h};return crochetPixels;
+}
+function yarnTexture({data,w,h},repeatU,repeatV){
+  const map=new T.DataTexture(data,w,h,T.RGBAFormat);map.colorSpace=T.SRGBColorSpace;map.wrapS=map.wrapT=T.RepeatWrapping;
+  map.repeat.set(repeatU,repeatV);map.generateMipmaps=true;map.minFilter=T.LinearMipmapLinearFilter;map.magFilter=T.LinearFilter;map.needsUpdate=true;return map;
+}
+function yarnMaterial(map){return new T.MeshPhysicalMaterial({map,roughness:.93,sheen:.25,sheenColor:new T.Color('#e8dcc0'),sheenRoughness:.9,alphaTest:.5,side:T.DoubleSide});}
+function filetData(){
+  // Ladder rows of the neckband: three rows of open squares between solid bars.
+  const w=128,h=64,data=new Uint8Array(w*h*4);
+  for(let y=0;y<h;y++)for(let x=0;x<w;x++){const i=(y*w+x)*4,row=(y>=8&&y<22)||(y>=28&&y<42)||(y>=48&&y<60),col=x%16;
+    const shade=col<3||col>12?.88:1;for(let k=0;k<3;k++)data[i+k]=YARN.cream[k]*shade;data[i+3]=row&&col>=4&&col<=12?0:255;}
+  return {data,w,h};
+}
+function scallop(mesh,bottom,band,depth,count){
+  // Lower each scallop centre; the points between scallops stay at the hem line.
+  const p=mesh.geometry.attributes.position,drop=a=>depth*Math.sin(Math.PI*(((a/(Math.PI*2)*count)%1+1)%1))**.7;
+  for(let i=0;i<p.count;i++){const y=p.getY(i);if(y>bottom+band)continue;p.setY(i,y-drop(Math.atan2(p.getX(i),p.getZ(i)))*(1-(y-bottom)/band));}
+  p.needsUpdate=true;mesh.geometry.computeVertexNormals();return drop;
+}
+function scallopTrim(group,y,rx,rz,drop,mat,name){
+  const points=[];for(let k=0;k<=160;k++){const a=k/160*Math.PI*2;points.push([Math.sin(a)*rx,y-drop(a),Math.cos(a)*rz]);}
+  return curve(group,points,.0055,mat,name);
+}
+function mapByHeight(mesh,low,high){const uv=mesh.geometry.attributes.uv,p=mesh.geometry.attributes.position;for(let i=0;i<uv.count;i++)uv.setY(i,Math.max(0,Math.min(1,(p.getY(i)-low)/(high-low))));uv.needsUpdate=true;}
+function makeCrochetTop(id=CROCHET_TOP_ID){
+  const top=new T.Group();top.name=id;
+  // Cropped just above the skirt waistband so either bottom can be worn underneath.
+  const pixels=crochetData(),edge=cloth('#d6c8a8'),hem=1.285,depth=.026;
+  const body=shell(top,[[1.815,.235,.17],[1.78,.272,.186],[1.70,.287,.198],[1.55,.29,.205],[1.40,.29,.212],[1.32,.29,.22],[hem,.29,.226]],yarnMaterial(yarnTexture(pixels,1,.68)),'crochet-body',96);
+  const drop=scallop(body,hem,.035,depth,12);mapByHeight(body,hem-depth,1.815);
+  scallopTrim(top,hem,.291,.227,drop,edge,'scalloped-hem-trim');
+  shell(top,[[1.878,.158,.134],[1.848,.198,.152],[1.815,.235,.17]],yarnMaterial(yarnTexture(filetData(),7,1)),'filet-neckband',96);
+  ring(top,1.878,.159,.135,edge,'crochet-neck-edge',.008);
+  for(const side of [-1,1]){
+    const arm=new T.Group();arm.position.set(side*.242,1.815,0);arm.rotation.z=side*.22;
+    // Five motifs around the sleeve; the repeat's seam is turned to the inner back of the arm.
+    const sleeve=shell(arm,[[.03,.108,.108],[-.04,.122,.116],[-.16,.12,.114],[-.28,.122,.116],[-.40,.125,.119],[-.50,.131,.125],[-.60,.136,.13]],yarnMaterial(yarnTexture(pixels,5/9,.75)),'crochet-flared-sleeve',64);
+    sleeve.rotation.y=-side*Math.PI*.6;
+    const cuff=scallop(sleeve,-.60,.03,.022,7);mapByHeight(sleeve,-.622,.03);
+    scallopTrim(sleeve,-.60,.137,.131,cuff,edge,'scalloped-cuff-trim');
+    top.add(arm);
+  }
+  return top;
+}
 export function makeOutfit(raw, atlas=null) {
   const state=cleanRecipe(raw),root=new T.Group();root.name='wardrobe';
   const shirt=cloth('#e6e6de'),stripe=solid('#829bb9'),denim=cloth(state.trousers,'denim'),knit=cloth(state.sweater,'knit'),stitch=solid('#ae8c62');
@@ -184,7 +259,8 @@ export function makeOutfit(raw, atlas=null) {
     curve(trousers,[[side*.075,1.18,.176],[side*.13,1.08,.17],[side*.23,1.06,.13]],.0025,stitch,'jean-pocket-seam');
   }
   oval(trousers,[0,1.205,.187],[.019,.019,.01],solid('#bca16a'),'waist-button');
-  if(state.topId!== 'classic')root.add(makeReferenceTop(atlas?.isTexture?atlas:atlas?.[state.topId],state.topId));
+  if(state.topId===CROCHET_TOP_ID)root.add(makeCrochetTop());
+  else if(state.topId!== 'classic')root.add(makeReferenceTop(atlas?.isTexture?atlas:atlas?.[state.topId],state.topId));
   if(state.shirt){
     const layer=new T.Group();layer.name='shirt';root.add(layer);
     shell(layer,[[1.8,.22,.145],[1.69,.267,.174],[1.43,.284,.185],[1.19,.288,.198],[1.145,.265,.19]],shirt,'shirt-body');
