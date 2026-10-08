@@ -2,12 +2,18 @@
 
 A tiny living fashion doll with a playful wardrobe. The current homepage is a **reusable 3D doll study** with separate, editable clothing geometry.
 
+## Start here in a new chat
+
+Read the [product brief](docs/PRODUCT_BRIEF.md) for the intended experience, approved visual direction, reference-based garment creation, individual fit requirements, and no-API-first constraint. Read the [working handoff](docs/HANDOFF.md) for what exists, what is still planned, and where to resume. [AGENTS.md](AGENTS.md) points coding assistants to these documents.
+
+The next proposed milestone is one recognisable garment created from a user-supplied reference picture and fitted to the existing doll. That reference has not been supplied yet.
+
 ## Current milestone
 
 - One permanent doll: large soft head, embroidered-style eyes and smile, rosy cheeks, sculpted dark bob, flower clip, little hands, socks, and loafers.
-- One layered outfit: red knit, striped shirt, and barrel jeans.
+- Three editable outfit presets using knit, striped shirt, barrel jeans, and an optional pleated skirt with a ribbon.
 - Independently adjustable sleeve volume, sweater hem, jean volume, and garment colours.
-- Remove the sweater or shirt independently; rotate the doll with drag or Front / Turn / Back.
+- Toggle the sweater, shirt, or skirt independently; rotate the doll with drag or Front / Turn / Back.
 - Procedural fabric bump maps and material sheen. No garment photographs, generated outfit pictures, or downloaded character models.
 - Validated local garment recipes, browser draft persistence, and a 24-look local lookbook.
 - A deliberately limited text interpreter. Try **“butter sweater, enormous sleeves, cropped, wider jeans”**. It reports the changes it understood; this is not AI generation.
