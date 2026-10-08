@@ -1380,6 +1380,28 @@ function makeJeans(id,spec,swatch=null,rest=LOAFER_REST){
       const ln=legs[best[0]].geometry.attributes.normal;hn.setXYZ(i,ln.getX(best[1]),ln.getY(best[1]),ln.getZ(best[1]));}
     hn.needsUpdate=true;
   }
+  if(spec.crystals&&spec.crotch){
+    // Crystals set in a square grid over the front panels (hips and legs, between the side seams and inseams), each a
+    // small faceted stud catching the light. Placed by walking the built surface ring by ring, so they follow its folds
+    // without any ray casting; one instanced mesh draws them all.
+    const cr=spec.crystals,gap=cr.spacing,spots=[],rand=random(41);
+    const scatter=(mesh,n,heights,top,bottom,centre,front)=>{const p=mesh.geometry.attributes.position,nm=mesh.geometry.attributes.normal,R=p.count/n,P=[],Nn=[];
+      for(let y=top;y>bottom;y-=gap){let j=0;while(j<R-2&&heights[j+1]>y)j++;const t=Math.min(1,Math.max(0,(heights[j]-y)/(heights[j]-heights[j+1]||1)));
+        for(let i=0;i<n;i++){const a=j*n+i,b=a+n;P[i]=[0,1,2].map(k=>p.getComponent(a,k)+(p.getComponent(b,k)-p.getComponent(a,k))*t);Nn[i]=[0,1,2].map(k=>nm.getComponent(a,k)+(nm.getComponent(b,k)-nm.getComponent(a,k))*t);}
+        let d=0,next=gap/2;
+        for(let i=0;i<n-1;i++){const A=P[i],B=P[i+1],len=Math.hypot(B[0]-A[0],B[1]-A[1],B[2]-A[2]);
+          while(next<=d+len){const f=(next-d)/len,q=A.map((v,k)=>v+(B[k]-v)*f),nn=Nn[i].map((v,k)=>v+(Nn[i+1][k]-v)*f);if(front(q,y))spots.push([q,nn]);next+=gap;}d+=len;}}};
+    const n0=129,hp=body[0].geometry.attributes.position,hipHeights=Array.from({length:hp.count/n0},(_,j)=>hp.getY(j*n0)),edge=Math.PI/2-cr.margin;
+    scatter(body[0],n0,hipHeights,wb.y-wb.h/2-.006,spec.crotch.y+.002,0,([x,,z])=>z>0&&Math.abs(Math.atan2(x,z))<edge);
+    for(const side of [-1,1]){const leg=legs[side],ry=leg.userData.restY,heights=Array.from({length:ry.length/97},(_,j)=>ry[j*97]);
+      scatter(leg,97,heights,spec.crotch.y-.003,hemY+cr.above,0,([x,,z],y)=>{const cx=lerpRows(legRows(side),y)[3];return Math.abs(Math.atan2(x-cx,z))<edge;});}
+    const stud=new T.ConeGeometry(1,1,4);stud.translate(0,.5,0);
+    const gem=new T.MeshStandardMaterial({color:cr.colour,metalness:.75,roughness:.22,flatShading:true});
+    const studs=new T.InstancedMesh(stud,gem,spots.length);studs.name='crystal-grid';
+    const m=new T.Matrix4(),q=new T.Quaternion(),spin=new T.Quaternion(),up=new T.Vector3(0,1,0),nv=new T.Vector3(),pos=new T.Vector3(),sc=new T.Vector3(cr.size,cr.size*.6,cr.size);
+    spots.forEach(([pt,nn],k)=>{nv.set(...nn).normalize();q.setFromUnitVectors(up,nv).multiply(spin.setFromAxisAngle(up,rand()*Math.PI));pos.set(...pt).addScaledVector(nv,cr.lift);studs.setMatrixAt(k,m.compose(pos,q,sc));});
+    studs.instanceMatrix.needsUpdate=true;studs.computeBoundingSphere();jeans.add(studs);
+  }
   // Depth of the actual jeans surface at (x, y), front or back: measured on the built shells, so details sit on it.
   // Every ray here is level, so each set of shells gets a levelCaster (same hits as a Raycaster, much faster).
   const casters=new Map(),hit=new T.Vector3(),cast=(meshes,origin,dir)=>{const key=meshes.map(m=>m.id).join();
