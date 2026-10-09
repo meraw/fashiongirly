@@ -3,8 +3,9 @@ import assert from 'node:assert/strict';
 import * as T from 'three';
 import { makeOutfit, disposeObject } from '../src/doll/model.js';
 import { OUTFITS } from '../src/doll/recipe.js';
-import { GARMENTS, PEPE_IKAT_SHIRT_ID } from '../src/wardrobe/catalog.js';
+import { GARMENTS } from '../src/wardrobe/catalog.js';
 import { levelCaster } from '../src/doll/level-caster.js';
+const PEPE_IKAT_SHIRT_ID='pepe-jeans-ikat-shirt-v1';
 const named=(root,name)=>{const found=[];root.traverse(o=>{if(o.name===name)found.push(o);});return found;};
 
 test('Pepe Jeans ikat shirt: full length and loose with a shirttail hem, chest pocket, buttoned cuffs, chambray stand and the ikat print',()=>{

@@ -6,11 +6,12 @@
 // Also optional: print repeats round a sleeve (`sleeveAround`), a chest pocket (`pocket`) and a back yoke seam (`backYoke`);
 // a short contrast placket (`placket`), appliqué patches (`patches`), ribbed cuffs (`cuff.rib`) and a shirt tucked into
 // whatever bottom she wears (`tuckIn`).
+// Also a centre back pleat below the back yoke seam (`backPleat`).
 import * as T from 'three';
 import { random, solid, oval, curve, shell, roundSleeveCap, surfaceProbe, easeOverHand, trimToEdge } from './model.js';
 import { levelCaster } from './level-caster.js';
 import { grid } from './polo.js';
-import { MOTEL_TIE_DYE_SHIRT_ID, DESIGUAL_SPRAY_FLORAL_SHIRT_ID, DESIGUAL_SPLIT_FLORAL_SHIRT_ID, DESIGUAL_MOUNTAIN_SHIRT_ID, MANGO_DOT_SHIRT_ID, PINK_YOKE_SHIRT_ID, LEVIS_PLAID_FLANNEL_ID, DESIGUAL_RUGBY_ID, PEPE_IKAT_SHIRT_ID } from '../wardrobe/catalog.js';
+import { MOTEL_TIE_DYE_SHIRT_ID, DESIGUAL_SPRAY_FLORAL_SHIRT_ID, DESIGUAL_SPLIT_FLORAL_SHIRT_ID, DESIGUAL_MOUNTAIN_SHIRT_ID, MANGO_DOT_SHIRT_ID, PINK_YOKE_SHIRT_ID, LEVIS_PLAID_FLANNEL_ID, DESIGUAL_RUGBY_ID } from '../wardrobe/catalog.js';
 import { ikatData } from './ikat-print.js';
 import { splitBodyData, splitCollarData, leftSleeveData, rightSleeveData } from './split-floral-print.js';
 
@@ -351,12 +352,21 @@ const STYLES={
     sleeve:[[.025,.11,.112],[-.04,.124,.122],[-.16,.126,.12],[-.28,.122,.116],[-.38,.113,.108],[-.45,.098,.096],[-.49,.088,.088],[-.53,.084,.085]],cuff:{from:-.42,to:-.535,button:false,rib:40},
     placket:{bottom:1.67,half:.02,colour:'#e9e4d6',stitch:'#d8d2c2'},
     patches:[{at:[.17,1.665],size:[.075,.047],colour:'#3f64ba',seed:1},{at:[.16,1.607],size:[.075,.047],colour:'#d9637f',seed:2},{at:[.15,1.549],size:[.075,.047],colour:'#d8d860',seed:3}]},
+  // A relaxed shirt in printed viscose crepe, worn loose with the top button open, printed from an atlas of the product
+  // photos (a fine-line paisley): its own fuller body (rows) to a hem at the high hip, as wide there as the Tommy
+  // sweater, which clears every jacket, bottom and the skirt; fuller sleeves into buttoned cuffs; a back yoke
+  // (backYoke) with a centre pleat (backPleat); white buttons.
+  'paisley-print-relaxed-shirt-v1':{atlas:{tone:'#bdbab5',fallback:'#d9cba8'},bump:[crepeData,90,60,.0012],sheen:['#fffaf0',.25,.45],roughness:.7,
+    stitch:'#d8d2c4',facing:null,button:['#f3f0ea',.25],buttons:[1.785,1.705,1.625,1.545,1.465,1.385,1.305,1.225],collarTopstitch:true,open:{bottom:1.8,half:.034},
+    rows:[[NECK,.112,.104],[1.875,.17,.124],[1.83,.228,.154],[1.775,.268,.18],[1.65,.296,.198],[1.5,.304,.207],[1.4,.308,.214],[1.3,.311,.222],[1.242,.314,.232],[1.19,.316,.236]],
+    sleeve:[[.025,.104,.104],[-.05,.124,.119],[-.2,.127,.121],[-.33,.122,.116],[-.42,.108,.104],[-.47,.094,.091],[-.53,.09,.087]],
+    cuff:{from:-.455,to:-.535,button:true},backYoke:1.79,backPleat:1.55},
   // Full length and worn loose over the waistband (the Pepe Jeans ikat shirt): a shirt-tail hem past the hips, a chest
   // pocket on her left, buttoned cuffs and a chambray collar stand; worn with the top button open, as in the flat lay.
   // Below 1.4 it eases out past her hips like the striped cardigan, whose rows clear every bottom, slimmer at the hem so
   // the raised sides stay under a jacket's hem; over the skirt it hangs loose over the skirt's flare (its `tucked` shape),
   // with a level hem. Light, slightly slubbed voile.
-  [PEPE_IKAT_SHIRT_ID]:{print:ikatData,around:3,high:1.05,collarAround:3,bump:[fineRibData,300,1,.0012],sheen:['#ffffff',0,.6],roughness:.85,
+  'pepe-jeans-ikat-shirt-v1':{print:ikatData,around:3,high:1.05,collarAround:3,bump:[fineRibData,300,1,.0012],sheen:['#ffffff',0,.6],roughness:.85,
     stitch:'#e4e3ec',facing:'#7d93bd',button:['#efede6',.22],buttons:[1.785,1.68,1.575,1.47,1.365,1.26,1.155,1.05],collarTopstitch:false,open:{bottom:1.8,half:.034},
     rows:[...BODY_ROWS.slice(0,7),[1.2,.312,.236],[1.1,.318,.236],[1.03,.322,.24],[.97,.324,.242]],
     tucked:[...BODY_ROWS.slice(0,7),[1.3,.314,.234],[1.2,.334,.248],[1.1,.35,.257],[1.0,.376,.272],[.97,.383,.275]],
@@ -557,6 +567,11 @@ function makeShirt(id,style,atlas=null,skirt=false,trousers=null){
   for(const P of style.patches||[]){const [cx,cy]=P.at,[pw,ph]=P.size,pix=tigerPatchData(P.colour,P.seed),map=texture(pix,true);map.wrapS=map.wrapT=T.ClampToEdgeWrapping;
     grid(top,12,8,(u,v)=>{const hit=onSurface(cx+(u-.5)*pw/1.06,cy+(v-.5)*ph/.76);return hit?hit.point.addScaledVector(hit.normal,.0035).toArray():[cx,cy,.3];},
       new T.MeshStandardMaterial({map,alphaTest:.5,roughness:.85,side:T.DoubleSide}),'applique-patch');}
+  // Optional (`backPleat`): a short box pleat at the centre back, its two folds from the back yoke's seam down to this
+  // height.
+  if(style.backYoke&&style.backPleat){const back=surfaceProbe(top,['mesh-shirt-body']);
+    for(const x of [-.012,.012]){const pts=[];for(let k=0;k<=5;k++){const hit=back(x,style.backYoke-.004-(style.backYoke-.004-style.backPleat)*k/5,false);if(hit)pts.push(hit.point.clone().addScaledVector(hit.normal,.0025).toArray());}
+      if(pts.length>1)curve(top,pts,.0014,stitch,'back-pleat');}}
   // Buttons, slightly domed.
   const [buttonColour,buttonRoughness]=style.button;
   for(const y of style.buttons){const hit=onSurface(0,y);if(!hit)continue;

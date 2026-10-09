@@ -22,7 +22,7 @@ Measured colours (studio photo; the user's own photo has a blue cast): navy abou
 
 ## Implementation
 
-Catalog ID `pepe-jeans-ikat-shirt-v1` (slot `top`). It is built by the existing button-down shirt template (`makeButtonShirt()` in `src/doll/shirts.js`), from a new style there.
+Catalog ID `pepe-jeans-ikat-shirt-v1` (slot `top`), in its own garment file, `src/wardrobe/garments/pepe-jeans-ikat-shirt-v1.js` (its catalog entry and its study preset), as `main` now keeps new garments (moved there when merging `main`; it was first added to `catalog.js` and the shared lists). It is built by the existing button-down shirt template (`makeButtonShirt()` in `src/doll/shirts.js`), from a new style there.
 
 **Template.** The shirt template gained its long-shirt options on `main` from the Mango halftone dot shirt while this shirt was being built. This chat had built the same features its own way. The user chose to use the Mango shirt's options and drop this chat's own, so the shirt uses:
 

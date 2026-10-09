@@ -7,6 +7,11 @@ export async function startStudio(doc=document, makeView) {
   const $=id=>doc.getElementById(id);let storage;
   try { storage=doc.defaultView.localStorage; } catch { storage=null; }
   let recipe=cleanRecipe(),looks=[],view=null,timer=null;
+  // Garments kept in their own files (src/wardrobe/garments) bring their own options: any catalog garment its slot's
+  // selector lacks is added at the end (a top that can be worn under another also joins the under-top selector).
+  const SELECTS={top:'top-select',bottom:'bottom-select',shoes:'shoes-select',outerwear:'outerwear-select',dress:'dress-select'};
+  for(const g of Object.values(GARMENTS)){const select=$(SELECTS[g.slot]);if(!select||[...select.options].some(o=>o.value===g.id))continue;
+    for(const s of [select,...(g.slot==='top'&&g.layering?.underTop?[$('under-select')]:[])]){const o=doc.createElement('option');o.value=g.id;o.textContent=g.label??`${g.name} · reference study`;s.append(o);}}
   try {recipe=cleanRecipe(JSON.parse(storage?.getItem(KEY)||'null'));} catch {}
   try {const data=JSON.parse(storage?.getItem(BOOK)||'[]');if(Array.isArray(data))looks=data.slice(0,24).map(cleanRecipe);} catch {}
   function message(text){$('message').textContent=text;}

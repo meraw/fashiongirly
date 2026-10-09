@@ -1,5 +1,6 @@
 // Authored wardrobe entries. These describe assets, not runtime AI requests.
 // Outerwear: none by default ('none'); catalog coats and jackets fill the 'outerwear' slot.
+import * as FILED from './garments/index.js';
 export const MARIKOO_WINDBREAKER_ID = 'marikoo-two-tone-windbreaker-v1';
 export const DESIGUAL_LEATHER_JACKET_ID = 'desigual-black-faux-leather-jacket-v1';
 export const RED_BULL_WINDBREAKER_ID = 'red-bull-racing-stone-windbreaker-v1';
@@ -50,7 +51,6 @@ export const DESIGUAL_LIFE_AWESOME_ID = 'desigual-life-is-awesome-jumper-v1';
 export const PINK_YOKE_SHIRT_ID = 'pink-ditsy-floral-yoke-shirt-v1';
 export const STRIPE_SNAP_JUMPER_ID = 'striped-waffle-snap-collar-jumper-v1';
 export const TOMMY_VARSITY_JUMPER_ID = 'tommy-jeans-red-varsity-crest-jumper-v1';
-export const PEPE_IKAT_SHIRT_ID = 'pepe-jeans-ikat-shirt-v1';
 export const BARREL_JEANS_ID = 'topshop-barrel-jeans-v1';
 export const DAVINIA_JEANS_ID = 'desigual-davinia-jeans-v1';
 export const LEVIS_94_ID = 'levis-94-wide-leg-v1';
@@ -64,7 +64,7 @@ export const CRYSTAL_JEANS_ID = 'crystal-straight-jeans-v1';
 export const NIKE_TRACK_ID = 'nike-piped-track-pants-v1';
 export const TOPSHOP_BLACK_CROP_ID = 'topshop-washed-black-wide-crop-v1';
 export const PLEATED_LINEN_ID = 'pleated-linen-wide-trousers-v1';
-export const GARMENTS = Object.freeze({
+const BUILT_IN = {
   [BRONZE_TOP_ID]: {
     slot: 'top',
     id: BRONZE_TOP_ID,
@@ -355,7 +355,7 @@ export const GARMENTS = Object.freeze({
   [PB_CHENILLE_ID]: {
     slot: 'top',
     id: PB_CHENILLE_ID, name: 'Grey chenille high-neck jumper', family: 'cropped-chenille-jumper', version: 1,
-    status: 'reference-study-awaiting-visual-review', brandAsProvided: 'Pull & Bear (the user could not find it online)',
+    status: 'user-approved', brandAsProvided: 'Pull & Bear (the user could not find it online)',
     source: { note: 'user supplied one phone photo of the jumper laid flat on the floor, front up, with a note: Pull & Bear, grey chenille, pay attention to the high collar' },
     referenceViews: ['front flat lay'],
     details: ['soft cool grey chenille knit in rows of plump, velvety loops that catch the light unevenly', 'a ribbed stand-up (mock) collar, high round her neck', 'boxy, cropped body with dropped shoulders', 'a deep ribbed hem band, gathered a little so the body blouses over it', 'long, relaxed sleeves gathered into long ribbed cuffs', 'all one colour; no print, label or seams on show'],
@@ -614,59 +614,6 @@ export const GARMENTS = Object.freeze({
     uncertainties: ['worn tucked in as the user does, so the dress length and side slits are not shown', 'the tigers are drawn in code at her scale as a suggestion of the patches, not copied', 'the dropped shoulders are not modelled'],
     styling: { silhouette: 'oversized, tucked in and bloused at the waist', palette: ['navy', 'cream', 'blue', 'pink', 'yellow'], pattern: 'plain, with a contrast collar and placket and three small appliqué tigers', coverage: { neck: 'rugby collar, buttoned', sleeves: 'long, ribbed cuffs', midriff: 'covered' }, material: 'smooth heavy jersey', warmth: 2, warmthBasis: 'inferred: a long-sleeved heavy jersey', weather: 'cool to mild days' },
     authoring: { template: 'makeButtonShirt() in src/doll/shirts.js', texture: 'procedural jerseyData() and tigerPatchData() in src/doll/shirts.js; colours measured on the flat lay', runtimeGeneration: false, sourcePhotosBundled: false },
-  },
-  [TOMMY_VARSITY_JUMPER_ID]: {
-    slot: 'top',
-    id: TOMMY_VARSITY_JUMPER_ID, name: 'Tommy Jeans red varsity crest jumper', family: 'cropped-knit-jumper', version: 1,
-    status: 'reference-study-awaiting-visual-review', brandAsProvided: 'Tommy Jeans (the knitted-in lettering and crest)',
-    source: { note: 'user supplied two product photos without a description: the front and the back on a model, over light jeans' },
-    referenceViews: ['front on model', 'back on model'],
-    details: ['boxy, cropped jumper in a heathered red knit flecked with lighter yarn', 'knitted in off-white across the front: TOMMY JEANS in worn varsity capitals, arched over an oval crest', 'the crest: a ring lettered TOMMY JEANS, MANHATTAN and NEW YORK round a shield with a big T and a crown, small TOMMY and JEANS banners, 1985, and a VARSITY CHAMPS ribbon across its foot', 'a ribbed mock neck', 'dropped shoulders, full sleeves gathered into long rib cuffs', 'a deep rib hem band ending at the waistband of high-rise jeans', 'plain back'],
-    material: { construction: 'fine-gauge jacquard knit with rib trims', composition: 'not stated', finish: 'soft, slightly fuzzy heathered red' },
-    fit: { silhouette: 'boxy and cropped', sleeve: 'long and full, dropped shoulders, long rib cuffs', hem: 'cropped at the waist, deep rib band', neckline: 'ribbed mock neck', adjustment: 'fixed authored fit for review' },
-    exclusions: ['striped-shirt','knit-sweater'],
-    uncertainties: ['the lettering and crest are redrawn in code in a simple stroke lettering with slab serifs, not the brand\'s typeface or artwork; the crest\'s details are simplified', 'the motif is fitted to her wider, shorter torso: it is a little squatter than on the model', 'her big head hides most of the mock neck, as with the other high necks'],
-    styling: { silhouette: 'boxy, cropped at the waist', palette: ['red', 'off-white'], pattern: 'varsity lettering and crest on the front', coverage: { neck: 'mock neck', sleeves: 'long', midriff: 'cropped at the waist' }, material: 'knit, composition unknown', warmth: 3, warmthBasis: 'inferred: a knit jumper with a mock neck and long sleeves, though cropped', weather: 'cool, dry days', mood: 'sporty, collegiate, bold' },
-    authoring: { template: 'makeSweatshirt() in src/doll/sweatshirt.js (the logo-sweatshirt template)', texture: 'procedural heathered knit; the lettering and crest drawn in code in src/doll/varsity-crest.js; colours measured from the photos', runtimeGeneration: false, sourcePhotosBundled: false },
-    // Construction for makeSweatshirt() in src/doll/sweatshirt.js, in outfit units: the chenille jumper's boxy cropped body
-    // and sleeves, which clear every bottom; a mock neck; and the crest in place of the batwing logo.
-    build: {
-      template: 'logo-sweatshirt',
-      colours: { fleece: '#a00610', fleck: ['#c84a50', .03], sheen: '#a8202a' },
-      body: { neck: 1.905, hem: 1.27, band: .09, ribs: 64, neckRibs: 48, seed: 11, neckName: 'ribbed-mock-neck', neckRoll: true,
-        rows: [[1.905, .112, .104], [1.875, .176, .128], [1.83, .242, .163], [1.775, .286, .19], [1.65, .304, .204], [1.5, .308, .21], [1.4, .31, .216]],
-        blouse: [.306, .214], bandRadius: [.29, .205], bandOverSkirt: [.29, .205],
-        neckband: [[1.975, .11, .104], [1.945, .112, .105], [1.915, .116, .109], [1.885, .121, .113]] },
-      sleeve: { cuffRibs: 26,
-        rows: [[.03, .12, .117], [-.06, .132, .127], [-.2, .13, .124], [-.33, .122, .117], [-.41, .112, .107], [-.44, .104, .1]],
-        cuff: [[-.425, .097, .093], [-.49, .093, .09], [-.565, .092, .089]] },
-      // The print, drawn by drawVarsityCrest() in src/doll/varsity-crest.js. Its width is in world units and its top in
-      // outfit units; everything else is in print widths (x across, y down from its top). The lettering arches from a
-      // straight top down to a bottom that rises `lift` toward the middle, worn by broken red streaks; the crest's ring
-      // texts run clockwise between angles (degrees from the top).
-      logo: { kind: 'varsity-crest', seed: 3, width: .44, top: 1.85, height: .8, margin: .04, ink: '#ddd3c7', inkFlecks: .05,
-        arch: { text: 'TOMMY JEANS', left: .01, right: .99, top: 0, topArch: 0, bottom: .28, lift: .1, stroke: .015, streaks: 420, streakShare: .16, streakRuns: 6 },
-        crest: { centre: [.5, .48], radii: [.2, .235], band: .055, line: .005, textSize: .032, textStroke: .0042,
-          ringText: [['TOMMY JEANS', -50, 50], ['·', 56, 56], ['MANHATTAN', 62, 132], ['NEW YORK', -128, -62], ['·', -56, -56]],
-          shield: { centre: [.5, .42], size: [.15, .16], t: [.75, .62, .12] }, crown: [.07, .04],
-          scrolls: [['TOMMY', .39, .47], ['JEANS', .53, .61]], scrollY: .56, scrollDip: .012, smallSize: .02, year: { text: '1985', at: [.5, .605], width: .06 },
-          ribbon: { y: .695, sag: .025, half: .2, height: .05, text: 'VARSITY CHAMPS', textSize: .03, tail: .05, tailDrop: .03 } } },
-    },
-  },
-  [PEPE_IKAT_SHIRT_ID]: {
-    slot: 'top',
-    id: PEPE_IKAT_SHIRT_ID, name: 'Pepe Jeans ikat print shirt', family: 'button-down-shirt', version: 1,
-    status: 'reference-study-awaiting-visual-review', brandAsProvided: 'Pepe Jeans (label inside the collar)',
-    source: { note: 'user supplied two photos, all they could find: a studio flat lay of the shirt and their own flat lay on a wooden floor (sleeves rolled up in both)' },
-    referenceViews: ['studio flat lay, front', 'user\'s flat lay, front'],
-    details: ['long-sleeved button-down shirt in a light, slightly slubbed woven', 'ikat print: soft vertical streaks of lavender and periwinkle on white, with tall feathered diamonds: navy clusters of four parted by a white cross, single and paired navy diamonds, and coral diamonds', 'point collar, the stand and back neck lined in blue chambray', 'pale buttons down the front; the top one open in the flat lay', 'one patch chest pocket on her left', 'buttoned cuffs', 'curved shirttail hem, longer at the front and back than at the sides, falling past the hips'],
-    material: { construction: 'light woven (cotton or viscose voile, read from the photos)', composition: 'not visible in the supplied photos', finish: 'matte, soft' },
-    fit: { silhouette: 'straight, loose over the hips', sleeve: 'long, to the wrist, with buttoned cuffs', hem: 'curved shirttail, past the hips, worn loose', neckline: 'point collar, top button open', adjustment: 'fixed authored fit for review' },
-    exclusions: ['striped-shirt','knit-sweater'],
-    layering: { coversWaistband: true },
-    uncertainties: ['the print is drawn procedurally from the photos\' colours and motifs, not copied; its repeat is simplified', 'the studio photo and the user\'s photo differ in colour (the user\'s photo is bluer and pinker); the studio colours are used', 'the length and fit are read from flat lays only; it is worn loose, untucked', 'both photos show the sleeves rolled up; it is built with the cuffs down'],
-    styling: { silhouette: 'straight button-down, loose past the hips', palette: ['white', 'periwinkle', 'lavender', 'navy', 'coral'], pattern: 'ikat: feathered vertical streaks with navy and coral diamonds', coverage: { neck: 'point collar, top button open', sleeves: 'long', midriff: 'covered' }, material: 'light woven voile', warmth: 1, warmthBasis: 'inferred: a light, thin woven shirt', weather: 'warm or mild days; a light layer under a jacket' },
-    authoring: { template: 'makeButtonShirt() in src/doll/shirts.js', texture: 'procedural ikatData() in src/doll/ikat-print.js, drawn locally when first worn; colours measured from the studio photo', runtimeGeneration: false, sourcePhotosBundled: false },
   },
   [BARREL_JEANS_ID]: {
     slot: 'bottom',
@@ -1874,7 +1821,7 @@ export const GARMENTS = Object.freeze({
   [LACE_SHIFT_DRESS_ID]: {
     slot: 'dress',
     id: LACE_SHIFT_DRESS_ID, name: 'Ivory lace shift dress', family: 'long-sleeve-mini-dress', version: 1,
-    status: 'reference-study-awaiting-visual-review', brandAsProvided: 'not stated (the trainers in the photos suggest Desigual)',
+    status: 'user-approved', brandAsProvided: 'not stated (the trainers in the photos suggest Desigual)',
     source: { note: 'user supplied six product photos with no text: full length front, flat front, full length back, and close-ups of the sleeve, the neckline and the back keyhole' },
     referenceViews: ['full length front on model', 'flat front', 'full length back on model', 'sleeve and shoulder close-up', 'neckline close-up', 'back keyhole close-up'],
     details: ['ivory floral lace, opaque over a lining on the body', 'horizontal bands of frilled trim across the body, closer together lower down', 'high lace collar with a ruffled top edge', 'long sheer lace sleeves crossed by lace insertion bands, slightly full', 'frilled cuffs gathered at the wrist', 'keyhole at the back of the neck closed by two small gold buttons', 'straight shift, mid-thigh'],
@@ -1901,4 +1848,7 @@ export const GARMENTS = Object.freeze({
       },
     },
   },
-});
+};
+// Garments added since 9 October 2026 each live in their own file in ./garments (one line each in ./garments/index.js),
+// so adding one touches no line another chat is editing. They join the built-in entries above.
+export const GARMENTS = Object.freeze({ ...BUILT_IN, ...Object.fromEntries(Object.values(FILED).map(g => [g.id, g])) });

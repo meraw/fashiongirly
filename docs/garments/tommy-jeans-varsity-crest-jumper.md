@@ -1,6 +1,6 @@
 # Wardrobe item: Tommy Jeans red varsity crest jumper
 
-Authored 9 October 2026. Status: first interpretation awaiting the user's visual review. Added by the chat that has been doing shoes, outerwear and tops (any chat can add any category).
+Authored 9 October 2026. Status: first interpretation; approved: the user merged it, and merging means approved (their rule). Its catalog entry and study preset now live in their own file, `src/wardrobe/garments/tommy-jeans-red-varsity-crest-jumper-v1.js`, the first garment in the one-file-per-garment layout. Added by the chat that has been doing shoes, outerwear and tops (any chat can add any category).
 
 ## Source and reference reading
 
@@ -69,7 +69,7 @@ Catalog ID `tommy-jeans-red-varsity-crest-jumper-v1` (slot `top`), on the logo-s
   - over the skirt, and under the open leather jacket;
   - in the real app with its study preset.
 
-  The user has not yet seen it, and nothing has been checked on a device.
+  The user merged the pull request after seeing these renders. Nothing has been checked on a device.
 
 ## Known differences
 
