@@ -2,8 +2,9 @@ import { mountHairControls } from '../hair/controls.js';
 import { hairName } from '../hair/catalog.js';
 import { DEFAULT, SWATCHES, OUTFITS, cleanRecipe, editRecipe } from './recipe.js';
 import { GARMENTS } from '../wardrobe/catalog.js';
+import { mountToday } from '../today/today.js';
 const KEY='fashiongirly.plush-draft.v1', BOOK='fashiongirly.plush-looks.v1';
-export async function startStudio(doc=document, makeView) {
+export async function startStudio(doc=document, makeView, options={}) {
   const $=id=>doc.getElementById(id);let storage;
   try { storage=doc.defaultView.localStorage; } catch { storage=null; }
   let recipe=cleanRecipe(),looks=[],view=null,timer=null;
@@ -72,10 +73,14 @@ export async function startStudio(doc=document, makeView) {
     looks.forEach((look,i)=>{const row=doc.createElement('div');row.className='saved-row';const colours=doc.createElement('span');colours.className='saved-colours';for(const color of [look.sweater,look.trousers]){const dot=doc.createElement('i');dot.style.background=color;colours.append(dot);}const title=doc.createElement('span');title.textContent=`Little experiment ${looks.length-i} · ${hairName(look.hairId)}`;const wear=doc.createElement('button');wear.textContent='Wear';wear.onclick=()=>{recipe=cleanRecipe(look);sync();apply();$('lookbook').close();};const remove=doc.createElement('button');remove.textContent='Remove';remove.onclick=()=>{if(storeLooks(looks.filter((_,j)=>j!==i)))book();};row.append(colours,title,wear,remove);list.append(row);});
   }
   $('lookbook-open').onclick=()=>{book();$('lookbook').showModal();};$('lookbook-close').onclick=()=>$('lookbook').close();
+  // Each morning she checks the weather and dresses herself (src/today/today.js); her pick is worn like any other recipe.
+  const win=doc.defaultView,today=mountToday(doc,{storage,getRecipe:()=>cleanRecipe(recipe),wear:next=>{recipe=cleanRecipe(next);sync();apply();message('');},
+    fetch:'fetch' in options?options.fetch:win?.fetch?.bind(win),geolocation:'geolocation' in options?options.geolocation:win?.navigator?.geolocation,now:options.now});
   const showError=text=>{$('loading')?.remove();$('view-error').hidden=false;$('view-error').textContent=text;};
   $('stage').addEventListener('view-error',e=>showError(e.detail));sync();
-  try {const factory=makeView || (await import('./view.js')).createDollView;view=await factory($('stage'),recipe);view.turn(-25);$('loading')?.remove();}
+  // If she dressed for the day while the view was loading, show that outfit once the view is ready.
+  try {const factory=makeView || (await import('./view.js')).createDollView,first=recipe;view=await factory($('stage'),recipe);if(recipe!==first)view.update(recipe);view.turn(-25);$('loading')?.remove();}
   catch(error){showError(error.message||'The 3D view could not load. Please reload and try again.');}
-  return {getRecipe:()=>cleanRecipe(recipe),dispose(){clearTimeout(timer);persist();hairControls.dispose();view?.dispose();}};
+  return {getRecipe:()=>cleanRecipe(recipe),today,dispose(){clearTimeout(timer);persist();hairControls.dispose();today.dispose();view?.dispose();}};
 }
 

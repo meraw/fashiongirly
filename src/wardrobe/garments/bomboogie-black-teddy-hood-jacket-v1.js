@@ -11,7 +11,7 @@ export default {
     fit: { silhouette: 'boxy and cropped, dropped shoulders', length: 'high hip', sleeve: 'long, wide and straight', wear: 'zipped closed, as the user wears outerwear unless it is designed to be worn open; it can be shown open, and with or without the hood and bib', adjustment: 'its own boxy size on her, easing out only where the layers under it need room' },
     // Closed, it hides the top's collar points and sleeves; it can be worn open, and its hood and bib come out.
     layering: { closed: true, canOpen: true, coversTopSleeves: true, coversWaistband: true, detachable: { label: 'Wear the quilted hood and bib' } },
-    styling: {
+    styling: { warmth: 3, warmthBasis: 'inferred: teddy pile with a padded hood and bib',
       observed: { palette: ['black'], pattern: 'plain; texture from the curly pile and the quilting', silhouette: 'boxy cropped teddy jacket with a wide collar, and a quilted puffer hood and bib zipped in', coverage: 'torso to the high hip and arms to the wrist; the hood lies down on her back', material: 'teddy faux shearling, quilted nylon' },
       inferred: { warmth: 'warm with the padded hood and bib zipped in, for cold days; a little lighter without them', weather: 'cold, dry days; the nylon hood copes with a shower better than the teddy', mood: 'cosy and sporty', unknown: ['fibre composition', 'padding', 'water resistance'] },
     },

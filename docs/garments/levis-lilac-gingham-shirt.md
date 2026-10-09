@@ -1,6 +1,6 @@
 # Wardrobe item: Levi's lilac gingham shirt
 
-Authored 9 October 2026. Status: first version, awaiting the user's visual review. The first gingham, and the first shirt on the `check-shirt` template.
+Authored 9 October 2026. Status: approved: the user merged its pull request (merged means approved, the user's rule of 9 October 2026). The first gingham, and the first shirt on the `check-shirt` template.
 
 ## Source and reference reading
 

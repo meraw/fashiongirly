@@ -3,7 +3,7 @@
 export default {
     slot: 'top',
     id: 'polo-ralph-lauren-usrl-racing-hoodie-v1', name: 'Polo Ralph Lauren USRL racing hoodie', family: 'colour-block-hoodie', version: 1,
-    status: 'reference-study-awaiting-visual-review', brandAsProvided: 'Polo Ralph Lauren (read from the patches and embroidery)',
+    status: 'user-approved', brandAsProvided: 'Polo Ralph Lauren (read from the patches and embroidery)',
     source: { note: 'user supplied two photos without a description: the front and the back of the hoodie laid flat' },
     referenceViews: ['front, flat lay', 'back, flat lay'],
     details: ['boxy, cropped white fleece hoodie with raglan sleeves', 'colour-blocked: a white yoke between red raglan panels, then a red band, a black band and a royal blue band across the chest that run on round the sleeves, and white below', 'big cream felt appliqué letters “USRL” with a wing, on the black band', 'navy embroidered “Ralph Lauren -67-” script on her right chest', 'a round navy badge ringed in yellow with a winged “1” on her left chest', 'a cream patch with a navy eagle and “Polo Ralph Lauren” below the blue band on her left, and an “RL 67” flag patch in red, white and navy on her right', 'a yellow “R.L. Speed” patch framed in red on her left sleeve', 'a white “USRL Racing Team NYC” patch framed in red on the back of the hood', 'flat white drawcords from metal eyelets', 'white ribbed hem band and long ribbed cuffs', 'the back colour-blocked the same way, without patches'],

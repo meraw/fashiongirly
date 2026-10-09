@@ -1,6 +1,25 @@
 # Plan: from wardrobe studio to daily self-dressing
 
-Written 9 October 2026. This is a plan, not a record of features that exist. It follows the sequence in the [product brief](PRODUCT_BRIEF.md#building-towards-daily-self-dressing): finish the import, build local outfit selection, then connect weather and the daily experience.
+Written 9 October 2026. It follows the sequence in the [product brief](PRODUCT_BRIEF.md#building-towards-daily-self-dressing): finish the import, build local outfit selection, then connect weather and the daily experience.
+
+**Status, 9 October 2026, later the same day:** the user asked for a working app now, with garments still to be added later. A first version of phases 0 to 4 is built: styling facts for every garment, the stylist, the forecast, and the Today panel. Phase 5 (installable app, device QA, tuning from the user's reactions) is next. The sections below say what was built and what is still open; the [decisions](#decisions-9-october-2026) record the user's answers.
+
+## How she knows what to wear
+
+Three things decide her outfit, in this order:
+
+1. **The weather** sets what is comfortable, and her taste never overrides it. Warmth adds up across the pieces on the shared scale (a tee and jeans make 3, right for about 21 °C). A jacket goes on below about 13 °C, or in rain below 20 °C, and comes off from 21 °C. In rain she skips suede, canvas and open shoes, and jackets that do not suit it. Open shoes need 19 °C and a dry day; bare legs (a mini dress) need 15 °C. Wind or rain ties her hair back. Thresholds are in `needsFor()` in `src/style/stylist.js`, to tune with the user.
+2. **Her taste** chooses among the comfortable outfits. It is written down in [src/style/taste.js](../src/style/taste.js) as principles, each scoring an outfit and giving a reason:
+   - one statement print carries the look, set against stripes or checks; two prints only when she is daring;
+   - a colour carried from one piece to another (shoes picking up the top's pink), or opposite colours on purpose, never a muddle of many;
+   - proportion: cropped over high or wide, big over slim, a long coat over shorter lengths;
+   - shoes that finish the shape: boots under cropped legs, chunky soles with a mini;
+   - sporty with soft: a track piece with lace or flowers;
+   - layers that show: a top peeking out from under a cardigan.
+   She judges what shows: a closed jacket hides the top under it. A **daring** setting (0 to 1, default 0.5, "not extreme, not boring") shifts the weights, and "Bolder" and "Easier" move it. She does not wear the single top-scoring look every time: she picks among the best few, avoids tops and dresses worn in the past week, and "Another idea" moves on from what she has already shown.
+3. **The user's reactions**, remembered in this browser: the heart (save) makes a look's pieces and pairings more likely; × (not today) sets a piece aside for the day and counts a little against it.
+
+So her style is told to her in words, in `taste.js`. To change it, tell Claude in words ("she should love colour clashes more", "never two prints", "more dresses"), and the principles or weights change. The styling facts come from each garment's own record.
 
 **Constraints for this plan (the user's decision, 9 October 2026):** no AI API calls for now. Weather may come from a free source: a keyless public forecast fetched by the browser. Nothing else at runtime needs a network service, an account or a key. Outfit selection is local, rule-based code; it must not be described as AI.
 
@@ -23,13 +42,13 @@ From the catalog on `main` at the time of writing:
 - Housekeeping: `levis-lilac-gingham-shirt-v1` and `polo-ralph-lauren-usrl-racing-hoodie-v1` were merged (pull requests 92 and 93) but still carry review statuses. Under the merge-means-approved rule they should read `user-approved`.
 - The studio has presets, a 24-look lookbook in local storage, Quick edits (keyword parser) and the hair selector. There is no weather, no outfit generator and no daily state.
 
-## Phase 0: close the import (small, user-led)
+## Phase 0: close the import (small, user-led) — housekeeping done
 
 1. Mark the two merged garments approved in their own files and records.
 2. Add what is still missing from the inventory: the remaining dress or two and the blue sleeveless under-top, plus anything else the user names. The user decides when the import is finished.
 3. Phases 1 to 3 can start before that: they add new files and touch garment entries only to fill in facts, so new garments keep arriving without conflicts.
 
-## Phase 1: one readable set of styling facts
+## Phase 1: one readable set of styling facts — built
 
 Goal: the stylist reads every garment the same way, without rewriting 80 entries in a shared PR.
 
@@ -43,7 +62,7 @@ Goal: the stylist reads every garment the same way, without rewriting 80 entries
 
 This is a shared foundation, so one chat owns it, agreed with the user first (AGENTS.md).
 
-## Phase 2: the local stylist (no UI, no network)
+## Phase 2: the local stylist (no UI, no network) — built
 
 Pure functions in new files under `src/style/`, testable in Node.
 
@@ -64,7 +83,7 @@ Pure functions in new files under `src/style/`, testable in Node.
 5. **Honest reasons:** each choice reports the rule that made it ("rain likely, so closed boots"; "cropped jumper over wide jeans for contrast"). The UI says "She picked" and never "AI".
 6. **Tests:** many seeds across the weather presets always give a recipe that survives `cleanRecipe()` unchanged, respects kept pieces, fits the warmth band and never picks a piece flagged for that weather; a sample of results builds with `makeOutfit()` without errors; build time stays within the current budget.
 
-## Phase 3: weather input
+## Phase 3: weather input — built
 
 Keep weather separate from styling (the brief's requirement), so everything works and is tested with supplied conditions first.
 
@@ -72,13 +91,13 @@ Keep weather separate from styling (the brief's requirement), so everything work
 2. **Manual weather first** (`src/weather/manual.js`): presets (hot, warm, mild, chilly, cold, rainy, windy, snowy) and a temperature slider. This ships before any live fetch and stays as the offline fallback.
 3. **Free forecast: [Open-Meteo](https://open-meteo.com/)** (`src/weather/open-meteo.js`). It needs no key or account and allows browser requests:
    - Forecast: `https://api.open-meteo.com/v1/forecast?latitude=…&longitude=…&hourly=temperature_2m,apparent_temperature,precipitation_probability,precipitation,wind_speed_10m,weather_code&timezone=auto&forecast_days=1`, reduced to her day (about 8:00 to 20:00 local time).
-   - Place: the user types a town, resolved by Open-Meteo's free geocoding API (`geocoding-api.open-meteo.com/v1/search`), or taps "Use my location" (browser geolocation, asked only when tapped). Location is never requested silently. The chosen place is stored in local storage only.
+   - Place (as built, the user's choice): the phone's location by default, asked automatically (the browser asks the user's permission once); a typed town, resolved by Open-Meteo's free geocoding API (`geocoding-api.open-meteo.com/v1/search`), replaces it until "Use my phone's location" is tapped. Coordinates are rounded to two decimals in the request; the place is stored in local storage only.
    - Cache one forecast per place per day in local storage; on a timeout, an error or offline, use the last forecast or ask for manual weather, and say which is shown.
    - Show the required attribution ("Weather data by Open-Meteo.com", CC BY 4.0). The free tier is for non-commercial use; if the app is ever sold or commercial, revisit this (a paid Open-Meteo plan or another source).
    - The fetch lives in that one module; tests use a recorded JSON fixture and a stubbed `fetch`, so `npm test` needs no network.
 4. Document the decision in the brief and handoff: AI calls stay out; one keyless weather fetch is allowed, behind explicit place choice.
 
-## Phase 4: the daily experience
+## Phase 4: the daily experience — built, except history view and Quick edits phrases
 
 1. **"Today" panel** at the top of the page: the weather in one line, the doll dressed in her pick, the reasons, and the controls. The manual studio stays below for direct edits.
 2. **Morning behaviour:** on the first open of a new local day she checks the weather and dresses herself; reopening the same day shows the same look. Store `{ date, conditions, recipe, seed }` in local storage. No background work or notifications are promised (the brief forbids promising them).
@@ -91,13 +110,16 @@ Keep weather separate from styling (the brief's requirement), so everything work
 4. **Quick edits** learn a few honest phrases mapped to the same operations ("keep the jeans", "something bolder", "warmer", "change the shoes"), reporting what was understood, as now.
 5. **History** of recent daily looks feeds novelty and lets the user see the week.
 
-## Phase 5: live on the phone
+## Phase 5: live on the phone — next
 
 1. Installable web app: manifest, icons, and a service worker caching the app so it opens offline with the last forecast. Pages deployment as described in the README.
 2. Device QA on the user's phone: start-up time, one outfit build per choice, touch controls.
 3. User review of generated looks across weather presets; tune weights and thresholds from their feedback and record it in the brief. Acceptance is the brief's question: does she dress herself in a weather-appropriate, recognisably adventurous outfit that inspires the user, and can the user refine it?
 
 ## Pull requests, in order
+
+As built, PRs 1 to 6 and most of 7 went into one pull request at the user's request ("get the app working"). Left from 7: a view of the week's looks, and Quick edits phrases ("keep the jeans", "something bolder"). The table is the original order.
+
 
 | # | Pull request | Touches shared code? |
 | --- | --- | --- |
@@ -112,11 +134,15 @@ Keep weather separate from styling (the brief's requirement), so everything work
 
 Garment chats can continue throughout; from PR 2 on, a new garment only needs its facts filled in to join daily styling.
 
-## Decisions for the user
+## Decisions, 9 October 2026
 
-1. Is the import finished, or which pieces are still to come?
-2. Place: typed town, device location, or both?
-3. When does "today" start (for example the first open after 5:00), and which hours count as her day?
-4. How daring should she be by default?
-5. Will the app ever be commercial? (It affects the free weather source.)
-6. Who owns the shared foundations in PRs 2, 4, 5 and 7: one chat, or this one?
+The user's answers:
+
+1. The import is not finished, but the app should work now; pieces will be added later. New garments join daily styling automatically once their styling facts are recorded (see AGENTS.md).
+2. Both: the phone's location by default and automatically, which a typed town can replace. (The browser asks once for permission; "Use my phone's location" switches back.)
+3. A new outfit on the first open after 5:00. Her day for the forecast is 8:00 to 20:00.
+4. "Not extremely so, but not boring either": daring 0.5. The user asked how she is told her style; see [How she knows what to wear](#how-she-knows-what-to-wear).
+5. Non-commercial: it holds the user's personal wardrobe. Open-Meteo's free tier fits.
+6. This chat (Claude Code) owns the shared daily-styling code for now.
+
+Still open: background behaviour (nothing runs while the app is closed), notifications, and the thresholds and weights, which need the user's reactions to real mornings.

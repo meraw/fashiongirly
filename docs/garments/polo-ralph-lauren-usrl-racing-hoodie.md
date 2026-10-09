@@ -1,6 +1,6 @@
 # Wardrobe item: Polo Ralph Lauren USRL racing hoodie
 
-Authored 9 October 2026. Status: first version, awaiting the user's visual review.
+Authored 9 October 2026. Status: approved: the user merged its pull request (merged means approved, the user's rule of 9 October 2026).
 
 ## Source and reference reading
 

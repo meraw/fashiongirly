@@ -3,7 +3,7 @@
 export default {
     slot: 'top',
     id: 'levis-lilac-gingham-shirt-v1', name: "Levi's lilac gingham shirt", family: 'relaxed-button-down-shirt', version: 1,
-    status: 'authored-awaiting-user-review', brandAsProvided: "Levi's, read from the tonal batwing embroidered on the chest (no label shows)",
+    status: 'user-approved', brandAsProvided: "Levi's, read from the tonal batwing embroidered on the chest (no label shows)",
     source: { note: 'user supplied four product photos without a description: the back on a model, the front on a model, full length over grey skinny jeans, and a close-up of the collar and chest' },
     referenceViews: ['back on model', 'front on model', 'front, full length', 'collar and chest close-up'],
     details: ['soft twill in a small lilac gingham: white squares crossed by purple stripes, each edged with a fine pink line, darker purple where they cross', 'point collar', 'white buttons down a plain placket; worn buttoned to the top here, as the user wears her shirts (on the model the top button is open)', 'a small tonal batwing embroidered on the left chest', 'back yoke with a centre box pleat below it', 'long sleeves with buttoned cuffs', 'hip length with a curved shirt tail'],

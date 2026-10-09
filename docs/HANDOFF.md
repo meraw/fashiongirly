@@ -14,7 +14,8 @@ Every chat should retain independently selectable garments and record known styl
 
 ## Current implementation
 
-- Static JavaScript app with Three.js 0.180.0; no runtime AI or service API calls.
+- Static JavaScript app with Three.js 0.180.0; no runtime AI calls. Its one network request is the day's forecast from Open-Meteo (free, no key), allowed by the user on 9 October 2026.
+- Daily self-dressing, first version (9 October 2026): the Today panel at the top of the studio (`src/today/today.js`) checks the weather on the first open after 5:00 and dresses her with the stylist (`src/style/`). See [DAILY_STYLING_PLAN.md](DAILY_STYLING_PLAN.md) for how it works, what she judges, and what is left.
 - Procedural doll and a separate replaceable wardrobe group. The cute face and revised compact body are the current visual baseline. The shoulders were softened on user request: arms start slightly lower (`makeDoll`), and `roundSleeveCap()` curves the outer top of every reference-top sleeve.
 - Knit sweater, striped shirt, barrel jeans, and optional pleated skirt over jeans with a ribbon.
 - Outerwear slot with two zip windbreakers and a leather jacket, worn over any top, bottoms, skirt or dress (`src/doll/outerwear.js`).
@@ -56,6 +57,12 @@ Every chat should retain independently selectable garments and record known styl
 | `tests/outerwear-bottoms.test.js` | Outerwear coverage of every bottom and the skirt (the coverage check is shared in `tests/outerwear-coverage.js`) |
 | `tests/shoes.test.js` | Shoe slot, boot construction, how every bottom layers with every shoe, shoe selector |
 | `src/doll/level-caster.js` | `levelCaster()`: the same hit as a three.js Raycaster for level rays, much faster, optionally around a vertical axis the rays start from; used by `makeJeans()`, `surfaceProbe()` and the layering tests (`tests/level-caster.test.js`) |
+| `src/style/facts.js` | Reads every garment's styling facts (three shapes in the catalog) into one form: warmth 0–4, rain, colours, pattern, shape |
+| `src/style/taste.js` | Her taste written down: principles with weights, the daring default, and what she learns from saved and set-aside pieces |
+| `src/style/stylist.js` | `composeOutfit(conditions, options)`: weather needs, candidate outfits, scoring, hair; returns a recipe `cleanRecipe()` accepts unchanged |
+| `src/weather/` | Conditions, presets, the 5:00 day boundary, and the Open-Meteo forecast and place search |
+| `src/today/today.js` | The Today panel: daily look, keep, another idea, bolder/easier, set aside, undo, place and manual weather; state in local storage |
+| `tests/stylist.test.js`, `tests/weather.test.js`, `tests/today.test.js` | Facts for every garment, weather rules for every preset, the forecast fixture, and the panel in jsdom |
 | `scripts/build.mjs` | Static build including local Three.js dependencies |
 | `.github/workflows/pages.yml` | Manually dispatched Pages deployment |
 

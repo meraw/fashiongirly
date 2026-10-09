@@ -624,6 +624,7 @@ const BUILT_IN = {
     details: ['low rise', 'very wide barrel (horseshoe) legs, widest around the knee, full length resting on the shoes', 'side seams twisting forward toward the hem', 'horizontal darts across each knee', 'slanted front pockets', 'belt loops, silver shank button and zip fly', 'tan contrast topstitching', 'back yoke and patch pockets with pointed buttoned flaps', 'welt slit above the right back pocket', 'brown suede waistband patch', 'mid-dark blue marbled acid wash with a grey cast'],
     material: { construction: 'rigid denim', composition: 'not visible in the supplied screenshots', finish: 'marbled acid wash' },
     fit: { silhouette: 'barrel', rise: 'low', length: 'full, resting on the shoes', adjustment: 'fixed authored fit for review' },
+    styling: { silhouette: 'very wide barrel legs, low rise, full length on the shoes', palette: ['mid-dark blue', 'grey'], pattern: 'plain marbled acid wash', coverage: { legs: 'full length to the shoes' }, material: 'rigid denim', warmth: 2, warmthBasis: 'inferred: full-length rigid denim', weather: 'most days; the long hems soak up puddles (inferred)' },
     uncertainties: ['folds are procedural', 'exact pocket and dart placement adapted to the doll', 'brand text on the patch is not reproduced'],
     authoring: { texture: 'topshop-denim.js: flat-lit seamless swatch processed from the product flat lay (at the user\'s request)', runtimeGeneration: false, sourcePhotosBundled: 'fabric swatch only' },
     // Construction for makeJeans() in src/doll/model.js. Rows are [y, rx, rz] (hips) and [y, rx, rz, cx] (legs).
@@ -661,6 +662,7 @@ const BUILT_IN = {
     details: ['high rise', 'slim straight legs cropped at the ankle with a raw frayed hem', 'light blue acid wash, paler on the thighs', 'raw frayed top edge on the waistband', 'copper shank button and orange contrast stitching', 'scoop front pockets', 'coin pocket with a small red embroidered heart', 'small light abrasions near the pocket and on the thigh', 'plain back patch pockets, V yoke and a brown leather patch'],
     material: { construction: 'rigid denim', composition: 'not visible in the supplied screenshots', finish: 'acid wash' },
     fit: { silhouette: 'straight, slim', rise: 'high', length: 'cropped at the ankle', adjustment: 'fixed authored fit for review' },
+    styling: { silhouette: 'slim straight legs, high rise, cropped at the ankle', palette: ['light blue', 'red', 'orange'], pattern: 'plain light acid wash with a small red embroidered heart', coverage: { legs: 'to the ankle' }, material: 'rigid denim', warmth: 2, warmthBasis: 'inferred: rigid denim cropped at the ankle', weather: 'mild to cool days; the bare ankle lets the cold in' },
     uncertainties: ['folds are procedural', 'pocket and abrasion placement adapted to the doll', 'leather patch lettering is not reproduced'],
     authoring: { texture: 'desigual-davinia-denim.js: flat-lit seamless swatch processed from the product flat lay', runtimeGeneration: false, sourcePhotosBundled: 'fabric swatch only' },
     build: {
@@ -695,6 +697,7 @@ const BUILT_IN = {
     details: ['low-to-mid rise', 'wide legs falling straight and widening slightly to the hem, full length pooling over the shoes', 'washed black faded to charcoal, faint whiskers across the upper thighs, visible twill', 'raw frayed edges on the front pocket openings', 'coin pocket, belt loops, dark metal button', 'back yoke, five-pocket back pockets with tonal double-arc stitching and frayed nicks on their tops', 'red tab on the wearer\'s right back pocket', 'tan printed patch on the back waistband'],
     material: { construction: 'rigid denim', composition: 'not visible in the supplied images', finish: 'washed black' },
     fit: { silhouette: 'wide leg', rise: 'low to mid', length: 'full, resting on the shoes (confirmed by the user)', adjustment: 'fixed authored fit for review' },
+    styling: { silhouette: 'wide leg, low to mid rise, full length pooling over the shoes', palette: ['washed black', 'charcoal'], pattern: 'plain washed black', coverage: { legs: 'full length to the shoes' }, material: 'rigid denim', warmth: 2, warmthBasis: 'inferred: full-length rigid denim', weather: 'most days; the long hems soak up puddles (inferred)' },
     uncertainties: ['folds are procedural', 'photos disagree on brightness (studio lighting); colour aims between the flat lay and the model shots', 'patch and tab carry no lettering or logo'],
     authoring: { texture: 'levis-94-denim.js: flat-lit seamless swatch processed from the product flat lay', runtimeGeneration: false, sourcePhotosBundled: 'fabric swatch only' },
     build: {
@@ -731,6 +734,7 @@ const BUILT_IN = {
     details: ['ultra high rise at the natural waist', 'mom fit: roomy hips and thighs tapering to a narrow ankle-length hem', 'even mid indigo wash, slightly paler on the thighs', 'tan-orange topstitching, scoop front pockets with copper rivets, silver button', 'coin pocket with a tiny flag badge', 'back yoke, patch pockets crossed by a double stitched bar, a small flag badge on the wearer\'s right pocket', 'red, white and navy flag patch on the back waistband'],
     material: { construction: 'rigid denim', composition: 'not visible in the supplied screenshots', finish: 'mid wash' },
     fit: { silhouette: 'mom, tapered', rise: 'ultra high', length: 'ankle', adjustment: 'fixed authored fit for review' },
+    styling: { silhouette: 'mom fit: roomy hips tapering to a narrow ankle, ultra high rise', palette: ['mid indigo', 'tan'], pattern: 'plain mid wash with tan topstitching', coverage: { legs: 'to the ankle' }, material: 'rigid denim', warmth: 2, warmthBasis: 'inferred: rigid denim to the ankle', weather: 'most days' },
     uncertainties: ['folds are procedural', 'badges and patch are colour blocks without lettering'],
     authoring: { texture: 'tommy-mom-denim.js: flat-lit seamless swatch processed from the front close-up', runtimeGeneration: false, sourcePhotosBundled: 'fabric swatch only' },
     build: {
@@ -768,6 +772,7 @@ const BUILT_IN = {
     details: ['low to mid rise', 'relaxed wide straight legs, full length, pooling on the floor', 'very light bleached blue wash with soft whiskers at the hips', 'classic five-pocket front: scoop pockets, coin pocket, copper rivets and button', 'pale tonal stitching', 'plain back patch pockets', 'small beige patch on the back waistband'],
     material: { construction: 'rigid denim', composition: 'not visible in the supplied screenshots', finish: 'bleached light wash' },
     fit: { silhouette: 'relaxed wide', rise: 'low to mid', length: 'full, pooling over the shoes', adjustment: 'fixed authored fit for review' },
+    styling: { silhouette: 'relaxed wide legs, low to mid rise, full length pooling on the floor', palette: ['pale blue'], pattern: 'plain bleached light wash', coverage: { legs: 'full length, pooling on the floor' }, material: 'rigid denim', warmth: 2, warmthBasis: 'inferred: full-length rigid denim', weather: 'dry days; the pale wash and pooling hems show rain and dirt (inferred)' },
     uncertainties: ['folds are procedural', 'patch lettering not reproduced'],
     authoring: { texture: 'stradivarius-denim.js: flat-lit seamless swatch processed from the front close-up', runtimeGeneration: false, sourcePhotosBundled: 'fabric swatch only' },
     build: {
@@ -802,6 +807,7 @@ const BUILT_IN = {
     details: ['high rise', 'relaxed straight legs tapering slightly to an ankle-length hem', 'charcoal washed black with a mottled stone-wash, paler on thighs and seams', 'five-pocket front with copper rivets and a silver button', 'plain back patch pockets with a short dart above each instead of a yoke', 'black leather patch on the back waistband', 'light grey double topstitching on the seams, pockets, fly, waistband and hem, with paler bleached seams'],
     material: { construction: 'rigid denim', composition: 'not visible in the supplied photos', finish: 'stone-washed black' },
     fit: { silhouette: 'relaxed straight, slight taper', rise: 'high', length: 'ankle', adjustment: 'fixed authored fit for review' },
+    styling: { silhouette: 'relaxed straight legs tapering slightly to the ankle, high rise', palette: ['washed black', 'light grey'], pattern: 'plain stone wash with pale topstitching', coverage: { legs: 'to the ankle' }, material: 'rigid denim', warmth: 2, warmthBasis: 'inferred: rigid denim to the ankle', weather: 'most days' },
     uncertainties: ['folds are procedural', 'photos are flash-lit or warm-lit listing photos; colour aims between them', 'patch carries no lettering'],
     authoring: { texture: 'mango-denim.js: flat-lit seamless swatch processed from the front flat lay', runtimeGeneration: false, sourcePhotosBundled: 'fabric swatch only' },
     build: {
@@ -838,6 +844,7 @@ const BUILT_IN = {
     details: ['low to mid rise', 'wide straight legs, full length, resting on the shoes', 'mid grey wash with a fine crinkled texture', 'bleached paler panels down the middle of each thigh and knee, darker sides and hem', 'strong pale whiskers across the hips and upper thighs, front and back', 'silver button and rivets, tonal grey stitching', 'plain back patch pockets'],
     material: { construction: 'rigid denim', composition: 'not visible in the supplied screenshots', finish: 'grey wash with whiskers and fade' },
     fit: { silhouette: 'wide leg', rise: 'low to mid', length: 'full, resting on the shoes', adjustment: 'fixed authored fit for review' },
+    styling: { silhouette: 'wide straight legs, low to mid rise, full length on the shoes', palette: ['mid grey'], pattern: 'plain grey wash with pale whiskers', coverage: { legs: 'full length to the shoes' }, material: 'rigid denim', warmth: 2, warmthBasis: 'inferred: full-length rigid denim', weather: 'most days; the long hems soak up puddles (inferred)' },
     uncertainties: ['folds are procedural', 'whisker and fade placement is an interpretation of the photos', 'label lettering not reproduced'],
     authoring: { texture: 'bershka-grey-denim.js: flat-lit seamless swatch processed from the flat lay; fade and whiskers are shaded on the geometry', runtimeGeneration: false, sourcePhotosBundled: 'fabric swatch only' },
     build: {
@@ -874,6 +881,7 @@ const BUILT_IN = {
     details: ['mid rise', 'relaxed wide straight legs, full length on the model (the user wears them narrower, at the ankle)', 'even black wash', 'white double contrast topstitching throughout', 'large carpenter patch panels over the front hips, from the waistband to the crotch, under the scoop pockets', 'big utility patch pockets on both outer thighs, a red, white and navy flag badge on the wearer\'s left one', 'hammer loop on the wearer\'s right thigh', 'silver button and rivets', 'back yoke, patch pockets, a red, white and navy tape across the wearer\'s right back pocket', 'tonal grey flag patch on the back waistband'],
     material: { construction: 'rigid denim', composition: 'not visible in the supplied screenshots', finish: 'black wash' },
     fit: { silhouette: 'relaxed straight, carpenter', rise: 'mid', length: 'ankle', adjustment: 'narrower and ankle length, as the user wears them (the photos show wide, full-length legs)' },
+    styling: { silhouette: 'relaxed straight carpenter legs, mid rise, at the ankle as the user wears them', palette: ['black', 'white', 'red', 'navy'], pattern: 'plain black with white contrast stitching and utility pockets', coverage: { legs: 'to the ankle' }, material: 'rigid denim', warmth: 2, warmthBasis: 'inferred: rigid denim to the ankle', weather: 'most days' },
     uncertainties: ['folds are procedural', 'badges and patches are colour blocks without lettering', 'no coin pocket was visible in the screenshots', 'the fly bar tacks are not modelled'],
     authoring: { texture: 'tommy-carpenter-denim.js: flat-lit seamless swatch processed from the waist close-up, keeping its brightness detail only (the dark photo carries compression colour blotches)', runtimeGeneration: false, sourcePhotosBundled: 'fabric swatch only' },
     build: {
@@ -917,6 +925,7 @@ const BUILT_IN = {
     details: ['gathered elastic waistband with a black drawstring and metal tips', 'black, light, slightly crinkled fabric with a soft sheen', 'relaxed legs tapering to gathered elastic cuffs at the ankle, the fabric blousing above them', 'slanted side pockets', 'cargo patch pockets with plain flaps on both outer thighs', 'plain back with a centre seam, no back pockets', 'tonal stitching'],
     material: { construction: 'light woven (satin-like crinkle)', composition: 'not visible in the supplied screenshots', finish: 'black' },
     fit: { silhouette: 'relaxed jogger, cuffed', rise: 'high, elastic at the waist', length: 'ankle, gathered into the cuffs', adjustment: 'fixed authored fit for review' },
+    styling: { silhouette: 'relaxed jogger legs gathered into ankle cuffs, high elastic waist', palette: ['black'], pattern: 'plain, with cargo pockets', coverage: { legs: 'to the ankle, gathered' }, material: 'light crinkled woven', warmth: 1, warmthBasis: 'inferred: a light, thin woven fabric', weather: 'mild days; water resistance unknown' },
     uncertainties: ['folds and crinkle are procedural or from a small swatch', 'the cargo pockets\' exact size and placement are read from flat lays', 'how the user wears the waist and cuffs is not yet known'],
     authoring: { texture: 'zara-cargo-fabric.js: flat-lit seamless swatch from the close-up, keeping only fine crinkle detail at reduced contrast', runtimeGeneration: false, sourcePhotosBundled: 'fabric swatch only' },
     build: {
@@ -951,6 +960,7 @@ const BUILT_IN = {
     details: ['high rise', 'straight legs, full length, resting on the shoes', 'light vintage blue wash, darker round the fly, slightly paler on the thighs', 'tiny crystals set in a square grid over the whole front of both legs and hips; the waistband and the back are plain', 'tan topstitching, silver button and rivets', 'coin pocket with a small worn patch on the wearer\'s right', 'back yoke, plain patch pockets and a tan leather patch on the wearer\'s right'],
     material: { construction: 'rigid denim', composition: 'not visible in the supplied screenshots', finish: 'light vintage wash with crystal embellishment' },
     fit: { silhouette: 'straight', rise: 'high', length: 'full, resting on the shoes', adjustment: 'fixed authored fit for review' },
+    styling: { silhouette: 'straight legs, high rise, full length on the shoes', palette: ['light blue', 'silver'], pattern: 'crystals set in a grid over the front of the legs', coverage: { legs: 'full length to the shoes' }, material: 'rigid denim', warmth: 2, warmthBasis: 'inferred: full-length rigid denim', weather: 'most days; the long hems soak up puddles (inferred)', mood: 'sparkly' },
     uncertainties: ['the crystals are larger and wider-spaced than the real ones (about 2.5 times), so they stay visible at the app\'s size', 'folds are procedural', 'the leather patch carries no lettering'],
     authoring: { texture: 'crystal-jeans-denim.js: flat-lit seamless swatch from the plain back of the legs; the crystals are modelled, not painted', runtimeGeneration: false, sourcePhotosBundled: 'fabric swatch only' },
     build: {
@@ -1107,6 +1117,7 @@ const BUILT_IN = {
     details: ['chunky tonal platform sole with deep trapezoid lugs, a ledge above the lugs and a raised heel cup', 'toe of the sole lifted (rocker)', 'mid-cut olive vegan nubuck upper, all one colour with the sole', 'padded collar quilted in two horizontal rows', 'tall heel pull tab of jacquard logo tape: grey band reading BUFFALO // between black and taupe woven edges', 'logo tape down the tongue and a tongue pull tab', 'metal eyelets with two taupe webbing lace loops per side', 'flat olive laces', 'curved side overlay edged in dark piping, over a window with two diagonal taupe webbing straps', 'tan double topstitching'],
     material: { construction: 'vegan nubuck upper on a moulded rubber platform', composition: 'not visible in the supplied screenshots', finish: 'matte, softly mottled' },
     fit: { silhouette: 'chunky lug-sole ankle boot', height: 'mid, just above the ankle bone', platform: 'built inside her existing foot height; her body is not raised', adjustment: 'fixed authored fit for review' },
+    styling: { silhouette: 'chunky lug-sole platform ankle boot', palette: ['olive'], pattern: 'plain, tonal', coverage: { ankle: 'covered just above the ankle bone' }, material: 'vegan nubuck on a rubber platform', warmth: 3, warmthBasis: 'inferred: a closed ankle boot', weather: 'cool days; the lug sole grips in the wet; waterproofing unknown', rain: 'ok' },
     uncertainties: ['lug count and side-panel curves adapted to her short toy foot', 'the tongue badge, side label and embossed Buffalo script on the heel of the sole carry no lettering', 'tape lettering is redrawn, not copied'],
     authoring: { texture: 'buffalo-tape.js: logo tape drawn locally from the product photos; nubuck and sole colours measured from the photos', runtimeGeneration: false, sourcePhotosBundled: false },
     // Construction for makeLugBoot() in src/doll/model.js, in outfit units (x is widened by 1.06 and y squashed by .76 on screen).
@@ -1139,6 +1150,7 @@ const BUILT_IN = {
     details: ['open-toe, open-back slide', 'two wide crossed straps of black-and-white cow print pony hair, edged in black leather piping', 'thin black leather cords crossing over them in an X', 'black leather instep strap with a large silver buckle on the outer side', 'black suede footbed with the AirWair logo', 'black leather welt band with fine grooves and yellow welt stitching', 'chunky sculpted outsole in smoky translucent black: toe and heel blocks, a ribbed block and mountain peaks along the side, the tread lifting under the arch'],
     material: { construction: 'pony-hair print leather and smooth leather straps on a moulded platform', composition: 'not visible in the supplied screenshots', finish: 'cow print pony hair, matte leather, slightly glossy translucent outsole' },
     fit: { silhouette: 'chunky platform slide', platform: 'footbed about a fifth of the sole length high; raises her by the part above her normal foot level', adjustment: 'fixed authored fit for review' },
+    styling: { silhouette: 'chunky platform slide, open toe and back', palette: ['black', 'white'], pattern: 'cow print straps', coverage: { feet: 'open toe and heel; bare feet' }, material: 'pony-hair print leather on a platform', warmth: 0, warmthBasis: 'inferred: an open slide', weather: 'warm, dry days; not for rain or cold', mood: 'playful, bold' },
     uncertainties: ['cow-print patches are procedural, not traced from the photos', 'footbed logo and buckle lettering are not reproduced', 'her bare feet are soft felt ovals like her mittens, with no toes', 'outsole sculpting simplified to blocks, a ribbed block and a row of peaks'],
     authoring: { texture: 'procedural cowPrint() in src/doll/model.js', runtimeGeneration: false, sourcePhotosBundled: false },
     // Construction for makePlatformSlide() in src/doll/model.js, in outfit units (x is widened by 1.06 and y squashed by .76).
@@ -1166,6 +1178,7 @@ const BUILT_IN = {
     details: ['low-cut chunky skate-style sneaker, all cream', 'cream mesh base showing at the toe box and as a band round the heel collar', 'cream suede overlays: a band all round above the sole, the side quarters, the heel counter and the eyestays, with tonal stitching', 'big round eyelets, four a side', 'very wide, puffy flat laces in cream with a beige-brown diamond zigzag, tied in a large floppy bow with long tails', 'thick padded tongue with a debossed UGG label', 'padded collar and a cream webbing pull loop at the heel', 'smooth cream platform sole with a rounded top edge and small lugs round the bottom'],
     material: { construction: 'suede and mesh upper on a moulded platform sole', composition: 'not visible in the supplied screenshots', finish: 'matte suede, open mesh' },
     fit: { silhouette: 'low chunky platform sneaker', height: 'low, below the ankle bone, so her socks show', platform: 'sole within her normal foot height; she is not raised', adjustment: 'fixed authored fit for review' },
+    styling: { silhouette: 'low chunky platform skate sneaker', palette: ['cream', 'beige'], pattern: 'plain, with patterned puffy laces', coverage: { ankle: 'below the ankle bone; her socks show' }, material: 'suede and mesh on a platform', warmth: 2, warmthBasis: 'inferred: a closed low suede sneaker', weather: 'dry days; suede and mesh do not suit rain' },
     uncertainties: ['panel outlines simplified (the curved suede piece beside the toe mesh is not modelled)', 'lace pattern is redrawn', 'UGG logos on the tongue label, side and insole carry no lettering'],
     authoring: { texture: 'procedural meshKnit() and laceTexture() in src/doll/model.js', runtimeGeneration: false, sourcePhotosBundled: false },
     // Construction for makeLugBoot() (template 'sneaker') in src/doll/model.js, in outfit units. Upper rows are
@@ -1201,7 +1214,7 @@ const BUILT_IN = {
     details: ['open-toe platform strap sandal in glossy black patent leather', 'three straps straight across the foot and an ankle strap round the back of the ankle, joined to the sole by an upright strap on each side', 'chunky silver curb chain along the top of every strap, fixed with studs at each end', 'large silver buckles engraved Dr. Martens on the outer side, with pointed stitched tabs', 'tonal stitching along the strap edges', 'black heel pull loop lined in yellow, printed With Bouncing Soles', 'black footbed', 'tall Quad platform with fine horizontal ribbing, a grooved welt with yellow stitching and a sawtooth tread'],
     material: { construction: 'patent leather straps with metal chains on a moulded platform', composition: 'not visible in the supplied images', finish: 'high-gloss patent, satin silver hardware, matte ribbed sole' },
     fit: { silhouette: 'chunky platform strap sandal', platform: 'tall; raises her by the part above her normal foot level', adjustment: 'fixed authored fit for review' },
-    styling: { coverage: 'open toe and heel; bare feet', warmth: 'summer; not for rain or cold (open, patent)', palette: 'black with silver hardware and yellow stitching', mood: 'edgy, hardware-heavy' },
+    styling: { coverage: 'open toe and heel; bare feet', warmth: 0, warmthBasis: 'inferred: an open sandal', weather: 'summer; not for rain or cold (open, patent)', palette: 'black with silver hardware and yellow stitching', mood: 'edgy, hardware-heavy' },
     uncertainties: ['chains are drawn as alternating curb links, simplified', 'the Dr. Martens lettering on buckles, footbed and pull loop is not reproduced', 'her bare feet are toeless felt shapes', 'the ankle strap is modelled as one band with a front buckle'],
     authoring: { texture: 'none; patent, metal and ribbed sole are materials and geometry in src/doll/model.js', runtimeGeneration: false, sourcePhotosBundled: false },
     // Construction for makePlatformSlide() (template 'platform-sandal') in src/doll/model.js, in outfit units. Heights
@@ -1333,7 +1346,7 @@ const BUILT_IN = {
     details: ['low retro basketball sneaker, all cream and off-white', 'smooth cream leather upper with a slightly darker heel counter and a pale leather toe cap', 'perforated leather quarter below the lacing', 'beige mesh window under the collar', 'big slanted N on each side in pale pinkish suede, edged in white leather', 'white leather piping sweeping from the heel down and forward, then up to the lacing', 'white leather edges along the eyestays, punched eyelets, white flat laces in a bow', 'very puffy padded collar with a peach-yellow lining, and a tall puffy nylon tongue with a label', 'chunky cupsole: an aged cream midsole with horizontal grooves over a grey rubber outsole with block lugs, rising higher round the heel and toe', '550 embossed on the vamp and new balance on the midsole'],
     material: { construction: 'leather, suede and mesh upper on a rubber cupsole', composition: 'not visible in the supplied images', finish: 'smooth leather, matte suede and mesh, matte rubber' },
     fit: { silhouette: 'low chunky retro basketball sneaker', height: 'low, below the ankle bone, so her socks show', platform: 'sole within her normal foot height; she is not raised', adjustment: 'fixed authored fit for review' },
-    styling: { coverage: 'closed low sneaker; her ankle socks show', warmth: 'all seasons except deep cold; leather sheds light rain, the perforations and mesh breathe', palette: 'cream and off-white with a grey outsole; goes with almost anything', mood: 'retro sporty, clean, everyday' },
+    styling: { coverage: 'closed low sneaker; her ankle socks show', warmth: 2, warmthBasis: 'inferred: a closed leather sneaker', weather: 'all seasons except deep cold; leather sheds light rain, the perforations and mesh breathe', palette: 'cream and off-white with a grey outsole; goes with almost anything', mood: 'retro sporty, clean, everyday' },
     uncertainties: ['the 550 and new balance lettering, the heel NB and the tongue label carry no lettering', 'the suede toe overlay is not modelled; the toe top is smooth leather', 'the midsole’s stepped heel is simplified to straight grooves', 'the composition is not stated in the images'],
     authoring: { texture: 'none; leather, suede, perforations, mesh and rubber are procedural materials and geometry in src/doll/model.js', runtimeGeneration: false, sourcePhotosBundled: false },
     // Construction for makeLugBoot() (template 'sneaker') in src/doll/model.js, in outfit units. Proportions from the
@@ -1452,7 +1465,7 @@ const BUILT_IN = {
     layering: { closed: true, coversTopSleeves: true, coversWaistband: true, canOpen: true },
     // For choosing outfits later. Observed: seen in the photos; user: the user's own words; inferred: read from the
     // construction, not stated anywhere.
-    styling: {
+    styling: { warmth: 1, warmthBasis: 'inferred: an unpadded shell',
       observed: { palette: ['slate blue', 'ecru'], pattern: 'colour-blocked: ecru yoke ending in a V at the front', silhouette: 'boxy hip-length blouson, dropped shoulders', coverage: 'torso and arms to the wrist; neck when zipped; hood (modelled down)', material: 'woven windbreaker shell with a grey jersey lining in the body' },
       user: { wear: 'zipped closed, or not worn, in real life; shown open on the doll only to see how it looks' },
       inferred: { warmth: 'light layer: unpadded shell and a thin lining', weather: 'mild, breezy or cool days; the hood suits light showers', unknown: ['waterproofing', 'fibre composition'] },
@@ -1499,7 +1512,7 @@ const BUILT_IN = {
     fit: { silhouette: 'cropped, fairly fitted', length: 'waist, ending in the rib band', sleeve: 'long, set-in, ruched above the cuff', wear: 'the user often wears it open; it can also be zipped closed', adjustment: 'fitted on her, easing out only where the layers under it need room' },
     // Worn open by default (the user's habit), or zipped closed. Closed, it covers the shirt collar like the windbreaker.
     layering: { closed: true, canOpen: true, openByDefault: true, coversTopSleeves: true, coversWaistband: true },
-    styling: {
+    styling: { warmth: 2, warmthBasis: 'inferred: a coated faux-leather shell',
       observed: { palette: ['black', 'silver hardware'], pattern: 'plain; texture from the crinkled gloss and the seams', silhouette: 'cropped waist-length jacket with a point collar', coverage: 'torso to the waist and arms to the wrist; longer tops show below it', material: 'glossy faux leather, rib-knit band' },
       user: { wear: 'often worn open; sometimes zipped closed', fit: 'a great, fitted cut on the user' },
       inferred: { warmth: 'light to medium layer: a coated shell, lining unknown beyond the collar', weather: 'cool, dry or breezy days', unknown: ['waterproofing', 'lining and padding', 'fibre composition'] },
@@ -1542,7 +1555,7 @@ const BUILT_IN = {
     material: { construction: 'woven windbreaker shell', composition: 'not visible in the supplied screenshots', finish: 'matte, slightly technical; reflective prints' },
     fit: { silhouette: 'boxy and relaxed, raglan shoulders', length: 'hip', sleeve: 'long and relaxed, gathered at the wrist', wear: 'zipped closed in real life (the user wears outerwear closed unless it is designed to be worn open; the model wears it open); on the doll it can also be shown open, to see how it looks (user, 9 October 2026)', adjustment: 'fixed authored fit for review' },
     layering: { closed: true, coversTopSleeves: true, coversWaistband: true, canOpen: true },
-    styling: {
+    styling: { warmth: 1, warmthBasis: 'inferred: an unpadded shell',
       observed: { palette: ['stone', 'silver-white reflective print'], pattern: 'plain, with tonal reflective lettering', silhouette: 'boxy hip-length blouson, raglan sleeves', coverage: 'torso and arms to the wrist; neck when zipped (tall collar)', material: 'woven windbreaker shell' },
       user: { wear: 'zipped closed, or not worn, in real life; shown open on the doll only to see how it looks' },
       inferred: { warmth: 'light layer: unpadded shell', weather: 'mild, breezy or cool days; the stowed hood suits light showers', unknown: ['waterproofing', 'lining', 'fibre composition'] },
@@ -1596,7 +1609,7 @@ const BUILT_IN = {
     material: { construction: 'woven cotton-look shell, padded or sherpa-lined', composition: 'not visible in the supplied photos', finish: 'matte, slightly crinkled; over-dyed by the user' },
     fit: { silhouette: 'oversized, straight to a slight A-line, dropped shoulders', length: 'knee on the model; assumed at least knee length on the user, who is short', sleeve: 'long and full, gathered at the wrist', wear: 'zipped closed in real life (the user wears outerwear closed unless it is designed to be worn open), hood down; it can also be shown open on the doll', adjustment: 'fixed authored fit for review' },
     layering: { closed: true, coversTopSleeves: true, coversWaistband: true, canOpen: true },
-    styling: {
+    styling: { warmth: 4, warmthBasis: 'inferred: a sherpa-lined knee-length parka',
       observed: { palette: ['muted blue-green emerald (dyed over powder blue)', 'cream sherpa', 'red and white cords'], pattern: 'plain', silhouette: 'oversized knee-length parka with dropped shoulders', coverage: 'torso, hips and thighs to the knee; arms to the wrist; neck when zipped; hood', material: 'woven shell with a sherpa-lined hood and body' },
       user: { colour: 'a muted, less saturated emerald: the user dyed it emerald over its original carta zucchero (dusty powder blue) after a bleach accident; the two blended, more green than blue; the colour does not photograph well', wear: 'zipped closed, or not worn, in real life; shown open on the doll only to see how it looks' },
       inferred: { warmth: 'warm: a sherpa-lined parka for cold days', weather: 'cold, windy days; the hood suits rain or wind; long enough to cover a skirt or dress', unknown: ['waterproofing', 'fibre composition', 'whether the sherpa, stitching and cords took the dye (assumed not: they look as in the photos)', 'any marks left by the bleach under the dye', 'the exact length on the user'] },
@@ -1641,7 +1654,7 @@ const BUILT_IN = {
     material: { construction: 'faux fur shell with a satin lining', composition: 'not stated in the supplied images', finish: 'soft, short, dense pile with a velvety sheen' },
     fit: { silhouette: 'boxy and cropped, dropped shoulders', length: 'high hip', sleeve: 'long and full, gathered into cuff bands', wear: 'closed with its snaps: the user wears outerwear closed unless it is designed to be worn open', adjustment: 'its own boxy size on her, easing out only where the layers under it need room' },
     layering: { closed: true, coversTopSleeves: true, coversWaistband: true },
-    styling: {
+    styling: { warmth: 3, warmthBasis: 'inferred: dense faux fur over a lining',
       observed: { palette: ['dusty rose pink', 'pink satin lining'], pattern: 'plain; texture from the fur pile', silhouette: 'boxy cropped shirt jacket with a big point collar', coverage: 'torso to the high hip and arms to the wrist; longer tops show below it', material: 'faux fur, satin lining' },
       inferred: { warmth: 'warm: a dense pile over a lining, for cold days', weather: 'cold, dry days; faux fur does not suit heavy rain', mood: 'soft, cosy and playful', unknown: ['fibre composition', 'padding', 'water resistance'] },
     },
@@ -1679,7 +1692,7 @@ const BUILT_IN = {
     material: { construction: 'cotton canvas shell, padded, with a quilted nylon lining', composition: 'not visible in the supplied photos', finish: 'matte, softly wrinkled cotton' },
     fit: { silhouette: 'boxy bomber, raglan sleeves', length: 'hip, to a rib band', sleeve: 'long, gathered into long rib cuffs', wear: 'zipped closed in real life (the user wears outerwear closed unless it is designed to be worn open), hood down; it can also be shown open on the doll', adjustment: 'fixed authored fit for review' },
     layering: { closed: true, coversTopSleeves: true, coversWaistband: true, canOpen: true },
-    styling: {
+    styling: { warmth: 3, warmthBasis: 'inferred: padded, with a quilted lining',
       observed: { palette: ['vintage cream', 'grey-beige fur', 'navy lining'], pattern: 'plain', silhouette: 'boxy hip-length hooded bomber with raglan sleeves', coverage: 'torso and arms to the wrist; neck when zipped; hood', material: 'cotton canvas shell, padded, quilted lining, faux-fur hood lining and ruff' },
       user: { wear: 'zipped closed, or not worn, in real life (their rule for outerwear); shown open on the doll only to see how it looks' },
       inferred: { warmth: 'warm: padded with a quilted lining and a fur-lined hood', weather: 'cold, dry or windy days; the cotton shell is not waterproof', unknown: ['fibre composition', 'whether the hood is detached when worn', 'how the user wears it'] },
@@ -1730,7 +1743,7 @@ const BUILT_IN = {
     material: { construction: 'woven windbreaker shell', composition: 'not visible in the supplied photos', finish: 'matte, softly crinkled' },
     fit: { silhouette: 'cropped and blousy, dropped shoulders, balloon sleeves', length: 'waist, to a shirred band', sleeve: 'long and very full, gathered into shirred cuffs', wear: 'zipped closed in real life (the user wears outerwear closed unless it is designed to be worn open); it can also be shown open on the doll', adjustment: 'fixed authored fit for review' },
     layering: { closed: true, coversTopSleeves: true, coversWaistband: true, canOpen: true },
-    styling: {
+    styling: { warmth: 1, warmthBasis: 'inferred: a thin unpadded shell',
       observed: { palette: ['cream'], pattern: 'plain, tonal logo', silhouette: 'cropped blouson with balloon sleeves', coverage: 'torso to the waist and arms to the wrist; neck when zipped; the top shows below the band', material: 'woven windbreaker shell, unlined or lightly lined' },
       user: { wear: 'zipped closed, or not worn, in real life (their rule for outerwear); shown open on the doll only to see how it looks' },
       inferred: { warmth: 'light layer: a thin unpadded shell', weather: 'mild, breezy days; not for rain or cold', unknown: ['lining', 'fibre composition', 'how the user wears it'] },
@@ -1775,7 +1788,7 @@ const BUILT_IN = {
     material: { construction: 'double-face felted knit or woven, wool-look', composition: 'not visible in the supplied photos', finish: 'matte melange with raw edges' },
     fit: { silhouette: 'straight and slightly oversized', length: 'just above the knee', sleeve: 'long and plain', wear: 'buttoned closed in real life (the user wears outerwear closed unless it is designed to be worn open), with its one button; it can also be shown open on the doll', adjustment: 'fixed authored fit for review' },
     layering: { closed: true, coversTopSleeves: true, coversWaistband: true, canOpen: true },
-    styling: {
+    styling: { warmth: 3, warmthBasis: 'inferred: a thick felted coat',
       observed: { palette: ['taupe melange'], pattern: 'plain melange', silhouette: 'straight single-breasted coat with notched lapels, above the knee', coverage: 'torso, hips and thighs to just above the knee; arms to the wrist; a V at the neck', material: 'felted wool-look double-face' },
       user: { buttons: 'one button (the other is missing)', wear: 'buttoned, or not worn, in real life (their rule for outerwear); shown open on the doll only to see how it looks' },
       inferred: { warmth: 'warm: a thick felted coat, unlined', weather: 'cool to cold dry days; not for rain', unknown: ['fibre composition', 'which button is left (assumed the top one, at the lapel break)', 'the exact length on the user'] },

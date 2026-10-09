@@ -12,7 +12,7 @@ export default {
     fit: { silhouette: 'boxy and relaxed, dropped shoulders', length: 'hip, just below the waistband', sleeve: 'long and full, gathered into elastic cuffs', wear: 'a pullover: the half zip is closed in real life (the user wears outerwear closed); shown open on the doll, it is unzipped at the neck', adjustment: 'fixed authored fit for review' },
     // A closed jacket covers the top's sleeves and the skirt's bow. Shown open, only the half zip opens.
     layering: { closed: true, coversTopSleeves: true, coversWaistband: true, canOpen: true },
-    styling: {
+    styling: { warmth: 1, warmthBasis: 'inferred: an unpadded shell',
       observed: { palette: ['red', 'pale pink', 'white'], pattern: 'colour-blocked: a red yoke ending in a V at the front and back', silhouette: 'boxy hip-length pullover anorak, dropped shoulders', coverage: 'torso and arms to the wrist; neck when zipped; hood (modelled down)', material: 'light woven windbreaker shell' },
       user: { wear: 'zipped closed in real life (their rule for outerwear); shown unzipped on the doll only to see how it looks' },
       inferred: { warmth: 'light layer: an unpadded shell', weather: 'mild, breezy days; the hood suits a light shower', unknown: ['lining', 'waterproofing', 'fibre composition'] },

@@ -16,6 +16,8 @@ The user clarified on 8 October 2026 that **checking the weather and dressing he
 
 During garment work, preserve stable IDs, separate reusable pieces, slot/layer compatibility and known fit constraints. Record styling-relevant details (silhouette, palette/pattern, coverage, material, relative warmth and weather limitations) when supported; distinguish uncertain inferences and unknowns. See the product brief's “Building towards daily self-dressing” section. Do not add live weather/API dependencies during import or independently redesign shared styling foundations.
 
+Since 9 October 2026 she dresses herself from these facts (`src/style/`, see `docs/DAILY_STYLING_PLAN.md`). A new garment joins daily styling with no other change, but its `styling` must give a numeric `warmth` on the shared scale (0 open or bare, 1 light, 2 mid, 3 warm, 4 very warm) with its `warmthBasis`, and a `palette`; `tests/stylist.test.js` checks every garment. Note in `weather` what it does not suit (rain, cold), or set `rain: 'ok'` or `'avoid'` when known.
+
 # Parallel chats
 
 Several chats may add garments at the same time. Categories are not assigned to chats (the user's decision, 8 October 2026): each chat adds whatever category the user tells it to, and can switch, for example from bottoms to tops, when the user asks. Each chat works on its own branch and pull request, never pushes to another's branch, and never force-pushes a branch that has been shared.

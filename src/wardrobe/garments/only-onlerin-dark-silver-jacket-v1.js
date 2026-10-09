@@ -12,7 +12,7 @@ export default {
   // A closed jacket covers the top's sleeves and the skirt's bow.
   layering: { closed: true, coversTopSleeves: true, coversWaistband: true, canOpen: true },
   // For choosing outfits later. Observed: seen in the photos; inferred: read from the construction, not stated anywhere.
-  styling: {
+  styling: { warmth: 1, warmthBasis: 'inferred: an unpadded shell with a thin lining',
     observed: { palette: ['dark silver', 'black'], pattern: 'plain metallic', silhouette: 'boxy hip-length blouson on an elastic hem', coverage: 'torso and arms to the wrist; neck when zipped; hood (modelled down)', material: 'crinkled metallic nylon, black lining' },
     inferred: { warmth: 'light layer: an unpadded shell and a thin lining', weather: 'mild, breezy or cool days; the coated shell and hood suit light showers', mood: 'bold, futuristic, sporty', unknown: ['waterproofing', 'fibre composition'] },
   },
