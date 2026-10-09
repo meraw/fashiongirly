@@ -24,6 +24,7 @@
 // slot 19
 // slot 20
 // slot 21
+export { default as paisleyPrintRelaxedShirtV1 } from './paisley-print-relaxed-shirt-v1.js';
 // slot 22
 // slot 23
 export { default as onlyOnlerinDarkSilverJacketV1 } from './only-onlerin-dark-silver-jacket-v1.js';
