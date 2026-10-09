@@ -63,9 +63,14 @@ It is buttoned to the top as on the model: eight pale grey buttons from just und
 
 - `sleeveAround`: how many times the print repeats round a sleeve and cuff (default once, as before).
 - `pocket`: `{ x, y }`, a patch pocket on her left chest. It lies on the body in the same print, laid as on the body under it, with stitching round its sides and bottom and a hem stitch below its top edge.
-- `yoke`: the height of a back yoke seam, laid across her back.
+- `backYoke`: the height of a back yoke seam, laid across her back. (The pink yoke shirt's `yoke` is a different setting: a yoke front and back with gathers below it.)
 
-**A fix to the template.** The template caches where it finds the shirt's surface, to place its buttons and stitching. Its key didn't tell a tucked body from an untucked one, so a shirt built untucked and then tucked into the skirt placed its lowest buttons where the untucked hem had been, floating on the skirt. The key now includes whether the shirt is tucked. Of the existing shirts, only the Mango dot shirt is tucked, and it shows no buttons, so nothing visible changed for it.
+**A fix to the template.** The template caches where it finds the shirt's surface, to place its buttons and stitching. Its key didn't tell a tucked body from an untucked one, so a shirt built untucked and then tucked into the skirt placed its lowest buttons where the untucked hem had been, floating on the skirt. The key now includes whether the shirt is tucked. Of the existing shirts, two tuck into the skirt:
+
+- the Mango dot shirt shows no buttons, and its stitching is unchanged;
+- the pink yoke shirt, added at the same time on `main`, had the same problem: put on the skirt after wearing it untucked, and its two lowest buttons (1.21 and 1.10) floated on the skirt below its tucked hem (1.26). The fix removes them.
+
+Untucked, every shirt builds exactly as before.
 
 **Colour.** Calibrated by measuring renders against the flat lay. The ground's share is right: 0.55 in renders against 0.55 measured.
 

@@ -1,6 +1,6 @@
 # Wardrobe item: ONLY Carmakoma taupe coat
 
-Authored 9 October 2026. Status: first version, awaiting visual review. The first tailored coat. It adds the `tailored-coat` template (`src/doll/tailored-coat.js`).
+Authored 9 October 2026. Status: first version, approved: the user merged it, and merging means approved (their rule). The first tailored coat. It adds the `tailored-coat` template (`src/doll/tailored-coat.js`).
 
 ## Source and reference reading
 
