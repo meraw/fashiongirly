@@ -31,6 +31,7 @@ export const TOMMY_STRIPE_POLO_ID = 'tommy-stripe-knit-polo-v1';
 export const MOTEL_TIE_DYE_SHIRT_ID = 'motel-tie-dye-mesh-shirt-v1';
 export const DESIGUAL_SPRAY_FLORAL_SHIRT_ID = 'desigual-spray-floral-mesh-shirt-v1';
 export const VANGOGH_TEE_ID = 'van-gogh-patchwork-tee-v1';
+export const DESIGUAL_FRESCO_TEE_ID = 'desigual-fresco-rib-vneck-tee-v1';
 export const BARREL_JEANS_ID = 'topshop-barrel-jeans-v1';
 export const DAVINIA_JEANS_ID = 'desigual-davinia-jeans-v1';
 export const LEVIS_94_ID = 'levis-94-wide-leg-v1';
@@ -272,6 +273,33 @@ export const GARMENTS = Object.freeze({
         rows: [[1.91, .109, .099], [1.875, .17, .122], [1.83, .228, .152], [1.775, .265, .175], [1.65, .279, .183], [1.49, .277, .187], [1.34, .284, .196], [1.25, .29, .206], [1.19, .292, .213]] },
       seams: { neckU: .055, armU: .235, armV: .66, band: .27 },
       sleeve: { rows: [[.03, .108, .106], [-.04, .12, .117], [-.12, .119, .116], [-.17, .122, .119]], lettuce: .003, waves: 18 },
+    },
+  },
+  [DESIGUAL_FRESCO_TEE_ID]: {
+    slot: 'top',
+    id: DESIGUAL_FRESCO_TEE_ID, name: 'Desigual fresco print V-neck tee', family: 'printed-raglan-tee', version: 1,
+    status: 'authored-awaiting-user-review', brandAsProvided: 'Desigual (label in the flat lay)',
+    source: { note: 'user supplied four product photos without a written description: a front flat lay, the front on a model (full length and closer) and the back on a model' },
+    referenceViews: ['front flat lay', 'front on model, full length', 'front on model, closer', 'back on model'],
+    details: ['fitted short-sleeved tee in a fine stretch rib knit', 'printed all over with a pale baroque ceiling fresco: cherubs, clouds, a seated figure in white robes, dark rocks with a touch of teal, and an eagle with spread wings on the back', 'cream, beige, ochre and sage, with hints of teal, blue and pink', 'deep, wide V-neck with a narrow bound edge, its sides curving into the point', 'exposed cream overlocked seam down the centre front, from the point of the V to the hem', 'exposed overlocked seams from the neckline down to each underarm, front and back', 'lettuce-edge hem and sleeve hems in cream', 'elbow-length sleeves, slightly flared'],
+    material: { construction: 'fine stretch rib jersey (read from the photos)', composition: 'not stated', finish: 'matte print' },
+    fit: { silhouette: 'fitted, close to the body', sleeve: 'short sleeves ending just above the elbow, slightly flared', hem: 'at the waistband of high-rise trousers', neckline: 'deep V', adjustment: 'fixed authored fit for review' },
+    exclusions: ['striped-shirt','knit-sweater'],
+    // Covers the waistband; the short sleeve's fabric ends at -.205 (sleeve-local), below which her arm is bare.
+    layering: { coversWaistband: true, bareArmBelow: -.205 },
+    uncertainties: ['the print is taken from the product photos, so it is softer than the real fabric and some photographed shading remains', 'the doll\'s torso is wider and shorter than the model\'s, so the front shows a shorter vertical slice of the print and the shapes are a little squatter', 'the sleeves are made from small crops and are blurrier than the body', 'the painting appears to be an 18th-century Venetian ceiling fresco; it is not identified'],
+    styling: { silhouette: 'fitted, high-hip length', palette: ['cream', 'beige', 'ochre', 'sage', 'teal'], pattern: 'all-over baroque fresco print of cherubs and clouds, with cream overlocked seams', coverage: { neck: 'deep V', sleeves: 'short, to the elbow', midriff: 'covered' }, material: 'fine stretch rib jersey', warmth: 1, warmthBasis: 'inferred: thin fitted knit with short sleeves and an open neckline', weather: 'warm days, or a base layer under a jacket' },
+    authoring: { template: 'makePrintedTee() in src/doll/printed-tee.js', texture: 'fresco-tee-atlas.js: the body unwrapped and the sleeves, projected from the user\'s flat lay (front) and back photo, with the back photo\'s side shading partly divided out; the painting is long out of copyright', runtimeGeneration: false, sourcePhotosBundled: 'processed crops only, as the texture atlas' },
+    // Construction for makePrintedTee() in src/doll/printed-tee.js, in outfit units. The V is laid on the flat lay's V in
+    // the atlas: it meets the neckline .173 of the way round from centre front and ends at 1.68.
+    build: {
+      template: 'printed-raglan-tee',
+      colours: { overlock: '#e2cfae', binding: '#c9ad85', fallback: '#dcc6a4', printTone: '#bdb8b3' },
+      body: { neck: 1.91, hem: 1.19, lettuce: .0035, waves: 44, neckWaves: 30,
+        rows: [[1.91, .109, .099], [1.875, .17, .122], [1.83, .228, .152], [1.775, .265, .175], [1.65, .279, .183], [1.49, .277, .187], [1.34, .284, .196], [1.25, .29, .206], [1.19, .292, .213]] },
+      vneck: { bottom: 1.68, half: .173, round: 1.7, binding: .012 },
+      seams: { neckU: .19, armTop: .95, armU: .235, armV: .66, centreTop: .68, sides: [] },
+      sleeve: { rows: [[.03, .108, .106], [-.04, .12, .117], [-.13, .122, .119], [-.205, .127, .124]], lettuce: .003, waves: 20 },
     },
   },
   [BARREL_JEANS_ID]: {
