@@ -785,9 +785,10 @@ export const GARMENTS = Object.freeze({
       // Straps straight across: [z inner, z outer, width, gap above her foot].
       bands: [[.24, .23, .046, .01], [.17, .16, .046, .012], [.098, .09, .046, .012]],
       chain: { from: .2, to: .76, size: .0115 }, buckleAt: .9,
-      // Ankle strap: height, gap round the ankle, width, slope (higher at the back), its extent round the back, the chain's
-      // and buckle's angles on the outer side, and where the side uprights join it.
-      ankle: { y: .285, gap: .012, width: .04, tilt: -.016, from: .75, to: 5.53, chain: [1.25, 2.5], buckle: .95, upright: 1.45 },
+      // Ankle strap: height, gap round the ankle, width, slope (higher at the back), closed all the way round her ankle
+      // (from/to in radians from the front), the chain's and buckle's angles on the outer side, and where the side uprights
+      // join it.
+      ankle: { y: .3, gap: .01, width: .04, tilt: -.006, closed: true, from: 0, to: 6.2832, chain: [1.25, 2.5], buckle: .95, upright: 1.45 },
       pullLoop: { height: .065, width: .036 },
     },
   },

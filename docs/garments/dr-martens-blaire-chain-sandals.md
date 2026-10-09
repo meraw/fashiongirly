@@ -24,10 +24,14 @@ Catalog ID `dr-martens-blaire-quad-chain-v1` (slot `shoes`), template `platform-
 - **Quad sole** (`sole.style: 'quad'`): straight walls ribbed all the way up (`rib`, `ribDepth`), with ridges shaded lighter and grooves darker so the ribbing reads on black, as dust and sheen make it read in the photos. The sawtooth tread has teeth pointing down (`toothTop`, `toothDepth`). The top layer above the welt is ribbed too, and the yellow welt stitching is dashed.
 - **Patent straps** (`bands`): straight across the foot, draped over her bare foot like the slides' straps, in a glossy clearcoated black with tonal edge stitching.
   - Each strap has an alternating curb chain (`chain`), a stud at each end of the chain, and a rounded buckle frame with its prong and a pointed tab on the outer side (`buckleAt`).
-- **Ankle strap** (`ankle`): a band round the back of her ankle, a little higher at the back, carrying a chain on the outer side and a buckle at the outer front. It is joined to the sole by an upright strap on each side. A black heel pull loop lined in yellow (`pullLoop`) stands up from the back.
+- **Ankle strap** (`ankle`): a band all the way round her ankle, closed over the front and hugging her foot's outline there (`closed`), a little higher at the back, carrying a chain on the outer side and a buckle at the outer front. It is joined to the sole by an upright strap on each side. A black heel pull loop lined in yellow (`pullLoop`) stands up from the back.
 - **Height and feet:** as with the cow slides, the footbed (0.142) is above her normal foot level, so she and her clothes rise by 0.032. Her socks are hidden, and her bare feet are the same smooth, toeless felt shape the user approved for the slides.
 - **Layering:** long jeans rest on the straps and fall to the floor beside the platform; cropped jeans end above the ankle strap. No jeans code changed.
 - **Styling notes** (catalog `styling`): open toe and heel, summer only, not for rain or cold; black with silver hardware and yellow stitching; edgy and hardware-heavy.
+
+## Revision after the user's first review
+
+The user saw that the front of the ankle strap was missing. The first version only went round the back of her ankle. The strap now closes all the way round over the front of the ankle, following her foot's outline at that height, and sits a little higher and more level, so the front shows above the third strap, as in the photos.
 
 ## Checks
 
@@ -47,5 +51,4 @@ Catalog ID `dr-martens-blaire-quad-chain-v1` (slot `shoes`), template `platform-
 
 - The patent reads glossy only where the studio lights catch it; there is no environment reflection.
 - The chains are simplified curb links. The buckle and pull-loop lettering is not reproduced.
-- The ankle strap is one band with a buckle at the outer front.
 - Her feet are toeless felt shapes.

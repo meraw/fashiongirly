@@ -497,7 +497,10 @@ function makePlatformSlide(id,spec){
       // Ankle strap round the back of her ankle, joined to the sole by an upright strap on each side, with a chain on the
       // outer side, a buckle at the front and the heel pull loop.
       const A=spec.ankle,ac=F.rows.reduce((b,r)=>Math.abs(r[0]-A.y)<Math.abs(b[0]-A.y)?r:b),azc=(ac[1]+ac[2])/2,arx=ac[3]+A.gap,arz=(ac[1]-ac[2])/2+A.gap;
-      const ankleP=(a,dy=0,grow=0)=>{const y=A.y+A.tilt*Math.cos(a)+dy;return V(side*cx+Math.sin(a)*(arx+grow),y,azc+Math.cos(a)*(arz+grow));};
+      const ankleP=(a,dy=0,grow=0)=>{const y=A.y+A.tilt*Math.cos(a)+dy;
+        // Where the strap closes over the front it hugs her foot's own outline at that height, a little clear of it.
+        if(A.closed){const [fx,fz]=footPlan(y,a),zc2=(footAt(y)[0]+footAt(y)[1])/2,r=Math.hypot(fx,fz-zc2)||1,k=(r+A.gap+grow)/r;return V(side*cx+fx*k,y,zc2+(fz-zc2)*k);}
+        return V(side*cx+Math.sin(a)*(arx+grow),y,azc+Math.cos(a)*(arz+grow));};
       const aPts=[],aN=[];for(let i=0;i<=72;i++){const a=A.from+(A.to-A.from)*i/72;aPts.push(ankleP(a));aN.push(V(Math.sin(a),0,Math.cos(a)));}
       // The ankle strap runs from the inner front round the back to the outer front (angles measured on her right side).
       const mir=pts=>pts.map(p=>p);void mir;
