@@ -68,7 +68,7 @@ Boxy, gathered below a yoke and hip length, in soft pink scattered with small cr
 
 ## Checks
 
-- `npm test` passes; see the pull request for the count.
+- `npm test`: 98 passing.
   - The new test checks:
     - the parts: the yoke seam, seven cream buttons, buttoned cuffs and full sleeves;
     - the gathers below the yoke, against the smooth yoke above;
