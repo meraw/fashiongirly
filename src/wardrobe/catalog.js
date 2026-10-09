@@ -8,6 +8,7 @@ export const ZIP_TRACK_DRESS_ID = 'navy-half-zip-track-dress-v1';
 export const BUFFALO_ASPHA_ID = 'buffalo-aspha-mid-olive-v1';
 export const DM_COW_SLIDE_ID = 'dr-martens-cow-slide-v1';
 export const UGG_LOWMEL_ID = 'ugg-lowmel-cream-v1';
+export const SAM_ZIP_BOOT_ID = 'sam-edelman-front-zip-lug-boot-v1';
 export const BRONZE_TOP_ID = 'desigual-bronze-mesh-v1';
 export const LILAC_TOP_ID = 'lilac-portrait-mockneck-v1';
 export const CROCHET_TOP_ID = 'desigual-crochet-flowers-v1';
@@ -758,6 +759,36 @@ export const GARMENTS = Object.freeze({
         { name: 'heel-counter', z: [-.17, .0], top: [[-.17, .17], [-.1, .155], [-.04, .128], [.0, .112]] },
         { name: 'side-quarter', z: [-.03, .3], top: [[-.03, .122], [.05, .162], [.11, .19], [.18, .192], [.24, .165], [.3, .118]] },
       ],
+    },
+  },
+  [SAM_ZIP_BOOT_ID]: {
+    slot: 'shoes',
+    id: SAM_ZIP_BOOT_ID, name: 'Black front-zip lug-sole ankle boots', family: 'front-zip-lug-sole-ankle-boot', version: 1,
+    status: 'reference-study-awaiting-visual-review', brandAsProvided: 'not stated (the double-E logo on the zip pull and the back hardware suggests Sam Edelman)',
+    source: { note: 'user supplied three product photos without a description: the pair from the front three-quarter, a close-up of the zip and the back, and the outer side' },
+    referenceViews: ['front three-quarter pair', 'zip and back close-up', 'outer side'],
+    details: ['smooth black leather ankle boot with a round toe', 'centre-front zip in a raised leather placket, double-stitched either side, from the toe cap to the collar; the pull is leather with a small metal double-E logo', 'toe cap seam across the toe', 'a diagonal panel seam across each side and a curved heel counter seam', 'leather pull tab at the back of the collar, with a small metal logo bar beside it', 'thin stitched leather welt on a chunky black rubber lug sole with deep wedge lugs and a slightly raised heel'],
+    material: { construction: 'leather upper on a moulded rubber lug sole', composition: 'not visible in the supplied photos', finish: 'smooth, softly glossy' },
+    fit: { silhouette: 'chunky lug-sole ankle boot', height: 'above the ankle bone, a little higher than the Buffalo boots', platform: 'built inside her normal foot height; she is not raised', adjustment: 'fixed authored fit for review' },
+    styling: { silhouette: 'chunky, rounded ankle boot', palette: ['black', 'gunmetal hardware'], pattern: 'plain, with tonal seams and a front zip', coverage: { ankle: 'covered above the ankle bone' }, material: 'smooth leather, rubber lug sole', warmth: 3, warmthBasis: 'inferred: closed leather ankle boot; lining unknown', weather: 'cool or wet days; the lug sole grips; waterproofing unknown' },
+    uncertainties: ['the shaft is roomier than the photos so it clears her thick doll socks', 'the logo hardware carries no lettering', 'the inner side is not shown in the photos; it is built like the outer side'],
+    authoring: { texture: 'none: smooth leather and rubber materials, colours measured from the photos', runtimeGeneration: false, sourcePhotosBundled: false },
+    // Construction for makeLugBoot() in src/doll/model.js, in outfit units, using the template's optional finish, zip,
+    // toeCap, seams, pullLoop and backHardware. Upper rows are [y, front, back, halfWidth]: a long low toe whose top rises
+    // in a smooth curve to a straight shaft, as in the side photo.
+    build: {
+      template: 'lug-boot', cx: .168, finish: 'leather',
+      colours: { upper: '#1c1a19', sole: '#212121', thread: '#2b2927', piping: '#111010', webbing: '#1c1a19', lace: '#1c1a19', eyelet: '#5d5d62', lining: '#141313' },
+      sole: { top: .082, heelTop: .1, heelFrom: -.03, rand: .082, lugTop: .045, groove: null, bulge: 0, flare: .016, toeLift: .018, lugs: 22, lugDepth: .028 },
+      upper: [[.082, .44, -.158, .13], [.1, .44, -.16, .131], [.12, .42, -.162, .13], [.14, .38, -.163, .13], [.165, .32, -.162, .129], [.2, .26, -.16, .128], [.25, .2, -.155, .127], [.3, .165, -.148, .124], [.36, .15, -.14, .125], [.435, .145, -.135, .124]],
+      collar: { front: .425, side: .42, back: .435 },
+      nFront: 2.3, nBack: 2, heelNarrow: .12, toeNarrow: .22, restCap: .22, collarRoll: .006,
+      zip: { from: .145, placket: .034, teeth: .008, stitch: [.012, .016] },
+      toeCap: { y: .143, side: [[.27, .09], [.29, .112]] },
+      // The diagonal side panel seam running back to the heel, and the curved heel counter seam, as [z, y] paths.
+      seams: [[[.185, .27], [.12, .235], [.05, .2], [-.02, .172], [-.09, .166], [-.15, .162]], [[-.16, .31], [-.13, .24], [-.1, .17], [-.085, .1]]],
+      pullLoop: { height: .045, width: .03 },
+      backHardware: { y: .4, angle: .42 },
     },
   },
   // Outerwear.
