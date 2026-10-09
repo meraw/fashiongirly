@@ -37,6 +37,7 @@ export const VANGOGH_TEE_ID = 'van-gogh-patchwork-tee-v1';
 export const DESIGUAL_FRESCO_TEE_ID = 'desigual-fresco-rib-vneck-tee-v1';
 export const MICKEY_LONG_TEE_ID = 'black-mickey-print-long-tee-v1';
 export const PB_CHENILLE_ID = 'pull-bear-grey-chenille-high-neck-v1';
+export const PAISLEY_SHIRT_ID = 'paisley-print-relaxed-shirt-v1';
 export const BARREL_JEANS_ID = 'topshop-barrel-jeans-v1';
 export const DAVINIA_JEANS_ID = 'desigual-davinia-jeans-v1';
 export const LEVIS_94_ID = 'levis-94-wide-leg-v1';
@@ -341,7 +342,7 @@ export const GARMENTS = Object.freeze({
   [PB_CHENILLE_ID]: {
     slot: 'top',
     id: PB_CHENILLE_ID, name: 'Grey chenille high-neck jumper', family: 'cropped-chenille-jumper', version: 1,
-    status: 'reference-study-awaiting-visual-review', brandAsProvided: 'Pull & Bear (the user could not find it online)',
+    status: 'user-approved', brandAsProvided: 'Pull & Bear (the user could not find it online)',
     source: { note: 'user supplied one phone photo of the jumper laid flat on the floor, front up, with a note: Pull & Bear, grey chenille, pay attention to the high collar' },
     referenceViews: ['front flat lay'],
     details: ['soft cool grey chenille knit in rows of plump, velvety loops that catch the light unevenly', 'a ribbed stand-up (mock) collar, high round her neck', 'boxy, cropped body with dropped shoulders', 'a deep ribbed hem band, gathered a little so the body blouses over it', 'long, relaxed sleeves gathered into long ribbed cuffs', 'all one colour; no print, label or seams on show'],
@@ -368,6 +369,21 @@ export const GARMENTS = Object.freeze({
         rows: [[.03, .12, .117], [-.06, .132, .127], [-.2, .13, .124], [-.33, .122, .117], [-.41, .112, .107], [-.44, .104, .1]],
         cuff: [[-.425, .097, .093], [-.49, .093, .09], [-.565, .092, .089]] },
     },
+  },
+  [PAISLEY_SHIRT_ID]: {
+    slot: 'top',
+    id: PAISLEY_SHIRT_ID, name: 'Paisley print relaxed shirt', family: 'relaxed-printed-button-down-shirt', version: 1,
+    status: 'reference-study-awaiting-visual-review', brandAsProvided: 'not stated',
+    source: { note: 'user supplied four product photos without a description: front on a model (half-length), full length, back on a model and a front close-up' },
+    referenceViews: ['front on model', 'full length on model', 'back on model', 'front close-up'],
+    details: ['relaxed long-sleeved button-down in a soft, fluid fabric with a slight sheen', 'warm white ground printed all over with large paisleys in concentric bands (ochre-yellow, peach, cornflower blue, lilac-pink, sage), outlined in near-black and ringed with coloured dots', 'feathery leaf sprays in blue and sage, and curling tendrils between the paisleys', 'point collar on a stand, worn with the top button open', 'white buttons down the front', 'fuller sleeves gathered into buttoned cuffs', 'back yoke with a centre pleat', 'curved shirttail hem'],
+    material: { construction: 'woven, fluid (read from the drape and close-up: like a viscose crepe)', composition: 'not stated', finish: 'soft, with a slight sheen' },
+    fit: { silhouette: 'relaxed, straight', sleeve: 'long, a little full, into buttoned cuffs', hem: 'straight, at the high hip, below the waistband', neckline: 'point collar, top button open', adjustment: 'worn untucked; the model wears the front tucked into high-rise jeans, which the doll cannot do' },
+    exclusions: ['striped-shirt','knit-sweater'],
+    layering: { coversWaistband: true },
+    uncertainties: ['the paisley print is redrawn in code as simplified motifs (paisleys in bands, leaf sprays, tendrils), not copied from the photos, and its repeat is invented', 'the fabric composition is not stated', 'worn untucked; the photos show the front tucked into jeans', 'the hem is straight; the real one is a curved shirttail (a hem that rises at the sides would leave her waistband showing there)'],
+    styling: { silhouette: 'relaxed shirt, high-hip length', palette: ['white', 'ochre yellow', 'cornflower blue', 'lilac pink', 'peach', 'sage'], pattern: 'large all-over paisley print', coverage: { neck: 'point collar, top button open', sleeves: 'long', midriff: 'covered' }, material: 'fluid woven, like viscose crepe (inferred)', warmth: 1, warmthBasis: 'inferred: a light, fluid woven shirt', weather: 'mild or warm days, or under a jacket; a light fabric that shows rain marks (inferred)' },
+    authoring: { template: 'makeButtonShirt() in src/doll/shirts.js, with its relaxed-shirt options (body, sleeve, yoke)', texture: 'procedural paisleyData() and crepeData() in src/doll/shirts.js; colours measured from the photos', runtimeGeneration: false, sourcePhotosBundled: false },
   },
   [BARREL_JEANS_ID]: {
     slot: 'bottom',

@@ -4,7 +4,7 @@
 import * as T from 'three';
 import { random, solid, oval, curve, shell, roundSleeveCap, surfaceProbe, easeOverHand, trimToEdge } from './model.js';
 import { grid } from './polo.js';
-import { MOTEL_TIE_DYE_SHIRT_ID, DESIGUAL_SPRAY_FLORAL_SHIRT_ID } from '../wardrobe/catalog.js';
+import { MOTEL_TIE_DYE_SHIRT_ID, DESIGUAL_SPRAY_FLORAL_SHIRT_ID, PAISLEY_SHIRT_ID } from '../wardrobe/catalog.js';
 
 // Warm grey-mauve tie-dye, measured in the shirt's own photos (hanger front and back): the darkest patches about
 // (55, 43, 43), the middle (100, 88, 87), the palest (215, 205, 200). Darker than measured: exposure, tone mapping and
@@ -127,6 +127,85 @@ function fineRibData(){
   return {data,w,h};
   });
 }
+// Paisley print: big teardrop paisleys in concentric bands, feathery leaf sprays and curling tendrils, all outlined in
+// near-black on a warm white ground, read from the shirt's photos (front, back and a close-up). Drawn here, not copied.
+// Measured: the ground about (236, 237, 239) in the evenly lit back view; ochre-yellow the commonest ink, then peach,
+// cornflower blue, lilac-pink, a little violet and sage, outlines near (54, 46, 39). The ground is drawn a little darker,
+// since the studio's exposure lifts it.
+const PAISLEY={ground:[230,231,232],ink:[36,29,24],yellow:[204,152,28],ochre:[170,112,30],peach:[214,128,78],blue:[52,96,172],sky:[104,146,200],pink:[198,104,138],lilac:[132,98,176],sage:[112,140,104]};
+// One tile is half her girth (.83 wide) and .684 high, in world units, so motifs stay round. A large paisley is about
+// a third of her front's width, as on the model. Paisleys: [x, y, size, turn, tail, curl, outer band, comb band, core,
+// dotted ring]. Sprays: [x, y, arc radius, from, to, leaflets, colours]. Tendrils: [x, y, radius, turns, turn, colour].
+const PAISLEY_W=.83,PAISLEY_H=.684;
+const PAISLEYS=[
+  [.16,.2,.085,2.3,1.25,2.2,'yellow','blue','pink','pink'],[.6,.46,.09,-.7,1.3,-2.2,'pink','yellow','blue','peach'],
+  [.47,.13,.055,.9,1.2,2.4,'blue','peach','sage','yellow'],[.1,.55,.065,-2.4,1.2,2,'ochre','lilac','blue','pink'],
+  [.77,.17,.05,3.5,1.2,-2.4,'sage','yellow','pink','yellow'],[.36,.38,.045,1.7,1.2,2.2,'lilac','yellow','sage','peach'],
+  [.75,.63,.042,-1.2,1.2,2,'yellow','blue','peach','pink'],[.3,.62,.05,.3,1.2,-2,'peach','sky','yellow','pink'],
+  [.58,.27,.032,2.8,1.1,2,'yellow','pink','blue','sage'],
+];
+const SPRAYS=[
+  [.37,.56,.11,-.5,1.9,8,['blue','sage','sky']],[.72,.03,.1,1.9,3.9,8,['sage','blue','yellow']],[.02,.33,.09,.9,2.7,7,['yellow','ochre','peach']],
+  [.26,.02,.08,-1.6,.2,7,['lilac','pink','sky']],[.5,.33,.07,3.6,5.4,6,['yellow','ochre','yellow']],[.86,.4,.08,1.2,3,7,['blue','sky','sage']],
+  [.08,.44,.075,-.9,.9,6,['yellow','peach','ochre']],[.62,.02,.07,-2.6,-1,6,['blue','sky','lilac']],
+];
+const TENDRILS=[[.45,.27,.036,1.6,.4,'yellow'],[.26,.41,.03,1.4,2.6,'blue'],[.68,.32,.032,1.5,-1.1,'pink'],[.08,.1,.028,1.3,1.2,'yellow'],[.56,.6,.024,1.3,3.5,'blue'],[.82,.47,.028,1.5,.9,'yellow'],[.2,.47,.022,1.3,4,'pink']];
+function paisleyData(){
+  return cached('paisley',()=>{
+  const w=640,h=Math.round(w*PAISLEY_H/PAISLEY_W),data=new Uint8Array(w*h*4),px=PAISLEY_W/w,rand=random(29),C=PAISLEY;
+  const col=new Float32Array(w*h*3);for(let i=0;i<w*h;i++)col.set(C.ground,i*3);
+  const set=(i,c,k=1)=>{for(let j=0;j<3;j++)col[i*3+j]+=(c[j]-col[i*3+j])*k;};
+  const wrapX=d=>d-PAISLEY_W*Math.round(d/PAISLEY_W),wrapY=d=>d-PAISLEY_H*Math.round(d/PAISLEY_H);
+  // Visit the pixels within `reach` of (x, y), across the tile's edges, with their offsets from it.
+  const near=(x,y,reach,fn)=>{const x0=Math.floor((x-reach)/px),x1=Math.ceil((x+reach)/px),y0=Math.floor((y-reach)/px),y1=Math.ceil((y+reach)/px);
+    for(let yy=y0;yy<=y1;yy++)for(let xx=x0;xx<=x1;xx++){const ix=((xx%w)+w)%w,iy=((yy%h)+h)%h;fn(iy*w+ix,wrapX(ix*px-x),wrapY(iy*px-y));}};
+  // A line of the given width along points, stamped as discs.
+  const stroke=(pts,width,c)=>{for(let k=0;k<pts.length-1;k++){const [ax,ay]=pts[k],[bx,by]=pts[k+1],n=Math.max(1,Math.ceil(Math.hypot(bx-ax,by-ay)/(px*.7)));
+    for(let t=0;t<=n;t++){const x=ax+(bx-ax)*t/n,y=ay+(by-ay)*t/n;near(x,y,width,(i,dx,dy)=>{if(dx*dx+dy*dy<=width*width)set(i,c);});}}};
+  // Tendrils: spiralling lines, under everything else, with a dot at the tip.
+  for(const [x,y,r,turns,turn,c] of TENDRILS){const pts=[];for(let k=0;k<=60;k++){const t=k/60,a=turn+t*turns*Math.PI*2,rr=r*(1-.85*t);pts.push([x+Math.cos(a)*rr,y+Math.sin(a)*rr]);}
+    stroke(pts,.0032,C[c]);stroke(pts,.0012,C.ink);const [ex,ey]=pts[0];near(ex,ey,.006,(i,dx,dy)=>{if(dx*dx+dy*dy<.005**2)set(i,C[c]);});}
+  // Leaf sprays: a stem along an arc with leaflets leaning out from it, each filled, outlined and veined.
+  for(const [x,y,R,a0,a1,n,cs] of SPRAYS){
+    const stem=Array.from({length:25},(_,k)=>{const a=a0+(a1-a0)*k/24;return [x+Math.cos(a)*R,y+Math.sin(a)*R];});stroke(stem,.0018,C.ink);
+    for(let k=0;k<n;k++){const a=a0+(a1-a0)*(k+.5)/n,bx=x+Math.cos(a)*R,by=y+Math.sin(a)*R,dir=a+(a1>a0?.45:-.45),L=R*.5*(.75+.5*Math.sin(Math.PI*(k+.5)/n)),W=L*.38;
+      const cx=bx+Math.cos(dir)*L,cy=by+Math.sin(dir)*L,c=Math.cos(dir),sn=Math.sin(dir),fill=C[cs[k%cs.length]];
+      near(cx,cy,L*1.05,(i,dx,dy)=>{const lx=dx*c+dy*sn,ly=-dx*sn+dy*c;if(Math.abs(lx)>=L)return;const half=W*Math.pow(1-(lx/L)**2,.8),m=half-Math.abs(ly);
+        if(m<0)return;set(i,m<.0022||Math.abs(ly)<.001?C.ink:fill);});}
+  }
+  // Paisleys: a teardrop whose tail curls, filled in bands from the edge in: an ink outline, a band with fine ink dots,
+  // an ink line, a combed band, an ink line and a solid core with a pale eye; ringed outside by coloured dots.
+  for(const [x,y,size,turn,tail,bend,outer,comb,core,dots] of PAISLEYS){
+    const s=size*1.12,curl=bend*.65,c=Math.cos(turn),sn=Math.sin(turn);
+    near(x,y,s*(1+tail)*1.3,(i,dx,dy)=>{const lx=(dx*c+dy*sn)/s,ly=(-dx*sn+dy*c)/s,d=Math.hypot(lx,ly);
+      let a=Math.atan2(ly,lx)+curl*Math.max(0,d-.7)*.6;a=((a+Math.PI)%(Math.PI*2)+Math.PI*2)%(Math.PI*2)-Math.PI;
+      const f=d/(1+tail*Math.exp(-((a/.5)**2))),ang=Math.atan2(ly,lx);
+      if(f>=1.08&&f<1.17){if(Math.sin(ang*30)>.55&&Math.abs(f-1.125)<.035)set(i,C[dots]);return;}
+      if(f>=1.045)return;
+      if(f>=1){set(i,C[dots]);return;}
+      if(f>=.93){set(i,C.ink);return;}
+      if(f>=.74){set(i,Math.sin(ang*40)>.88&&Math.abs(f-.835)<.025?C.ink:C[outer]);return;}
+      if(f>=.7){set(i,C.ink);return;}
+      if(f>=.46){set(i,Math.sin(ang*26)>.1?C[comb]:C.ground);return;}
+      if(f>=.42){set(i,C.ink);return;}
+      set(i,f<.14?C.ground:C[core]);});
+  }
+  // A fine scatter of ink dots in the ground, and a soft blur so lines read as printed, not stamped.
+  for(let k=0;k<260;k++){const x=rand()*PAISLEY_W,y=rand()*PAISLEY_H;near(x,y,.0025,(i,dx,dy)=>{if(dx*dx+dy*dy<.0018**2)set(i,C.ink,.8);});}
+  for(let y=0;y<h;y++)for(let x=0;x<w;x++){const i=(y*w+x)*4;let r=0,g=0,b=0;
+    for(const [dx,dy,k] of [[0,0,.5],[1,0,.125],[-1,0,.125],[0,1,.125],[0,-1,.125]]){const j=((((y+dy)+h)%h)*w+(((x+dx)+w)%w))*3;r+=col[j]*k;g+=col[j+1]*k;b+=col[j+2]*k;}
+    const n=1+(rand()-.5)*.03;data[i]=Math.min(255,r*n);data[i+1]=Math.min(255,g*n);data[i+2]=Math.min(255,b*n);data[i+3]=255;}
+  return {data,w,h};
+  });
+}
+function crepeData(){
+  // Viscose crepe: a fine, even pebble, as a bump.
+  return cached('crepe',()=>{
+  const size=64,data=new Uint8Array(size*size*4),rand=random(71);
+  for(let i=0;i<size*size;i++){const v=Math.round(150+80*(rand()-.5));data[i*4]=data[i*4+1]=data[i*4+2]=v;data[i*4+3]=255;}
+  return {data,w:size,h:size};
+  });
+}
 // Each shirt's style. Heights are in outfit units; tile sizes say how many print tiles go round her and how tall one is.
 const STYLES={
   // Worn buttoned to the top, as on the hanger: black topstitching, a black-faced stand and glossy black buttons.
@@ -135,6 +214,16 @@ const STYLES={
   // Worn with the top button open, as on the model: tonal stitching, the stand in the print, and pale peach buttons.
   [DESIGUAL_SPRAY_FLORAL_SHIRT_ID]:{print:sprayFloralData,around:2,high:1.04,collarAround:2,bump:[fineRibData,220,1,.003],sheen:['#ff9c9c',.12,.5],roughness:.72,
     stitch:'#d9817f',facing:null,button:['#f4c0b2',.3],buttons:[1.785,1.707,1.63,1.552,1.475,1.397,1.32],collarTopstitch:false,open:{bottom:1.8,half:.034}},
+  // A relaxed shirt in printed viscose crepe, worn loose with the top button open: a fuller body to a hem below the
+  // waistband, fuller sleeves gathered into buttoned cuffs, a back yoke with a centre pleat, and white buttons. Options
+  // beyond the fitted shirts' (body, sleeve, yoke) are this shirt's; the others keep the defaults.
+  [PAISLEY_SHIRT_ID]:{print:paisleyData,around:2,high:.9,collarAround:2,bump:[crepeData,90,60,.0012],sheen:['#fffaf0',.25,.45],roughness:.7,
+    stitch:'#d8d2c4',facing:null,button:['#f3f0ea',.25],buttons:[1.785,1.705,1.625,1.545,1.465,1.385,1.305,1.225],collarTopstitch:true,open:{bottom:1.8,half:.034},
+    // Fuller than the fitted shirts below the chest, to a straight hem at her high hip, as wide there as the Tommy
+    // sweater, which clears every jacket, bottom and the skirt.
+    body:[[NECK,.112,.104],[1.875,.17,.124],[1.83,.228,.154],[1.775,.268,.18],[1.65,.296,.198],[1.5,.304,.207],[1.4,.308,.214],[1.3,.311,.222],[1.242,.314,.232],[1.19,.316,.236]],
+    sleeve:{rows:[[.025,.104,.104],[-.05,.124,.119],[-.2,.127,.121],[-.33,.122,.116],[-.41,.112,.107],[-.44,.102,.098]],cuff:[[-.43,.095,.091],[-.5,.093,.089],[-.53,.092,.088]]},
+    yoke:{y:1.79,pleat:1.55}},
 };
 function texture({data,w,h},srgb){
   const t=new T.DataTexture(data,w,h,T.RGBAFormat);if(srgb)t.colorSpace=T.SRGBColorSpace;t.wrapS=t.wrapT=T.RepeatWrapping;
@@ -178,18 +267,31 @@ function makeShirtCollar(top,mat,facing,stitch,style){
 function makeShirt(id,style){
   const top=new T.Group();top.name=id;
   const stitch=solid(style.stitch,.6),facing=style.facing&&solid(style.facing,.85);
-  const body=shell(top,BODY_ROWS,printMaterial(style),'mesh-shirt-body',128);
+  // A shirt's own body rows (an option) set its fit and hem; the fitted shirts are cropped at HEM.
+  const body=shell(top,style.body||BODY_ROWS,printMaterial(style),'mesh-shirt-body',128),hemFront=style.body?style.body.at(-1)[0]:HEM;
   // Worn open at the top: a narrow V cut down to the second button.
   const open=style.open;
   if(open)trimToEdge(body,128,v=>v,(x,z)=>z<=0?NECK+1:Math.min(NECK+1,open.bottom+(NECK-open.bottom)*Math.abs(x)/open.half));
   mapPrint(body,style.around,style.high);
   for(const side of [-1,1]){
     const arm=new T.Group();arm.position.set(side*.242,1.815,0);arm.rotation.z=side*.22;arm.updateMatrix();
+    if(style.sleeve){
+      // Fuller sleeves (an option), blousing a little into a buttoned cuff at her wrist, stitched along its top.
+      const S=style.sleeve,sleeve=shell(arm,S.rows,printMaterial(style),'mesh-shirt-sleeve',64);
+      roundSleeveCap(sleeve,side,S.rows[0][0]);mapPrint(sleeve,1,style.high,v=>v.applyMatrix4(arm.matrix));easeOverHand(sleeve,side);
+      const cuff=shell(arm,S.cuff,printMaterial(style),'shirt-cuff',64);mapPrint(cuff,1,style.high,v=>v.applyMatrix4(arm.matrix));easeOverHand(cuff,side,.01);
+      for(const [k,y] of [[0,S.cuff[0][0]-.008],[1,S.cuff.at(-1)[0]+.006]]){const q=cuff.geometry.attributes.position,ring=[],row=k?q.count-65:0;
+        for(let i=row;i<row+65;i++)ring.push([q.getX(i)*1.012,y,q.getZ(i)*1.012]);curve(arm,ring,.0012,stitch,'cuff-stitch');}
+      const q=cuff.geometry.attributes.position,i=Math.round(64*(side>0?.25:.75)),mid=Math.floor(q.count/65/2)*65+i;
+      // A button on the cuff's outer side, its face turned out from the arm.
+      const b=oval(arm,[q.getX(mid)*1.06,q.getY(mid),q.getZ(mid)*1.06],[.008,.008,.003],solid(style.button[0],style.button[1]),'cuff-button',16);b.rotation.y=Math.atan2(q.getX(mid),q.getZ(mid));
+    }else{
     // Long fitted sleeves to the wrist, as on the bronze mesh top, ending in a plain stitched hem that eases over her hand.
     const sleeve=shell(arm,[[.025,.1,.102],[-.04,.113,.109],[-.16,.108,.102],[-.28,.105,.1],[-.40,.097,.092],[-.49,.08,.082],[-.53,.079,.081]],printMaterial(style),'mesh-shirt-sleeve',48);
     roundSleeveCap(sleeve,side,.025);mapPrint(sleeve,1,style.high,v=>v.applyMatrix4(arm.matrix));easeOverHand(sleeve,side);
     const p=sleeve.geometry.attributes.position,hem=[];for(let i=p.count-49;i<p.count;i++)hem.push([p.getX(i)*1.02,p.getY(i)+.008,p.getZ(i)*1.02]);
     curve(arm,hem,.0014,stitch,'sleeve-hem-stitch');
+    }
     top.add(arm);
   }
   makeShirtCollar(top,printMaterial(style),facing,stitch,style);
@@ -197,21 +299,25 @@ function makeShirt(id,style){
   const probe=surfaceProbe(top,['mesh-shirt-body']),onSurface=(x,y)=>{const key=id+':'+x+':'+y;
     if(!surfaceCache.has(key)){const hit=probe(x,y,true);surfaceCache.set(key,hit&&{point:hit.point.clone(),normal:hit.normal.clone()});}
     const hit=surfaceCache.get(key);return hit&&{point:hit.point.clone(),normal:hit.normal.clone()};};
-  const line=(pts,name,r=.0016)=>{const out=pts.map(([x,y])=>onSurface(x,y)).filter(Boolean).map(h=>h.point.addScaledVector(h.normal,.0025).toArray());if(out.length>1)curve(top,out,r,stitch,name);};
+  const line=(pts,name,r=.0016,front=true)=>{const out=pts.map(([x,y])=>front?onSurface(x,y):probe(x,y,false)).filter(Boolean).map(h=>h.point.clone().addScaledVector(h.normal,.0025).toArray());if(out.length>1)curve(top,out,r,stitch,name);};
   // The placket: the same print, edged by stitching down both sides from the collar to the hem. Worn open, the stitching
   // follows each side of the V down to the second button, then runs down both edges of the closed placket.
   if(open){
     const edge=y=>open.half*(y-open.bottom)/(NECK-open.bottom);
     for(const side of [-1,1])line([...Array.from({length:6},(_,k)=>{const y=1.885-(1.885-open.bottom)*k/5;return [side*(edge(y)+PLACKET),y];}),
-      ...Array.from({length:12},(_,k)=>[side*PLACKET,open.bottom-.012-(open.bottom-.012-HEM-.012)*k/11])],'placket-stitch');
+      ...Array.from({length:12},(_,k)=>[side*PLACKET,open.bottom-.012-(open.bottom-.012-hemFront-.012)*k/11])],'placket-stitch');
   }
-  else for(const side of [-1,1])line(Array.from({length:14},(_,k)=>[side*PLACKET,1.885-(1.885-HEM-.012)*k/13]),'placket-stitch');
+  else for(const side of [-1,1])line(Array.from({length:14},(_,k)=>[side*PLACKET,1.885-(1.885-hemFront-.012)*k/13]),'placket-stitch');
   // Buttons, slightly domed.
   const [buttonColour,buttonRoughness]=style.button;
   for(const y of style.buttons){const hit=onSurface(0,y);if(!hit)continue;
     const b=oval(top,hit.point.clone().addScaledVector(hit.normal,.006).toArray(),[.0105/1.06,.0105/.76,.004],solid(buttonColour,buttonRoughness),'shirt-button',20);b.lookAt(b.position.clone().add(hit.normal));}
   // A stitched hem, all the way round just above the lower edge.
-  curve(top,Array.from({length:129},(_,k)=>{const a=k/128*Math.PI*2;return [Math.sin(a)*.2915,HEM+.012,Math.cos(a)*.2065];}),.0016,stitch,'hem-stitch');
+  if(style.body){const p=body.geometry.attributes.position;curve(top,Array.from({length:129},(_,k)=>{const i=p.count-129+k;return [p.getX(i)*1.004,p.getY(i)+.012,p.getZ(i)*1.004];}),.0016,stitch,'hem-stitch');}
+  else curve(top,Array.from({length:129},(_,k)=>{const a=k/128*Math.PI*2;return [Math.sin(a)*.2915,HEM+.012,Math.cos(a)*.2065];}),.0016,stitch,'hem-stitch');
+  // A back yoke (an option): a seam across her upper back, with a short box pleat at the centre below it.
+  if(style.yoke){const Y=style.yoke;line(Array.from({length:17},(_,k)=>[-.26+.52*k/16,Y.y]),'yoke-seam',.0016,false);
+    for(const x of [-.012,.012])line(Array.from({length:6},(_,k)=>[x,Y.y-.004-(Y.y-.004-Y.pleat)*k/5]),'back-pleat',.0014,false);}
   return top;
 }
 const surfaceCache=new Map();
