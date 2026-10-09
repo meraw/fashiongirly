@@ -1,6 +1,6 @@
 # Wardrobe item: paisley print relaxed shirt
 
-Authored 9 October 2026. Status: first version, awaiting the user's visual review.
+Authored 9 October 2026. Status: first version; approved: the user merged it, and merging means approved (their rule).
 
 ## Source and reference reading
 

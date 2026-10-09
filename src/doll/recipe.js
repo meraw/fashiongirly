@@ -7,7 +7,7 @@ import { ADIDAS_SUPERSTAR_PINK_ID } from '../wardrobe/catalog.js';
 import { MICKEY_LONG_TEE_ID, DESIGUAL_SPLIT_FLORAL_SHIRT_ID, MANGO_DOT_SHIRT_ID, LEVIS_FLORAL_LOGO_SWEATSHIRT_ID, PINK_YOKE_SHIRT_ID, STRIPE_SNAP_JUMPER_ID, DESIGUAL_LIFE_AWESOME_ID } from '../wardrobe/catalog.js';
 import { PB_CHENILLE_ID } from '../wardrobe/catalog.js';
 import { DESIGUAL_MOUNTAIN_SHIRT_ID, ADIDAS_CROPPED_HOODIE_ID, LEVIS_PLAID_FLANNEL_ID, DESIGUAL_RUGBY_ID } from '../wardrobe/catalog.js';
-export const DEFAULT = Object.freeze({ sweater: '#bf303e', trousers: '#283c59', sleeve: .74, hem: .3, barrel: .78, knit: true, shirt: true, skirt: false, skirtColour: '#bd9bc8', topId: 'classic', bottomId: 'classic', shoesId: 'classic', underTopId: 'none', dressId: 'none', outerwearId: 'none', outerwearOpen: false, hairId: DEFAULT_HAIR_ID });
+export const DEFAULT = Object.freeze({ sweater: '#bf303e', trousers: '#283c59', sleeve: .74, hem: .3, barrel: .78, knit: true, shirt: true, skirt: false, skirtColour: '#bd9bc8', topId: 'classic', bottomId: 'classic', shoesId: 'classic', underTopId: 'none', dressId: 'none', outerwearId: 'none', outerwearOpen: false, outerwearInsert: true, hairId: DEFAULT_HAIR_ID });
 export const SWATCHES = [['Tomato', '#bf303e'], ['Butter', '#ead391'], ['Lilac', '#bd9bc8'], ['Cobalt', '#315cb3'], ['Moss', '#74804b'], ['Cream', '#f0e3cb']];
 export function cleanRecipe(value = {}) {
   const v = value && typeof value === 'object' ? value : {};
@@ -27,6 +27,8 @@ export function cleanRecipe(value = {}) {
   if (GARMENTS[result.topId]?.layering?.overTop && under?.slot==='top' && under.layering?.underTop && v.underTopId!==result.topId) result.underTopId=v.underTopId;
   // Only outerwear that is designed to be worn open can be (the user wears coats closed otherwise).
   result.outerwearOpen=v.outerwearOpen===true&&!!GARMENTS[result.outerwearId]?.layering?.canOpen;
+  // Outerwear with a detachable part (`layering.detachable`, a zip-in hood and bib, say) is worn with it unless taken out.
+  result.outerwearInsert=v.outerwearInsert!==false||!GARMENTS[result.outerwearId]?.layering?.detachable;
   if(result.topId!== 'classic'){result.knit=false;result.shirt=false;}
   return result;
 }

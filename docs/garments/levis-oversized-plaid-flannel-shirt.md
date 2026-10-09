@@ -1,6 +1,6 @@
 # Wardrobe item: Levi's oversized plaid flannel shirt
 
-Authored 9 October 2026. Status: first version, awaiting the user's visual review. The first plaid.
+Authored 9 October 2026. Status: approved: the user merged it, and merging means approved (their rule). The first plaid.
 
 ## Source and reference reading
 
@@ -114,7 +114,7 @@ The ground stays a little lighter than measured: the studio's ambient light lift
 
   The shared tests also run on it: sleeves and cuffs, every waist-covering top over every bottom, the styling facts, and every jacket over every top.
 - `npm run build` succeeds.
-- Rendered in headless Chromium (software WebGL) from the front, a turn and the back, with the mom jeans, and tucked into the skirt under the open leather jacket. Only the authoring chat has checked these renders; the user has not seen them yet. No device check.
+- Rendered in headless Chromium (software WebGL) from the front, a turn and the back, with the mom jeans, and tucked into the skirt under the open leather jacket. The user saw them and merged it. No device check.
 
 ## Known differences
 
