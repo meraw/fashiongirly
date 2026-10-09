@@ -27,7 +27,7 @@ New laced-shoe template options, all off by default:
 - `tongueBadge`: a round badge on the tongue, a disc in a ring.
 - `sole.gum`: a gum rubber strip round the bottom of the sole, rising slightly with the toe spring.
 - `puffyLace.bow: false`: laced to the top with the ends tucked in, so there is no knot, bow or tails.
-- `puffyLace.lift`: how far the lace crossings stand off the tongue. A lower lift makes flat laces instead of the UGG pair's puffy arches; with the high default, these thin black laces stacked into lumps.
+- `puffyLace.lift`: uses the New Balance 550's option of that name, which scales how far the laces stand off the tongue (1 is the UGG pair's puffy arch). These laces use 0.5, for flat laces; with the full arch these thin black laces stacked into lumps. This branch first added its own `lift` as an exact height (0.016); when the 550 reached main with the same name meaning a scale, the user chose to keep only the 550's version. The Campus laces sit where they did (the first crossing moved by 0.0002).
 - `puffyLace.matte`: fully matte laces.
 - `leatherStripes` tops given as `'lace'` end just below the lacing (`gap` from its edge), and `leatherStripes.roughness` sets their finish.
 - `panels[].matte`: a panel without the suede sheen, for dark leather.
