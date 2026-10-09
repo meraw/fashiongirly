@@ -60,7 +60,7 @@ Oversized and boxy to the hip, in a marled off-white knit flecked with lime and 
 
 ## Checks
 
-- `npm test` passes; see the pull request for the count. The new test (`tests/life-awesome-jumper.test.js`) checks:
+- `npm test`: 102 passing. The new test (`tests/life-awesome-jumper.test.js`) checks:
   - the parts, with no side tab;
   - the matte rib knit and its flecks;
   - one line of olive lettering across the chest that fits on the front;

@@ -3,10 +3,11 @@
 // One template; each shirt's style (below) sets its print, fabric, stitching, buttons and whether the top button is open.
 // Optional, for shirts that need them (a shirt without them is built as before): a print from a texture atlas made from
 // the product photos (`atlas`), a longer hem (`hem`), gathers either side of the placket (`ruche`) and buttoned cuffs (`cuff`).
+// Also optional: print repeats round a sleeve (`sleeveAround`), a chest pocket (`pocket`) and a back yoke seam (`backYoke`).
 import * as T from 'three';
 import { random, solid, oval, curve, shell, roundSleeveCap, surfaceProbe, easeOverHand, trimToEdge } from './model.js';
 import { grid } from './polo.js';
-import { MOTEL_TIE_DYE_SHIRT_ID, DESIGUAL_SPRAY_FLORAL_SHIRT_ID, DESIGUAL_SPLIT_FLORAL_SHIRT_ID, DESIGUAL_MOUNTAIN_SHIRT_ID, MANGO_DOT_SHIRT_ID, PINK_YOKE_SHIRT_ID } from '../wardrobe/catalog.js';
+import { MOTEL_TIE_DYE_SHIRT_ID, DESIGUAL_SPRAY_FLORAL_SHIRT_ID, DESIGUAL_SPLIT_FLORAL_SHIRT_ID, DESIGUAL_MOUNTAIN_SHIRT_ID, MANGO_DOT_SHIRT_ID, PINK_YOKE_SHIRT_ID, LEVIS_PLAID_FLANNEL_ID } from '../wardrobe/catalog.js';
 import { splitBodyData, splitCollarData, leftSleeveData, rightSleeveData } from './split-floral-print.js';
 
 // Warm grey-mauve tie-dye, measured in the shirt's own photos (hanger front and back): the darkest patches about
@@ -203,6 +204,36 @@ function crepeData(){
   return {data,w:size,h:size};
   });
 }
+// Plaid flannel, woven: warp stripes running down and weft stripes running across, interlaced in a 2/2 twill, so where a
+// stripe crosses the ground the two colours hatch together as on the cloth. Stripe widths are in a repeat of 180 units,
+// read from the Levi's flat lay (the warp and weft setts differ). Colours measured on the flat lay: ground (20, 19, 26),
+// grey (96, 97, 103), light grey (146, 139, 144), white (226, 216, 218), coral red (about 175, 70, 68). Deeper here, as
+// the studio's exposure and tone mapping lift them.
+const PLAID={ground:[3,5,13],grey:[64,68,80],light:[118,116,128],white:[222,214,220],red:[176,48,46]};
+const PLAID_WARP=[['ground',60],['grey',4],['light',8],['grey',3],['ground',13],['white',6],['ground',6],['red',4],['ground',3],['grey',6],['ground',5],['light',6],['ground',56]];
+const PLAID_WEFT=[['ground',60],['grey',10],['ground',3],['light',4],['white',8],['red',5],['ground',4],['grey',10],['ground',76]];
+function plaidData(){
+  return cached('plaid',()=>{
+  const size=360,data=new Uint8Array(size*size*4),rand=random(61);
+  const sett=list=>{const out=[];for(const [c,w] of list)for(let k=0;k<w*2;k++)out.push(PLAID[c]);return out;};
+  const warp=sett(PLAID_WARP),weft=sett(PLAID_WEFT);
+  for(let y=0;y<size;y++)for(let x=0;x<size;x++){
+    // 2/2 twill: the warp shows on two of every four threads, stepping along one each row.
+    const up=((x+y)%4)<2,c=up?warp[x]:weft[size-1-y],n=1+(rand()-.5)*.1,i=(y*size+x)*4;
+    for(let k=0;k<3;k++)data[i+k]=Math.max(0,Math.min(255,c[k]*n));data[i+3]=255;
+  }
+  return {data,w:size,h:size};
+  });
+}
+function flannelData(){
+  // Brushed flannel: a soft twill, faint diagonal ridges under a fuzzy nap.
+  return cached('flannel',()=>{
+  const size=64,data=new Uint8Array(size*size*4),nap=periodicNoise(91,16);
+  for(let y=0;y<size;y++)for(let x=0;x<size;x++){const t=.5+.25*Math.sin((x+y)/size*Math.PI*2*16)+.5*(nap(x/size*16,y/size*16)-.5);
+    const i=(y*size+x)*4;data[i]=data[i+1]=data[i+2]=Math.max(0,Math.min(255,Math.round(255*t)));data[i+3]=255;}
+  return {data,w:size,h:size};
+  });
+}
 function meshNetData(){
   // Power-mesh netting: a fine lattice of tiny holes, used as a bump so the fabric reads as mesh up close.
   return cached('mesh-net',()=>{
@@ -254,6 +285,14 @@ const STYLES={
     stitch:'#e2b3a8',facing:null,button:['#f4ece0',.25],buttons:[1.785,1.67,1.555,1.44,1.325,1.21,1.095],collarTopstitch:false,open:{bottom:1.8,half:.034},
     rows:YOKE_ROWS,tucked:YOKE_TUCKED,shirttail:{from:1.24,centre:1.02,side:1.08},yoke:{front:1.72,back:1.7,folds:44,depth:.011},collar:{spread:.135,drop:.09,deeper:.012},
     sleeve:[[.025,.11,.112],[-.04,.13,.128],[-.18,.146,.142],[-.32,.144,.14],[-.42,.125,.122],[-.49,.095,.094],[-.53,.086,.087]],sleeveFolds:{count:14,depth:.006,from:-.3},cuff:{from:-.455,to:-.535,button:true}},
+  // An oversized plaid flannel, woven in code (plaidData): relaxed and hip-length with a shirt-tail hem (tucked into the
+  // skirt), buttoned to the top as on the model, with pale grey buttons, a chest pocket on her left, a back yoke and
+  // buttoned cuffs. Optional settings: `sleeveAround` (print repeats round a sleeve and cuff), `pocket` and `backYoke`.
+  [LEVIS_PLAID_FLANNEL_ID]:{print:plaidData,around:6,high:.26,collarAround:3,sleeveAround:3,bump:[flannelData,60,40,.0025],sheen:['#8a8a96',.25,.8],roughness:.9,
+    stitch:'#1d1c22',facing:null,button:['#cfd0d6',.3],buttons:[1.862,1.775,1.669,1.564,1.458,1.352,1.246,1.14],collarTopstitch:false,open:null,
+    rows:RELAXED_ROWS,tucked:TUCKED_ROWS,depth:.7,shirttail:{from:1.24,centre:1.03,side:1.1},
+    sleeve:[[.025,.11,.112],[-.04,.124,.122],[-.16,.126,.12],[-.28,.122,.116],[-.38,.113,.108],[-.45,.098,.096],[-.49,.088,.088],[-.53,.084,.085]],cuff:{from:-.44,to:-.535,button:true},
+    pocket:{x:[.07,.2],y:[1.47,1.63]},backYoke:1.79},
 };
 function texture({data,w,h},srgb){
   const t=new T.DataTexture(data,w,h,T.RGBAFormat);if(srgb)t.colorSpace=T.SRGBColorSpace;t.wrapS=t.wrapT=T.RepeatWrapping;
@@ -378,13 +417,13 @@ function makeShirt(id,style,atlas=null,skirt=false){
     if(style.sleeveFolds){const F=style.sleeveFolds,q=sleeve.geometry.attributes.position;
       for(let i=0;i<q.count;i++){const x=q.getX(i),y=q.getY(i),z=q.getZ(i);if(y>F.from)continue;const r=Math.hypot(x,z),t=Math.min(1,(F.from-y)/(F.from+.53)),k=1+F.depth*t*Math.cos(Math.atan2(x,z)*F.count)/r;q.setX(i,x*k);q.setZ(i,z*k);}
       q.needsUpdate=true;sleeve.geometry.computeVertexNormals();}
-    roundSleeveCap(sleeve,side,.025);if(style.atlas)atlasSleeve(sleeve,48,side,.025,-.53);else mapPrint(sleeve,SP?SP[1]:1,SP?SP[2]:style.high,v=>v.applyMatrix4(arm.matrix));easeOverHand(sleeve,side);
+    roundSleeveCap(sleeve,side,.025);if(style.atlas)atlasSleeve(sleeve,48,side,.025,-.53);else mapPrint(sleeve,SP?SP[1]:style.sleeveAround??1,SP?SP[2]:style.high,v=>v.applyMatrix4(arm.matrix));easeOverHand(sleeve,side);
     const p=sleeve.geometry.attributes.position,hem=[];for(let i=p.count-49;i<p.count;i++)hem.push([p.getX(i)*1.02,p.getY(i)+.008,p.getZ(i)*1.02]);
     curve(arm,hem,.0014,stitch,'sleeve-hem-stitch');
     // A buttoned cuff: a band in the print over the sleeve's end, seamed at its top, with a button on the outer side.
     if(style.cuff){const C=style.cuff,band=(y,grow)=>{let q=p.count-49;while(q>0&&p.getY(q-49)<y)q-=49;return [y,Math.abs(p.getX(q+12))*grow+.004,Math.abs(p.getZ(q))*grow+.004];};
       const cuff=shell(arm,[band(C.from,1),band((C.from+C.to)/2,1),band(C.to,1)],printMaterial(style,style.print,atlas),'shirt-cuff',48);easeOverHand(cuff,side,.009);
-      if(style.atlas)atlasByAngle(cuff,y=>.25*(.01+.07*(y-C.to)/(C.from-C.to)),side);else mapPrint(cuff,1,style.high,v=>v.applyMatrix4(arm.matrix));
+      if(style.atlas)atlasByAngle(cuff,y=>.25*(.01+.07*(y-C.to)/(C.from-C.to)),side);else mapPrint(cuff,style.sleeveAround??1,style.high,v=>v.applyMatrix4(arm.matrix));
       const cp=cuff.geometry.attributes.position;curve(arm,Array.from({length:49},(_,i)=>[cp.getX(i)*1.015,cp.getY(i)-.004,cp.getZ(i)*1.015]),.0013,stitch,'cuff-seam');
       // The button sits on the outer side, halfway down the cuff, facing out (y is scaled up against the outfit's squash).
       if(C.button){const mid=Math.floor(cp.count/49/2)*49+(side>0?12:36),q=new T.Vector3().fromBufferAttribute(cp,mid),n=new T.Vector3(q.x,0,q.z).normalize();
@@ -393,7 +432,8 @@ function makeShirt(id,style,atlas=null,skirt=false){
   }
   makeShirtCollar(top,printMaterial(style,style.collarPrint,atlas),facing,stitch,style);
   top.updateMatrixWorld(true);
-  const probe=surfaceProbe(top,['mesh-shirt-body']),onSurface=(x,y)=>{const key=id+':'+x+':'+y;
+  // Cached per shirt, and per tucked or untucked body: a point below a tucked hem has no surface (and no button) there.
+  const probe=surfaceProbe(top,['mesh-shirt-body']),shape=id+(skirt&&style.tucked?':tucked':''),onSurface=(x,y)=>{const key=shape+':'+x+':'+y;
     if(!surfaceCache.has(key)){const hit=probe(x,y,true);surfaceCache.set(key,hit&&{point:hit.point.clone(),normal:hit.normal.clone()});}
     const hit=surfaceCache.get(key);return hit&&{point:hit.point.clone(),normal:hit.normal.clone()};};
   const line=(pts,name,r=.0016)=>{const out=pts.map(([x,y])=>onSurface(x,y)).filter(Boolean).map(h=>h.point.addScaledVector(h.normal,.0025).toArray());if(out.length>1)curve(top,out,r,stitch,name);};
@@ -415,6 +455,21 @@ function makeShirt(id,style,atlas=null,skirt=false){
   else for(const side of [-1,1])line(Array.from({length:14},(_,k)=>[side*PLACKET,1.885-(1.885-hem-.012)*k/13]),'placket-stitch');
   // The yoke's seam, all the way round just proud of the body, with the gathers starting below it.
   if(style.yoke)curve(top,Array.from({length:129},(_,k)=>{const a=k/128*Math.PI*2,y=yokeAt(style.yoke,a),[rx,rz]=bodyRadii(y,rows);return [Math.sin(a)*(rx+.005),y,Math.cos(a)*(rz+.005)];}),.0016,stitch,'yoke-seam');
+  // Optional (`pocket`): a patch pocket on her left chest, in the print laid as on the body under it, with its top edge
+  // hemmed and stitched round its sides and bottom.
+  if(style.pocket){const [x0,x1]=style.pocket.x,[y0,y1]=style.pocket.y;
+    const pocket=grid(top,12,12,(u,v)=>{const hit=onSurface(x0+(x1-x0)*u,y0+(y1-y0)*v);return hit?hit.point.addScaledVector(hit.normal,.0035).toArray():[0,y0,.3];},printMaterial(style,style.print,atlas),'chest-pocket');
+    const pp=pocket.geometry.attributes.position,puv=pocket.geometry.attributes.uv;
+    for(let i=0;i<pp.count;i++){const [rx,rz]=bodyRadii(pp.getY(i),rows);puv.setX(i,((Math.atan2(pp.getX(i)/rx,pp.getZ(i)/rz)/(Math.PI*2))%1+1)%1);}
+    mapPrint(pocket,style.around,style.high,undefined,style.depth);
+    const edge=pts=>{const out=pts.map(([x,y])=>onSurface(x,y)).filter(Boolean).map(h=>h.point.addScaledVector(h.normal,.0052).toArray());if(out.length>1)curve(top,out,.0013,stitch,'pocket-stitch');};
+    const inset=.006,steps=k=>Array.from({length:k+1},(_,i)=>i/k);
+    edge([...steps(6).map(t=>[x0+inset,y1-inset-(y1-y0-2*inset)*t]),...steps(8).map(t=>[x0+inset+(x1-x0-2*inset)*t,y0+inset]),...steps(6).map(t=>[x1-inset,y0+inset+(y1-y0-2*inset)*t])]);
+    edge(steps(8).map(t=>[x0+inset+(x1-x0-2*inset)*t,y1-.016]));}
+  // Optional (`backYoke`): a back yoke only, its seam across her back below the collar (`yoke` is a yoke front and back).
+  if(style.backYoke){const back=surfaceProbe(top,['mesh-shirt-body']),pts=[];
+    for(let k=0;k<=24;k++){const hit=back(-.26+.52*k/24,style.backYoke,false);if(hit)pts.push(hit.point.clone().addScaledVector(hit.normal,.0025).toArray());}
+    if(pts.length>1)curve(top,pts,.0015,stitch,'yoke-seam');}
   // Buttons, slightly domed.
   const [buttonColour,buttonRoughness]=style.button;
   for(const y of style.buttons){const hit=onSurface(0,y);if(!hit)continue;
