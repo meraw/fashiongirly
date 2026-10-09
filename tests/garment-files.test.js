@@ -7,16 +7,15 @@ import { OUTFITS } from '../src/doll/recipe.js';
 import { startStudio } from '../src/doll/app.js';
 import { TOP_TEMPLATES } from '../src/doll/top-templates.js';
 import * as FILED from '../src/wardrobe/garments/index.js';
+import { indexText } from '../scripts/garment-index.mjs';
 
 // Garments kept one per file (src/wardrobe/garments), so that adding one touches no line another chat is editing.
-const camel=file=>file.replace(/\.js$/,'').replace(/-([a-z0-9])/g,(_,c)=>c.toUpperCase());
 const SLOTS={top:'top-select',bottom:'bottom-select',shoes:'shoes-select',outerwear:'outerwear-select',dress:'dress-select'};
 
-test('garment files: each listed once in alphabetical order, named after its id, and joined to the catalog',()=>{
+test('garment files: each listed once under its slot in the index, named after its id, and joined to the catalog',()=>{
   const dir='src/wardrobe/garments',files=readdirSync(dir).filter(f=>f.endsWith('.js')&&f!=='index.js').sort();
-  const lines=readFileSync(dir+'/index.js','utf8').split('\n').filter(l=>l.startsWith('export'));
-  assert.deepEqual(lines,[...lines].sort(),'index lines are in alphabetical order');
-  assert.deepEqual(lines,files.map(f=>`export { default as ${camel(f)} } from './${f}';`),'one line per file, named after it');
+  // The index is exactly what scripts/garment-index.mjs writes: one line per file, named after it, under its slot.
+  assert.equal(readFileSync(dir+'/index.js','utf8'),indexText(files),'run node scripts/garment-index.mjs to rewrite src/wardrobe/garments/index.js');
   const builtIn=readFileSync('src/wardrobe/catalog.js','utf8');
   for(const g of Object.values(FILED)){
     assert.ok(files.includes(g.id+'.js'),`${g.id}: file named after its id`);
