@@ -12,7 +12,7 @@ test('striped snap-collar jumper: waffle-knit stripes, raglan seams, a big colla
   assert.equal(recipe.knit,false);assert.equal(recipe.shirt,false);
   const outfit=makeOutfit(recipe);outfit.updateMatrixWorld(true);
   for(const [name,count] of [['waffle-knit-body',1],['ribbed-hem-band',1],['knit-jumper-sleeve',2],['ribbed-cuff',2],['raglan-seam',4],['snap-collar',1],['snap-collar-stand',1],['bare-shoulder-skin',1],
-    ['placket-snap',P.open.length+P.closed.length],['placket-stud',P.open.length],['collar-snap',2*spec.collar.snapV.length]])
+    ['placket-snap',P.open.length+P.closed.length],['placket-stud',P.open.length],['collar-snap',2*spec.collar.snapV.length],['collar-lapel',2],['lapel-roll',2]])
     assert.equal(all(outfit,name).length,count,name);
   // Stripes: the knit's texture has the grey rows and the cream rows of one repeat, and the body and sleeves map them by
   // height, so a grey stripe is at the same height on the body and on a sleeve.
@@ -29,6 +29,9 @@ test('striped snap-collar jumper: waffle-knit stripes, raglan seams, a big colla
   // The collar's front ends lie on her chest either side of the V, in front of the body, and it closes round the back.
   const collar=box(all(outfit,'snap-collar')[0]);
   assert.ok(collar.min.y/.76<P.vBottom&&collar.max.z>.15&&collar.min.z<-.12,`collar reaches ${(collar.min.y/.76).toFixed(3)}`);
+  // Open, each side of the placket folds back as a lapel from the bottom of the V up into the collar's front end, so the
+  // collar joins the placket (the user found the first collar's flaps unconnected).
+  for(const lapel of all(outfit,'collar-lapel')){const b=box(lapel);assert.ok(b.min.y/.76<P.vBottom+.02&&b.max.y/.76>1.85&&b.max.z>.15,`lapel from ${(b.min.y/.76).toFixed(3)} to ${(b.max.y/.76).toFixed(3)}`);}
   // Long sleeves to rib cuffs at her wrists; the band hugs the jeans, or sits out over the skirt.
   for(const cuff of all(outfit,'ribbed-cuff'))assert.ok(box(cuff).min.y/.76<1.32,'cuff at her wrist');
   disposeObject(outfit);

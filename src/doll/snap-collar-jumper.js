@@ -110,6 +110,22 @@ export function makeSnapCollarJumper(id,spec,overSkirt=false){
   const standStart=Math.asin(Math.min(.99,(P.vHalf+P.width)/L.fold[2]));
   grid(top,64,2,(u,v)=>{const a=standStart+(Math.PI*2-2*standStart)*u;return [(L.fold[1]-.008-.004*v)*Math.sin(a),L.fold[0]-.004-L.stand*v-L.frontDrop*(1+Math.cos(a))/2*v,(L.fold[2]-.008-.004*v)*Math.cos(a)];},collarRib,'snap-collar-stand');
   curve(top,Array.from({length:129},(_,i)=>at(i/128,1)),.006,cream,'snap-collar-edge');
+  // With the top snaps open, each side of the placket folds back from the bottom of the V as a small lapel that runs up
+  // into the collar's front end, so the collar visibly joins the placket. Each lapel fills the space between its roll
+  // line (along the placket's outer edge, from the V up to the collar's fold) and the collar's front edge, lying on her.
+  for(const [side,u0] of [[1,0],[-1,1]]){
+    const top0=at(u0,0),roll=p=>{const y=P.vBottom+(top0[1]-P.vBottom)*p,x=side*(edgeX(Math.min(y,neck))+P.width+.002);return [x+(top0[0]-x)*p**3,y];};
+    const onBody=(q,p)=>{const [rx,ry]=roll(p),c=at(u0,1-p),hit=probe(rx+(c[0]-rx)*q,ry+(c[1]-ry)*q,true);return hit&&hit.point.clone().addScaledVector(hit.normal,L.lift);};
+    // Its top meets the collar's fold, up under her chin, where it eases from the body to the fold.
+    const lapel=(q,p)=>{if(p<=.9)return (onBody(q,p)??new T.Vector3(...at(u0,1-p))).toArray();
+      const t=(p-.9)/.1,low=onBody(q,.9)??new T.Vector3(...at(u0,.1));return low.lerp(new T.Vector3(...at(u0,(1-p)*q)),t).toArray();};
+    // Built so both lapels' faces point out from her (their sides mirror each other).
+    grid(top,8,16,(q,p)=>lapel(q,side>0?1-p:p),collarRib,'collar-lapel');
+    // The roll line shows below her chin; higher up it would stand proud of a jacket's collar.
+    const rollTop=Math.min(.9,(L.rollTop-P.vBottom)/(top0[1]-P.vBottom));
+    curve(top,Array.from({length:13},(_,i)=>lapel(0,rollTop*i/12)),.0045,cream,'lapel-roll');
+    curve(top,Array.from({length:9},(_,i)=>lapel(i/8,0)),.005,cream,'lapel-edge');
+  }
   // Two snaps on each front end of the collar.
   const normalAt=(u,v)=>{const p=new T.Vector3(...at(u,v)),du=new T.Vector3(...at(u+.002,v)).sub(p),dv=new T.Vector3(...at(u,Math.min(1,v+.01))).sub(p),n=du.cross(dv).normalize();if(n.dot(new T.Vector3(p.x,0,p.z))<0)n.negate();return {point:p,normal:n};};
   for(const u0 of [L.snapU,1-L.snapU])for(const v of L.snapV)snap(top,normalAt(u0,v),M,false,'collar-snap');

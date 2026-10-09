@@ -522,8 +522,8 @@ export const GARMENTS = Object.freeze({
       // The collar: its fold (height and radii), how much lower the fold is at the front, and the stand's depth; its outer
       // edge's height at the back, how far lower it lies at the front, and how far its rounded front corners drop over what
       // share of its length; how far across its front ends spread; the share of its depth over which it comes down from the
-      // fold, how far off the body it lies and how much it rolls (less above `flatAbove`); and where its snaps sit (along and across it).
-      collar: { fold: [1.955, .12, .118], frontDrop: .03, stand: .05, outer: 1.85, outerDrop: .21, cornerDrop: .03, corner: .12, spread: .2, drape: .35, lift: .01, roll: .006, flatAbove: 1.9, snapU: .045, snapV: [.5, .8] },
+      // fold, how far off the body it lies and how much it rolls (less above `flatAbove`); the top of the lapels' roll lines; and where its snaps sit (along and across it).
+      collar: { fold: [1.955, .12, .118], frontDrop: .03, stand: .05, outer: 1.85, outerDrop: .21, cornerDrop: .03, corner: .12, spread: .2, drape: .35, lift: .01, roll: .006, flatAbove: 1.9, rollTop: 1.86, snapU: .045, snapV: [.5, .8] },
     },
   },
   [BARREL_JEANS_ID]: {

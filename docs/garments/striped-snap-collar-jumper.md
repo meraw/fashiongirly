@@ -1,6 +1,6 @@
 # Wardrobe item: striped waffle-knit snap-collar jumper
 
-Authored 9 October 2026. Status: first interpretation awaiting the user's visual review. Added by the chat that has been doing shoes, outerwear and tops (any chat can add any category).
+Authored 9 October 2026. Status: second version awaiting the user's visual review. Added by the chat that has been doing shoes, outerwear and tops (any chat can add any category).
 
 ## Source and reference reading
 
@@ -50,6 +50,10 @@ Catalog ID `striped-waffle-snap-collar-jumper-v1` (slot `top`). It is built by `
 - cool days; the open neck lets some air in;
 - cream and slate grey stripes; relaxed, preppy-casual.
 
+## Revision after the user's first review
+
+The user found the collar strange: it was folded, but the folded part didn't connect to anything. Her chin hid where the collar joins the neck, so the two flaps on her chest looked like loose pieces. On the real jumper with the top snaps open, each side of the placket folds back from the bottom of the V as a small lapel and runs into the collar. Each side now has that lapel: it fills the space from a roll line along the placket's outer edge, from the bottom of the V up to the collar's fold, out to the collar's front edge, and lies on her like the collar. Its lower edge and the roll line are rolled, so the opening reads as one folded collar from the V up. The roll line stops below her chin so it stays inside every jacket's collar.
+
 ## Checks
 
 - A new `tests/snap-collar-jumper.test.js` checks:
@@ -57,6 +61,7 @@ Catalog ID `striped-waffle-snap-collar-jumper-v1` (slot `top`). It is built by `
   - the stripe share in the knit, and that stripes meet between body and sleeve;
   - the V down to the first closed snap, and the round back neck;
   - the collar's flaps on her chest, closing round the back;
+  - a lapel each side, from the bottom of the V up into the collar;
   - the cuffs at her wrists;
   - the band sitting out over the skirt;
   - the build time.
