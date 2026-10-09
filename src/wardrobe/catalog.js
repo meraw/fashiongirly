@@ -18,6 +18,7 @@ export const TOMMY_CABLE_ID = 'tommy-green-cable-sweater-v1';
 export const PETIT_BATEAU_CARDIGAN_ID = 'petit-bateau-striped-cardigan-v1';
 export const TOMMY_STRIPE_POLO_ID = 'tommy-stripe-knit-polo-v1';
 export const MOTEL_TIE_DYE_SHIRT_ID = 'motel-tie-dye-mesh-shirt-v1';
+export const DESIGUAL_SPRAY_FLORAL_SHIRT_ID = 'desigual-spray-floral-mesh-shirt-v1';
 export const VANGOGH_TEE_ID = 'van-gogh-patchwork-tee-v1';
 export const BARREL_JEANS_ID = 'topshop-barrel-jeans-v1';
 export const DAVINIA_JEANS_ID = 'desigual-davinia-jeans-v1';
@@ -217,6 +218,20 @@ export const GARMENTS = Object.freeze({
     uncertainties: ['the tie-dye is drawn procedurally to match the photos\' colours and patch size, not copied', 'worn buttoned to the top, as on the hanger; the model wears it open at the neck', 'only the sleeves are drawn sheer; over her body (cream felt, not skin) sheer mesh would show the felt', 'button count read as seven from the hanger photo'],
     styling: { silhouette: 'slim, cropped at the waist', palette: ['grey-brown', 'mauve', 'pale pinkish beige', 'black'], pattern: 'cloudy tie-dye all over, with black buttons and topstitching', coverage: { neck: 'point collar, buttoned', sleeves: 'long, sheer', midriff: 'cropped at the waist' }, material: 'sheer stretch mesh, composition unknown', warmth: 1, warmthBasis: 'inferred: thin sheer mesh, though long-sleeved', weather: 'mild days, or as a layer; sheer' },
     authoring: { texture: 'procedural tieDyeData() and meshNetData() in src/doll/shirts.js, drawn locally when first worn', runtimeGeneration: false, sourcePhotosBundled: false },
+  },
+  [DESIGUAL_SPRAY_FLORAL_SHIRT_ID]: {
+    slot: 'top',
+    id: DESIGUAL_SPRAY_FLORAL_SHIRT_ID, name: 'Spray-paint floral mesh shirt', family: 'fitted-mesh-button-down-shirt', version: 1,
+    status: 'reference-study-awaiting-visual-review', brandAsProvided: 'Desigual',
+    source: { note: 'user supplied four product photos: two fronts on a model, a front flat lay and the back on a model' },
+    referenceViews: ['front on model (arms crossed)', 'front on model', 'front flat lay', 'back on model'],
+    details: ['fine-rib stretch mesh printed with blurred pink, coral, red and orange spray-paint clouds', 'cream stencilled flowers, leaves and petals sprayed over the clouds, with speckled overspray', 'point collar in the print', 'eight pale peach buttons from the collar to the hem; worn with the top button open', 'tonal stitching on the placket and hems', 'long fitted sleeves to the wrist', 'slim, cropped at the waist'],
+    material: { construction: 'fine-rib stretch mesh', composition: 'not visible in the supplied photos', finish: 'slight sheen' },
+    fit: { silhouette: 'slim, fitted', sleeve: 'long and fitted, to the wrist', hem: 'cropped at the waist', adjustment: 'fixed authored fit for review' },
+    exclusions: ['striped-shirt','knit-sweater'],
+    uncertainties: ['the clouds and stencils are drawn procedurally to match the photos\' colours, shares and motif sizes, not copied', 'worn with the top button open, as on the model; the flat lay is fully buttoned', 'the hem is drawn straight; on the model it dips slightly at the centre front', 'not see-through, as for the tie-dye mesh shirt'],
+    styling: { silhouette: 'slim, cropped at the waist', palette: ['pink', 'coral', 'red', 'orange', 'cream'], pattern: 'blurred spray-paint clouds with large cream stencilled flowers and leaves', coverage: { neck: 'point collar, top button open', sleeves: 'long, sheer', midriff: 'cropped at the waist' }, material: 'fine-rib stretch mesh, composition unknown', warmth: 1, warmthBasis: 'inferred: thin, sheer mesh, though long-sleeved', weather: 'mild to warm days, or as a layer; sheer' },
+    authoring: { template: 'makeButtonShirt() in src/doll/shirts.js', texture: 'procedural sprayFloralData() and fineRibData() in src/doll/shirts.js, drawn locally when first worn', runtimeGeneration: false, sourcePhotosBundled: false },
   },
   [VANGOGH_TEE_ID]: {
     slot: 'top',

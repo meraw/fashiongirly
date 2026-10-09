@@ -1,9 +1,10 @@
 // Button-down shirts: a body with a buttoned placket, a point collar on a stand, and set-in sleeves.
 // Built in outfit units like the other tops (makeOutfit scales the whole outfit by 1.06 across and .76 high).
+// One template; each shirt's style (below) sets its print, fabric, stitching, buttons and whether the top button is open.
 import * as T from 'three';
-import { random, solid, oval, curve, shell, roundSleeveCap, surfaceProbe, easeOverHand } from './model.js';
+import { random, solid, oval, curve, shell, roundSleeveCap, surfaceProbe, easeOverHand, trimToEdge } from './model.js';
 import { grid } from './polo.js';
-import { MOTEL_TIE_DYE_SHIRT_ID } from '../wardrobe/catalog.js';
+import { MOTEL_TIE_DYE_SHIRT_ID, DESIGUAL_SPRAY_FLORAL_SHIRT_ID } from '../wardrobe/catalog.js';
 
 // Warm grey-mauve tie-dye, measured in the shirt's own photos (hanger front and back): the darkest patches about
 // (55, 43, 43), the middle (100, 88, 87), the palest (215, 205, 200). Darker than measured: exposure, tone mapping and
@@ -12,11 +13,7 @@ const DYE={dark:[12,9,11],mid:[70,62,66],light:[172,165,166]};
 const NECK=1.905,HEM=1.26;
 // Slim and fitted, cropped at her waist. Below 1.5 it follows the polo, whose hem clears every waistband.
 const BODY_ROWS=[[NECK,.112,.104],[1.875,.17,.124],[1.83,.228,.154],[1.775,.265,.177],[1.65,.278,.184],[1.5,.282,.19],[1.4,.288,.2],[1.335,.29,.205],[HEM,.29,.205]];
-// Seven buttons from the collar to the hem, as on the hanger; the shirt is worn buttoned.
-const BUTTONS=[1.862,1.78,1.698,1.616,1.534,1.452,1.37];
 const PLACKET=.017;
-// One tile of print is this wide and tall on her (in outfit units around and up), so the blobs stay round on her squat body.
-const TILE_AROUND=3,TILE_HIGH=.71;
 
 function bodyRadii(y){
   const rows=BODY_ROWS;let k=0;while(k<rows.length-2&&rows[k+1][0]>y)k++;
@@ -31,9 +28,10 @@ function periodicNoise(seed,period){
   return (x,y)=>{const x0=Math.floor(x),y0=Math.floor(y),fx=s(x-x0),fy=s(y-y0);
     const a=at(x0,y0)+(at(x0+1,y0)-at(x0,y0))*fx,b=at(x0,y0+1)+(at(x0+1,y0+1)-at(x0,y0+1))*fx;return a+(b-a)*fy;};
 }
-let dyePixels=null;
+const pixelCache={};
+function cached(name,make){return pixelCache[name]||(pixelCache[name]=make());}
 function tieDyeData(){
-  if(dyePixels)return dyePixels;
+  return cached('tie-dye',()=>{
   // Soft cloudy patches, bled at their edges into speckles, as dye spreads through mesh. The field is warped by a second
   // noise so the patches curl rather than sit on a grid; every octave wraps, so the tile repeats without a seam.
   const size=256,data=new Uint8Array(size*size*4),rand=random(83);
@@ -53,37 +51,113 @@ function tieDyeData(){
   const order=Array.from(field.keys()).sort((a,b)=>field[a]-field[b]);
   order.forEach((index,rank)=>{const c=ramp(rank/(order.length-1)),i=index*4,grain=1+(rand()-.5)*.05;
     for(let k=0;k<3;k++)data[i+k]=Math.max(0,Math.min(255,c[k]*grain));data[i+3]=255;});
-  dyePixels={data,w:size,h:size};return dyePixels;
+  return {data,w:size,h:size};
+  });
 }
-let meshPixels=null;
+// Spray-paint flowers: blurred pink, coral and red clouds, with cream stencilled flowers, leaves and petals sprayed over
+// them, read from the Desigual photos. Background shares measured on the flat lay: pale pink about 30%, pink 22%, coral 19%,
+// red-pink 15% and red 10%; the back carries more orange. Much deeper than measured: the studio's exposure and tone
+// mapping lift these bright colours strongly and warm them towards salmon, so the pinks lean magenta here, and the
+// deepest reds keep their red channel lower so tone mapping does not wash them out (calibrated in renders).
+const SPRAY={pale:[222,102,118],pink:[202,60,86],coral:[182,36,60],redPink:[160,14,32],red:[140,2,6],orange:[186,40,16],cream:[236,194,186],speck:[150,10,28]};
+// Stencils on one tile (x, y in the tile; size; turn; kind; strength). The tile repeats twice round her and covers a
+// little more than her body's height, so a flower is about a quarter of her front's width, as on the model.
+const STENCILS=[
+  [.2,.3,.13,.3,'flower',1],[.72,.76,.11,1.1,'flower',.95],[.56,.18,.08,.6,'flower',.55],
+  [.45,.56,.15,.8,'leaf',.9],[.92,.38,.11,-.5,'leaf',1],[.14,.8,.12,2.2,'leaf',.8],[.34,.95,.09,-1.2,'leaf',.6],
+  [.33,.06,.07,0,'petal',.9],[.82,.12,.065,.7,'petal',.85],[.63,.45,.05,1.8,'petal',.7],[.05,.55,.028,0,'dot',.9],[.97,.86,.022,0,'dot',.8],[.6,.62,.02,0,'dot',.7],
+];
+function stencilInside(kind,x,y,s){
+  // How far inside the shape a point is (positive inside), in tile units; x, y are relative to the stencil's centre and turn.
+  if(kind==='dot')return s-Math.hypot(x,y);
+  if(kind==='petal'){const k=Math.hypot(x/s,y/(s*.7));return (1-k)*s*.7;}
+  if(kind==='leaf'){const a=s,b=s*.36;if(Math.abs(x)>=a)return -(Math.abs(x)-a);const w=b*Math.pow(1-(x/a)**2,.8);return w-Math.abs(y);}
+  // A five-petal flower with an open centre.
+  const r=Math.hypot(x,y),ang=Math.atan2(y,x);let best=-1;
+  for(let p=0;p<5;p++){const pa=p/5*Math.PI*2,cx=Math.cos(pa)*s*.55,cy=Math.sin(pa)*s*.55,dx=x-cx,dy=y-cy,c=Math.cos(-pa),sn=Math.sin(-pa);
+    const lx=dx*c-dy*sn,ly=dx*sn+dy*c;best=Math.max(best,(1-Math.hypot(lx/(s*.46),ly/(s*.32)))*s*.32);}
+  return Math.min(best,r-s*.12);
+}
+function sprayFloralData(){
+  return cached('spray-floral',()=>{
+  const size=384,data=new Uint8Array(size*size*4),rand=random(97);
+  const cloud=[[periodicNoise(61,4),4],[periodicNoise(62,8),8],[periodicNoise(63,16),16]],warp=[periodicNoise(64,4),periodicNoise(65,4)],warm=periodicNoise(66,4),grain=periodicNoise(67,96);
+  const fbm=(u,v)=>{let sum=0,amp=1,norm=0;for(const [n,p] of cloud){sum+=amp*n(u*p,v*p);norm+=amp;amp*=.5;}return sum/norm;};
+  // Background clouds, three or four across her front as on the model, spread to the measured shares along the ramp
+  // from pale pink to red.
+  const field=new Float32Array(size*size);
+  for(let y=0;y<size;y++)for(let x=0;x<size;x++){const u=x/size,v=y/size;field[y*size+x]=fbm(u+.1*(warp[0](u*4,v*4)-.5),v+.1*(warp[1](u*4,v*4)-.5));}
+  const order=Array.from(field.keys()).sort((a,b)=>field[a]-field[b]),rank=new Float32Array(size*size);order.forEach((index,r)=>{rank[index]=r/(order.length-1);});
+  const stops=[[0,SPRAY.pale],[.3,SPRAY.pale],[.52,SPRAY.pink],[.71,SPRAY.coral],[.86,SPRAY.redPink],[1,SPRAY.red]];
+  const ramp=t=>{let k=0;while(k<stops.length-2&&stops[k+1][0]<t)k++;const [t0,c0]=stops[k],[t1,c1]=stops[k+1],f=Math.max(0,Math.min(1,(t-t0)/(t1-t0)));return c0.map((c,i)=>c+(c1[i]-c)*f);};
+  const smooth=(a,b,t)=>{const f=Math.max(0,Math.min(1,(t-a)/(b-a)));return f*f*(3-2*f);};
+  const shapes=STENCILS.map(([sx,sy,s,turn,kind,strength])=>({sx,sy,s,c:Math.cos(turn),sn:Math.sin(turn),kind,strength}));
+  for(let y=0;y<size;y++)for(let x=0;x<size;x++){
+    const u=x/size,v=y/size,t=rank[y*size+x];
+    let c=ramp(t);
+    // Some clouds are sprayed orange rather than pink.
+    const w=smooth(.55,.8,warm(u*4,v*4))*.75*smooth(.35,.7,t);c=c.map((ch,i)=>ch+(SPRAY.orange[i]-ch)*w);
+    // Overspray: fine red speckles over the paler clouds.
+    if(t<.6&&rand()<.035*(1-t))c=c.map((ch,i)=>ch+(SPRAY.speck[i]-ch)*.5);
+    // Cream stencils, sprayed: soft at the edge, speckled where the spray thins out, with a scatter of cream dots beyond.
+    let a=0;
+    for(const sh of shapes){let dx=u-sh.sx,dy=v-sh.sy;dx-=Math.round(dx);dy-=Math.round(dy);if(Math.abs(dx)>sh.s*1.4||Math.abs(dy)>sh.s*1.4)continue;
+      const lx=dx*sh.c+dy*sh.sn,ly=-dx*sh.sn+dy*sh.c,d=stencilInside(sh.kind,lx,ly,sh.s),g=grain(u*96,v*96);
+      let k=smooth(-.006,.008,d+(g-.5)*.012);if(d<0&&d>-.03&&rand()<.08*(1+d/.03))k=Math.max(k,.7);a=Math.max(a,k*sh.strength);}
+    c=c.map((ch,i)=>ch+(SPRAY.cream[i]-ch)*a);
+    const i=(y*size+x)*4,n=1+(rand()-.5)*.04;for(let k=0;k<3;k++)data[i+k]=Math.max(0,Math.min(255,c[k]*n));data[i+3]=255;
+  }
+  return {data,w:size,h:size};
+  });
+}
 function meshNetData(){
   // Power-mesh netting: a fine lattice of tiny holes, used as a bump so the fabric reads as mesh up close.
-  if(meshPixels)return meshPixels;
+  return cached('mesh-net',()=>{
   const size=32,data=new Uint8Array(size*size*4);
   for(let y=0;y<size;y++)for(let x=0;x<size;x++){const dx=(x%8)-3.5,dy=((y+(Math.floor(x/8)%2)*4)%8)-3.5,hole=Math.hypot(dx,dy)<2;
     const i=(y*size+x)*4;data[i]=data[i+1]=data[i+2]=hole?60:220;data[i+3]=255;}
-  meshPixels={data,w:size,h:size};return meshPixels;
+  return {data,w:size,h:size};
+  });
 }
+function fineRibData(){
+  // A fine rib: narrow raised columns running down the fabric.
+  return cached('fine-rib',()=>{
+  const w=16,h=4,data=new Uint8Array(w*h*4);
+  for(let y=0;y<h;y++)for(let x=0;x<w;x++){const v=Math.round(140+90*Math.cos(x/w*Math.PI*4)),i=(y*w+x)*4;data[i]=data[i+1]=data[i+2]=v;data[i+3]=255;}
+  return {data,w,h};
+  });
+}
+// Each shirt's style. Heights are in outfit units; tile sizes say how many print tiles go round her and how tall one is.
+const STYLES={
+  // Worn buttoned to the top, as on the hanger: black topstitching, a black-faced stand and glossy black buttons.
+  [MOTEL_TIE_DYE_SHIRT_ID]:{print:tieDyeData,around:3,high:.71,collarAround:3,bump:[meshNetData,160,90,.0025],sheen:['#d8cbc8',.35,.55],roughness:.62,
+    stitch:'#16110f',facing:'#141212',button:['#0d0b0b',.18],buttons:[1.862,1.78,1.698,1.616,1.534,1.452,1.37],collarTopstitch:true,open:null},
+  // Worn with the top button open, as on the model: tonal stitching, the stand in the print, and pale peach buttons.
+  [DESIGUAL_SPRAY_FLORAL_SHIRT_ID]:{print:sprayFloralData,around:2,high:1.04,collarAround:2,bump:[fineRibData,220,1,.003],sheen:['#ff9c9c',.12,.5],roughness:.72,
+    stitch:'#d9817f',facing:null,button:['#f4c0b2',.3],buttons:[1.785,1.707,1.63,1.552,1.475,1.397,1.32],collarTopstitch:false,open:{bottom:1.8,half:.034}},
+};
 function texture({data,w,h},srgb){
   const t=new T.DataTexture(data,w,h,T.RGBAFormat);if(srgb)t.colorSpace=T.SRGBColorSpace;t.wrapS=t.wrapT=T.RepeatWrapping;
   t.generateMipmaps=true;t.minFilter=T.LinearMipmapLinearFilter;t.magFilter=T.LinearFilter;t.needsUpdate=true;return t;
 }
-function meshMaterial(){
-  const net=texture(meshNetData(),false);net.repeat.set(160,90);
-  const mat=new T.MeshPhysicalMaterial({map:texture(tieDyeData(),true),roughness:.62,sheen:.35,sheenColor:new T.Color('#d8cbc8'),sheenRoughness:.55,bumpMap:net,bumpScale:.0025,side:T.DoubleSide});
-  return mat;
+function printMaterial(style){
+  const [bumpData,bu,bv,bumpScale]=style.bump,bump=texture(bumpData(),false);bump.repeat.set(bu,bv);
+  const [sheenColor,sheen,sheenRoughness]=style.sheen;
+  return new T.MeshPhysicalMaterial({map:texture(style.print(),true),roughness:style.roughness,sheen,sheenColor:new T.Color(sheenColor),sheenRoughness,bumpMap:bump,bumpScale,side:T.DoubleSide});
 }
 // Print coordinates: around the body and up it, in tiles sized to her, so the patches are the same size everywhere.
-function mapPrint(mesh,around,toOutfit=v=>v){
+function mapPrint(mesh,around,high,toOutfit=v=>v){
   const p=mesh.geometry.attributes.position,uv=mesh.geometry.attributes.uv,v=new T.Vector3();
-  for(let i=0;i<p.count;i++){v.fromBufferAttribute(p,i);toOutfit(v);uv.setXY(i,uv.getX(i)*around,v.y/TILE_HIGH);}
+  for(let i=0;i<p.count;i++){v.fromBufferAttribute(p,i);toOutfit(v);uv.setXY(i,uv.getX(i)*around,v.y/high);}
   uv.needsUpdate=true;
 }
-function makeShirtCollar(top,mat,facing,stitch){
-  // A point collar: the fall turns over a stand round her neck and lies on her shoulders, its front edges meeting at
-  // the top button and spreading to points. u runs from the right point round the back to the left; v from fold to edge.
+function makeShirtCollar(top,mat,facing,stitch,style){
+  // A point collar: the fall turns over a stand round her neck and lies on her shoulders, its front edges spreading to
+  // points from the top button (or, worn open, from either side of the V). u runs from the right point round the back to
+  // the left; v from fold to edge.
+  const open=style.open,x0=open?open.half+.008:.012;
   const fold=a=>[.123*Math.sin(a),1.952-.03*(1+Math.cos(a))/2,.115*Math.cos(a)];
-  const frontX=v=>.012+.088*v**1.3;
+  const frontX=v=>x0+(.1-x0)*v**1.3;
   const outerY=(a,u)=>{const end=Math.max(0,1-Math.min(u,1-u)/.12);return 1.888-.04*(1+Math.cos(a))/2-.05*end*end;};
   const at=(u,v,inset=0)=>{
     const vv=v*(1-inset),y=outerY(0,0)+(fold(0)[1]-outerY(0,0))*(1-vv),[rx]=bodyRadii(y);
@@ -92,43 +166,55 @@ function makeShirtCollar(top,mat,facing,stitch){
     const out=[(ox+.01)*Math.sin(a),oy,(oz+.01)*Math.cos(a)],roll=.01*Math.sin(Math.PI*vv),s=Math.hypot(out[0],out[2])||1,lift=inset?.002:0;
     return [f[0]+(out[0]-f[0])*vv+(roll+lift)*out[0]/s,f[1]+(out[1]-f[1])*vv,f[2]+(out[2]-f[2])*vv+(roll+lift)*out[2]/s];
   };
-  const fall=grid(top,96,8,(u,v)=>at(u,v),mat,'shirt-collar-fall');mapPrint(fall,3);
-  // The stand, faced in black inside: the black shows between the collar's front edges.
-  const standStart=Math.asin(.012/.115);
-  grid(top,64,2,(u,v)=>{const a=standStart+(Math.PI*2-2*standStart)*u,r=[.115-.006*v,.107-.006*v];return [r[0]*Math.sin(a),1.95-.05*v,r[1]*Math.cos(a)];},facing,'shirt-collar-stand');
+  const fall=grid(top,96,8,(u,v)=>at(u,v),mat,'shirt-collar-fall');mapPrint(fall,style.collarAround,style.high);
+  // The stand: faced in black inside on some shirts (it shows between the collar's front edges), otherwise in the print.
+  const standStart=Math.asin(x0/.115);
+  grid(top,64,2,(u,v)=>{const a=standStart+(Math.PI*2-2*standStart)*u,r=[.115-.006*v,.107-.006*v];return [r[0]*Math.sin(a),1.95-.05*v,r[1]*Math.cos(a)];},facing||mat,'shirt-collar-stand');
   curve(top,Array.from({length:97},(_,i)=>at(i/96,1)),.0035,mat,'shirt-collar-edge');
-  // Black topstitching just inside the collar's edges, as on the photos: along the outer edge and up both front edges.
-  curve(top,Array.from({length:97},(_,i)=>at(i/96,1,.16)),.0016,stitch,'shirt-collar-topstitch');
+  // Topstitching just inside the collar's edges, where the shirt has it: along the outer edge and up both front edges.
+  if(style.collarTopstitch)curve(top,Array.from({length:97},(_,i)=>at(i/96,1,.16)),.0016,stitch,'shirt-collar-topstitch');
   return fall;
 }
-function makeMeshShirt(id){
+function makeShirt(id,style){
   const top=new T.Group();top.name=id;
-  const mesh=meshMaterial(),stitch=solid('#16110f',.6),facing=solid('#141212',.85);
-  const body=shell(top,BODY_ROWS,mesh,'mesh-shirt-body',128);mapPrint(body,TILE_AROUND);
+  const stitch=solid(style.stitch,.6),facing=style.facing&&solid(style.facing,.85);
+  const body=shell(top,BODY_ROWS,printMaterial(style),'mesh-shirt-body',128);
+  // Worn open at the top: a narrow V cut down to the second button.
+  const open=style.open;
+  if(open)trimToEdge(body,128,v=>v,(x,z)=>z<=0?NECK+1:Math.min(NECK+1,open.bottom+(NECK-open.bottom)*Math.abs(x)/open.half));
+  mapPrint(body,style.around,style.high);
   for(const side of [-1,1]){
     const arm=new T.Group();arm.position.set(side*.242,1.815,0);arm.rotation.z=side*.22;arm.updateMatrix();
     // Long fitted sleeves to the wrist, as on the bronze mesh top, ending in a plain stitched hem that eases over her hand.
-    const sleeve=shell(arm,[[.025,.1,.102],[-.04,.113,.109],[-.16,.108,.102],[-.28,.105,.1],[-.40,.097,.092],[-.49,.08,.082],[-.53,.079,.081]],meshMaterial(),'mesh-shirt-sleeve',48);
-    roundSleeveCap(sleeve,side,.025);mapPrint(sleeve,1,v=>v.applyMatrix4(arm.matrix));easeOverHand(sleeve,side);
+    const sleeve=shell(arm,[[.025,.1,.102],[-.04,.113,.109],[-.16,.108,.102],[-.28,.105,.1],[-.40,.097,.092],[-.49,.08,.082],[-.53,.079,.081]],printMaterial(style),'mesh-shirt-sleeve',48);
+    roundSleeveCap(sleeve,side,.025);mapPrint(sleeve,1,style.high,v=>v.applyMatrix4(arm.matrix));easeOverHand(sleeve,side);
     const p=sleeve.geometry.attributes.position,hem=[];for(let i=p.count-49;i<p.count;i++)hem.push([p.getX(i)*1.02,p.getY(i)+.008,p.getZ(i)*1.02]);
     curve(arm,hem,.0014,stitch,'sleeve-hem-stitch');
     top.add(arm);
   }
-  makeShirtCollar(top,meshMaterial(),facing,stitch);
+  makeShirtCollar(top,printMaterial(style),facing,stitch,style);
   top.updateMatrixWorld(true);
-  const probe=surfaceProbe(top,['mesh-shirt-body']),onSurface=(x,y)=>{const key=x+':'+y;
+  const probe=surfaceProbe(top,['mesh-shirt-body']),onSurface=(x,y)=>{const key=id+':'+x+':'+y;
     if(!surfaceCache.has(key)){const hit=probe(x,y,true);surfaceCache.set(key,hit&&{point:hit.point.clone(),normal:hit.normal.clone()});}
     const hit=surfaceCache.get(key);return hit&&{point:hit.point.clone(),normal:hit.normal.clone()};};
   const line=(pts,name,r=.0016)=>{const out=pts.map(([x,y])=>onSurface(x,y)).filter(Boolean).map(h=>h.point.addScaledVector(h.normal,.0025).toArray());if(out.length>1)curve(top,out,r,stitch,name);};
-  // The placket: the same print, edged by black stitching down both sides, from the collar to the hem.
-  for(const side of [-1,1])line(Array.from({length:14},(_,k)=>[side*PLACKET,1.885-(1.885-HEM-.012)*k/13]),'placket-stitch');
-  // Glossy black buttons, slightly domed.
-  for(const y of BUTTONS){const hit=onSurface(0,y);if(!hit)continue;
-    const b=oval(top,hit.point.clone().addScaledVector(hit.normal,.006).toArray(),[.0105/1.06,.0105/.76,.004],solid('#0d0b0b',.18),'shirt-button',20);b.lookAt(b.position.clone().add(hit.normal));}
-  // A black overlocked hem, stitched all the way round just above the lower edge.
+  // The placket: the same print, edged by stitching down both sides from the collar to the hem. Worn open, the stitching
+  // follows each side of the V down to the second button, then runs down both edges of the closed placket.
+  if(open){
+    const edge=y=>open.half*(y-open.bottom)/(NECK-open.bottom);
+    for(const side of [-1,1])line([...Array.from({length:6},(_,k)=>{const y=1.885-(1.885-open.bottom)*k/5;return [side*(edge(y)+PLACKET),y];}),
+      ...Array.from({length:12},(_,k)=>[side*PLACKET,open.bottom-.012-(open.bottom-.012-HEM-.012)*k/11])],'placket-stitch');
+  }
+  else for(const side of [-1,1])line(Array.from({length:14},(_,k)=>[side*PLACKET,1.885-(1.885-HEM-.012)*k/13]),'placket-stitch');
+  // Buttons, slightly domed.
+  const [buttonColour,buttonRoughness]=style.button;
+  for(const y of style.buttons){const hit=onSurface(0,y);if(!hit)continue;
+    const b=oval(top,hit.point.clone().addScaledVector(hit.normal,.006).toArray(),[.0105/1.06,.0105/.76,.004],solid(buttonColour,buttonRoughness),'shirt-button',20);b.lookAt(b.position.clone().add(hit.normal));}
+  // A stitched hem, all the way round just above the lower edge.
   curve(top,Array.from({length:129},(_,k)=>{const a=k/128*Math.PI*2;return [Math.sin(a)*.2915,HEM+.012,Math.cos(a)*.2065];}),.0016,stitch,'hem-stitch');
   return top;
 }
 const surfaceCache=new Map();
-// Cropped at the waist, so it is the same with or without the skirt.
-export function makeButtonShirt(id=MOTEL_TIE_DYE_SHIRT_ID){return makeMeshShirt(id);}
+export const SHIRT_IDS=Object.keys(STYLES);
+// Cropped at the waist, so each shirt is the same with or without the skirt.
+export function makeButtonShirt(id=MOTEL_TIE_DYE_SHIRT_ID){return makeShirt(id,STYLES[id]||STYLES[MOTEL_TIE_DYE_SHIRT_ID]);}
