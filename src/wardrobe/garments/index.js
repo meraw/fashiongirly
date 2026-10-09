@@ -34,6 +34,7 @@ export { default as onlyOnlerinDarkSilverJacketV1 } from './only-onlerin-dark-si
 // slot 27
 // slot 28
 // slot 29
+export { default as desigualHawaiiPatchStripeTeeV1 } from './desigual-hawaii-patch-stripe-tee-v1.js';
 // slot 30
 // slot 31
 // slot 32
@@ -41,6 +42,7 @@ export { default as onlyOnlerinDarkSilverJacketV1 } from './only-onlerin-dark-si
 // slot 34
 // slot 35
 // slot 36
+export { default as pepeJeansIkatShirtV1 } from './pepe-jeans-ikat-shirt-v1.js';
 // slot 37
 // slot 38
 // slot 39

@@ -3,7 +3,7 @@
 export default {
   slot: 'outerwear',
   id: 'only-onlerin-dark-silver-jacket-v1', name: 'ONLY Onlerin dark silver jacket', family: 'zip-hooded-windbreaker', version: 1,
-  status: 'reference-study-awaiting-visual-review', brandAsProvided: 'ONLY (the listing: “ONLY ONLERIN JACKET DARK SILVER”)',
+  status: 'user-approved', brandAsProvided: 'ONLY (the listing: “ONLY ONLERIN JACKET DARK SILVER”)',
   source: { note: 'user supplied three images: a shop flat lay of the front, a second-hand photo on a hanger, and a phone screenshot of a resale listing (the back on a floor, two small fronts)' },
   referenceViews: ['front flat lay (shop)', 'front on a hanger', 'back flat lay', 'front flat lays (small)'],
   details: ['crinkled metallic nylon in dark silver, crumpled all over, catching the light in bright creases', 'hood lined in black, with black drawcords at the neck', 'centre-front zip with a dark tape, from the hem to the top of the stand collar', 'raglan sleeves: seams run from the neckline down to each underarm', 'a seam across each front at about the waist, the pockets hidden in it, and side panels curving down to the hem', 'gathered elastic hem band and elastic cuffs in the shell', 'boxy, hip length'],

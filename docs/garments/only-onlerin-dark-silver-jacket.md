@@ -1,6 +1,6 @@
 # Wardrobe item: ONLY “Onlerin” dark silver jacket
 
-Authored 9 October 2026. Status: first interpretation awaiting the user's visual review. Added by the chat that has been doing shoes, outerwear and tops. It is the first garment added in the one-file-per-garment layout.
+Authored 9 October 2026. Status: first version, revised once after the user's review (see the end); approved: the user approves a garment by merging it (their rule), so its own pull request marks it approved, without a separate pull request afterwards. Added by the chat that has been doing shoes, outerwear and tops. It is the first garment added in the one-file-per-garment layout.
 
 ## Source and reference reading
 
@@ -68,7 +68,7 @@ Its catalog entry and study preset are in their own file, `src/wardrobe/garments
   - a chest close-up;
   - in the real app with its study preset.
 
-  The user has not yet seen it, and nothing has been checked on a device.
+  The user saw the first version and asked for a greener hue and a different texture (see the revision below). Nothing has been checked on a device.
 
 ## Known differences
 
