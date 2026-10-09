@@ -33,7 +33,7 @@ Catalog ID `pepe-jeans-ikat-shirt-v1` (slot `top`). It is built by the existing 
 
 It adds one option, `pocket`: a patch pocket on her left chest, in the print a little out of step with the body, stitched round with a line across its top hem.
 
-The tie-dye, spray floral, split floral, mountain and Mango shirts render pixel-identical to `main`, from the front and the side, with and without the skirt.
+The tie-dye, spray floral, split floral, mountain, Mango and pink yoke shirts render pixel-identical to `main`, from the front and the side, with and without the skirt.
 
 **Print.** Drawn in code, not copied from the photos, in the new file `src/doll/ikat-print.js`:
 
@@ -75,7 +75,7 @@ Fits found by the shared tests:
   - that the print holds navy, coral, the blues and white
   - that over the skirt no part of the skirt pokes through it. Building it with its usual rows over the skirt failed this check, before the template change.
 - The shared tests also run on it: every waist-covering top over every bottom, sleeves and hands, the styling facts, and outerwear over every top.
-- `npm test`: 96 passing after merging `main` (which meanwhile added, among others, the Desigual split floral, mountain and Mango shirts); `npm run build` succeeds.
+- `npm test`: 100 passing after merging `main` (which meanwhile added, among others, the Desigual split floral, mountain, Mango and pink yoke shirts); `npm run build` succeeds.
 - Rendered in headless Chromium from the front, a turn, the side and the back. Also over the skirt. The authoring chat checked these renders; the user has not seen them yet.
 
 ## Known differences

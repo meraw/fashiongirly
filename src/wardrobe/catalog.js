@@ -10,6 +10,7 @@ export const ADIDAS_CROPPED_WINDBREAKER_ID = 'adidas-cream-cropped-windbreaker-v
 export const ONLY_TAUPE_COAT_ID = 'only-carmakoma-taupe-wool-coat-v1';
 // Dresses: none by default ('none'); a catalog dress fills the 'dress' slot and is worn instead of the top and bottoms.
 export const ZIP_TRACK_DRESS_ID = 'navy-half-zip-track-dress-v1';
+export const LACE_SHIFT_DRESS_ID = 'desigual-ivory-lace-shift-dress-v1';
 // Shoes: built-in loafers are 'classic'; catalog shoes fill the 'shoes' slot.
 export const BUFFALO_ASPHA_ID = 'buffalo-aspha-mid-olive-v1';
 export const DM_COW_SLIDE_ID = 'dr-martens-cow-slide-v1';
@@ -35,6 +36,7 @@ export const TOMMY_STRIPE_POLO_ID = 'tommy-stripe-knit-polo-v1';
 export const MOTEL_TIE_DYE_SHIRT_ID = 'motel-tie-dye-mesh-shirt-v1';
 export const DESIGUAL_SPRAY_FLORAL_SHIRT_ID = 'desigual-spray-floral-mesh-shirt-v1';
 export const DESIGUAL_MOUNTAIN_SHIRT_ID = 'desigual-mountain-landscape-mesh-shirt-v1';
+export const ADIDAS_CROPPED_HOODIE_ID = 'adidas-originals-cropped-hoodie-black-v1';
 export const VANGOGH_TEE_ID = 'van-gogh-patchwork-tee-v1';
 export const DESIGUAL_FRESCO_TEE_ID = 'desigual-fresco-rib-vneck-tee-v1';
 export const MICKEY_LONG_TEE_ID = 'black-mickey-print-long-tee-v1';
@@ -42,6 +44,7 @@ export const PB_CHENILLE_ID = 'pull-bear-grey-chenille-high-neck-v1';
 export const DESIGUAL_SPLIT_FLORAL_SHIRT_ID = 'desigual-split-floral-shirt-v1';
 export const MANGO_DOT_SHIRT_ID = 'mango-halftone-dot-shirt-v1';
 export const LEVIS_FLORAL_LOGO_SWEATSHIRT_ID = 'levis-floral-batwing-sweatshirt-v1';
+export const PINK_YOKE_SHIRT_ID = 'pink-ditsy-floral-yoke-shirt-v1';
 export const PEPE_IKAT_SHIRT_ID = 'pepe-jeans-ikat-shirt-v1';
 export const BARREL_JEANS_ID = 'topshop-barrel-jeans-v1';
 export const DAVINIA_JEANS_ID = 'desigual-davinia-jeans-v1';
@@ -407,7 +410,7 @@ export const GARMENTS = Object.freeze({
   [MANGO_DOT_SHIRT_ID]: {
     slot: 'top',
     id: MANGO_DOT_SHIRT_ID, name: 'Mango pink halftone dot shirt', family: 'relaxed-button-down-shirt', version: 1,
-    status: 'reference-study-awaiting-visual-review', brandAsProvided: 'Mango (“MNG” neck label)',
+    status: 'user-approved', brandAsProvided: 'Mango (“MNG” neck label)',
     source: { note: 'user supplied five product photos without a description: a front flat lay, a close-up of the collar, the back on a model, and two fronts on models (one worn open low, one over white wide-leg jeans)' },
     referenceViews: ['front flat lay', 'collar close-up', 'back on model', 'front on model, open', 'front on model, with jeans'],
     details: ['relaxed long-sleeved shirt in a fine crepe', 'printed with a square lattice of soft pink dots on cream, in blocks of two kinds set in an uneven checker: big touching pink dots with small cream four-point stars between them, and the reverse (touching cream dots with small pink stars)', 'point collar, collar and stand in the print, one button at the collar', 'concealed placket: no buttons show down the front', 'long relaxed sleeves gathered into buttoned cuffs', 'hip length, with a curved shirt-tail hem that dips at the centre front and back', 'worn untucked and open at the neck on the models'],
@@ -457,6 +460,51 @@ export const GARMENTS = Object.freeze({
         budsAt: [[.95, .27, .05, -.35, true], [.79, .41, .045, 1.3, false], [.4, .43, .04, 1.9, false], [.13, .2, .04, -2.4, false]],
         inks: { sky: '#46699a', skyLight: '#5d80ad', lily: '#e4e3ea', shade: '#aaa3bd', blush: '#d68ea3', bud: '#d9798f', leaf: '#5f8a7a', leafLight: '#88ae9c', vein: '#46695c', stamen: '#b0606f', anther: '#7a3d33', throat: '#b7c27a', ink: '#16141c' } },
     },
+  },
+  [ADIDAS_CROPPED_HOODIE_ID]: {
+    slot: 'top',
+    id: ADIDAS_CROPPED_HOODIE_ID, name: 'adidas Originals cropped hoodie', family: 'cropped-hoodie', version: 1,
+    status: 'authored-awaiting-user-review', brandAsProvided: 'adidas Originals (the logo and patch)',
+    source: { note: 'user supplied five product photos without a written description: a front flat lay, the front on a model, and close-ups of the hem and cuff, the chest logo and patch, and the hood' },
+    referenceViews: ['front flat lay', 'front on model', 'hem and cuff close-up', 'chest logo and patch close-up', 'hood close-up'],
+    details: ['black brushed French terry (fleece)', 'boxy and cropped at the waist, with dropped shoulders', 'ribbed hem band and long ribbed cuffs, each tipped in pale mint at the edge', 'hood lined in pale mint with fine dark pinstripes, its sides crossing at the front of the neck', 'thick black braided drawcords, knotted near their frayed ends', 'white embroidered trefoil and lowercase wordmark on her left chest', 'a white woven patch below it, with a green script name and small grey type'],
+    material: { construction: 'brushed French terry, rib trims', composition: 'not stated', finish: 'matte' },
+    fit: { silhouette: 'boxy and cropped', sleeve: 'long and relaxed, gathered into long ribbed cuffs', hem: 'cropped at the waist, ribbed band', neckline: 'hood, worn down', adjustment: 'fixed authored fit for review' },
+    exclusions: ['striped-shirt','knit-sweater'],
+    uncertainties: ['the logo and patch are drawn at her scale as a suggestion of the brand\'s marks, not copied', 'the hood is shown worn down; her large head hides most of its opening from the front', 'under a jacket the hood and cords are put away and a plain neckband is worn, as the hood would push through the jacket', 'the length on the body is read from the model photo; the flat lay looks a little longer'],
+    styling: { silhouette: 'boxy, cropped at the waist', palette: ['black', 'pale mint', 'white'], pattern: 'plain, with contrast tipping and a small chest logo', coverage: { neck: 'hood, worn down', sleeves: 'long', midriff: 'cropped' }, material: 'brushed French terry', warmth: 2, warmthBasis: 'inferred: a brushed fleece sweatshirt, cropped', weather: 'cool to mild days' },
+    authoring: { template: 'makeHoodie() in src/doll/hoodie.js', texture: 'procedural fleece, braid and pinstripe lining, and the logo and patch drawn in code; colours measured from the photos', runtimeGeneration: false, sourcePhotosBundled: false },
+    // Construction for makeHoodie() in src/doll/hoodie.js, in outfit units. The body and sleeves follow the chenille jumper,
+    // which is as boxy and cropped and clears every bottom and the skirt.
+    build: {
+      template: 'cropped-hoodie',
+      colours: { fleece: '#1c1d23', sheen: '#3a3b42', tipping: '#c8d6cf', lining: '#c9d8d1', stripe: '#3a3e46', cord: '#262529', embroidery: '#f3f3f1', patch: '#f3f4f6', patchInk: '#2c6e55', patchGrey: '#9a9ea3' },
+      body: { hem: 1.27, band: .085, tip: .016, ribs: 90, bandRadius: [.29, .205],
+        rows: [[1.905, .112, .104], [1.875, .176, .128], [1.83, .242, .163], [1.775, .286, .19], [1.65, .304, .204], [1.5, .308, .21], [1.4, .31, .216], [1.372, .306, .214], [1.36, .296, .209]] },
+      sleeve: { tip: .016, cuffRibs: 26,
+        rows: [[.03, .12, .117], [-.06, .132, .127], [-.2, .13, .124], [-.33, .122, .117], [-.41, .112, .107], [-.44, .104, .1]],
+        cuff: [[-.425, .097, .093], [-.49, .093, .09], [-.565, .092, .089]] },
+      hood: { top: 1.89, bottom: 1.6, round: .07, halfWidth: .2, lift: .08, edge: .011, opening: { from: 1.05, rise: .05, out: .03, radius: .014, band: .04, dip: 0 } },
+      cords: { x: .035, drift: .012, top: 1.875, knot: 1.56, radius: .0105, tassel: .03 },
+      logo: { at: [.1, 1.765], size: .07 },
+      patch: { at: [.1, 1.69], size: [.075, .04] },
+    },
+  },
+  [PINK_YOKE_SHIRT_ID]: {
+    slot: 'top',
+    id: PINK_YOKE_SHIRT_ID, name: 'Pink ditsy floral yoke shirt', family: 'gathered-yoke-button-down-shirt', version: 1,
+    status: 'reference-study-awaiting-visual-review', brandAsProvided: 'not stated',
+    source: { note: 'user supplied four product photos without a description: full length on a model with grey skinny jeans, a closer front, the back, and a close-up of the collar, yoke and sleeve' },
+    referenceViews: ['front full length on model', 'front, closer', 'back on model', 'collar, yoke and sleeve close-up'],
+    details: ['boxy long-sleeved shirt in a soft, fluid fabric with a slight sheen', 'printed with small florals on soft pink: cream five-petal daisies with rust centres, rust flowers with cream centres, rust leaves on fine stems and tiny cream sprigs', 'big 1970s point collar with long points', 'a yoke across the front and back, with the body gathered below it', 'cream buttons down the front, worn with the top one open', 'full sleeves, gathered at a dropped shoulder and into buttoned cuffs', 'to the top of the thigh, with a gently curved hem, lowest at the centre front and back'],
+    material: { construction: 'soft woven fabric with a slight sheen (read from the photos)', composition: 'not stated', finish: 'soft sheen' },
+    fit: { silhouette: 'boxy, gathered below the yoke', sleeve: 'long, full, gathered into cuffs', hem: 'top of the thigh, gently curved (lengthened and curved after the user\'s first look)', neckline: 'big point collar, top button open', adjustment: 'fixed authored fit for review' },
+    exclusions: ['striped-shirt','knit-sweater'],
+    // Hangs over every waistband; over the skirt it is tucked in, so the skirt's bow shows.
+    layering: { coversWaistband: true, tucksIntoSkirt: true },
+    uncertainties: ['the print is redrawn in code as scattered daisies, rust flowers, leaves and sprigs, not copied from the photos', 'the flowers are drawn a little larger than on the shirt, so they stay visible on a phone', 'the dropped shoulder seam and the gathers at the sleeve head are not modelled; the sleeves are full and gather into the cuffs', 'over the skirt it is tucked in rather than worn loose', 'brand not stated'],
+    styling: { silhouette: 'boxy, gathered below a yoke, to the top of the thigh', palette: ['soft pink', 'cream', 'rust'], pattern: 'small scattered florals (ditsy)', coverage: { neck: 'big point collar, top button open', sleeves: 'long, full, cuffed', midriff: 'covered, to the top of the thigh' }, material: 'soft woven fabric, composition not stated', warmth: 1, warmthBasis: 'inferred: a light, fluid shirt fabric, though long-sleeved', weather: 'mild to warm days, or as a light layer' },
+    authoring: { template: 'makeButtonShirt() in src/doll/shirts.js', texture: 'procedural ditsyFloralData() and crepeData() in src/doll/shirts.js, drawn locally when first worn; colours measured in the close-up', runtimeGeneration: false, sourcePhotosBundled: false },
   },
   [PEPE_IKAT_SHIRT_ID]: {
     slot: 'top',
@@ -1626,7 +1674,7 @@ export const GARMENTS = Object.freeze({
   [ONLY_TAUPE_COAT_ID]: {
     slot: 'outerwear',
     id: ONLY_TAUPE_COAT_ID, name: 'ONLY Carmakoma taupe coat', family: 'tailored-coat', version: 1,
-    status: 'reference-study-awaiting-visual-review', brandAsProvided: 'ONLY Carmakoma (from the product photos)',
+    status: 'user-approved', brandAsProvided: 'ONLY Carmakoma (from the product photos)',
     source: { note: 'user supplied five product photos: front flat, front on a model (open), a close-up of the lapels and buttons, back, and full length on the model; the user said their coat has only one button' },
     referenceViews: ['front flat, buttoned', 'front on model, open', 'lapel and button close-up', 'back on model', 'full length on model'],
     details: ['taupe brown melange felted wool-look double-face fabric', 'notched lapel collar', 'single-breasted; the user\'s coat has one button, at the lapel break', 'clean raw edges throughout, as on double-face wool', 'slanted welt pockets at the hip', 'long plain sleeves', 'centre-back seam', 'slightly oversized, straight, to just above the knee'],
@@ -1675,5 +1723,35 @@ export const GARMENTS = Object.freeze({
     styling: { silhouette: 'A-line mini, upper thigh', palette: ['navy', 'cream'], pattern: 'sporty colour-blocked raglan sleeves', coverage: { neck: 'high stand collar', sleeves: 'long', midriff: 'covered', legs: 'bare from the upper thigh' }, material: 'textured cable-rib jersey', warmth: 2, warmthBasis: 'inferred: long-sleeved jersey, but bare legs', weather: 'mild days; bare legs below the hem' },
     uncertainties: ['the brand is not shown on the dress in the screenshots (only the sneakers carry a logo)', 'the rib texture is drawn, not copied', 'the sleeve panel layout is read from the front and back photos; the underarm is not shown', 'the collar is modelled standing, as in three of the photos'],
     authoring: { texture: 'procedural zipDressData() in src/doll/model.js', runtimeGeneration: false, sourcePhotosBundled: false },
+  },
+  [LACE_SHIFT_DRESS_ID]: {
+    slot: 'dress',
+    id: LACE_SHIFT_DRESS_ID, name: 'Ivory lace shift dress', family: 'long-sleeve-mini-dress', version: 1,
+    status: 'reference-study-awaiting-visual-review', brandAsProvided: 'not stated (the trainers in the photos suggest Desigual)',
+    source: { note: 'user supplied six product photos with no text: full length front, flat front, full length back, and close-ups of the sleeve, the neckline and the back keyhole' },
+    referenceViews: ['full length front on model', 'flat front', 'full length back on model', 'sleeve and shoulder close-up', 'neckline close-up', 'back keyhole close-up'],
+    details: ['ivory floral lace, opaque over a lining on the body', 'horizontal bands of frilled trim across the body, closer together lower down', 'high lace collar with a ruffled top edge', 'long sheer lace sleeves crossed by lace insertion bands, slightly full', 'frilled cuffs gathered at the wrist', 'keyhole at the back of the neck closed by two small gold buttons', 'straight shift, mid-thigh'],
+    material: { construction: 'lace over a lining (body); sheer lace (sleeves, collar)', composition: 'not visible in the supplied photos', finish: 'soft, textured' },
+    fit: { silhouette: 'straight shift', sleeve: 'long, slightly full, frilled cuffs', hem: 'mid-thigh', neckline: 'high ruffled lace collar, back keyhole', adjustment: 'fixed authored fit for review' },
+    layering: { replacesTop: true, replacesBottom: true, bareLegs: true },
+    styling: { silhouette: 'straight shift mini, mid-thigh', palette: ['ivory'], pattern: 'tonal floral lace with frilled bands', coverage: { neck: 'high collar', sleeves: 'long, sheer', midriff: 'covered', legs: 'bare from mid-thigh' }, material: 'lace, sheer on the sleeves', warmth: 1, warmthBasis: 'inferred: lace with sheer sleeves and bare legs', weather: 'mild, dry days; under a coat when cooler' },
+    uncertainties: ['the lace pattern is drawn as generic roses and leaves, not copied', 'the frill bands are placed by eye from the photos', 'the brand is not stated'],
+    authoring: { texture: 'procedural lace in src/doll/lace-dress.js; colour measured from the photos', runtimeGeneration: false, sourcePhotosBundled: false },
+    // Built by makeLaceDress() (src/doll/lace-dress.js); makeOutfit() picks it by template.
+    build: {
+      template: 'lace-shift-dress',
+      colours: { lace: '#ede9df', trim: '#f1ede4', skin: '#dfb195', button: '#c9a24a' },
+      tiles: { body: [3, 2], trim: [24, 1], collar: [2, .22], sleeve: [2, 1.3], cuff: [2, .25] },
+      body: {
+        rows: [[1.905, .112, .104], [1.875, .172, .126], [1.83, .235, .158], [1.775, .272, .183], [1.65, .287, .195], [1.5, .292, .202], [1.35, .296, .21], [1.2, .304, .222], [1.1, .313, .23], [1, .322, .236], [.92, .33, .241], [.845, .336, .244]],
+        frills: [1.78, 1.68, 1.58, 1.48, 1.38, 1.28, 1.19, 1.1, 1.02, .94],
+      },
+      collar: { top: 1.985, radius: [.118, .111], keyhole: { y: 1.82, h: .055 }, buttons: [1.885, 1.866] },
+      sleeve: {
+        rows: [[.03, .118, .115], [-.05, .13, .126], [-.17, .132, .127], [-.29, .128, .123], [-.4, .121, .116], [-.46, .113, .108]],
+        bands: [-.08, -.19, -.3, -.4],
+        cuff: [-.455, -.495, -.575], cuffRadius: [.1, .094], frillRadius: .13,
+      },
+    },
   },
 });

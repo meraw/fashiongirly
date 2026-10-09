@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import * as T from 'three';
 import { makeDoll, makeOutfit, disposeObject } from '../src/doll/model.js';
 import { OUTFITS } from '../src/doll/recipe.js';
-import { GARMENTS, PB_CHENILLE_ID } from '../src/wardrobe/catalog.js';
+import { GARMENTS, PB_CHENILLE_ID, ADIDAS_CROPPED_HOODIE_ID } from '../src/wardrobe/catalog.js';
 const named=(root,name)=>{const found=[];root.traverse(o=>{if(o.name===name)found.push(o);});return found;};
 const visible=o=>{for(let q=o;q;q=q.parent)if(!q.visible)return false;return true;};
 
@@ -44,7 +44,8 @@ test('chenille jumper under every jacket wears its narrow collar, which stays in
     assert.ok(box.max.x/1.06<.125&&box.max.z<.115,`${id}: narrow collar ${(box.max.x/1.06).toFixed(3)} by ${box.max.z.toFixed(3)}`);
     disposeObject(outfit);
   }
-  for(const topId of Object.keys(GARMENTS).filter(k=>GARMENTS[k].slot==='top'&&k!==PB_CHENILLE_ID)){
+  // The cropped hoodie also swaps its hood for a narrow neckband under a jacket; its own test checks that.
+  for(const topId of Object.keys(GARMENTS).filter(k=>GARMENTS[k].slot==='top'&&k!==PB_CHENILLE_ID&&k!==ADIDAS_CROPPED_HOODIE_ID)){
     const outfit=makeOutfit({topId});let swaps=0;outfit.traverse(o=>{if(typeof o.userData.underJacket==='boolean')swaps++;});assert.equal(swaps,0,topId);disposeObject(outfit);
   }
 });
