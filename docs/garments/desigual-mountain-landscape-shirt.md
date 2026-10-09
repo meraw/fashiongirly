@@ -40,7 +40,7 @@ Measured median colours:
 
 Catalog ID `desigual-mountain-landscape-mesh-shirt-v1` (slot `top`), built by `makeButtonShirt()` in `src/doll/shirts.js`, with its own style in that file. `makeOutfit()` now passes each shirt its atlas, if it has one; that is a change to its dispatch line only.
 
-**New template options.** All are optional. The tie-dye and spray floral shirts set none of them, and their geometry and texture coordinates fingerprint identical before and after the change.
+**New template options.** All are optional. The tie-dye, spray floral and split floral shirts set none of them, and their geometry and texture coordinates fingerprint identical before and after the change. They sit beside the split floral shirt's own options, `collarPrint` and `sleevePrints`, which give a drawn print per piece.
 
 - `atlas`: `{ tone, fallback }`. The print comes from a texture atlas made from the product photos, in the printed tees' layout:
   - the body unwrapped in the top three quarters;
