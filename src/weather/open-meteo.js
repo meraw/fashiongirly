@@ -7,7 +7,7 @@ export const FORECAST = 'https://api.open-meteo.com/v1/forecast';
 export const GEOCODING = 'https://geocoding-api.open-meteo.com/v1/search';
 const HOURLY = 'temperature_2m,apparent_temperature,precipitation_probability,precipitation,snowfall,wind_speed_10m,weather_code';
 // Her day, in local hours: what she dresses for.
-const FROM = 8, TO = 20;
+const FROM = 8, TO = 20, HOURS = [9, 12, 15, 18];
 
 export function forecastUrl({ lat, lon }, day) {
   const q = new URLSearchParams({ latitude: lat.toFixed(2), longitude: lon.toFixed(2), hourly: HOURLY, timezone: 'auto', start_date: day, end_date: day });
@@ -50,6 +50,11 @@ export function toConditions(json, day, place = null) {
     rainChance: Math.max(0, ...vals('precipitation_probability')), rainMm: sum(vals('precipitation')),
     windKmh: Math.max(0, ...vals('wind_speed_10m')), snow: sum(vals('snowfall')) > 0,
     code: codes.length ? common(wet.length ? wet : Object.keys(count).map(Number)) : null,
+    // A few moments of her day for the Today page: morning, midday, afternoon and early evening.
+    hours: HOURS.map(hour => h.time.findIndex(t => t.startsWith(day) && +t.slice(11, 13) === hour)).filter(i => i >= 0).map(i => ({
+      hour: +h.time[i].slice(11, 13), temp: h.temperature_2m?.[i], feels: h.apparent_temperature?.[i],
+      rain: h.precipitation_probability?.[i], snow: (h.snowfall?.[i] ?? 0) > 0, code: h.weather_code?.[i],
+    })),
   });
 }
 

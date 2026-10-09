@@ -29,6 +29,17 @@ test('the forecast becomes her day: 8:00 to 20:00', () => {
   assert.throws(() => toConditions({}, '2026-10-09'), /expected form/);
 });
 
+test('the forecast keeps a few moments of her day: 9:00, 12:00, 15:00 and 18:00', () => {
+  const c = toConditions(LONDON, '2026-10-09', 'London');
+  assert.deepEqual(c.hours.map(x => x.hour), [9, 12, 15, 18]);
+  const i = LONDON.hourly.time.indexOf('2026-10-09T15:00');
+  assert.equal(c.hours[2].feels, LONDON.hourly.apparent_temperature[i]);
+  assert.equal(c.hours[2].rain, LONDON.hourly.precipitation_probability[i]);
+  assert.deepEqual(cleanConditions({ feels: 10, hours: [{ hour: 9, feels: 'cold' }, { hour: 12.5, feels: 3 }, { hour: 30, feels: 4, rain: 140 }] }).hours,
+    [{ hour: 23, temp: null, feels: 4, rain: 100, snow: false, code: null }], 'only whole hours with a temperature, bounded');
+  assert.deepEqual(presetConditions('mild').hours, [], 'chosen weather has no hours');
+});
+
 test('the forecast request asks for her day at rounded coordinates and reports refusals', async () => {
   const url = forecastUrl({ lat: 53.333061, lon: -6.248889 }, '2026-10-10');
   assert.match(url, /^https:\/\/api\.open-meteo\.com\/v1\/forecast\?/);

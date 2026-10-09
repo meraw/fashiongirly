@@ -31,6 +31,9 @@ export function cleanConditions(v) {
     tempMin: num(v.tempMin, -40, 50), tempMax: num(v.tempMax, -40, 50),
     rainChance: num(v.rainChance, 0, 100, 0), rainMm: num(v.rainMm, 0, 500, 0), windKmh: num(v.windKmh, 0, 300, 0),
     snow: v.snow === true, code: num(v.code, 0, 99),
+    hours: (Array.isArray(v.hours) ? v.hours : []).filter(x => x && Number.isInteger(x.hour) && Number.isFinite(x.feels)).slice(0, 6).map(x => ({
+      hour: Math.max(0, Math.min(23, x.hour)), temp: num(x.temp, -40, 50), feels: num(x.feels, -40, 50), rain: num(x.rain, 0, 100, 0), snow: x.snow === true, code: num(x.code, 0, 99),
+    })),
   };
 }
 

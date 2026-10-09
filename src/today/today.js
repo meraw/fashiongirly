@@ -5,30 +5,21 @@
 // the user chooses the weather. Everything she remembers stays in this browser's storage.
 import { composeTrio, composeOutfit } from '../style/stylist.js';
 import { LEARNED_KEY, learn } from '../style/taste.js';
-import { stylingFacts } from '../style/facts.js';
+import { swatch, outfitSwatch } from '../doll/swatch.js';
 import { dayKey, describe, cleanConditions, presetConditions, PRESETS } from '../weather/conditions.js';
 import { fetchConditions, findPlace } from '../weather/open-meteo.js';
 import { cleanRecipe } from '../doll/recipe.js';
-import { hairName } from '../hair/catalog.js';
-import { paintSky } from './sky.js';
+import { hairName, HAIR_COLOUR } from '../hair/catalog.js';
+import { paintSky, skyKind, codeKind, weatherIcon } from './sky.js';
 
 export const TODAY_KEY = 'fashiongirly.today.v2', HISTORY_KEY = 'fashiongirly.days.v1', PLACE_KEY = 'fashiongirly.place.v1', WEATHER_KEY = 'fashiongirly.weather.v1';
 export const LOOKS = [['pick', 'Her pick'], ['bolder', 'Bolder'], ['easier', 'Easier']];
+const NOTES = { pick: 'just right', bolder: 'turn it up', easier: 'easy to wear' };
 const TITLES = { pick: 'Her pick for today.', bolder: 'Her bolder look.', easier: 'Her easier look.', idea: 'Another idea.' };
 const SLOT_NAMES = { dress: 'Dress', top: 'Top', under: 'Under it', bottom: 'Bottoms', shoes: 'Shoes', outerwear: 'Outerwear', hair: 'Hair' };
 const seedOf = day => [...day].reduce((h, c) => Math.imul(h ^ c.charCodeAt(0), 16777619) >>> 0, 2166136261);
 const sentence = s => s.charAt(0).toUpperCase() + s.slice(1) + '.';
 const copy = v => JSON.parse(JSON.stringify(v));
-const hsl = c => `hsl(${Math.round(c.h)} ${Math.round(c.s * 100)}% ${Math.round(c.l * 100)}%)`;
-// A row of colour dots: the leading colour of each garment given, or its first few colours for a single garment.
-function dots(doc, ids, max = 5) {
-  const span = doc.createElement('span'); span.className = 'dots'; span.setAttribute('aria-hidden', 'true');
-  const colours = ids.length === 1 ? stylingFacts(ids[0])?.main || [] : ids.map(id => stylingFacts(id)?.main?.[0]);
-  for (const c of colours.filter(Boolean).slice(0, max)) { const i = doc.createElement('i'); i.style.background = hsl(c); span.append(i); }
-  return span;
-}
-const lookIds = result => (result?.pieces || []).filter(p => p.slot !== 'under').map(p => p.id);
-
 export function mountToday(doc, { storage = null, getRecipe, wear, fetch: fetchImpl = null, geolocation = null, now = () => Date.now() } = {}) {
   const $ = id => doc.getElementById(id);
   const read = (key, fallback) => { try { const v = JSON.parse(storage?.getItem(key) || 'null'); return v ?? fallback; } catch { return fallback; } };
@@ -62,11 +53,21 @@ export function mountToday(doc, { storage = null, getRecipe, wear, fetch: fetchI
     $('today-temp').textContent = c ? `${Math.round(c.feels)}°` : '';
     $('today-weather').textContent = c ? describe(c) : '';
     paintSky($('sky'), c);
+    $('today-icon').replaceChildren(...(c ? [weatherIcon(doc, skyKind(c))] : []));
+    // A few moments of her day, when the forecast gives them.
+    $('today-hours').replaceChildren(...(c?.hours || []).map(x => {
+      const li = doc.createElement('li'), time = doc.createElement('span'), deg = doc.createElement('span');
+      time.className = 'hour-time'; time.textContent = `${x.hour}:00`;
+      deg.className = 'hour-temp'; deg.textContent = `${Math.round(x.feels)}°`;
+      li.append(time, weatherIcon(doc, codeKind(x.code, { rainChance: x.rain, snow: x.snow, feels: x.feels }), { animate: false }), deg);
+      return li;
+    }));
     // The three looks under the doll, each with its colours; the one she wears is pressed.
     for (const [key, label] of LOOKS) {
-      const b = $(`look-${key}`), look = state?.trio?.[key], name = doc.createElement('span');
+      const b = $(`look-${key}`), look = state?.trio?.[key], name = doc.createElement('span'), note = doc.createElement('span');
       name.className = 'look-name'; name.textContent = label;
-      b.replaceChildren(name, dots(doc, lookIds(look)));
+      note.className = 'look-note'; note.textContent = NOTES[key];
+      b.replaceChildren(outfitSwatch(doc, look?.pieces), name, note);
       b.setAttribute('aria-pressed', String(state?.choice === key));
     }
     const result = current(), list = $('today-pieces');
@@ -77,7 +78,10 @@ export function mountToday(doc, { storage = null, getRecipe, wear, fetch: fetchI
       for (const row of rows) {
         const li = doc.createElement('li'), label = doc.createElement('span'), name = doc.createElement('span');
         label.className = 'today-slot'; label.textContent = SLOT_NAMES[row.slot]; name.textContent = row.name;
-        li.append(label, name, dots(doc, row.id === 'none' || row.slot === 'hair' ? [] : [row.id], 3));
+        const cloth = row.slot === 'hair' ? doc.createElement('span') : row.id === 'none' ? doc.createElement('span') : swatch(doc, row.id, 'piece-cloth');
+        if (row.slot === 'hair') { cloth.className = 'piece-cloth hair'; cloth.style.background = HAIR_COLOUR; }
+        if (row.id === 'none') cloth.className = 'piece-cloth empty';
+        li.append(cloth, label, name);
         list.append(li);
       }
     }

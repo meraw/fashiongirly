@@ -77,7 +77,11 @@ test('three looks for the day, under the doll, that stay the same', async () => 
   click(d, 'look-easier'); click(d, 'look-bolder'); click(d, 'look-pick');
   assert.deepEqual(p.app.getRecipe(), day.pick, 'pressing again gives the same looks');
   assert.deepEqual(looks(p), day, 'the three never change during the day');
-  assert.ok(d.querySelectorAll('#look-bolder .dots i').length >= 3, 'each shows its colours');
+  assert.ok(d.querySelectorAll('#look-bolder .outfit-swatch-piece').length >= 3, 'each shows its cloth');
+  assert.ok(d.querySelectorAll('#today-pieces .piece-cloth').length >= 4, 'her pieces show their cloth');
+  assert.equal(d.querySelectorAll('#today-hours li').length, 4, 'four moments of her day');
+  assert.equal(d.querySelectorAll('#today-icon .wx').length, 1, 'a picture of the weather');
+  assert.equal(d.getElementById('sky').dataset.kind, 'rain', 'and the scene behind her is raining');
   assert.equal(d.querySelectorAll('[data-angle]').length, 0, 'the turn buttons are gone; drag to turn her');
   p.close();
 });
