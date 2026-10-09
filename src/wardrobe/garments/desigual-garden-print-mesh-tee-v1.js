@@ -4,7 +4,7 @@
 export default {
     slot: 'top',
     id: 'desigual-garden-print-mesh-tee-v1', name: 'Desigual garden print mesh tee', family: 'printed-mesh-long-sleeve-tee', version: 1,
-    status: 'reference-study-awaiting-visual-review', brandAsProvided: 'not stated; read as Desigual from the photos (its style and the product photography)',
+    status: 'user-approved', brandAsProvided: 'not stated; read as Desigual from the photos (its style and the product photography)',
     source: { note: 'user supplied five product photos without a description: the front on a model (hands on hips), seated, a close-up of the front, the back, and a close-up of the back yoke' },
     referenceViews: ['front on model', 'front, seated', 'front close-up', 'back on model', 'back yoke close-up'],
     details: ['fitted long-sleeved crew-neck tee in a fine printed stretch mesh', 'body printed as a Persian-miniature garden: a sky-blue yoke with blossoming trees over a dark hill and a white-turbaned figure, then a brown ground overlaid with a silvery flocked damask of leaves and flowers, with robed figures (green and orange at the front, a multicoloured patchwork robe at the back)', 'small printed speech-bubble patches with English text: “Only from the heart you can touch the sky”, “Do you have any plans for tonight?”, “Love dancing”, and on the back “My … you are the universe in motion”', 'a yoke seam across the chest and the upper back, an exposed pale grey-blue overlock, slightly wavy', 'dark charcoal crew neckband', 'long fitted sleeves in an open net printed as a knit: a dark teal and green zigzag knit at the shoulders, shading into yellow and lime green down the arm', 'olive-gold metallic lamé cuffs at the wrist', 'hem at the high hip, slightly ruched'],
