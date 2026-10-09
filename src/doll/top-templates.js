@@ -5,6 +5,7 @@ import { makeCheckShirt } from './shirts.js';
 import { makeEmbroideredSweatshirt } from './embroidered-sweatshirt.js';
 import { makeLinenShirt } from './shirts.js';
 import { makeMeshPrintTee } from './mesh-print-tee.js';
+import { makeRacingHoodie } from './racing-hoodie.js';
 import { makeSnapCollarJumper } from './snap-collar-jumper.js';
 
 export const TOP_TEMPLATES = {
@@ -12,5 +13,6 @@ export const TOP_TEMPLATES = {
   'embroidered-sweatshirt': (id, build, { skirt }) => makeEmbroideredSweatshirt(id, build, skirt),
   'linen-shirt': (id, build, { skirt }) => makeLinenShirt(id, build, skirt),
   'mesh-print-tee': (id, build, { atlas }) => makeMeshPrintTee(id, build, atlas),
+  'racing-hoodie': (id, build) => makeRacingHoodie(id, build),
   'snap-collar-jumper': (id, build, { skirt }) => makeSnapCollarJumper(id, build, skirt),
 };

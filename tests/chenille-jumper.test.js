@@ -44,8 +44,9 @@ test('chenille jumper under every jacket wears its narrow collar, which stays in
     assert.ok(box.max.x/1.06<.125&&box.max.z<.115,`${id}: narrow collar ${(box.max.x/1.06).toFixed(3)} by ${box.max.z.toFixed(3)}`);
     disposeObject(outfit);
   }
-  // The cropped hoodie also swaps its hood for a narrow neckband under a jacket; its own test checks that.
-  for(const topId of Object.keys(GARMENTS).filter(k=>GARMENTS[k].slot==='top'&&k!==PB_CHENILLE_ID&&k!==ADIDAS_CROPPED_HOODIE_ID)){
+  // The hoodies also swap their hoods for a narrow neckband under a jacket; their own tests check that.
+  const hoodies=[ADIDAS_CROPPED_HOODIE_ID,'polo-ralph-lauren-usrl-racing-hoodie-v1'];
+  for(const topId of Object.keys(GARMENTS).filter(k=>GARMENTS[k].slot==='top'&&k!==PB_CHENILLE_ID&&!hoodies.includes(k))){
     const outfit=makeOutfit({topId});let swaps=0;outfit.traverse(o=>{if(typeof o.userData.underJacket==='boolean')swaps++;});assert.equal(swaps,0,topId);disposeObject(outfit);
   }
 });

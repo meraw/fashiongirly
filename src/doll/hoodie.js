@@ -12,12 +12,12 @@ import { grid } from './polo.js';
 
 const hex=h=>[1,3,5].map(i=>parseInt(h.slice(i,i+2),16));
 const pixels=new Map();
-function dataTexture(data,w,h,srgb=true,repeat=[1,1]){
+export function dataTexture(data,w,h,srgb=true,repeat=[1,1]){
   const t=new T.DataTexture(data,w,h,T.RGBAFormat);if(srgb)t.colorSpace=T.SRGBColorSpace;t.wrapS=t.wrapT=T.RepeatWrapping;t.repeat.set(...repeat);
   t.generateMipmaps=true;t.minFilter=T.LinearMipmapLinearFilter;t.magFilter=T.LinearFilter;t.anisotropy=4;t.needsUpdate=true;return t;
 }
 // Fleece (brushed French terry): a fine, soft knit face, as a height map with a little grain.
-function fleeceData(){
+export function fleeceData(){
   if(pixels.has('fleece'))return pixels.get('fleece');
   const w=64,h=64,rand=random(71),data=new Uint8Array(w*h*4);
   for(let y=0;y<h;y++)for(let x=0;x<w;x++){const v=150+40*Math.sin(x/w*Math.PI*16)*Math.cos(y/h*Math.PI*8)+(rand()-.5)*60,i=(y*w+x)*4;data[i]=data[i+1]=data[i+2]=Math.max(0,Math.min(255,v));data[i+3]=255;}
@@ -38,7 +38,7 @@ function liningData(base,stripe){
   const out={data,w,h};pixels.set(key,out);return out;
 }
 // A small pixel canvas for the embroidery and the patch: discs stamped along strokes, and filled shapes.
-function canvas(w,h,fill=null){
+export function canvas(w,h,fill=null){
   const data=new Uint8Array(w*h*4);if(fill){const c=hex(fill);for(let i=0;i<w*h;i++){data[i*4]=c[0];data[i*4+1]=c[1];data[i*4+2]=c[2];data[i*4+3]=255;}}
   const paint=(x,y,c,a=1)=>{if(x<0||y<0||x>=w||y>=h)return;const i=(y*w+x)*4,o=data[i+3]/255,na=Math.max(o,a);for(let k=0;k<3;k++)data[i+k]=Math.round((data[i+k]*o*(1-a)+c[k]*a)/(na||1));data[i+3]=Math.round(na*255);};
   const stroke=(pts,r,colour)=>{const c=hex(colour);for(let k=0;k<pts.length-1;k++){const [x0,y0]=pts[k],[x1,y1]=pts[k+1],n=Math.max(1,Math.ceil(Math.hypot(x1-x0,y1-y0)*2));
@@ -46,7 +46,7 @@ function canvas(w,h,fill=null){
   const fillShape=(inside,colour)=>{const c=hex(colour);for(let y=0;y<h;y++)for(let x=0;x<w;x++)if(inside(x+.5,y+.5))paint(x,y,c,1);};
   return {data,w,h,stroke,fillShape};
 }
-const arc=(cx,cy,rx,ry,a0,a1,n=24)=>Array.from({length:n+1},(_,k)=>{const a=a0+(a1-a0)*k/n;return [cx+rx*Math.cos(a),cy+ry*Math.sin(a)];});
+export const arc=(cx,cy,rx,ry,a0,a1,n=24)=>Array.from({length:n+1},(_,k)=>{const a=a0+(a1-a0)*k/n;return [cx+rx*Math.cos(a),cy+ry*Math.sin(a)];});
 // The embroidered mark: a trefoil of three leaves cut by three bars, above a lowercase word in a round, heavy letterform.
 function trefoilData(colour){
   const key='trefoil'+colour;if(pixels.has(key))return pixels.get(key);
@@ -79,7 +79,7 @@ function patchData(ground,ink,grey){
 }
 // A point on the body (an elliptical tube from its rows) at angle a (0 = centre front, toward her left) and height y,
 // lifted off it along its outward direction.
-function bodyAt(rows){
+export function bodyAt(rows){
   const radii=y=>{let k=0;while(k<rows.length-2&&rows[k+1][0]>y)k++;const t=Math.max(0,Math.min(1,(rows[k][0]-y)/(rows[k][0]-rows[k+1][0])));return [rows[k][1]+(rows[k+1][1]-rows[k][1])*t,rows[k][2]+(rows[k+1][2]-rows[k][2])*t];};
   return (a,y,lift=0)=>{const [rx,rz]=radii(y),x=Math.sin(a)*rx,z=Math.cos(a)*rz,n=new T.Vector2(x/(rx*rx),z/(rz*rz)).normalize();return new T.Vector3(x+n.x*lift,y,z+n.y*lift);};
 }
