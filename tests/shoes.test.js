@@ -183,6 +183,9 @@ test('Converse Modern Lift high-tops: stacked platform, seven eyelets, inner ank
   const spec=GARMENTS[CONVERSE_LIFT_HI_ID].build,outfit=makeOutfit({shoesId:CONVERSE_LIFT_HI_ID,dressId:'navy-half-zip-track-dress-v1'}),doll=makeDoll();fitDoll(doll,outfit);
   doll.updateMatrixWorld(true);outfit.updateMatrixWorld(true);const shoes=outfit.getObjectByName('shoes');
   for(const name of ['lug-sole','sole-stitch','boot-upper','tongue','eyelet','lace','lace-bow','ankle-patch','vent-eyelet'])assert.ok(shoes.getObjectByName(name),name);
+  // The rubber toe cap: the sole's material, over the front of each toe.
+  const caps=named(shoes,'toe-cap');assert.equal(caps.length,4,'a cap half on each side of each toe');assert.equal(caps[0].material,named(shoes,'lug-sole')[0].material,'rubber, like the sole');
+  for(const c of caps){const b=new T.Box3().setFromObject(c);assert.ok(b.max.z>.4&&b.max.y/.76>.16,'over the front of the toe, up the toe box');}
   assert.equal(named(shoes,'eyelet').length,2*2*7);assert.equal(named(shoes,'vent-eyelet').length,4);assert.equal(named(shoes,'ankle-patch').length,2);
   assert.equal(named(shoes,'sole-stitch').length,4,'two stitch lines round each sole');
   // Not raised: the platform stays within her foot height.

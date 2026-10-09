@@ -367,7 +367,8 @@ function makeLugBoot(id,spec,tape=null){
     if(spec.panels){const suede=new T.MeshPhysicalMaterial({color:C.upper,map,roughness:.95,sheen:.6,sheenColor:new T.Color(C.upper).lerp(new T.Color('#ffffff'),.4),sheenRoughness:.8,bumpMap:grain,bumpScale:.003,side:T.DoubleSide});
       const edgeAt=(pts,z)=>{if(z<=pts[0][0])return pts[0][1];for(let i=0;i<pts.length-1;i++)if(z<=pts[i+1][0])return pts[i][1]+(pts[i+1][1]-pts[i][1])*(z-pts[i][0])/(pts[i+1][0]-pts[i][0]);return pts[pts.length-1][1];};
       const ySole=z=>Math.max(yBase,soleTop(z))-.006;
-      for(const P of spec.panels){const mat=P.colour?suede.clone():suede;if(P.colour){mat.color.set(P.colour);mat.sheenColor.set(new T.Color(P.colour).lerp(new T.Color('#ffffff'),.4));}
+      // A rubber panel (a toe cap) is made of the sole's rubber, with a rolled edge instead of stitching.
+      for(const P of spec.panels){const mat=P.rubber?rubber:P.colour?suede.clone():suede;if(P.colour&&!P.rubber){mat.color.set(P.colour);mat.sheenColor.set(new T.Color(P.colour).lerp(new T.Color('#ffffff'),.4));}
         if(P.band){// a band all round the shoe, a fixed height above the sole
           const ring=(h,off)=>Array.from({length:N+1},(_,i)=>{const a=i/N*Math.PI*2,[,z0]=plan(yBase,a,0,base),y=ySole(z0)+h+(P.toe||0)*smooth(front-.12,front,z0)*(h>0?1:0);return surf(side,y,a,off).toArray();});
           ringShell(boots,[ring(0,.007),ring(P.band-.003,.007),ring(P.band,.0055),ring(P.band+.002,.002)],mat,P.name);
@@ -377,7 +378,8 @@ function makeLugBoot(id,spec,tape=null){
             for(let j=0;j<=nv;j++){const y=lo+(hi-lo)*j/nv,yy=Math.max(yBase,Math.min(collarY(Math.PI/2)+.03,y)),p=surf(side,yy,angleAt(yy,z,k),.0035).setY(y);pos.push(p.x,p.y,p.z);uv.push(z*3,y*3);}}
           for(let i=0;i<nu;i++)for(let j=0;j<nv;j++){const a=i*(nv+1)+j,b=a+nv+1;idx.push(a,b,a+1,a+1,b,b+1);}
           const geo=new T.BufferGeometry();geo.setAttribute('position',new T.Float32BufferAttribute(pos,3));geo.setAttribute('uv',new T.Float32BufferAttribute(uv,2));geo.setIndex(idx);geo.computeVertexNormals();put(boots,geo,mat,P.name);
-          curve(boots,alongSide(side,k,Array.from({length:13},(_,i)=>{const z=z0+(z1-z0)*i/12;return [z,edgeAt(P.top,z)-.006];}),.0045,24)[0].map(p=>p.toArray()),.0011,thread,'panel-stitch');}}
+          if(P.rubber)curve(boots,alongSide(side,k,Array.from({length:13},(_,i)=>{const z=z0+(z1-z0)*i/12;return [z,edgeAt(P.top,z)];}),.0035,24)[0].map(p=>p.toArray()),.0022,rubber,P.name+'-edge');
+          else curve(boots,alongSide(side,k,Array.from({length:13},(_,i)=>{const z=z0+(z1-z0)*i/12;return [z,edgeAt(P.top,z)-.006];}),.0045,24)[0].map(p=>p.toArray()),.0011,thread,'panel-stitch');}}
       // Eyestays: suede strips beside the lacing, from the toe up to the collar.
       for(const k of [-1,1]){const pts=[],nrm=[];for(let i=0;i<=16;i++){const y=y0-.01+(yFront-.004-(y0-.01))*i/16,a=laceAngle(y,k*(L+.012));pts.push(surf(side,y,a,.004));nrm.push(normal(side,y,a));}ribbon(boots,pts,nrm,.032,suede,'eyestay');}
     }

@@ -869,7 +869,7 @@ export const GARMENTS = Object.freeze({
     status: 'reference-study-awaiting-visual-review', brandAsProvided: 'Converse',
     source: { note: 'user supplied five phone screenshots of a decathlon.it product gallery: outer side, inner side, a pair seen from the front, and a top view (twice)' },
     referenceViews: ['outer side', 'inner side', 'front pair', 'top view'],
-    details: ['monochrome cream (egret) canvas high-top', 'stacked platform sole in cream with grooves between its layers and tonal stitch lines', 'seven silver eyelets a side up the lacing, cream flat laces', 'round tonal ankle patch with an embossed star on the inner side', 'two small vent eyelets low on the inner side', 'rounded toe, padded collar'],
+    details: ['monochrome cream (egret) canvas high-top', 'stacked platform sole in cream with grooves between its layers and tonal stitch lines', 'seven silver eyelets a side up the lacing, cream flat laces', 'rubber toe cap in the sole\'s cream wrapping the front of the toe', 'round tonal ankle patch with an embossed star on the inner side', 'two small vent eyelets low on the inner side', 'rounded toe, padded collar'],
     material: { construction: 'cotton canvas upper on a rubber platform', composition: 'not visible in the supplied screenshots', finish: 'matte canvas' },
     fit: { silhouette: 'high-top platform sneaker', height: 'over the ankle', adjustment: 'fixed authored fit for review' },
     uncertainties: ['the patch carries no lettering', 'the heel label and insole logo are not modelled', 'the platform stays within her foot height, so she is not raised; the real platform may be a little taller'],
@@ -889,6 +889,9 @@ export const GARMENTS = Object.freeze({
       collar: { front: .38, side: .395, back: .41 },
       nFront: 2.1, nBack: 2, heelNarrow: .12, toeNarrow: .25, restCap: .18, collarRoll: .009, drapeClear: .05,
       eyelets: [.175, .2, .225, .25, .275, .3, .325], laceHalfWidth: .03, eyeletSize: [.0095, .0032],
+      // The rubber toe cap in the sole's colour, wrapping the front of the toe from the sole up to about half the toe
+      // box's height, as on every Chuck Taylor.
+      panels: [{ name: 'toe-cap', rubber: true, z: [.26, .44], top: [[.26, .107], [.3, .13], [.34, .152], [.38, .166], [.44, .174]] }],
       coversSocks: true, anklePatch: { at: [-.042, .236], r: .034 }, vents: [[.096, .125], [.042, .125]],
     },
   },

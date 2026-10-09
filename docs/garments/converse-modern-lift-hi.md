@@ -11,6 +11,7 @@ Features read from the screenshots:
 - A monochrome cream (egret) canvas high-top on a stacked platform about a quarter of the shoe's height. The platform has three layers with shallow grooves between them and fine tonal stitch lines round it, and the toe bumper rises a little higher.
 - Seven silver eyelets a side up the lacing, with cream flat laces.
 - A round tonal ankle patch with an embossed star on the inner side, and two small vent eyelets low on the inner side.
+- A rubber toe cap in the sole's cream, wrapping the front of the toe from the sole up to about half the toe box's height.
 - A rounded toe and a padded collar.
 
 Measured on the outer side: canvas about (230, 227, 217) and the sole a slightly yellower (226, 223, 207); the inner quarter (224, 223, 211) and the patch (227, 225, 217). From the side photo, the collar is about two thirds of the shoe's length high.
@@ -26,11 +27,13 @@ Catalog ID `converse-modern-lift-hi-egret-v1` (slot `shoes`), template `sneaker`
 - `anklePatch`: `{ at: [z, y], r }`, a round patch on the inner side with an embossed ring and star. It is corrected for the outfit's vertical scale, so it stays round.
 - `vents`: `[[z, y], ...]`, small metal vent eyelets with dark holes on the inner side.
 - `coversSocks`: a shoe that covers her socks completely hides them, as the UGG pair's own ankle socks do.
+- `rubber` on a panel: made of the sole's rubber, with a rolled edge instead of stitching (for a toe cap). Panels without it are unchanged.
 
 **Shape:**
 
 - The platform's top is at 0.105, flat, inside her foot height, so she is not raised. The rand rises to 0.118 at the toe.
 - The canvas upper has a long rounded toe box, the lacing climbs from 0.175 to 0.325, and a straight shaft rises to the collar (front 0.38, sides 0.395, back 0.41).
+- The rubber toe cap (a `rubber` panel) wraps the front of the toe from the sole, starting about a third of the way back along the foot and rising to about half the toe box's height at the tip, with a rolled edge. Setting panels also gives it the template's tonal eyestay strips beside the lacing.
 - The shaft narrows to hug her leg, about 0.17 front to back near the collar, so her leg does not come out of a loose opening. The UGG sneakers' first version had that problem.
 
 **Layering with bottoms.** These are shoe-side settings; no trouser code changed.
@@ -45,10 +48,14 @@ Catalog ID `converse-modern-lift-hi-egret-v1` (slot `shoes`), template `sneaker`
 
 A chunky high-top on a stacked platform, all cream, plain and tonal; closed, over the ankle. Warmth 2 of 4, inferred from the closed canvas high-top. Dry mild days; canvas is not waterproof.
 
+## Revision after the user's first look
+
+The user pointed out the missing rubber toe cap, "that strip of material in front of the shoe that is the same color as the sole, typical of Converse shoes". It was added as a rubber panel; a first, lower cap hardly showed from the side, so it was made taller and longer.
+
 ## Checks
 
 - `npm test`: 70 passing after merging `main`. The new test checks:
-  - the parts, including seven eyelets a side, two vent eyelets and an ankle patch per shoe, and two stitch lines per sole;
+  - the parts, including the toe cap, seven eyelets a side, two vent eyelets and an ankle patch per shoe, and two stitch lines per sole;
   - the grooves between the platform layers;
   - the patch and vents on the inner side of each foot;
   - that she is not raised;
