@@ -180,12 +180,17 @@ function meshKnit(){
   for(let y=0;y<size;y++)for(let x=0;x<size;x++){const px=(x+((y>>2)%2)*2)%4,py=y%4,pore=px<2&&py<2,v=pore?70:220,i=(y*size+x)*4;data[i]=data[i+1]=data[i+2]=v;data[i+3]=255;}
   const tex=new T.DataTexture(data,size,size,T.RGBAFormat);tex.wrapS=tex.wrapT=T.RepeatWrapping;tex.needsUpdate=true;return tex;
 }
+// Turn a strip's faces to point along `out`, so a strip lying close on a surface is not shadowed by it.
+function outwardRibbon(mesh,out){const g=mesh.geometry,n=g.attributes.normal;if(n.getX(0)*out.x+n.getY(0)*out.y+n.getZ(0)*out.z>=0)return mesh;
+  const idx=g.index.array.slice();for(let i=0;i<idx.length;i+=3)[idx[i+1],idx[i+2]]=[idx[i+2],idx[i+1]];g.setIndex(Array.from(idx));g.computeVertexNormals();return mesh;}
 function makeLugBoot(id,spec,tape=null){
   const boots=new T.Group();boots.name='shoes';boots.userData.garmentId=id;
   const C=spec.colours,S=spec.sole,rows=spec.upper,yBase=rows[0][0],cx=spec.cx,K=spec.collar;
   const grain=weave('felt');grain.repeat.set(10,6);
   const map=mottle(31);map.repeat.set(3,1);
   const nubuck=new T.MeshPhysicalMaterial({color:C.upper,map,roughness:.92,sheen:.5,sheenColor:new T.Color(C.upper).lerp(new T.Color('#efe3c6'),.35),sheenRoughness:.7,bumpMap:grain,bumpScale:.004,side:T.DoubleSide});
+  // Smooth polished leather instead of nubuck (spec.finish 'leather'): a soft gloss with a faint grain.
+  if(spec.finish==='leather'){nubuck.map=null;nubuck.roughness=.45;nubuck.sheen=0;nubuck.clearcoat=.35;nubuck.clearcoatRoughness=.32;nubuck.bumpScale=.0012;}
   const rubberGrain=weave('felt');rubberGrain.repeat.set(16,4);
   const rubber=new T.MeshStandardMaterial({color:C.sole,roughness:.82,bumpMap:rubberGrain,bumpScale:.0012,side:T.DoubleSide});
   const thread=solid(C.thread,.85),piping=solid(C.piping,.6),webbing=cloth(C.webbing),lace=solid(C.lace,.9),lining=solid(C.lining,.95),eyelet=new T.MeshStandardMaterial({color:C.eyelet,metalness:.7,roughness:.4});
@@ -257,8 +262,8 @@ function makeLugBoot(id,spec,tape=null){
     ringShell(boots,[soleRings[soleRings.length-1],ringPts.map(a=>{const [,z0]=plan(yBase,a,0,base),y=soleTop(z0);return surf(side,Math.max(yBase,y),a).toArray();})],rubber,'sole-rim');
     // A dark welt line where the upper goes into the sole, so the two read apart.
     curve(boots,ringPts.filter((_,i)=>i%4===0).map(a=>{const [,z0]=plan(yBase,a,0,base);return surf(side,Math.max(yBase,soleTop(z0))+.004,a,.002).toArray();}),.0032,piping,'welt');
-    // Tongue under the laces, standing a little above the collar.
-    const yFront=collarY(0),y0=spec.eyelets[0]-.008,tPath=[];for(let k=0;k<=10;k++)tPath.push([y0+(yFront-y0)*k/10,0]);
+    // Tongue under the laces, standing a little above the collar. A front-zip boot (spec.zip) has no tongue or laces.
+    const yFront=collarY(0),y0=(spec.eyelets?.[0]??0)-.008,tPath=[];if(!spec.zip){for(let k=0;k<=10;k++)tPath.push([y0+(yFront-y0)*k/10,0]);
     const [tp,tn]=onSurface(side,tPath,.002,20),up=V(0,1,0);
     for(const k of [1,2]){tp.push(tp[tp.length-1].clone().addScaledVector(up,.01));tn.push(tn[tn.length-1].clone());}
     ribbon(boots,tp,tn,spec.laceHalfWidth*2+.016,nubuck,'tongue');
@@ -267,12 +272,14 @@ function makeLugBoot(id,spec,tape=null){
     if(spec.tongueTab){ribbon(boots,...tapeAt(spec.loops[0]-.03,spec.loops[1]+.012),.032,tapeMat,'tongue-tape');
     ribbon(boots,...tapeAt(yFront-.035,yFront,spec.tongueTab.above),spec.tongueTab.width,tapeMat,'tongue-tab');
     const badge=oval(boots,surf(side,y0+.004,0,.008).toArray(),[.024,.016,.006],solid(C.lining,.5),'tongue-badge',16);badge.lookAt(badge.position.clone().add(normal(side,y0+.004,0)));}
+    }
     // Heel pull tab: tall logo tape up the back, passing over the padded collar roll and rising above it.
     const yBack=collarY(Math.PI);if(spec.heelTab){const hp=[],hn=[];for(let i=0;i<=16;i++){const y=spec.heelTab.from+(yBack-spec.heelTab.from)*i/16;hp.push(surf(side,y,Math.PI,.008+(spec.collarRoll+.006)*smooth(yBack-.05,yBack,y)));hn.push(normal(side,y,Math.PI));}
     for(const k of [1,2,3]){hp.push(hp[hp.length-1].clone().add(V(0,spec.heelTab.above/3,0)));hn.push(hn[hn.length-1].clone());}
     ribbon(boots,hp,hn,spec.heelTab.width,tapeMat,'heel-tab');}
     // Lacing: metal eyelets, taupe webbing loops, and flat laces crossing between them, tied in a bow at the top.
-    const L=spec.laceHalfWidth,laceRows=[...spec.eyelets,...(spec.loops||[])].sort((a,b)=>a-b),edge=(y,k)=>surf(side,y,laceAngle(y,k*L),.006);
+    const L=spec.laceHalfWidth,laceRows=[...(spec.eyelets||[]),...(spec.loops||[])].sort((a,b)=>a-b),edge=(y,k)=>surf(side,y,laceAngle(y,k*L),.006);
+    if(!spec.zip){
     for(const y of spec.eyelets)for(const k of [-1,1]){const a=laceAngle(y,k*L),e=put(boots,new T.TorusGeometry(spec.eyeletSize?.[0]??.012,spec.eyeletSize?.[1]??.0042,6,14),eyelet,'eyelet');e.position.copy(surf(side,y,a,.003));e.lookAt(e.position.clone().add(normal(side,y,a)));}
     for(const y of spec.loops||[])for(const k of [-1,1]){const a=laceAngle(y,k*L);ribbon(boots,...onSurface(side,[[y,a-k*.03],[y-.002,a+k*.12],[y-.004,a+k*.26]],.006,8),.017,webbing,'webbing-loop');}
     // Eyestays: dark piping and tan stitching beside the lacing, from the toe up to the collar.
@@ -308,6 +315,26 @@ function makeLugBoot(id,spec,tape=null){
         const tip=end.clone().add(V(0,-.012,0));curve(boots,[end.toArray(),tip.toArray()],.006,lm,'aglet');
         void sx;}
     }
+    }
+    // Front zip (spec.zip): a raised leather placket from the toe cap up to the collar, double-stitched either side, with
+    // metal teeth down its middle and a slider at the top whose pull carries a small metal logo.
+    if(spec.zip){const Z=spec.zip,metal=new T.MeshStandardMaterial({color:C.eyelet,metalness:.8,roughness:.3}),path=[];for(let k=0;k<=12;k++)path.push([Z.from+(yFront-.004-Z.from)*k/12,0]);
+      const [pp,nn]=onSurface(side,path,.0025,24);outwardRibbon(ribbon(boots,pp,nn,Z.placket,nubuck,'zip-placket'),nn[0]);
+      const [tp,tn]=onSurface(side,path,.0045,24);outwardRibbon(ribbon(boots,tp,tn,Z.teeth,new T.MeshStandardMaterial({color:C.eyelet,metalness:.75,roughness:.35,side:T.DoubleSide}),'zip-teeth'),tn[0]);
+      for(const k of [-1,1])for(const d of Z.stitch){const pts=path.map(([y])=>surf(side,y,laceAngle(y,k*d),.004).toArray());curve(boots,pts,.0011,thread,'zip-stitch');}
+      const top=surf(side,yFront-.012,0,.009),out=normal(side,yFront-.012,0),slider=put(boots,new T.BoxGeometry(.014,.02,.008),metal,'zip-slider');slider.position.copy(top);slider.lookAt(top.clone().add(out));
+      const pull=put(boots,new T.BoxGeometry(.012,.04,.004),nubuck,'zip-pull');pull.position.copy(surf(side,yFront-.04,0,.012));pull.lookAt(pull.position.clone().add(normal(side,yFront-.04,0)));
+      const logo=put(boots,new T.BoxGeometry(.012,.006,.003),metal,'zip-pull-logo');logo.position.copy(surf(side,yFront-.052,0,.0148));logo.lookAt(logo.position.clone().add(normal(side,yFront-.052,0)));}
+    // Toe cap (spec.toeCap): a seam across the toe from the sole on each side, meeting over the top at height y, double-stitched.
+    if(spec.toeCap){const TC=spec.toeCap;for(const k of [-1,1]){const path=[...TC.side,[at(TC.y)[0],TC.y]];
+      curve(boots,alongSide(side,k,path,.0025,20)[0].map(p=>p.toArray()),.0026,nubuck,'toe-cap-seam');
+      for(const d of [-.006,-.01])curve(boots,alongSide(side,k,path.map(([z,y])=>[z-.001,y+d]),.002,20)[0].map(p=>p.toArray()),.001,thread,'toe-cap-stitch');}}
+    // Panel seams on both sides (spec.seams, [z, y] paths): a slight ridge with a row of stitching beside it.
+    if(spec.seams)for(const k of [-1,1])for(const path of spec.seams){
+      curve(boots,alongSide(side,k,path,.002,24)[0].map(p=>p.toArray()),.0024,nubuck,'panel-seam');
+      curve(boots,alongSide(side,k,path.map(([z,y])=>[z,y-.006]),.002,24)[0].map(p=>p.toArray()),.001,thread,'panel-stitch');}
+    // A small metal logo bar on the back of the shaft beside the pull tab (spec.backHardware).
+    if(spec.backHardware){const H=spec.backHardware;for(const k of [-1,1]){const a=Math.PI+k*H.angle,p=surf(side,H.y,a,.004),bar=put(boots,new T.BoxGeometry(.022,.007,.004),new T.MeshStandardMaterial({color:C.eyelet,metalness:.8,roughness:.3}),'back-hardware');bar.position.copy(p);bar.lookAt(p.clone().add(normal(side,H.y,a)));if(!H.both)break;}}
     // Sides (both): the long overlay edge in dark piping sweeping from the heel up to the lacing, the window below it with
     // two diagonal webbing straps, the vamp seam, and tan stitching beside each edge. Paths are [z, y].
     if(spec.sides)for(const k of [-1,1]){
