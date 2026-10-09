@@ -2083,7 +2083,7 @@ export function makeOutfit(raw, atlas=null) {
     if(outerwear.layering?.coversTopSleeves)for(const layer of root.children)layer.traverse(o=>{if(o.isGroup&&o.rotation.z!==0&&o.children.some(c=>c.isMesh&&/sleeve/.test(c.name)))o.visible=false;});
     // Zipped to the chin, it also closes over the striped shirt's collar points and a polo's or button-down's collar.
     if(outerwear.layering?.closed&&!state.outerwearOpen)root.traverse(o=>{if(o.name.startsWith('shirt-collar')||o.name.startsWith('polo-collar'))o.visible=false;});
-    const outer=makeOuterwear(state.outerwearId,skirtOn,{under:root,open:state.outerwearOpen});
+    const outer=makeOuterwear(state.outerwearId,skirtOn,{under:root,open:state.outerwearOpen,insert:state.outerwearInsert});
     if(outer)root.add(outer);
   }
   // Materials that were not used in the selected layers are not retained.

@@ -1,6 +1,6 @@
 # Wardrobe item: adidas Originals cropped hoodie
 
-Authored 9 October 2026. Status: first version, awaiting the user's visual review. The first hoodie.
+Authored 9 October 2026. Status: approved: the user merged it, and merging means approved (their rule). The first hoodie.
 
 ## Source and reference reading
 
@@ -105,7 +105,7 @@ The user saw "a weird floating thing" at the collar. The hood's opening came for
 
   The shared tests also run on it: sleeves over her arms, cuffs over her hands, the styling facts, and every jacket over every top.
 - `npm run build` succeeds.
-- Rendered in headless Chromium (software WebGL) from the front, a turn and the back, with the black jeans, and over the skirt under the open leather jacket. Only the authoring chat has checked these renders; the user has not seen them yet. No device check.
+- Rendered in headless Chromium (software WebGL) from the front, a turn and the back, with the black jeans, and over the skirt under the open leather jacket. The user saw them and merged it. No device check.
 
 ## Known differences
 

@@ -1,6 +1,6 @@
 # Wardrobe items: white and lapis blue linen button-down shirts
 
-Authored 9 October 2026. Status: first version, awaiting the user's visual review. The first linen tops, and the first garments made from a description alone.
+Authored 9 October 2026. Status: approved: the user merged it, and merging means approved (their rule). The first linen tops, and the first garments made from a description alone.
 
 ## Source
 
@@ -102,7 +102,7 @@ Each file holds the catalog entry, its study preset and its `build`: the linen's
   - the white shirt with the linen trousers, and over the skirt;
   - the lapis shirt with the crystal jeans, and over the skirt under the open leather jacket.
 
-  Only the authoring chat has checked these renders; the user has not seen them yet. No device check.
+  The user saw them and merged it. No device check.
 
 ## Known differences
 
