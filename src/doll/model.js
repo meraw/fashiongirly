@@ -129,7 +129,7 @@ LOAFER_REST.reach=.3;
 function makeShoes(id='classic',tape=null){
   const spec=GARMENTS[id]?.slot==='shoes'?GARMENTS[id].build:null;
   if(spec?.template==='lug-boot'||spec?.template==='sneaker')return makeLugBoot(id,spec,tape);
-  if(spec?.template==='platform-slide')return makePlatformSlide(id,spec);
+  if(spec?.template==='platform-slide'||spec?.template==='platform-sandal')return makePlatformSlide(id,spec);
   const shoes=new T.Group();shoes.name='shoes';shoes.userData.rest=LOAFER_REST;
   const leather=solid('#64362e',.37),sole=solid('#312829',.85),stitch=solid('#c4a26e');
   for(const side of [-1,1]){
@@ -180,12 +180,17 @@ function meshKnit(){
   for(let y=0;y<size;y++)for(let x=0;x<size;x++){const px=(x+((y>>2)%2)*2)%4,py=y%4,pore=px<2&&py<2,v=pore?70:220,i=(y*size+x)*4;data[i]=data[i+1]=data[i+2]=v;data[i+3]=255;}
   const tex=new T.DataTexture(data,size,size,T.RGBAFormat);tex.wrapS=tex.wrapT=T.RepeatWrapping;tex.needsUpdate=true;return tex;
 }
+// Turn a strip's faces to point along `out`, so a strip lying close on a surface is not shadowed by it.
+function outwardRibbon(mesh,out){const g=mesh.geometry,n=g.attributes.normal;if(n.getX(0)*out.x+n.getY(0)*out.y+n.getZ(0)*out.z>=0)return mesh;
+  const idx=g.index.array.slice();for(let i=0;i<idx.length;i+=3)[idx[i+1],idx[i+2]]=[idx[i+2],idx[i+1]];g.setIndex(Array.from(idx));g.computeVertexNormals();return mesh;}
 function makeLugBoot(id,spec,tape=null){
   const boots=new T.Group();boots.name='shoes';boots.userData.garmentId=id;
   const C=spec.colours,S=spec.sole,rows=spec.upper,yBase=rows[0][0],cx=spec.cx,K=spec.collar;
   const grain=weave('felt');grain.repeat.set(10,6);
   const map=mottle(31);map.repeat.set(3,1);
   const nubuck=new T.MeshPhysicalMaterial({color:C.upper,map,roughness:.92,sheen:.5,sheenColor:new T.Color(C.upper).lerp(new T.Color('#efe3c6'),.35),sheenRoughness:.7,bumpMap:grain,bumpScale:.004,side:T.DoubleSide});
+  // Smooth polished leather instead of nubuck (spec.finish 'leather'): a soft gloss with a faint grain.
+  if(spec.finish==='leather'){nubuck.map=null;nubuck.roughness=.45;nubuck.sheen=0;nubuck.clearcoat=.35;nubuck.clearcoatRoughness=.32;nubuck.bumpScale=.0012;}
   const rubberGrain=weave('felt');rubberGrain.repeat.set(16,4);
   const rubber=new T.MeshStandardMaterial({color:C.sole,roughness:.82,bumpMap:rubberGrain,bumpScale:.0012,side:T.DoubleSide});
   const thread=solid(C.thread,.85),piping=solid(C.piping,.6),webbing=cloth(C.webbing),lace=solid(C.lace,.9),lining=solid(C.lining,.95),eyelet=new T.MeshStandardMaterial({color:C.eyelet,metalness:.7,roughness:.4});
@@ -260,8 +265,8 @@ function makeLugBoot(id,spec,tape=null){
     ringShell(boots,[soleRings[soleRings.length-1],ringPts.map(a=>{const [,z0]=plan(yBase,a,0,base),y=soleTop(z0);return surf(side,Math.max(yBase,y),a).toArray();})],rubber,'sole-rim');
     // A dark welt line where the upper goes into the sole, so the two read apart.
     curve(boots,ringPts.filter((_,i)=>i%4===0).map(a=>{const [,z0]=plan(yBase,a,0,base);return surf(side,Math.max(yBase,soleTop(z0))+.004,a,.002).toArray();}),.0032,piping,'welt');
-    // Tongue under the laces, standing a little above the collar.
-    const yFront=collarY(0),y0=spec.eyelets[0]-.008,tPath=[];for(let k=0;k<=10;k++)tPath.push([y0+(yFront-y0)*k/10,0]);
+    // Tongue under the laces, standing a little above the collar. A front-zip boot (spec.zip) has no tongue or laces.
+    const yFront=collarY(0),y0=(spec.eyelets?.[0]??0)-.008,tPath=[];if(!spec.zip){for(let k=0;k<=10;k++)tPath.push([y0+(yFront-y0)*k/10,0]);
     const [tp,tn]=onSurface(side,tPath,.002,20),up=V(0,1,0);
     for(const k of [1,2]){tp.push(tp[tp.length-1].clone().addScaledVector(up,.01));tn.push(tn[tn.length-1].clone());}
     ribbon(boots,tp,tn,spec.laceHalfWidth*2+.016,nubuck,'tongue');
@@ -270,12 +275,14 @@ function makeLugBoot(id,spec,tape=null){
     if(spec.tongueTab){ribbon(boots,...tapeAt(spec.loops[0]-.03,spec.loops[1]+.012),.032,tapeMat,'tongue-tape');
     ribbon(boots,...tapeAt(yFront-.035,yFront,spec.tongueTab.above),spec.tongueTab.width,tapeMat,'tongue-tab');
     const badge=oval(boots,surf(side,y0+.004,0,.008).toArray(),[.024,.016,.006],solid(C.lining,.5),'tongue-badge',16);badge.lookAt(badge.position.clone().add(normal(side,y0+.004,0)));}
+    }
     // Heel pull tab: tall logo tape up the back, passing over the padded collar roll and rising above it.
     const yBack=collarY(Math.PI);if(spec.heelTab){const hp=[],hn=[];for(let i=0;i<=16;i++){const y=spec.heelTab.from+(yBack-spec.heelTab.from)*i/16;hp.push(surf(side,y,Math.PI,.008+(spec.collarRoll+.006)*smooth(yBack-.05,yBack,y)));hn.push(normal(side,y,Math.PI));}
     for(const k of [1,2,3]){hp.push(hp[hp.length-1].clone().add(V(0,spec.heelTab.above/3,0)));hn.push(hn[hn.length-1].clone());}
     ribbon(boots,hp,hn,spec.heelTab.width,tapeMat,'heel-tab');}
     // Lacing: metal eyelets, taupe webbing loops, and flat laces crossing between them, tied in a bow at the top.
-    const L=spec.laceHalfWidth,laceRows=[...spec.eyelets,...(spec.loops||[])].sort((a,b)=>a-b),edge=(y,k)=>surf(side,y,laceAngle(y,k*L),.006);
+    const L=spec.laceHalfWidth,laceRows=[...(spec.eyelets||[]),...(spec.loops||[])].sort((a,b)=>a-b),edge=(y,k)=>surf(side,y,laceAngle(y,k*L),.006);
+    if(!spec.zip){
     for(const y of spec.eyelets)for(const k of [-1,1]){const a=laceAngle(y,k*L),e=put(boots,new T.TorusGeometry(spec.eyeletSize?.[0]??.012,spec.eyeletSize?.[1]??.0042,6,14),eyelet,'eyelet');e.position.copy(surf(side,y,a,.003));e.lookAt(e.position.clone().add(normal(side,y,a)));}
     for(const y of spec.loops||[])for(const k of [-1,1]){const a=laceAngle(y,k*L);ribbon(boots,...onSurface(side,[[y,a-k*.03],[y-.002,a+k*.12],[y-.004,a+k*.26]],.006,8),.017,webbing,'webbing-loop');}
     // Eyestays: dark piping and tan stitching beside the lacing, from the toe up to the collar.
@@ -314,6 +321,26 @@ function makeLugBoot(id,spec,tape=null){
         const tip=end.clone().add(V(0,-.012,0));curve(boots,[end.toArray(),tip.toArray()],.006,lm,'aglet');
         void sx;}
     }
+    }
+    // Front zip (spec.zip): a raised leather placket from the toe cap up to the collar, double-stitched either side, with
+    // metal teeth down its middle and a slider at the top whose pull carries a small metal logo.
+    if(spec.zip){const Z=spec.zip,metal=new T.MeshStandardMaterial({color:C.eyelet,metalness:.8,roughness:.3}),path=[];for(let k=0;k<=12;k++)path.push([Z.from+(yFront-.004-Z.from)*k/12,0]);
+      const [pp,nn]=onSurface(side,path,.0025,24);outwardRibbon(ribbon(boots,pp,nn,Z.placket,nubuck,'zip-placket'),nn[0]);
+      const [tp,tn]=onSurface(side,path,.0045,24);outwardRibbon(ribbon(boots,tp,tn,Z.teeth,new T.MeshStandardMaterial({color:C.eyelet,metalness:.75,roughness:.35,side:T.DoubleSide}),'zip-teeth'),tn[0]);
+      for(const k of [-1,1])for(const d of Z.stitch){const pts=path.map(([y])=>surf(side,y,laceAngle(y,k*d),.004).toArray());curve(boots,pts,.0011,thread,'zip-stitch');}
+      const top=surf(side,yFront-.012,0,.009),out=normal(side,yFront-.012,0),slider=put(boots,new T.BoxGeometry(.014,.02,.008),metal,'zip-slider');slider.position.copy(top);slider.lookAt(top.clone().add(out));
+      const pull=put(boots,new T.BoxGeometry(.012,.04,.004),nubuck,'zip-pull');pull.position.copy(surf(side,yFront-.04,0,.012));pull.lookAt(pull.position.clone().add(normal(side,yFront-.04,0)));
+      const logo=put(boots,new T.BoxGeometry(.012,.006,.003),metal,'zip-pull-logo');logo.position.copy(surf(side,yFront-.052,0,.0148));logo.lookAt(logo.position.clone().add(normal(side,yFront-.052,0)));}
+    // Toe cap (spec.toeCap): a seam across the toe from the sole on each side, meeting over the top at height y, double-stitched.
+    if(spec.toeCap){const TC=spec.toeCap;for(const k of [-1,1]){const path=[...TC.side,[at(TC.y)[0],TC.y]];
+      curve(boots,alongSide(side,k,path,.0025,20)[0].map(p=>p.toArray()),.0026,nubuck,'toe-cap-seam');
+      for(const d of [-.006,-.01])curve(boots,alongSide(side,k,path.map(([z,y])=>[z-.001,y+d]),.002,20)[0].map(p=>p.toArray()),.001,thread,'toe-cap-stitch');}}
+    // Panel seams on both sides (spec.seams, [z, y] paths): a slight ridge with a row of stitching beside it.
+    if(spec.seams)for(const k of [-1,1])for(const path of spec.seams){
+      curve(boots,alongSide(side,k,path,.002,24)[0].map(p=>p.toArray()),.0024,nubuck,'panel-seam');
+      curve(boots,alongSide(side,k,path.map(([z,y])=>[z,y-.006]),.002,24)[0].map(p=>p.toArray()),.001,thread,'panel-stitch');}
+    // A small metal logo bar on the back of the shaft beside the pull tab (spec.backHardware).
+    if(spec.backHardware){const H=spec.backHardware;for(const k of [-1,1]){const a=Math.PI+k*H.angle,p=surf(side,H.y,a,.004),bar=put(boots,new T.BoxGeometry(.022,.007,.004),new T.MeshStandardMaterial({color:C.eyelet,metalness:.8,roughness:.3}),'back-hardware');bar.position.copy(p);bar.lookAt(p.clone().add(normal(side,H.y,a)));if(!H.both)break;}}
     // Sides (both): the long overlay edge in dark piping sweeping from the heel up to the lacing, the window below it with
     // two diagonal webbing straps, the vamp seam, and tan stitching beside each edge. Paths are [z, y].
     if(spec.sides)for(const k of [-1,1]){
@@ -395,6 +422,8 @@ function makePlatformSlide(id,spec){
   const C=spec.colours,S=spec.sole,P=spec.plan,F=spec.foot,cx=spec.cx,bed=S.footbed;
   const smooth=(e0,e1,x)=>{const t=Math.min(1,Math.max(0,(x-e0)/(e1-e0)));return t*t*(3-2*t);};
   const outsole=new T.MeshPhysicalMaterial({color:C.outsole,roughness:.42,clearcoat:.35,clearcoatRoughness:.5,side:T.DoubleSide});
+  const ribbed=S.style==='quad'?new T.MeshStandardMaterial({color:C.outsole,roughness:.75,vertexColors:true,side:T.DoubleSide}):null;
+  const ribShade=(mesh,rowShade)=>{const n=mesh.geometry.attributes.position.count/rowShade.length,c=[];rowShade.forEach(f=>{for(let i=0;i<n;i++)c.push(f,f,f);});mesh.geometry.setAttribute('color',new T.Float32BufferAttribute(c,3));};
   const leather=new T.MeshStandardMaterial({color:C.leather,roughness:.5,side:T.DoubleSide}),suede=new T.MeshStandardMaterial({color:C.footbed,roughness:1,side:T.DoubleSide}),yellow=solid(C.stitch,.7);
   const cow=new T.MeshPhysicalMaterial({map:cowPrint(),roughness:.85,sheen:.6,sheenColor:new T.Color('#ffffff'),sheenRoughness:.5,side:T.DoubleSide});
   const skin=cloth(C.skin),metal=new T.MeshStandardMaterial({color:C.buckle,metalness:.9,roughness:.28});
@@ -427,18 +456,36 @@ function makePlatformSlide(id,spec){
     if(t>.5&&t<.78){const saw=Math.abs(((t-.5)/.07)%1-.5);return y<.02+.032*(1-2*saw)?1:0;}
     return 0;};
   const archLift=z=>{const t=(z-P.back)/(P.front-P.back);return S.archGap*smooth(.3,.33,t)*(1-smooth(.47,.5,t));};
-  const ring=(side,y,offFn)=>angles.map((a,i)=>{const [x0,z0]=outline(a),[x,z]=outline(a,offFn(i,z0));return [side*cx+x,y+(y<.03?archLift(z0)*(1-y/.03):0),z];});
+  const ring=(side,y,offFn)=>angles.map((a,i)=>{const [x0,z0]=outline(a),[x,z]=outline(a,offFn(i,z0));return [side*cx+x,y+(y<.03&&S.archGap?archLift(z0)*(1-y/.03):0),z];});
   for(const side of [-1,1]){
+    let rows;
+    if(S.style==='quad'){
+      // Quad sole: straight walls with fine horizontal ribbing all the way up, and a sawtooth tread round the bottom
+      // edge whose teeth point down.
+      const tooth=(i,y)=>{const g=(perim[i]/lugPeriod)%1,tri=Math.abs(g-.5)*2;return -S.toothDepth*Math.max(0,tri-y/S.toothTop)*(y<S.toothTop?1:0);};
+      rows=[[0,i=>-.006+tooth(i,0)]];for(let k=1;k<=6;k++){const y=S.toothTop*k/6;rows.push([y,i=>tooth(i,y)]);}
+      for(let y=S.toothTop+S.rib;y<S.outsole-.002;y+=S.rib)for(const [dy,o] of [[-S.rib*.4,-(S.ribDepth??.0028)],[0,0]])rows.push([y+dy,()=>o]);
+      rows.push([S.outsole,()=>0]);
+    }else{
     const lug=(i,y)=>{const g=Math.abs((perim[i]/lugPeriod)%1-.5),half=.18*Math.max(0,1-y/.02);return g<half?-.012*smooth(half,half*.5,g):0;};
-    const rows=[[0,()=>.002],[.004,(i)=>.008+lug(i,.004)],[.012,(i)=>.008+lug(i,.012)],[.02,()=>.008]];
+    rows=[[0,()=>.002],[.004,(i)=>.008+lug(i,.004)],[.012,(i)=>.008+lug(i,.012)],[.02,()=>.008]];
     for(let k=1;k<=10;k++){const y=.02+(S.outsole-.02)*k/10,flare=.008*(1-k/10);rows.push([y,(i,z)=>{const p=proud(z,y,side);return -.02*(1-p)+flare*p;}]);}
-    const outsoleRings=rows.map(([y,f])=>ring(side,y,f));ringShell(slides,outsoleRings,outsole,'slide-outsole');
+    }
+    const outsoleRings=rows.map(([y,f])=>ring(side,y,f)),outsoleMesh=ringShell(slides,outsoleRings,S.style==='quad'?ribbed:outsole,'slide-outsole');
+    // Quad ribbing reads as fine pale lines: ridges catch the light, grooves stay dark.
+    if(S.style==='quad')ribShade(outsoleMesh,rows.map(([,f])=>f(0,0)<-.001?.55:1.45));
     // Welt: black leather band standing proud, with fine horizontal grooves and yellow stitching.
     const W=S.welt,weltRows=[[S.outsole,.0],[S.outsole+.003,.004],...W.grooves.flatMap(g=>[[g-.002,.004],[g,.001],[g+.002,.004]]),[W.top-.003,.004],[W.top,.0]];
     ringShell(slides,weltRows.map(([y,o])=>ring(side,y,()=>o)),leather,'slide-welt');
-    curve(slides,angles.filter((_,i)=>i%2===0).map(a=>{const [x,z]=outline(a,.0055);return [side*cx+x,W.stitch,z];}),.0024,yellow,'welt-stitch');
+    if(S.style==='quad'){// dashed stitches, as sewn
+      const pts=angles.map(a=>{const [x,z]=outline(a,.0055);return V(side*cx+x,W.stitch,z);}),dash=.011,gap=.006;let acc=0,cur=[];
+      for(let i=1;i<pts.length;i++){acc+=pts[i].distanceTo(pts[i-1]);const on=acc%(dash+gap)<dash;if(on)cur.push(pts[i]);if((!on||i===pts.length-1)&&cur.length>1){curve(slides,cur.map(p=>p.toArray()),.0024,yellow,'welt-stitch');cur=[];}else if(!on)cur=[];}
+    }else curve(slides,angles.filter((_,i)=>i%2===0).map(a=>{const [x,z]=outline(a,.0055);return [side*cx+x,W.stitch,z];}),.0024,yellow,'welt-stitch');
     // Top layer: leather-wrapped platform with a rounded edge, then the suede footbed set just inside it.
-    ringShell(slides,[[W.top,0],[bed-.012,-.002],[bed-.003,-.006],[bed,-.013]].map(([y,o])=>ring(side,y,()=>o)),leather,'slide-platform');
+    const topRows=[[W.top,0]];if(S.style==='quad')for(let y=W.top+S.rib;y<bed-.014;y+=S.rib)topRows.push([y-S.rib*.35,-.0024],[y,-.001]);
+    topRows.push([bed-.012,-.002],[bed-.003,-.006],[bed,-.013]);
+    const topMesh=ringShell(slides,topRows.map(([y,o])=>ring(side,y,()=>o)),S.style==='quad'?ribbed:leather,'slide-platform');
+    if(S.style==='quad')ribShade(topMesh,topRows.map(([,o])=>o<-.002&&o>-.003?.55:1.3));
     const rim=ring(side,bed,()=>-.013),centre=[side*cx,bed-.002,zc];
     ringShell(slides,[rim,rim.map(([x,y,z])=>[centre[0]+(x-centre[0])*.02,bed-.002,centre[2]+(z-centre[2])*.02])],suede,'footbed');
     // Bare foot and ankle.
@@ -454,21 +501,69 @@ function makePlatformSlide(id,spec){
       for(let i=0;i<nu;i++)for(let j=0;j<nt;j++){const a=i*(nt+1)+j,b=a+nt+1;if(side<0)idx.push(a,b,a+1,a+1,b,b+1);else idx.push(a,a+1,b,a+1,b+1,b);}
       const geo=new T.BufferGeometry();geo.setAttribute('position',new T.Float32BufferAttribute(pos,3));geo.setAttribute('uv',new T.Float32BufferAttribute(uv,2));geo.setIndex(idx);geo.computeVertexNormals();put(slides,geo,mat,name);
       if(piping)for(const t of [-1,1])curve(slides,Array.from({length:nu+1},(_,i)=>strapPoint(z0,z1,w,gap+.002,i/nu,t)),.0038,leather,'strap-piping');};
-    for(const [z0,z1,w,gap] of spec.cowBands)panel(z0,z1,w,gap,cow,'cow-strap');
-    for(const [z0,z1,gap] of spec.cords)curve(slides,Array.from({length:41},(_,i)=>strapPoint(z0,z1,0,gap,i/40,0)),.0036,leather,'strap-cord');
+    for(const [z0,z1,w,gap] of spec.cowBands||[])panel(z0,z1,w,gap,cow,'cow-strap');
+    for(const [z0,z1,gap] of spec.cords||[])curve(slides,Array.from({length:41},(_,i)=>strapPoint(z0,z1,0,gap,i/40,0)),.0036,leather,'strap-cord');
     // Instep strap in black leather, with a silver buckle high on the outer side.
-    const I=spec.instep;panel(I.z[0],I.z[1],I.width,I.gap,leather,'instep-strap',false);
+    const I=spec.instep;if(I){panel(I.z[0],I.z[1],I.width,I.gap,leather,'instep-strap',false);
     const u=I.buckleAt,bp=V(...strapPoint(I.z[0],I.z[1],0,I.gap+.004,u,0)),bq=V(...strapPoint(I.z[0],I.z[1],0,I.gap+.004,u+.02,0)),along=bq.clone().sub(bp).normalize(),out=V(side*along.y,-side*along.x,0);if(out.y<0)out.negate();
     const frame=new T.Shape();frame.moveTo(-.028,-.02);frame.lineTo(.028,-.02);frame.lineTo(.028,.02);frame.lineTo(-.028,.02);frame.closePath();
     const hole=new T.Path();hole.moveTo(-.02,-.012);hole.lineTo(-.02,.012);hole.lineTo(.02,.012);hole.lineTo(.02,-.012);hole.closePath();frame.holes.push(hole);
     const buckle=put(slides,new T.ExtrudeGeometry(frame,{depth:.004,bevelEnabled:true,bevelThickness:.0015,bevelSize:.0015,bevelSegments:2}),metal,'buckle');
     buckle.position.copy(bp);buckle.up.copy(along);buckle.lookAt(bp.clone().add(out));
-    oval(slides,bp.clone().addScaledVector(out,.004).toArray(),[.003,.014,.003],metal,'buckle-prong',8);
+    oval(slides,bp.clone().addScaledVector(out,.004).toArray(),[.003,.014,.003],metal,'buckle-prong',8);}
+    // Patent straps straight across the foot (bands [z inner, z outer, width, gap]), each with a curb chain along the
+    // top, studs at its ends and a buckle with a pointed tab on the outer side.
+    if(spec.bands){const B=spec.bands,patent=new T.MeshPhysicalMaterial({color:C.patent,roughness:.1,metalness:.15,clearcoat:1,clearcoatRoughness:.03,specularIntensity:1,side:T.DoubleSide}),stitchMat=solid(C.strapStitch,.8);
+      const chainLink=(p,dir,up,k,size)=>{const link=put(slides,new T.TorusGeometry(size,size*.38,8,14),metal,'chain-link'),m=new T.Matrix4(),side2=new T.Vector3().crossVectors(up,dir).normalize();
+        // Curb links lie nearly flat and twist alternately.
+        const tilt=k%2?.5:-.5,n=up.clone().multiplyScalar(Math.cos(tilt)).addScaledVector(side2,Math.sin(tilt));m.makeBasis(dir,new T.Vector3().crossVectors(n,dir).normalize(),n);
+        link.quaternion.setFromRotationMatrix(m);link.position.copy(p);link.scale.set(1.45,1,1);};
+      const chainAlong=(pts,nrm,size)=>{let d=0,next=0;for(let i=1;i<pts.length;i++){const seg=pts[i].distanceTo(pts[i-1]);while(next<=d+seg){const t=(next-d)/seg,p=pts[i-1].clone().lerp(pts[i],t),dir=pts[i].clone().sub(pts[i-1]).normalize(),up=nrm[i].clone();chainLink(p.addScaledVector(up,size*.5),dir,up,Math.round(next/(size*1.55)),size);next+=size*1.55;}d+=seg;}};
+      const buckleAt=(p,along,out,w)=>{const sh=new T.Shape(),hw=w*.72,hh=w*.6;sh.moveTo(-hw,-hh);sh.lineTo(hw*.55,-hh);sh.quadraticCurveTo(hw*1.25,0,hw*.55,hh);sh.lineTo(-hw,hh);sh.closePath();
+        const hole=new T.Path(),ih=hh*.62,iw=hw*.72;hole.moveTo(-iw,-ih);hole.lineTo(iw*.5,-ih);hole.quadraticCurveTo(iw*1.15,0,iw*.5,ih);hole.lineTo(-iw,ih);hole.closePath();sh.holes.push(hole);
+        const b=put(slides,new T.ExtrudeGeometry(sh,{depth:.004,bevelEnabled:true,bevelThickness:.0015,bevelSize:.0015,bevelSegments:2}),metal,'buckle');b.position.copy(p);b.up.copy(along);b.lookAt(p.clone().add(out));
+        curve(slides,[p.clone().addScaledVector(along,-hw*.7).addScaledVector(out,.004).toArray(),p.clone().addScaledVector(along,hw*.75).addScaledVector(out,.005).toArray()],.0022,metal,'buckle-prong');};
+      for(const [z0,z1,w,gap] of B){
+        panel(z0,z1,w,gap,patent,'patent-strap',false);
+        for(const t of [-.82,.82])curve(slides,Array.from({length:31},(_,i)=>strapPoint(z0,z1,w,gap+.0015,.03+.94*i/30,t)),.0011,stitchMat,'strap-stitch');
+        const path=(u0,u1,lift,n=24)=>{const pts=[],nrm=[];for(let i=0;i<=n;i++){const u=u0+(u1-u0)*i/n,p=V(...strapPoint(z0,z1,0,gap+lift,u,0)),q=V(...strapPoint(z0,z1,0,gap+lift,Math.min(1,u+.01),0)),r=V(...strapPoint(z0,z1,0,gap+lift,Math.max(0,u-.01),0)),along=q.sub(r).normalize(),out=V(side*along.y,-side*along.x,0);if(out.y<0)out.negate();pts.push(p);nrm.push(out);}return [pts,nrm];};
+        const [cp,cn]=path(spec.chain.from,spec.chain.to,.003);chainAlong(cp,cn,spec.chain.size);
+        for(const u of [spec.chain.from-.05,spec.chain.to+.04]){const [sp,sn]=path(u,u,.003,1);oval(slides,sp[0].toArray(),[.0055,.0055,.0055],metal,'stud',10);void sn;}
+        // Buckle and its pointed, stitched tab on the outer side.
+        const [bp2,bn2]=path(spec.buckleAt,spec.buckleAt,.006,1),[bq2]=path(spec.buckleAt+.02,spec.buckleAt+.02,.006,1),along=bq2[0].clone().sub(bp2[0]).normalize();
+        buckleAt(bp2[0],along,bn2[0],w);
+        const [tp,tn]=path(spec.buckleAt-.12,spec.buckleAt+.02,.004,10);ribbon(slides,tp,tn,w*.72,patent,'buckle-tab');
+      }
+      // Ankle strap round the back of her ankle, joined to the sole by an upright strap on each side, with a chain on the
+      // outer side, a buckle at the front and the heel pull loop.
+      const A=spec.ankle,ac=F.rows.reduce((b,r)=>Math.abs(r[0]-A.y)<Math.abs(b[0]-A.y)?r:b),azc=(ac[1]+ac[2])/2,arx=ac[3]+A.gap,arz=(ac[1]-ac[2])/2+A.gap;
+      const ankleP=(a,dy=0,grow=0)=>{const y=A.y+A.tilt*Math.cos(a)+dy;
+        // Where the strap closes over the front it hugs her foot's own outline at that height, a little clear of it.
+        if(A.closed){const [fx,fz]=footPlan(y,a),zc2=(footAt(y)[0]+footAt(y)[1])/2,r=Math.hypot(fx,fz-zc2)||1,k=(r+A.gap+grow)/r;return V(side*cx+fx*k,y,zc2+(fz-zc2)*k);}
+        return V(side*cx+Math.sin(a)*(arx+grow),y,azc+Math.cos(a)*(arz+grow));};
+      const aPts=[],aN=[];for(let i=0;i<=72;i++){const a=A.from+(A.to-A.from)*i/72;aPts.push(ankleP(a));aN.push(V(Math.sin(a),0,Math.cos(a)));}
+      // The ankle strap runs from the inner front round the back to the outer front (angles measured on her right side).
+      const mir=pts=>pts.map(p=>p);void mir;
+      ribbon(slides,aPts,aN,A.width,patent,'ankle-strap');
+      for(const t of [-1,1])curve(slides,aPts.map((p,i)=>p.clone().addScaledVector(aN[i],.0015).add(V(0,t*A.width*.41,0)).toArray()),.0011,stitchMat,'strap-stitch');
+      const chainPts=[],chainN=[];for(let i=0;i<=30;i++){const a=side*(A.chain[0]+(A.chain[1]-A.chain[0])*i/30);chainPts.push(ankleP(a,0,.003));chainN.push(V(Math.sin(a),0,Math.cos(a)));}
+      chainAlong(chainPts,chainN,spec.chain.size);
+      const ba=side*A.buckle,bpA=ankleP(ba,0,.006);buckleAt(bpA,V(Math.cos(ba),0,-Math.sin(ba)),V(Math.sin(ba),0,Math.cos(ba)),A.width);
+      for(const k of [-1,1]){const a=k*A.upright,top=ankleP(a),z=top.z,x=side*cx+Math.sin(a)*halfWidthAt(z)*.92,pts=[],nrm=[];
+        for(let i=0;i<=12;i++){const t=i/12,p=V(x+(top.x-x)*t,bed+(top.y-bed)*t,z);pts.push(p);nrm.push(V(Math.sin(a),0,Math.cos(a)));}
+        ribbon(slides,pts,nrm,A.width*.85,patent,'upright-strap');}
+      // Heel pull loop: black webbing lined in yellow, standing up from the back of the ankle strap.
+      const back=ankleP(Math.PI,0,.004),L2=spec.pullLoop,lp=[],ln=[];
+      for(let i=0;i<=20;i++){const t=i/20*Math.PI;lp.push(back.clone().add(V(Math.cos(t)*L2.width/2,Math.sin(t)*L2.height-.01,-.004*Math.sin(t))));ln.push(V(0,0,-1));}
+      flatLace(slides,lp,ln,.018,.004,new T.MeshStandardMaterial({color:C.pullLoop,roughness:.8}),'pull-loop');
+      flatLace(slides,lp.map(p=>p.clone().add(V(0,0,.0035))),ln,.021,.002,new T.MeshStandardMaterial({color:C.stitch,roughness:.8}),'pull-loop-lining');
+    }
   }
   // Lift: the footbed is higher than where her foot normally stands, so she and her clothes rise by the difference.
   const lift=slides.userData.lift=Math.max(0,bed-spec.baseFoot);slides.userData.bareFeet=true;
   // Long hems rest on the straps and footbed (heights in her lifted clothes' frame) and fall to the floor beside them.
-  const strapTop=(side,x,z)=>{const t=footTop(side,x,z,.035);return z>Math.min(...spec.instep.z)-spec.instep.width&&z<P.front-.03&&t>0?t+.008:bed+.006;};
+  const strapFrom=spec.instep?Math.min(...spec.instep.z)-spec.instep.width:Math.min(...spec.bands.map(b=>Math.min(b[0],b[1])-b[2]));
+  const strapTop=(side,x,z)=>{const t=footTop(side,x,z,spec.bands?.05:.035);return z>strapFrom&&z<P.front-.03&&t>0?t+.008:bed+.006;};
   const rest=slides.userData.rest=(side,x,z)=>{const dx=x-side*cx;
     if(insideSole(dx,z)<=1)return Math.min(strapTop(side,x,z),spec.restCap)-lift;
     const fall=.07;if(insideSole(dx,z,fall)>1)return null;let lo=0,hi=fall;for(let i=0;i<14;i++){const m=(lo+hi)/2;if(insideSole(dx,z,m)<=1)hi=m;else lo=m;}
@@ -1533,6 +1628,8 @@ function makeJeans(id,spec,swatch=null,rest=LOAFER_REST){
   if(spec.fly)curve(jeans,on(spec.fly),.0017*sw,thread,'fly-stitch');
   if(spec.fly&&spec.doubleSeams)curve(jeans,on(spec.fly.map(([x,y],k)=>[x+.008,y-(k===spec.fly.length-1?0:.004)]),false,.004),.0017*sw,thread,'fly-stitch');
   const seamNames=spec.twist?['twisted-side-seam','twisted-inseam']:['side-seam','inseam'];
+  // Side seams and inseams use the topstitching thread unless the spec gives them their own (tonal) thread.
+  const seamThread=spec.seamThread?solid(spec.seamThread,.85):thread;
   for(const side of [-1,1]){
     const fp=spec.frontPocket||{};
     if(fp.type==='slant')curve(jeans,on(fp.line.map(([x,y])=>[side*x,y])),.0017,thread,'slant-pocket-stitch');
@@ -1548,12 +1645,12 @@ function makeJeans(id,spec,swatch=null,rest=LOAFER_REST){
     const seam=spec.crotch?Array.from({length:7},(_,k)=>{const y=spec.waistband.y-spec.waistband.h/2-k*(spec.waistband.y-spec.waistband.h/2-.98)/6;return hipPoint(y,side*Math.PI/2);}):spec.sideSeamTop.map(([x,y])=>[side*x,y,0]);
     const legTop=spec.crotch?spec.crotch.y-.003:.97;
     const seamEnd=hemTop>hemY?Math.max(spec.seamEnd,hemTop+.01):spec.seamEnd;for(let k=0;k<=20;k++){const y=legTop-k*(legTop-seamEnd)/20;seam.push(legPoint(side,y,outAngle(side,y)));}
-    curve(jeans,seam,.0018*sw,thread,seamNames[0]);
+    curve(jeans,seam,.0018*sw,seamThread,seamNames[0]);
     // Double-needle seams: a second row just toward the front of each leg seam.
-    if(spec.doubleSeams)curve(jeans,seam.map(([x,y,z],k)=>k<seam.length-21?[x,y,z+.006]:legPoint(side,y,outAngle(side,y)-side*.07)),.0018*sw,thread,seamNames[0]);
+    if(spec.doubleSeams)curve(jeans,seam.map(([x,y,z],k)=>k<seam.length-21?[x,y,z+.006]:legPoint(side,y,outAngle(side,y)-side*.07)),.0018*sw,seamThread,seamNames[0]);
     const inTop=spec.crotch?spec.crotch.y-.003:.95,inseam=[];for(let k=0;k<=20;k++){const y=inTop-k*(inTop-seamEnd)/20;inseam.push(legPoint(side,y,inAngle(side,y)));}
-    curve(jeans,inseam,.0018*sw,thread,seamNames[1]);
-    if(spec.doubleSeams)curve(jeans,inseam.map(([x,y])=>legPoint(side,y,inAngle(side,y)+side*.07)),.0018*sw,thread,seamNames[1]);
+    curve(jeans,inseam,.0018*sw,seamThread,seamNames[1]);
+    if(spec.doubleSeams)curve(jeans,inseam.map(([x,y])=>legPoint(side,y,inAngle(side,y)+side*.07)),.0018*sw,seamThread,seamNames[1]);
     // Articulated knee: horizontal seams across the front and the back of each knee.
     if(spec.kneeSeams)for(const facing of [0,Math.PI]){
     const dart=[];for(let k=0;k<=8;k++)dart.push(legPoint(side,spec.kneeSeams+.006*Math.sin(Math.PI*k/8),facing-side*.55+side*.65*k/8,.002));

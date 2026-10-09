@@ -8,6 +8,8 @@ export const ZIP_TRACK_DRESS_ID = 'navy-half-zip-track-dress-v1';
 export const BUFFALO_ASPHA_ID = 'buffalo-aspha-mid-olive-v1';
 export const DM_COW_SLIDE_ID = 'dr-martens-cow-slide-v1';
 export const UGG_LOWMEL_ID = 'ugg-lowmel-cream-v1';
+export const SAM_ZIP_BOOT_ID = 'sam-edelman-front-zip-lug-boot-v1';
+export const DM_BLAIRE_CHAIN_ID = 'dr-martens-blaire-quad-chain-v1';
 export const ADIDAS_CAMPUS_ID = 'adidas-campus-00s-grey-v1';
 export const BRONZE_TOP_ID = 'desigual-bronze-mesh-v1';
 export const LILAC_TOP_ID = 'lilac-portrait-mockneck-v1';
@@ -34,6 +36,7 @@ export const TOMMY_CARPENTER_ID = 'tommy-remastered-carpenter-v1';
 export const ZARA_CARGO_ID = 'zara-cargo-joggers-v1';
 export const CRYSTAL_JEANS_ID = 'crystal-straight-jeans-v1';
 export const NIKE_TRACK_ID = 'nike-piped-track-pants-v1';
+export const TOPSHOP_BLACK_CROP_ID = 'topshop-washed-black-wide-crop-v1';
 export const GARMENTS = Object.freeze({
   [BRONZE_TOP_ID]: {
     slot: 'top',
@@ -666,6 +669,44 @@ export const GARMENTS = Object.freeze({
       welt: [[-.19, 1.17], [-.15, 1.168], [-.11, 1.17]], weltColour: '#8e2a50',
     },
   },
+  [TOPSHOP_BLACK_CROP_ID]: {
+    slot: 'bottom',
+    id: TOPSHOP_BLACK_CROP_ID, name: 'Topshop washed black wide crop jeans', family: 'wide-leg-cropped-jeans', version: 1,
+    status: 'reference-study-awaiting-visual-review', brandAsProvided: 'Topshop',
+    source: { note: 'user supplied five product photos: back and front on a model, a back-pocket close-up, a front waist close-up and the side on a model; the user said they are short, so on them the jeans fall longer, almost to the ankle' },
+    referenceViews: ['back on model', 'front on model', 'back pocket close-up', 'front waist close-up', 'side on model'],
+    details: ['mid rise', 'wide legs flaring from the knee to a broad raw-cut hem', 'cropped, almost to her ankle (the user\'s fit; mid-calf on the taller model)', 'raw frayed hem with loose threads', 'washed black twill fading to charcoal', 'five-pocket front with copper rivets and a silver shank button', 'back yoke and pointed patch pockets', 'black leather patch embossed TOPSHOP on the back waistband', 'tan double topstitching'],
+    material: { construction: 'rigid cotton twill denim', composition: 'not visible in the supplied photos', finish: 'washed black' },
+    fit: { silhouette: 'wide, flared from the knee', rise: 'mid', length: 'almost ankle (the user)', adjustment: 'fixed authored fit for review' },
+    uncertainties: ['folds are procedural', 'the patch carries no lettering', 'the flare is fitted to her short legs; the photos show a taller wearer'],
+    styling: { silhouette: 'wide cropped culotte-style legs, mid rise', palette: ['washed black', 'tan stitching'], pattern: 'plain twill, faded slightly at the thighs', coverage: { legs: 'to just above the ankle' }, material: 'rigid cotton denim', warmth: 2, warmthBasis: 'inferred: denim, wide open cropped legs', weather: 'mild days; the open hem lets the cold in' },
+    authoring: { texture: 'topshop-black-crop-denim.js: flat-lit seamless swatch from the back-pocket close-up (brightness variation only, coloured to the measured charcoal)', runtimeGeneration: false, sourcePhotosBundled: 'fabric swatch only' },
+    build: {
+      template: 'jeans', legName: 'jeans-leg', fallback: [35, 37, 43], frayColour: '#56565c',
+      // One repeat of the swatch covers about 5 cm of the close-up, so about ten go round her leg.
+      crotch: { top: 1.17, y: .95 }, uvScale: [10, 7.6],
+      tiles: { small: [7.5, 3.5], legs: [1, 1], hips: [1, 1] },
+      hips: [[1.265, .258, .17], [1.16, .276, .192], [1.05, .294, .198], [.97, .306, .19], [.935, .25, .11]],
+      // Wide legs, close at the hip and flaring below the thigh to a broad hem, cropped almost to her ankle (the user is short, so they fall longer
+      // on them than on the model). The hem is centred over her foot and deep enough front to back to hold a boot shaft
+      // without being pushed into the other leg; the hems just meet between her feet, as in the front photo.
+      legs: [[1.03, .15, .18, .13], [.95, .156, .18, .152], [.75, .163, .183, .164], [.58, .175, .19, .182], [.42, .185, .205, .193], [.3, .19, .232, .19]],
+      hem: 'raw-crop', folds: { base: .005, low: .011 }, gradient: [.94, .1], whiskers: .2, thighFade: .1,
+      waistband: { y: 1.24, rx: .262, rz: .172, h: .05 },
+      loops: [-2.6, -1.5, -.62, .62, 1.5, 2.6, Math.PI],
+      // Tan topstitching on the pockets, fly, yoke and waistband; the side seams and inseams are tonal, as in the side photo.
+      button: { colour: '#c9ccd0' }, thread: '#b0763a', seamThread: '#38383d', doubleSeams: true, rivetColour: '#8e4630',
+      fly: [[.036, 1.215], [.038, 1.1], [.022, 1.06], [0, 1.05]],
+      frontPocket: { type: 'scoop', line: [[.15, 1.215], [.165, 1.17], [.2, 1.142], [.262, 1.13]] },
+      coinPocket: { outline: [[-.236, 1.21], [-.19, 1.21], [-.194, 1.158], [-.233, 1.158], [-.236, 1.21]] },
+      rivets: [[.152, 1.21], [.262, 1.135]],
+      seamEnd: .3,
+      backYoke: [[.268, 1.212], [.14, 1.192], [.004, 1.172]],
+      backPocket: { x: .122, outline: [[-.074, 1.158], [.074, 1.158], [.07, 1.03], [0, 1.0], [-.07, 1.03]], stitchBelow: 1.1 },
+      centreBack: [[.004, 1.172], [.004, 1.08], [0, 1.0]],
+      labelPatch: { name: 'leather-patch', size: [.08, .042, .005], colour: '#151415', position: [-.075, 1.24, -(.172 + .004)], rotationY: Math.PI + .28 },
+    },
+  },
   // Shoes.
   [BUFFALO_ASPHA_ID]: {
     slot: 'shoes',
@@ -759,6 +800,67 @@ export const GARMENTS = Object.freeze({
         { name: 'heel-counter', z: [-.17, .0], top: [[-.17, .17], [-.1, .155], [-.04, .128], [.0, .112]] },
         { name: 'side-quarter', z: [-.03, .3], top: [[-.03, .122], [.05, .162], [.11, .19], [.18, .192], [.24, .165], [.3, .118]] },
       ],
+    },
+  },
+  [DM_BLAIRE_CHAIN_ID]: {
+    slot: 'shoes',
+    id: DM_BLAIRE_CHAIN_ID, name: 'Dr. Martens Blaire Quad chain sandals', family: 'platform-strap-sandal', version: 1,
+    status: 'reference-study-awaiting-visual-review', brandAsProvided: 'Dr. Martens',
+    source: { note: 'user supplied seven product images: front three-quarter pair, back three-quarter close-up, top, buckle close-up, back, inner side, outer side; the back label reads BLAIRE II QUAD CHAIN' },
+    referenceViews: ['front three-quarter', 'back three-quarter', 'top', 'buckle close-up', 'back', 'inner side', 'outer side'],
+    details: ['open-toe platform strap sandal in glossy black patent leather', 'three straps straight across the foot and an ankle strap round the back of the ankle, joined to the sole by an upright strap on each side', 'chunky silver curb chain along the top of every strap, fixed with studs at each end', 'large silver buckles engraved Dr. Martens on the outer side, with pointed stitched tabs', 'tonal stitching along the strap edges', 'black heel pull loop lined in yellow, printed With Bouncing Soles', 'black footbed', 'tall Quad platform with fine horizontal ribbing, a grooved welt with yellow stitching and a sawtooth tread'],
+    material: { construction: 'patent leather straps with metal chains on a moulded platform', composition: 'not visible in the supplied images', finish: 'high-gloss patent, satin silver hardware, matte ribbed sole' },
+    fit: { silhouette: 'chunky platform strap sandal', platform: 'tall; raises her by the part above her normal foot level', adjustment: 'fixed authored fit for review' },
+    styling: { coverage: 'open toe and heel; bare feet', warmth: 'summer; not for rain or cold (open, patent)', palette: 'black with silver hardware and yellow stitching', mood: 'edgy, hardware-heavy' },
+    uncertainties: ['chains are drawn as alternating curb links, simplified', 'the Dr. Martens lettering on buckles, footbed and pull loop is not reproduced', 'her bare feet are toeless felt shapes', 'the ankle strap is modelled as one band with a front buckle'],
+    authoring: { texture: 'none; patent, metal and ribbed sole are materials and geometry in src/doll/model.js', runtimeGeneration: false, sourcePhotosBundled: false },
+    // Construction for makePlatformSlide() (template 'platform-sandal') in src/doll/model.js, in outfit units. Heights
+    // and strap positions are proportions of the side photos (sole length .5).
+    build: {
+      template: 'platform-sandal', cx: .16, baseFoot: .11, restCap: .27,
+      colours: { outsole: '#2a292c', leather: '#1c1b1e', footbed: '#1e1d20', stitch: '#e0a91f', skin: '#dfb195', buckle: '#c9ccd0', patent: '#151518', strapStitch: '#3c3c41', pullLoop: '#141416' },
+      plan: { front: .35, back: -.15, halfWidth: .12, nFront: 3.2, nBack: 2.8, heelNarrow: .1, toeNarrow: .15 },
+      // Quad sole: ribbed outsole with a sawtooth tread, a welt with yellow stitching, a ribbed top layer, the footbed.
+      sole: { style: 'quad', outsole: .1, rib: .0065, ribDepth: .0045, toothTop: .022, toothDepth: .018, welt: { grooves: [.106], stitch: .113, top: .121 }, footbed: .142, top: .142, heelTop: .142, lugs: 36, archGap: 0 },
+      foot: { nFront: 2.5, nBack: 2.2, instepTop: .275, rows: [[.13, .29, -.115, .082], [.148, .312, -.128, .093], [.168, .31, -.132, .095], [.188, .282, -.13, .091], [.208, .22, -.122, .084], [.23, .14, -.108, .075], [.255, .085, -.092, .066], [.285, .055, -.072, .055], [.33, .045, -.06, .05], [.44, .045, -.06, .05]] },
+      // Straps straight across: [z inner, z outer, width, gap above her foot].
+      bands: [[.24, .23, .046, .01], [.17, .16, .046, .012], [.098, .09, .046, .012]],
+      chain: { from: .2, to: .76, size: .0115 }, buckleAt: .9,
+      // Ankle strap: height, gap round the ankle, width, slope (higher at the back), closed all the way round her ankle
+      // (from/to in radians from the front), the chain's and buckle's angles on the outer side, and where the side uprights
+      // join it.
+      ankle: { y: .3, gap: .01, width: .04, tilt: -.006, closed: true, from: 0, to: 6.2832, chain: [1.25, 2.5], buckle: .95, upright: 1.45 },
+      pullLoop: { height: .065, width: .036 },
+    },
+  },
+  [SAM_ZIP_BOOT_ID]: {
+    slot: 'shoes',
+    id: SAM_ZIP_BOOT_ID, name: 'Black front-zip lug-sole ankle boots', family: 'front-zip-lug-sole-ankle-boot', version: 1,
+    status: 'reference-study-awaiting-visual-review', brandAsProvided: 'not stated (the double-E logo on the zip pull and the back hardware suggests Sam Edelman)',
+    source: { note: 'user supplied three product photos without a description: the pair from the front three-quarter, a close-up of the zip and the back, and the outer side' },
+    referenceViews: ['front three-quarter pair', 'zip and back close-up', 'outer side'],
+    details: ['smooth black leather ankle boot with a round toe', 'centre-front zip in a raised leather placket, double-stitched either side, from the toe cap to the collar; the pull is leather with a small metal double-E logo', 'toe cap seam across the toe', 'a diagonal panel seam across each side and a curved heel counter seam', 'leather pull tab at the back of the collar, with a small metal logo bar beside it', 'thin stitched leather welt on a chunky black rubber lug sole with deep wedge lugs and a slightly raised heel'],
+    material: { construction: 'leather upper on a moulded rubber lug sole', composition: 'not visible in the supplied photos', finish: 'smooth, softly glossy' },
+    fit: { silhouette: 'chunky lug-sole ankle boot', height: 'above the ankle bone, a little higher than the Buffalo boots', platform: 'built inside her normal foot height; she is not raised', adjustment: 'fixed authored fit for review' },
+    styling: { silhouette: 'chunky, rounded ankle boot', palette: ['black', 'gunmetal hardware'], pattern: 'plain, with tonal seams and a front zip', coverage: { ankle: 'covered above the ankle bone' }, material: 'smooth leather, rubber lug sole', warmth: 3, warmthBasis: 'inferred: closed leather ankle boot; lining unknown', weather: 'cool or wet days; the lug sole grips; waterproofing unknown' },
+    uncertainties: ['the shaft is roomier than the photos so it clears her thick doll socks', 'the logo hardware carries no lettering', 'the inner side is not shown in the photos; it is built like the outer side'],
+    authoring: { texture: 'none: smooth leather and rubber materials, colours measured from the photos', runtimeGeneration: false, sourcePhotosBundled: false },
+    // Construction for makeLugBoot() in src/doll/model.js, in outfit units, using the template's optional finish, zip,
+    // toeCap, seams, pullLoop and backHardware. Upper rows are [y, front, back, halfWidth]: a long low toe whose top rises
+    // in a smooth curve to a straight shaft, as in the side photo.
+    build: {
+      template: 'lug-boot', cx: .168, finish: 'leather',
+      colours: { upper: '#1c1a19', sole: '#212121', thread: '#2b2927', piping: '#111010', webbing: '#1c1a19', lace: '#1c1a19', eyelet: '#5d5d62', lining: '#141313' },
+      sole: { top: .082, heelTop: .1, heelFrom: -.03, rand: .082, lugTop: .045, groove: null, bulge: 0, flare: .016, toeLift: .018, lugs: 22, lugDepth: .028 },
+      upper: [[.082, .44, -.158, .13], [.1, .44, -.16, .131], [.12, .42, -.162, .13], [.14, .38, -.163, .13], [.165, .32, -.162, .129], [.2, .26, -.16, .128], [.25, .2, -.155, .127], [.3, .165, -.148, .124], [.36, .15, -.14, .125], [.435, .145, -.135, .124]],
+      collar: { front: .425, side: .42, back: .435 },
+      nFront: 2.3, nBack: 2, heelNarrow: .12, toeNarrow: .22, restCap: .22, collarRoll: .006,
+      zip: { from: .145, placket: .034, teeth: .008, stitch: [.012, .016] },
+      toeCap: { y: .143, side: [[.27, .09], [.29, .112]] },
+      // The diagonal side panel seam running back to the heel, and the curved heel counter seam, as [z, y] paths.
+      seams: [[[.185, .27], [.12, .235], [.05, .2], [-.02, .172], [-.09, .166], [-.15, .162]], [[-.16, .31], [-.13, .24], [-.1, .17], [-.085, .1]]],
+      pullLoop: { height: .045, width: .03 },
+      backHardware: { y: .4, angle: .42 },
     },
   },
   [ADIDAS_CAMPUS_ID]: {
