@@ -3,14 +3,14 @@ import assert from 'node:assert/strict';
 import * as T from 'three';
 import { makeOutfit, disposeObject } from '../src/doll/model.js';
 import { OUTFITS } from '../src/doll/recipe.js';
-import { GARMENTS, PAISLEY_SHIRT_ID, MOTEL_TIE_DYE_SHIRT_ID, DESIGUAL_SPRAY_FLORAL_SHIRT_ID, DESIGUAL_SPLIT_FLORAL_SHIRT_ID } from '../src/wardrobe/catalog.js';
+import { GARMENTS, PAISLEY_SHIRT_ID, MOTEL_TIE_DYE_SHIRT_ID, DESIGUAL_SPRAY_FLORAL_SHIRT_ID, DESIGUAL_SPLIT_FLORAL_SHIRT_ID, DESIGUAL_MOUNTAIN_SHIRT_ID } from '../src/wardrobe/catalog.js';
 const named=(root,name)=>{const found=[];root.traverse(o=>{if(o.name===name)found.push(o);});return found;};
 const box=o=>new T.Box3().setFromObject(o);
 
 test('paisley shirt: relaxed and longer than the fitted shirts, cuffed sleeves, a back yoke with a pleat, and a drawn paisley print',()=>{
   const g=GARMENTS[PAISLEY_SHIRT_ID];assert.equal(g.slot,'top');assert.ok(g.layering?.coversWaistband);assert.ok(OUTFITS.some(look=>look.recipe.topId===PAISLEY_SHIRT_ID),'a study preset wears it');
   const outfit=makeOutfit({topId:PAISLEY_SHIRT_ID,knit:false,shirt:false}),top=outfit.getObjectByName(PAISLEY_SHIRT_ID);outfit.updateMatrixWorld(true);
-  for(const [name,count] of [['mesh-shirt-body',1],['mesh-shirt-sleeve',2],['shirt-cuff',2],['cuff-button',2],['cuff-stitch',4],['shirt-collar-fall',1],['shirt-button',8],['yoke-seam',1],['back-pleat',2],['hem-stitch',1]])
+  for(const [name,count] of [['mesh-shirt-body',1],['mesh-shirt-sleeve',2],['shirt-cuff',2],['cuff-button',2],['cuff-seam',2],['shirt-collar-fall',1],['shirt-button',8],['yoke-seam',1],['back-pleat',2],['hem-stitch',1]])
     assert.equal(named(top,name).length,count,name);
   // Relaxed: wider than the fitted shirts at her waist, and longer, to a hem below the waistband.
   const fitted=makeOutfit({topId:MOTEL_TIE_DYE_SHIRT_ID,knit:false,shirt:false});fitted.updateMatrixWorld(true);
@@ -33,11 +33,14 @@ test('paisley shirt: relaxed and longer than the fitted shirts, cuffed sleeves, 
   [outfit,fitted].forEach(disposeObject);
 });
 
-test('the fitted shirts keep their own construction: no cuffs, yoke or relaxed body',()=>{
+test('the other shirts keep their own construction: no yoke or relaxed body, and the fitted ones no cuffs',()=>{
   for(const id of [MOTEL_TIE_DYE_SHIRT_ID,DESIGUAL_SPRAY_FLORAL_SHIRT_ID,DESIGUAL_SPLIT_FLORAL_SHIRT_ID]){
     const outfit=makeOutfit({topId:id,knit:false,shirt:false}),top=outfit.getObjectByName(id);outfit.updateMatrixWorld(true);
-    for(const name of ['shirt-cuff','cuff-button','cuff-stitch','yoke-seam','back-pleat'])assert.equal(named(top,name).length,0,`${id}: ${name}`);
+    for(const name of ['shirt-cuff','cuff-button','cuff-seam','yoke-seam','back-pleat'])assert.equal(named(top,name).length,0,`${id}: ${name}`);
     assert.equal(named(top,'sleeve-hem-stitch').length,2);assert.ok(Math.abs(box(named(top,'mesh-shirt-body')[0]).min.y/.76-1.26)<.002,`${id}: cropped at 1.26`);
     disposeObject(outfit);
   }
+  // The mountain shirt has the template's long hem and cuffs, but no yoke, and keeps the fitted sleeves.
+  const outfit=makeOutfit({topId:DESIGUAL_MOUNTAIN_SHIRT_ID,knit:false,shirt:false}),top=outfit.getObjectByName(DESIGUAL_MOUNTAIN_SHIRT_ID);
+  for(const name of ['yoke-seam','back-pleat'])assert.equal(named(top,name).length,0,name);disposeObject(outfit);
 });

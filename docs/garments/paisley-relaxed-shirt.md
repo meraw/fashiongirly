@@ -22,11 +22,15 @@ Measured: the ground about RGB 236, 237, 239 in the evenly lit back view. Ochre-
 
 Catalog ID `paisley-print-relaxed-shirt-v1` (slot `top`), built by `makeButtonShirt()` in `src/doll/shirts.js`, the template of the two fitted mesh shirts, with a new style. The template picks it up by its style, so `makeOutfit` is unchanged.
 
-**New template options.** These are all optional and used only by this style; the two fitted shirts don't set them. Every outfit that `main` can build (514) was built on `main` and on this branch and compared, with no difference in geometry, materials or textures.
+**Template options.** The shirt template has optional settings, used only by the shirts that set them. This shirt adds three:
 
-- `body`: the shirt's own body rows. They are fuller than the fitted shirts below the chest and run to a hem at her high hip (1.19), as wide there as the Tommy sweater, which clears every jacket, bottom and the skirt. The placket stitching and the hem stitching follow them.
-- `sleeve`: fuller sleeves that blouse a little into a buttoned cuff at her wrist, with stitching at the cuff's top and edge and a button on its outer side.
+- `body`: the shirt's own body rows. They are fuller than the fitted shirts below the chest, down to the hem, and as wide there as the Tommy sweater, which clears every jacket, bottom and the skirt.
+- `sleeveRows`: fuller sleeves, gathering toward her wrist.
 - `yoke`: a seam across her upper back, with a short box pleat at the centre below it.
+
+It also uses two settings that the mountain landscape mesh shirt added to the template while this one was being built: the longer `hem` (at her high hip, 1.19) and buttoned `cuff`s (a band over the sleeve's end, seamed at its top, with a button on its outer side). This shirt had first been built with its own longer hem and cuffs. When `main` was merged, the user chose to use the template's, so there is one way to do each.
+
+No other shirt sets `body`, `sleeveRows` or `yoke`. Every outfit that `main` can build was built on `main` and on this branch and compared, with no difference in geometry, materials or textures.
 
 **Print:** drawn in code (`paisleyData()`), not copied from the photos. One tile is half her girth wide and in proportion high, so the motifs stay round; a large paisley is about a third of her front's width, as on the model. On the tile:
 
@@ -47,13 +51,13 @@ A relaxed shirt to the high hip; a large all-over paisley print in white, ochre,
 
 ## Checks
 
-- `npm test` passes (92), including a new `tests/paisley-shirt.test.js`, which checks:
+- `npm test` passes (93), including a new `tests/paisley-shirt.test.js`, which checks:
   - the parts: body, sleeves, cuffs with buttons and stitching, collar, eight buttons, the yoke seam and pleat, the hem stitching;
   - it is wider at the waist and longer than the fitted shirts;
   - the yoke and pleat are on her back;
   - the print is about half ground, with yellow, blue, pink and green inks in it;
   - the tile repeats without a seam both ways;
-  - the fitted shirts (the tie-dye, spray floral and split floral shirts) keep their own construction: no cuffs, yoke or relaxed body, and still cropped at 1.26.
+  - the other shirts keep their own construction: the fitted ones (tie-dye, spray floral, split floral) have no cuffs, yoke or relaxed body and are still cropped at 1.26; the mountain shirt has no yoke.
 
   The shared tests cover it too: every waist-covering top over every bottom, the outerwear coverage of every top, and the triangle budget.
 - `npm run build` succeeds.
