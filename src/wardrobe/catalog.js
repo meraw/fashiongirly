@@ -31,6 +31,7 @@ export const TOMMY_STRIPE_POLO_ID = 'tommy-stripe-knit-polo-v1';
 export const MOTEL_TIE_DYE_SHIRT_ID = 'motel-tie-dye-mesh-shirt-v1';
 export const DESIGUAL_SPRAY_FLORAL_SHIRT_ID = 'desigual-spray-floral-mesh-shirt-v1';
 export const VANGOGH_TEE_ID = 'van-gogh-patchwork-tee-v1';
+export const DESIGUAL_FRESCO_TEE_ID = 'desigual-fresco-rib-vneck-tee-v1';
 export const MICKEY_LONG_TEE_ID = 'black-mickey-print-long-tee-v1';
 export const BARREL_JEANS_ID = 'topshop-barrel-jeans-v1';
 export const DAVINIA_JEANS_ID = 'desigual-davinia-jeans-v1';
@@ -68,7 +69,7 @@ export const GARMENTS = Object.freeze({
   [LILAC_TOP_ID]: {
     slot: 'top',
     id: LILAC_TOP_ID, name: 'Lilac portrait mock neck', family: 'fitted-long-sleeve-top', version: 1,
-    status: 'reference-study-awaiting-visual-review', brandAsProvided: null,
+    status: 'user-approved', brandAsProvided: null,
     referenceViews: ['front','back'],
     details: ['mauve portrait and flowers on front', 'plain pale silvery-lilac back', 'navy sleeves with alternating circle and dot bands', 'short raised ribbed neck', 'long sleeves with wrist gathering', 'longer close-fitting torso'],
     material: { construction: 'textured fabric; exact fibre unconfirmed', finish: 'subtle metallic back sheen' },
@@ -83,7 +84,7 @@ export const GARMENTS = Object.freeze({
   [CROCHET_TOP_ID]: {
     slot: 'top',
     id: CROCHET_TOP_ID, name: 'Blue crochet flowers', family: 'cropped-crochet-sweater', version: 1,
-    status: 'reference-study-awaiting-visual-review', brandAsProvided: 'Desigual',
+    status: 'user-approved', brandAsProvided: 'Desigual',
     source: { page: 'https://www.desigual.com/it_IT/26SWJFXG.html', sku: '26SWJFXG5050', fetchedForAuthoring: '2026-10-08' },
     referenceViews: ['front on model', 'back three-quarter on model', 'front flat lay', 'street action'],
     details: ['joined hexagonal flower motifs: navy petals with spoked turquoise centres, pale-blue petals, cream petals with navy centres, small navy wheels', 'open cream lace between motifs', 'wide filet-crochet neckband on a broad scoop neck', 'cropped boxy body', 'long slightly flared sleeves reaching the knuckles', 'scalloped hem and cuffs'],
@@ -97,7 +98,7 @@ export const GARMENTS = Object.freeze({
   [PLAID_JUMPER_ID]: {
     slot: 'top',
     id: PLAID_JUMPER_ID, name: 'Brushed windowpane jumper', family: 'oversized-knit-jumper', version: 1,
-    status: 'reference-study-awaiting-visual-review', brandAsProvided: 'Mango',
+    status: 'user-approved', brandAsProvided: 'Mango',
     source: { page: 'https://www.zalando.ie/mango-jumper-light-blue-zir03dt4f-001.html', note: 'page blocked automated fetching; user supplied phone screenshots of 7 product photos' },
     referenceViews: ['front on model', 'front full length', 'knit close-up', 'back on model', 'sleeve and hem close-up', 'front flat lay', 'crouching side'],
     details: ['large windowpane check knitted in (jacquard), not printed', 'wide bands of diagonal hatching in rust-brown and grey-taupe', 'thin pale-blue lines through bands and cream windows', 'brushed fuzzy cream ground', 'ribbed crew neck', 'deep ribbed hem band', 'ribbed cuffs gathering full sleeves', 'oversized boxy body with dropped shoulders'],
@@ -207,7 +208,7 @@ export const GARMENTS = Object.freeze({
   [TOMMY_STRIPE_POLO_ID]: {
     slot: 'top',
     id: TOMMY_STRIPE_POLO_ID, name: 'Navy stripe knit polo', family: 'short-sleeve-knit-polo', version: 1,
-    status: 'reference-study-awaiting-visual-review', brandAsProvided: 'Tommy Hilfiger',
+    status: 'user-approved', brandAsProvided: 'Tommy Hilfiger',
     source: { note: 'user supplied four phone screenshots of a product gallery: front on a model, back on a model, a close-up of the neckline and a flat lay' },
     referenceViews: ['front on model', 'back on model', 'neckline close-up', 'front flat lay'],
     details: ['fine-gauge knit in navy and off-white horizontal stripes, navy about 60% of each repeat', 'navy knit polo collar with spread points', 'short navy placket with four off-white buttons; worn with the top one open', 'white script monogram on her left chest, level with the bottom button', 'short set-in sleeves ending above the elbow in narrow navy rib bands', 'small metal flag tab on the left sleeve band', 'navy ribbed hem band', 'slim fit, ending at the waist over high-rise jeans'],
@@ -223,7 +224,7 @@ export const GARMENTS = Object.freeze({
   [MOTEL_TIE_DYE_SHIRT_ID]: {
     slot: 'top',
     id: MOTEL_TIE_DYE_SHIRT_ID, name: 'Tie-dye mesh button-down shirt', family: 'fitted-mesh-button-down-shirt', version: 1,
-    status: 'reference-study-awaiting-visual-review', brandAsProvided: 'Motel',
+    status: 'user-approved', brandAsProvided: 'Motel',
     source: { note: 'user supplied six photos: front and back on a model (shop photos), the shirt laid flat on a rug with a close-up of the collar, and the front and back on a hanger' },
     referenceViews: ['front on model', 'back on model', 'flat lay', 'collar close-up', 'front on hanger', 'back on hanger'],
     details: ['sheer stretch mesh printed with a warm grey-mauve tie-dye: dark brown-grey clouds bleeding into pale pinkish beige', 'point collar on a stand, with black topstitching inside its edges', 'black facing inside the back neck, showing between the collar points', 'front placket edged with black stitching, seven glossy black buttons from the collar to the hem', 'long fitted set-in sleeves to the wrist, plain stitched hems', 'black overlocked hem', 'slim, cropped at the waist'],
@@ -237,7 +238,7 @@ export const GARMENTS = Object.freeze({
   [DESIGUAL_SPRAY_FLORAL_SHIRT_ID]: {
     slot: 'top',
     id: DESIGUAL_SPRAY_FLORAL_SHIRT_ID, name: 'Spray-paint floral mesh shirt', family: 'fitted-mesh-button-down-shirt', version: 1,
-    status: 'reference-study-awaiting-visual-review', brandAsProvided: 'Desigual',
+    status: 'user-approved', brandAsProvided: 'Desigual',
     source: { note: 'user supplied four product photos: two fronts on a model, a front flat lay and the back on a model' },
     referenceViews: ['front on model (arms crossed)', 'front on model', 'front flat lay', 'back on model'],
     details: ['fine-rib stretch mesh printed with blurred pink, coral, red and orange spray-paint clouds', 'cream stencilled flowers, leaves and petals sprayed over the clouds, with speckled overspray', 'point collar in the print', 'eight pale peach buttons from the collar to the hem; worn with the top button open', 'tonal stitching on the placket and hems', 'long fitted sleeves to the wrist', 'slim, cropped at the waist'],
@@ -275,6 +276,33 @@ export const GARMENTS = Object.freeze({
       sleeve: { rows: [[.03, .108, .106], [-.04, .12, .117], [-.12, .119, .116], [-.17, .122, .119]], lettuce: .003, waves: 18 },
     },
   },
+  [DESIGUAL_FRESCO_TEE_ID]: {
+    slot: 'top',
+    id: DESIGUAL_FRESCO_TEE_ID, name: 'Desigual fresco print V-neck tee', family: 'printed-raglan-tee', version: 1,
+    status: 'authored-awaiting-user-review', brandAsProvided: 'Desigual (label in the flat lay)',
+    source: { note: 'user supplied four product photos without a written description: a front flat lay, the front on a model (full length and closer) and the back on a model' },
+    referenceViews: ['front flat lay', 'front on model, full length', 'front on model, closer', 'back on model'],
+    details: ['fitted short-sleeved tee in a fine stretch rib knit', 'printed all over with a pale baroque ceiling fresco: cherubs, clouds, a seated figure in white robes, dark rocks with a touch of teal, and an eagle with spread wings on the back', 'cream, beige, ochre and sage, with hints of teal, blue and pink', 'deep, wide V-neck with a narrow bound edge, its sides curving into the point', 'exposed cream overlocked seam down the centre front, from the point of the V to the hem', 'exposed overlocked seams from the neckline down to each underarm, front and back', 'lettuce-edge hem and sleeve hems in cream', 'elbow-length sleeves, slightly flared'],
+    material: { construction: 'fine stretch rib jersey (read from the photos)', composition: 'not stated', finish: 'matte print' },
+    fit: { silhouette: 'fitted, close to the body', sleeve: 'short sleeves ending just above the elbow, slightly flared', hem: 'at the waistband of high-rise trousers', neckline: 'deep V', adjustment: 'fixed authored fit for review' },
+    exclusions: ['striped-shirt','knit-sweater'],
+    // Covers the waistband; the short sleeve's fabric ends at -.205 (sleeve-local), below which her arm is bare.
+    layering: { coversWaistband: true, bareArmBelow: -.205 },
+    uncertainties: ['the print is taken from the product photos, so it is softer than the real fabric and some photographed shading remains', 'the doll\'s torso is wider and shorter than the model\'s, so the front shows a shorter vertical slice of the print and the shapes are a little squatter', 'the sleeves are made from small crops and are blurrier than the body', 'the painting appears to be an 18th-century Venetian ceiling fresco; it is not identified'],
+    styling: { silhouette: 'fitted, high-hip length', palette: ['cream', 'beige', 'ochre', 'sage', 'teal'], pattern: 'all-over baroque fresco print of cherubs and clouds, with cream overlocked seams', coverage: { neck: 'deep V', sleeves: 'short, to the elbow', midriff: 'covered' }, material: 'fine stretch rib jersey', warmth: 1, warmthBasis: 'inferred: thin fitted knit with short sleeves and an open neckline', weather: 'warm days, or a base layer under a jacket' },
+    authoring: { template: 'makePrintedTee() in src/doll/printed-tee.js', texture: 'fresco-tee-atlas.js: the body unwrapped and the sleeves, projected from the user\'s flat lay (front) and back photo, with the back photo\'s side shading partly divided out; the painting is long out of copyright', runtimeGeneration: false, sourcePhotosBundled: 'processed crops only, as the texture atlas' },
+    // Construction for makePrintedTee() in src/doll/printed-tee.js, in outfit units. The V is laid on the flat lay's V in
+    // the atlas: it meets the neckline .173 of the way round from centre front and ends at 1.68.
+    build: {
+      template: 'printed-raglan-tee',
+      colours: { overlock: '#e2cfae', binding: '#c9ad85', fallback: '#dcc6a4', printTone: '#bdb8b3' },
+      body: { neck: 1.91, hem: 1.19, lettuce: .0035, waves: 44, neckWaves: 30,
+        rows: [[1.91, .109, .099], [1.875, .17, .122], [1.83, .228, .152], [1.775, .265, .175], [1.65, .279, .183], [1.49, .277, .187], [1.34, .284, .196], [1.25, .29, .206], [1.19, .292, .213]] },
+      vneck: { bottom: 1.68, half: .173, round: 1.7, binding: .012 },
+      seams: { neckU: .19, armTop: .95, armU: .235, armV: .66, centreTop: .68, sides: [] },
+      sleeve: { rows: [[.03, .108, .106], [-.04, .12, .117], [-.13, .122, .119], [-.205, .127, .124]], lettuce: .003, waves: 20 },
+    },
+  },
   [MICKEY_LONG_TEE_ID]: {
     slot: 'top',
     id: MICKEY_LONG_TEE_ID, name: 'Black Mickey Mouse print long-sleeve tee', family: 'printed-long-sleeve-tee', version: 1,
@@ -298,8 +326,10 @@ export const GARMENTS = Object.freeze({
         rows: [[1.91, .109, .099], [1.875, .17, .122], [1.83, .228, .152], [1.775, .265, .175], [1.65, .279, .183], [1.49, .277, .187], [1.34, .284, .196], [1.25, .29, .206], [1.18, .292, .213]],
         neckband: [[1.924, .109, .1], [1.9, .114, .105]] },
       sleeve: { rows: [[.025, .098, .1], [-.04, .112, .108], [-.16, .107, .101], [-.28, .104, .099], [-.4, .096, .091], [-.49, .078, .08], [-.525, .077, .079]] },
-      // The print, in texture pixels (1300 to a world unit): stamp size, average spacing, splatter (pixels per dot).
-      print: { seed: 41, ground: '#121010', inks: { cream: '#d6cfc2', red: '#a8232e', ochre: '#c47f35' }, size: 50, spacing: 150, splatter: 1500, dropout: .2,
+      // The print, in texture pixels (1300 to a world unit): stamp size, average spacing, splatter (pixels per dot). Messy:
+      // patchy ink (dropout), three sets of scratches, very ragged edges, each stamp fading out to one side and some
+      // printed faint, with a spray of dots round each.
+      print: { seed: 41, ground: '#121010', inks: { cream: '#d6cfc2', red: '#a8232e', ochre: '#c47f35' }, size: 36, spacing: 122, splatter: 1000, dropout: .23, scratches: 3, scratchWidth: .05, ragged: 1.3, fade: .75, faint: .25, spray: 14,
         mix: { head: .3, shorts: .22, glove: .26, shoe: .22 },
         inksFor: { head: ['cream', 'cream', 'cream', 'ochre', 'red'], shorts: ['red', 'red', 'red', 'ochre'], glove: ['cream', 'cream', 'ochre'], shoe: ['ochre', 'ochre', 'ochre', 'red', 'cream'] } },
     },
@@ -344,7 +374,7 @@ export const GARMENTS = Object.freeze({
   [DAVINIA_JEANS_ID]: {
     slot: 'bottom',
     id: DAVINIA_JEANS_ID, name: 'Davinia heart jeans', family: 'high-rise-straight-cropped-jeans', version: 1,
-    status: 'reference-study-awaiting-visual-review', brandAsProvided: 'Desigual',
+    status: 'user-approved', brandAsProvided: 'Desigual',
     source: { note: 'user supplied four phone screenshots of a Ceneo listing (Desigual Jeansy Davinia 22SWDD01): front on model, waist close-up, flat lay, back on model' },
     referenceViews: ['front on model', 'waist and pocket close-up', 'front flat lay', 'back on model'],
     details: ['high rise', 'slim straight legs cropped at the ankle with a raw frayed hem', 'light blue acid wash, paler on the thighs', 'raw frayed top edge on the waistband', 'copper shank button and orange contrast stitching', 'scoop front pockets', 'coin pocket with a small red embroidered heart', 'small light abrasions near the pocket and on the thigh', 'plain back patch pockets, V yoke and a brown leather patch'],
@@ -378,7 +408,7 @@ export const GARMENTS = Object.freeze({
   [LEVIS_94_ID]: {
     slot: 'bottom',
     id: LEVIS_94_ID, name: "Levi's '94 baggy wide leg", family: 'wide-leg-jeans', version: 1,
-    status: 'reference-study-awaiting-visual-review', brandAsProvided: "Levi's",
+    status: 'user-approved', brandAsProvided: "Levi's",
     source: { note: "user supplied six product images (\"Levi's 94 Wide Leg\"; label reads The Baggy Wide Leg): back pocket close-up, front flat lay, front, back and side on model, full-length front" },
     referenceViews: ['back pocket close-up', 'front flat lay', 'front on model', 'back on model', 'side on model', 'full-length front'],
     details: ['low-to-mid rise', 'wide legs falling straight and widening slightly to the hem, full length pooling over the shoes', 'washed black faded to charcoal, faint whiskers across the upper thighs, visible twill', 'raw frayed edges on the front pocket openings', 'coin pocket, belt loops, dark metal button', 'back yoke, five-pocket back pockets with tonal double-arc stitching and frayed nicks on their tops', 'red tab on the wearer\'s right back pocket', 'tan printed patch on the back waistband'],
@@ -414,7 +444,7 @@ export const GARMENTS = Object.freeze({
   [TOMMY_MOM_ID]: {
     slot: 'bottom',
     id: TOMMY_MOM_ID, name: 'Tommy ultra high rise mom jeans', family: 'mom-jeans', version: 1,
-    status: 'reference-study-awaiting-visual-review', brandAsProvided: 'Tommy Jeans',
+    status: 'user-approved', brandAsProvided: 'Tommy Jeans',
     source: { note: 'user supplied four phone screenshots of an ASOS listing (Tommy Jeans ultra high rise mom jean in mid wash): front and back on model, back pocket close-up, front waist close-up' },
     referenceViews: ['front on model', 'back on model', 'back pocket close-up', 'front waist close-up'],
     details: ['ultra high rise at the natural waist', 'mom fit: roomy hips and thighs tapering to a narrow ankle-length hem', 'even mid indigo wash, slightly paler on the thighs', 'tan-orange topstitching, scoop front pockets with copper rivets, silver button', 'coin pocket with a tiny flag badge', 'back yoke, patch pockets crossed by a double stitched bar, a small flag badge on the wearer\'s right pocket', 'red, white and navy flag patch on the back waistband'],
@@ -451,7 +481,7 @@ export const GARMENTS = Object.freeze({
   [STRADIVARIUS_RELAXED_ID]: {
     slot: 'bottom',
     id: STRADIVARIUS_RELAXED_ID, name: 'Stradivarius relaxed jeans', family: 'relaxed-wide-jeans', version: 1,
-    status: 'reference-study-awaiting-visual-review', brandAsProvided: 'Stradivarius',
+    status: 'user-approved', brandAsProvided: 'Stradivarius',
     source: { note: 'user supplied four phone screenshots of a Zalando listing (Stradivarius, Relaxed, Petite): front close-up, front and back on model, side close-up' },
     referenceViews: ['front close-up', 'front on model', 'back on model', 'side close-up'],
     details: ['low to mid rise', 'relaxed wide straight legs, full length, pooling on the floor', 'very light bleached blue wash with soft whiskers at the hips', 'classic five-pocket front: scoop pockets, coin pocket, copper rivets and button', 'pale tonal stitching', 'plain back patch pockets', 'small beige patch on the back waistband'],
@@ -485,7 +515,7 @@ export const GARMENTS = Object.freeze({
   [MANGO_BLACK_JEANS_ID]: {
     slot: 'bottom',
     id: MANGO_BLACK_JEANS_ID, name: 'Mango washed black jeans', family: 'relaxed-straight-jeans', version: 1,
-    status: 'reference-study-awaiting-visual-review', brandAsProvided: 'Mango (MNG Denim)',
+    status: 'user-approved', brandAsProvided: 'Mango (MNG Denim)',
     source: { note: 'user supplied five eBay listing photos (the pair is old): back flat lay on a wooden floor (twice), front waist close-ups and a front flat lay on grey carpet' },
     referenceViews: ['back flat lay', 'front waist close-up', 'front pocket close-up', 'front flat lay'],
     details: ['high rise', 'relaxed straight legs tapering slightly to an ankle-length hem', 'charcoal washed black with a mottled stone-wash, paler on thighs and seams', 'five-pocket front with copper rivets and a silver button', 'plain back patch pockets with a short dart above each instead of a yoke', 'black leather patch on the back waistband', 'light grey double topstitching on the seams, pockets, fly, waistband and hem, with paler bleached seams'],
@@ -521,7 +551,7 @@ export const GARMENTS = Object.freeze({
   [BERSHKA_GREY_ID]: {
     slot: 'bottom',
     id: BERSHKA_GREY_ID, name: 'Bershka grey wide-leg jeans', family: 'wide-leg-jeans', version: 1,
-    status: 'reference-study-awaiting-visual-review', brandAsProvided: 'Bershka',
+    status: 'user-approved', brandAsProvided: 'Bershka',
     source: { note: 'user supplied five phone screenshots of the product gallery: front close-up and full front on model, back on model, waist close-up, front flat lay' },
     referenceViews: ['front on model (close)', 'front on model', 'back on model', 'waist close-up', 'front flat lay'],
     details: ['low to mid rise', 'wide straight legs, full length, resting on the shoes', 'mid grey wash with a fine crinkled texture', 'bleached paler panels down the middle of each thigh and knee, darker sides and hem', 'strong pale whiskers across the hips and upper thighs, front and back', 'silver button and rivets, tonal grey stitching', 'plain back patch pockets'],
@@ -557,7 +587,7 @@ export const GARMENTS = Object.freeze({
   [TOMMY_CARPENTER_ID]: {
     slot: 'bottom',
     id: TOMMY_CARPENTER_ID, name: 'Tommy Jeans Remastered carpenter jeans', family: 'carpenter-jeans', version: 1,
-    status: 'reference-study-awaiting-visual-review', brandAsProvided: 'Tommy Jeans',
+    status: 'user-approved', brandAsProvided: 'Tommy Jeans',
     source: { note: 'user supplied five phone screenshots of an ASOS listing (Tommy Jeans Remastered carpenter jeans in black wash): front on model twice, side close-up, waist close-up, back' },
     referenceViews: ['front on model', 'side close-up', 'front on model (full)', 'front waist close-up', 'back on model'],
     details: ['mid rise', 'relaxed wide straight legs, full length on the model (the user wears them narrower, at the ankle)', 'even black wash', 'white double contrast topstitching throughout', 'large carpenter patch panels over the front hips, from the waistband to the crotch, under the scoop pockets', 'big utility patch pockets on both outer thighs, a red, white and navy flag badge on the wearer\'s left one', 'hammer loop on the wearer\'s right thigh', 'silver button and rivets', 'back yoke, patch pockets, a red, white and navy tape across the wearer\'s right back pocket', 'tonal grey flag patch on the back waistband'],
@@ -600,7 +630,7 @@ export const GARMENTS = Object.freeze({
   [ZARA_CARGO_ID]: {
     slot: 'bottom',
     id: ZARA_CARGO_ID, name: 'Zara elastic-waist cargo trousers', family: 'cargo-joggers', version: 1,
-    status: 'reference-study-awaiting-visual-review', brandAsProvided: 'Zara',
+    status: 'user-approved', brandAsProvided: 'Zara',
     source: { note: 'user supplied three phone screenshots of a resale listing on zara.com (“Pantaloni cargo con vita elasticizzata”, black, size M): front flat lay, back flat lay, front close-up; the listing text says light, cool trousers with an adjustable elastic drawstring waist' },
     referenceViews: ['front flat lay', 'back flat lay', 'front close-up'],
     details: ['gathered elastic waistband with a black drawstring and metal tips', 'black, light, slightly crinkled fabric with a soft sheen', 'relaxed legs tapering to gathered elastic cuffs at the ankle, the fabric blousing above them', 'slanted side pockets', 'cargo patch pockets with plain flaps on both outer thighs', 'plain back with a centre seam, no back pockets', 'tonal stitching'],
@@ -634,7 +664,7 @@ export const GARMENTS = Object.freeze({
   [CRYSTAL_JEANS_ID]: {
     slot: 'bottom',
     id: CRYSTAL_JEANS_ID, name: 'Crystal-embellished straight jeans', family: 'straight-jeans', version: 1,
-    status: 'reference-study-awaiting-visual-review', brandAsProvided: 'not visible in the screenshots',
+    status: 'user-approved', brandAsProvided: 'not visible in the screenshots',
     source: { note: 'user supplied five phone screenshots of a product gallery (front on model, back on model, styled front, front flat lay, waist close-up) and asked to notice the embellishments' },
     referenceViews: ['front on model', 'back on model', 'styled front', 'front flat lay', 'front waist close-up'],
     details: ['high rise', 'straight legs, full length, resting on the shoes', 'light vintage blue wash, darker round the fly, slightly paler on the thighs', 'tiny crystals set in a square grid over the whole front of both legs and hips; the waistband and the back are plain', 'tan topstitching, silver button and rivets', 'coin pocket with a small worn patch on the wearer\'s right', 'back yoke, plain patch pockets and a tan leather patch on the wearer\'s right'],
@@ -670,7 +700,7 @@ export const GARMENTS = Object.freeze({
   [NIKE_TRACK_ID]: {
     slot: 'bottom',
     id: NIKE_TRACK_ID, name: 'Nike woven track pants with piping', family: 'track-pants', version: 1,
-    status: 'reference-study-awaiting-visual-review', brandAsProvided: 'Nike (from the embroidered swoosh)',
+    status: 'user-approved', brandAsProvided: 'Nike (from the embroidered swoosh)',
     source: { note: 'user supplied six phone screenshots of a product gallery: front on model full length and closer, side, pocket close-up, styled top half, back' },
     referenceViews: ['front on model', 'front on model (closer)', 'side on model', 'pocket close-up', 'styled front (top half)', 'back on model'],
     details: ['elastic gathered waistband with a tonal drawstring tied at the front', 'raspberry pink lightweight woven nylon with a fine crinkle and a soft sheen', 'wide straight legs, full length, pooling over the shoes', 'two white piping lines down each leg, one either side of the side seam, sweeping toward the front lower down', 'side seam pockets', 'small white embroidered swoosh on the wearer\'s left thigh', 'a small welt pocket on the back right'],
@@ -709,7 +739,7 @@ export const GARMENTS = Object.freeze({
   [TOPSHOP_BLACK_CROP_ID]: {
     slot: 'bottom',
     id: TOPSHOP_BLACK_CROP_ID, name: 'Topshop washed black wide crop jeans', family: 'wide-leg-cropped-jeans', version: 1,
-    status: 'reference-study-awaiting-visual-review', brandAsProvided: 'Topshop',
+    status: 'user-approved', brandAsProvided: 'Topshop',
     source: { note: 'user supplied five product photos: back and front on a model, a back-pocket close-up, a front waist close-up and the side on a model; the user said they are short, so on them the jeans fall longer, almost to the ankle' },
     referenceViews: ['back on model', 'front on model', 'back pocket close-up', 'front waist close-up', 'side on model'],
     details: ['mid rise', 'wide legs flaring from the knee to a broad raw-cut hem', 'cropped, almost to her ankle (the user\'s fit; mid-calf on the taller model)', 'raw frayed hem with loose threads', 'washed black twill fading to charcoal', 'five-pocket front with copper rivets and a silver shank button', 'back yoke and pointed patch pockets', 'black leather patch embossed TOPSHOP on the back waistband', 'tan double topstitching'],
@@ -747,7 +777,7 @@ export const GARMENTS = Object.freeze({
   [PLEATED_LINEN_ID]: {
     slot: 'bottom',
     id: PLEATED_LINEN_ID, name: 'Urban Classics pleated linen-blend wide trousers', family: 'pleated-wide-trousers', version: 1,
-    status: 'reference-study-awaiting-visual-review', brandAsProvided: 'Urban Classics (named by the user; not visible in the screenshots)',
+    status: 'user-approved', brandAsProvided: 'Urban Classics (named by the user; not visible in the screenshots)',
     source: { note: 'user supplied seven phone screenshots of a product gallery (images 2, 4, 7 and 11 to 14 of 16), with no text: front, three-quarter and back on a model, front and back flat lays, and close-ups of a front pocket and a back pocket' },
     referenceViews: ['front on model', 'three-quarter on model', 'back on model', 'front flat lay', 'back flat lay', 'front pocket close-up', 'back pocket close-up'],
     details: ['high rise at the natural waist', 'one deep front pleat on each side, folded toward the fly and releasing at the hip', 'wide legs falling straight from the hip and widening slightly to the hem, full length, resting on the shoes', 'pale stone (sand) plain weave with visible linen slubs', 'slanted front pockets', 'zip fly with a curved stitched edge and one tonal four-hole button', 'six belt loops, none at the centre back', 'jetted (welt) back pockets with stitched outlines, and short darts above them', 'centre-back seam', 'tonal stitching and a plain hem'],
@@ -790,7 +820,7 @@ export const GARMENTS = Object.freeze({
   [BUFFALO_ASPHA_ID]: {
     slot: 'shoes',
     id: BUFFALO_ASPHA_ID, name: 'Buffalo Aspha olive platform boots', family: 'lug-sole-platform-ankle-boot', version: 1,
-    status: 'reference-study-awaiting-visual-review', brandAsProvided: 'Buffalo',
+    status: 'user-approved', brandAsProvided: 'Buffalo',
     source: { note: 'user supplied five phone screenshots of an Amazon listing ("Buffalo Aspha NC Mid Vegan Nu", colour Verde, size 36 EU): front three-quarter, outer side, back three-quarter, inner side, inner three-quarter' },
     referenceViews: ['front three-quarter', 'outer side', 'back three-quarter', 'inner side', 'inner three-quarter'],
     details: ['chunky tonal platform sole with deep trapezoid lugs, a ledge above the lugs and a raised heel cup', 'toe of the sole lifted (rocker)', 'mid-cut olive vegan nubuck upper, all one colour with the sole', 'padded collar quilted in two horizontal rows', 'tall heel pull tab of jacquard logo tape: grey band reading BUFFALO // between black and taupe woven edges', 'logo tape down the tongue and a tongue pull tab', 'metal eyelets with two taupe webbing lace loops per side', 'flat olive laces', 'curved side overlay edged in dark piping, over a window with two diagonal taupe webbing straps', 'tan double topstitching'],
@@ -822,7 +852,7 @@ export const GARMENTS = Object.freeze({
   [DM_COW_SLIDE_ID]: {
     slot: 'shoes',
     id: DM_COW_SLIDE_ID, name: 'Dr. Martens cow print platform slides', family: 'platform-slide-sandal', version: 1,
-    status: 'reference-study-awaiting-visual-review', brandAsProvided: 'Dr. Martens',
+    status: 'user-approved', brandAsProvided: 'Dr. Martens',
     source: { note: 'user supplied five phone screenshots of a shop gallery (images 1, 3, 4, 5 and 7 of 7): side, front three-quarter pair, back pair, top pair, toe close-up; no model name visible' },
     referenceViews: ['inner side', 'front three-quarter', 'back', 'top', 'toe close-up'],
     details: ['open-toe, open-back slide', 'two wide crossed straps of black-and-white cow print pony hair, edged in black leather piping', 'thin black leather cords crossing over them in an X', 'black leather instep strap with a large silver buckle on the outer side', 'black suede footbed with the AirWair logo', 'black leather welt band with fine grooves and yellow welt stitching', 'chunky sculpted outsole in smoky translucent black: toe and heel blocks, a ribbed block and mountain peaks along the side, the tread lifting under the arch'],
@@ -849,7 +879,7 @@ export const GARMENTS = Object.freeze({
   [UGG_LOWMEL_ID]: {
     slot: 'shoes',
     id: UGG_LOWMEL_ID, name: 'UGG cream platform sneakers', family: 'platform-sneaker', version: 1,
-    status: 'reference-study-awaiting-visual-review', brandAsProvided: 'UGG',
+    status: 'user-approved', brandAsProvided: 'UGG',
     source: { note: 'user supplied five phone screenshots of a shop gallery (images 1, 2, 3, 4 and 6 of 6): outer side, front three-quarter pair, back pair, top pair, toe close-up; the insole and tongue read UGG; the style resembles the UGG Lowmel' },
     referenceViews: ['outer side', 'front three-quarter', 'back', 'top', 'toe close-up'],
     details: ['low-cut chunky skate-style sneaker, all cream', 'cream mesh base showing at the toe box and as a band round the heel collar', 'cream suede overlays: a band all round above the sole, the side quarters, the heel counter and the eyestays, with tonal stitching', 'big round eyelets, four a side', 'very wide, puffy flat laces in cream with a beige-brown diamond zigzag, tied in a large floppy bow with long tails', 'thick padded tongue with a debossed UGG label', 'padded collar and a cream webbing pull loop at the heel', 'smooth cream platform sole with a rounded top edge and small lugs round the bottom'],
@@ -884,7 +914,7 @@ export const GARMENTS = Object.freeze({
   [DM_BLAIRE_CHAIN_ID]: {
     slot: 'shoes',
     id: DM_BLAIRE_CHAIN_ID, name: 'Dr. Martens Blaire Quad chain sandals', family: 'platform-strap-sandal', version: 1,
-    status: 'reference-study-awaiting-visual-review', brandAsProvided: 'Dr. Martens',
+    status: 'user-approved', brandAsProvided: 'Dr. Martens',
     source: { note: 'user supplied seven product images: front three-quarter pair, back three-quarter close-up, top, buckle close-up, back, inner side, outer side; the back label reads BLAIRE II QUAD CHAIN' },
     referenceViews: ['front three-quarter', 'back three-quarter', 'top', 'buckle close-up', 'back', 'inner side', 'outer side'],
     details: ['open-toe platform strap sandal in glossy black patent leather', 'three straps straight across the foot and an ankle strap round the back of the ankle, joined to the sole by an upright strap on each side', 'chunky silver curb chain along the top of every strap, fixed with studs at each end', 'large silver buckles engraved Dr. Martens on the outer side, with pointed stitched tabs', 'tonal stitching along the strap edges', 'black heel pull loop lined in yellow, printed With Bouncing Soles', 'black footbed', 'tall Quad platform with fine horizontal ribbing, a grooved welt with yellow stitching and a sawtooth tread'],
@@ -984,7 +1014,7 @@ export const GARMENTS = Object.freeze({
   [CONVERSE_LIFT_HI_ID]: {
     slot: 'shoes',
     id: CONVERSE_LIFT_HI_ID, name: 'Converse Chuck Taylor Modern Lift high-top', family: 'canvas-platform-high-top-sneaker', version: 1,
-    status: 'reference-study-awaiting-visual-review', brandAsProvided: 'Converse',
+    status: 'user-approved', brandAsProvided: 'Converse',
     source: { note: 'user supplied five phone screenshots of a decathlon.it product gallery: outer side, inner side, a pair seen from the front, and a top view (twice)' },
     referenceViews: ['outer side', 'inner side', 'front pair', 'top view'],
     details: ['monochrome cream (egret) canvas high-top', 'stacked platform sole in cream with grooves between its layers and tonal stitch lines', 'seven silver eyelets a side up the lacing, cream flat laces', 'rubber toe cap in the sole\'s cream wrapping the front of the toe', 'round tonal ankle patch with an embossed star on the inner side', 'two small vent eyelets low on the inner side', 'rounded toe, padded collar'],
@@ -1016,7 +1046,7 @@ export const GARMENTS = Object.freeze({
   [NB_550_ID]: {
     slot: 'shoes',
     id: NB_550_ID, name: 'New Balance 550 cream leather sneakers', family: 'retro-basketball-sneaker', version: 1,
-    status: 'reference-study-awaiting-visual-review', brandAsProvided: 'New Balance',
+    status: 'user-approved', brandAsProvided: 'New Balance',
     source: { note: 'user supplied six product images: front three-quarter, back three-quarter pair, outer side, sole, inner side, toe three-quarter; the midsole reads new balance and the vamp is embossed 550' },
     referenceViews: ['front three-quarter', 'back three-quarter pair', 'outer side', 'sole', 'inner side', 'toe three-quarter'],
     details: ['low retro basketball sneaker, all cream and off-white', 'smooth cream leather upper with a slightly darker heel counter and a pale leather toe cap', 'perforated leather quarter below the lacing', 'beige mesh window under the collar', 'big slanted N on each side in pale pinkish suede, edged in white leather', 'white leather piping sweeping from the heel down and forward, then up to the lacing', 'white leather edges along the eyestays, punched eyelets, white flat laces in a bow', 'very puffy padded collar with a peach-yellow lining, and a tall puffy nylon tongue with a label', 'chunky cupsole: an aged cream midsole with horizontal grooves over a grey rubber outsole with block lugs, rising higher round the heel and toe', '550 embossed on the vamp and new balance on the midsole'],
@@ -1058,7 +1088,7 @@ export const GARMENTS = Object.freeze({
   [GAZELLE_BOLD_ID]: {
     slot: 'shoes',
     id: GAZELLE_BOLD_ID, name: 'adidas Gazelle Bold cream and green platform sneakers', family: 'platform-sneaker', version: 1,
-    status: 'reference-study-awaiting-visual-review', brandAsProvided: 'adidas (the GAZELLE lettering and the sole branding)',
+    status: 'user-approved', brandAsProvided: 'adidas (the GAZELLE lettering and the sole branding)',
     source: { note: 'user supplied five product photos without a description: outer side, front three-quarter, top, sole and back three-quarter' },
     referenceViews: ['outer side', 'front three-quarter', 'top', 'sole', 'back three-quarter'],
     details: ['low suede sneaker, cream (off-white) suede upper', 'three green leather stripes on each side, slanting forward, with serrated gold-stitched edges', 'green leather heel tab with a gold-stitched edge', 'shaggy (hairy) beige suede toe cap and tongue', 'gold foil GAZELLE lettering on the outer side, parallel to the stripes', 'cream eyestays with punched eyelets and beige flat laces', 'cream leather collar lining; a green insole and a yellow tongue label under the laces', 'tall three-tier gum platform: two honey tiers over a darker brown one, each rounded, with grooves between them'],
@@ -1278,7 +1308,7 @@ export const GARMENTS = Object.freeze({
   [EMERALD_PARKA_ID]: {
     slot: 'outerwear',
     id: EMERALD_PARKA_ID, name: 'Emerald hooded parka', family: 'zip-windbreaker', version: 1,
-    status: 'reference-study-awaiting-visual-review', brandAsProvided: 'not given',
+    status: 'user-approved', brandAsProvided: 'not given',
     source: { note: 'user supplied five product photos of the coat in its original navy (front, side, back, worn open, close-up); the user\'s own coat was originally a lighter blue, was damaged with bleach and dyed emerald green (Coloreria Italiana); the colour could not be photographed, so the user asked for a slightly muted emerald' },
     referenceViews: ['front on model, zipped, hood up', 'side on model', 'back on model', 'front on model, open', 'close-up, hood up'],
     details: ['oversized hooded parka, knee length on the model', 'hood lined in cream sherpa, with red and white drawcords at the neck', 'zip under a snap placket from the hem to the top of the collar', 'large slanted flap pockets at the hip, each with a snap', 'dropped shoulders and long, full sleeves gathered into elastic cuffs', 'drawcord hem with red and white cord ends at the front edges', 'body lined in cream sherpa (inside view)', 'plain back'],

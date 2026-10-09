@@ -44,9 +44,11 @@ function drawPrint(key,w,h,seed,wrapX,P){
   for(let y=0;y<h;y++)for(let x=0;x<w;x++){const i=(y*w+x)*4,s=slub(x,y),k=1+.5*Math.max(0,s-.7)+.08*(grain(x,y)-.5);
     for(let c=0;c<3;c++)data[i+c]=Math.min(255,bg[c]*k);data[i+3]=255;}
   const set=(x,y,col,a=1)=>{if(wrapX)x=((x%w)+w)%w;if(x<0||x>=w||y<0||y>=h)return;const i=(y*w+x)*4;for(let c=0;c<3;c++)data[i+c]=data[i+c]*(1-a)+col[c]*a;};
-  // Ink coverage at a point of a stamp: patchy, crossed by fine scratches, thinning toward ragged edges.
-  const stamp=(lx,ly,px,py,lines)=>{const n=ragged(px,py),f=fleck(px,py);if(n*.6+f*.4<P.dropout)return 0;
-    for(let k=0;k<lines.length;k++){const L=lines[k];if(Math.abs(Math.sin((lx*L[0]+ly*L[1])*L[2]+L[3]+5*n+2*f))>.96)return 0;}return .85+.15*n;};
+  // Ink coverage at a point of a stamp: patchy, crossed by scratches, and thinning out toward one side (`fade`, the
+  // direction the stamp was pressed less hard), with ragged edges.
+  const rg=P.ragged??1,scratch=P.scratchWidth??.04;
+  const stamp=(lx,ly,px,py,lines,fade)=>{const n=ragged(px,py),f=fleck(px,py),thin=fade[2]*Math.max(0,lx*fade[0]+ly*fade[1]);if(n*.6+f*.4<P.dropout+thin)return 0;
+    for(let k=0;k<lines.length;k++){const L=lines[k];if(Math.abs(Math.sin((lx*L[0]+ly*L[1])*L[2]+L[3]+5*n+2*f))>1-scratch)return 0;}return .85+.15*n;};
   const count=Math.round(w*h/P.spacing**2),kinds=Object.keys(P.mix),placed=[];
   for(let m=0;m<count;m++){
     let pick=rand()*Object.values(P.mix).reduce((a,b)=>a+b,0),kind=kinds[0];for(const k of kinds){pick-=P.mix[k];if(pick<=0){kind=k;break;}}
@@ -54,16 +56,20 @@ function drawPrint(key,w,h,seed,wrapX,P){
     let cx=0,cy=0,far=-1;for(let c=0;c<8;c++){const x=rand()*w,y=rand()*h;let d=Infinity;for(const [qx,qy] of placed){let ex=Math.abs(x-qx);if(wrapX)ex=Math.min(ex,w-ex);d=Math.min(d,ex*ex+(y-qy)**2);}if(d>far){far=d;cx=x;cy=y;}}
     placed.push([cx,cy]);
     const inks=P.inksFor[kind],col=ink[inks[Math.floor(rand()*inks.length)]],detail=col===ink.cream?ink.red:ink.cream;
-    const lines=Array.from({length:2},()=>{const t=rand()*Math.PI;return [Math.cos(t),Math.sin(t),6+rand()*6,rand()*6];});
-    // Every motif lies within 2 of its centre, ragged edge included. The edge grows a motif by at most .275, so points
-    // outside it grown by .3 are skipped before the noise is sampled.
-    const ext=Math.ceil(R*2);
+    const lines=Array.from({length:P.scratches??2},()=>{const t=rand()*Math.PI;return [Math.cos(t),Math.sin(t),6+rand()*8,rand()*6];});
+    const ft=rand()*Math.PI*2,fade=[Math.cos(ft),Math.sin(ft),(P.fade??0)*rand()],strength=1-(P.faint??0)*rand();
+    // Every motif lies within 1.6 of its centre; the ragged edge grows it by at most .275 times `ragged` (points outside
+    // it grown that far are skipped before the noise is sampled), which the extent allows for.
+    const grow=.3*rg,ext=Math.ceil(R*(1.6+grow));
     for(let py=Math.floor(cy-ext);py<=cy+ext;py++)for(let px=Math.floor(cx-ext);px<=cx+ext;px++){
-      const dx=(px-cx)/R,dy=(py-cy)/R,lx=dx*ca+dy*sa,ly=-dx*sa+dy*ca;if(!inEllipses(M.parts,lx,ly,.3))continue;
-      const j=.3*(fleck(px+93,py+51)-.5)+.25*(ragged(px+45,py+27)-.5);
+      const dx=(px-cx)/R,dy=(py-cy)/R,lx=dx*ca+dy*sa,ly=-dx*sa+dy*ca;if(!inEllipses(M.parts,lx,ly,grow))continue;
+      const j=rg*(.3*(fleck(px+93,py+51)-.5)+.25*(ragged(px+45,py+27)-.5));
       if(!inEllipses(M.parts,lx,ly,j)||(M.holes&&inEllipses(M.holes,lx,ly,j*.5)))continue;
-      const a=stamp(lx,ly,px,py,lines);if(!a)continue;
-      set(px,py,M.marks&&inEllipses(M.marks,lx,ly,j*.5)?detail:col,a);}
+      const a=stamp(lx,ly,px,py,lines,fade);if(!a)continue;
+      set(px,py,M.marks&&inEllipses(M.marks,lx,ly,j*.5)?detail:col,a*strength);}
+    // A spray of fine dots in the stamp's ink around it, thinning outward.
+    for(let d=0;d<(P.spray??0);d++){const r=R*(.9+1.6*Math.sqrt(rand())),t=rand()*Math.PI*2,x=cx+Math.cos(t)*r,y=cy+Math.sin(t)*r,s=.5+rand()*1.3;
+      for(let py=Math.floor(y-s);py<=y+s;py++)for(let px=Math.floor(x-s);px<=x+s;px++){const q=Math.hypot(px-x,py-y)/s;if(q<1)set(px,py,col,.8*strength*Math.min(1,(1-q)*3));}}
   }
   // Paint splatter: fine dots, densest around a few bursts.
   const dots=Math.round(w*h/P.splatter);

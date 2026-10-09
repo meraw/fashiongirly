@@ -1,6 +1,6 @@
 # Wardrobe item: black Mickey Mouse print long-sleeve tee
 
-Authored 9 October 2026. Status: first version, awaiting visual review. Added by the chat that has been doing outerwear (any chat can add any category).
+Authored 9 October 2026. Status: second version, awaiting visual review. The user found the first print too neat and too large (“Messier, smaller”); it was redrawn. Added by the chat that has been doing outerwear (any chat can add any category).
 
 ## Source and reference reading
 
@@ -36,9 +36,13 @@ Catalog ID `black-mickey-print-long-tee-v1` (slot `top`). It is built by `makePr
 
 Each stamp is inked in one of the measured colours, at a random angle, and given:
 
-- a ragged edge
-- small gaps where the ink did not take
-- two sets of wavy scratch lines through it
+- a very ragged edge
+- patchy gaps where the ink did not take
+- three sets of wavy scratch lines through it
+- ink that thins out toward one side, as if pressed unevenly, with some stamps printed faint
+- a spray of fine dots in its own ink around it
+
+**Revision (“Messier, smaller”).** The first version's stamps were larger (50 pixels, against 36 now), cleaner and evenly inked. A trial that was much denser and rougher lost the shapes and the black ground, so the settings sit between the two. The new spec options (`scratches`, `scratchWidth`, `ragged`, `fade`, `faint`, `spray`) are all in the catalog entry's `print` block.
 
 Stamps are spread evenly: each is the best of a few random spots, the farthest from those already placed. Fine paint splatter is scattered between them. The black ground carries a faint slub and grain.
 
@@ -69,11 +73,11 @@ It covers the waistband, like the other tops at this length. A jacket hides its 
   - that the sleeves reach her wrist
   - that the print holds all four inks on the black ground, mostly ground
 - The shared tests also run on it: sleeves and hands, every waist-covering top over every bottom, the styling facts, and every jacket over every top.
-- `npm test`: 82 passing; `npm run build` succeeds.
+- `npm test`: 83 passing after merging `main` (which added the Desigual fresco V-neck tee); `npm run build` succeeds.
 - The print takes about a second to draw the first time it is worn, then is shared.
 - Rendered in headless Chromium from the front, a turn, the side and the back. The authoring chat checked these renders; the user has not seen them yet.
 
 ## Known differences
 
-- The print is a simplified redrawing: the stamps' shapes are cleaner and more regular than the real distressed artwork, and the layout is random rather than the real repeat.
+- The print is a simplified redrawing: the stamps' shapes are more regular than the real distressed artwork, and the layout is random rather than the real repeat.
 - Her torso is wider and shorter than the models', so fewer stamps fit across her.

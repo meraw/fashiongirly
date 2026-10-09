@@ -1,6 +1,6 @@
 # Wardrobe item: Dr. Martens Blaire Quad chain sandals
 
-Authored 9 October 2026. Status: first interpretation awaiting the user's visual review. Fourth pair of shoes from the user's wardrobe list.
+Authored 9 October 2026. Status: first interpretation; approved: the user merged it, and merging means approved (their rule). Fourth pair of shoes from the user's wardrobe list.
 
 ## Source and reference reading
 
