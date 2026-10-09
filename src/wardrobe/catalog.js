@@ -18,6 +18,7 @@ export const TOMMY_CABLE_ID = 'tommy-green-cable-sweater-v1';
 export const PETIT_BATEAU_CARDIGAN_ID = 'petit-bateau-striped-cardigan-v1';
 export const TOMMY_STRIPE_POLO_ID = 'tommy-stripe-knit-polo-v1';
 export const MOTEL_TIE_DYE_SHIRT_ID = 'motel-tie-dye-mesh-shirt-v1';
+export const VANGOGH_TEE_ID = 'van-gogh-patchwork-tee-v1';
 export const BARREL_JEANS_ID = 'topshop-barrel-jeans-v1';
 export const DAVINIA_JEANS_ID = 'desigual-davinia-jeans-v1';
 export const LEVIS_94_ID = 'levis-94-wide-leg-v1';
@@ -216,6 +217,33 @@ export const GARMENTS = Object.freeze({
     uncertainties: ['the tie-dye is drawn procedurally to match the photos\' colours and patch size, not copied', 'worn buttoned to the top, as on the hanger; the model wears it open at the neck', 'only the sleeves are drawn sheer; over her body (cream felt, not skin) sheer mesh would show the felt', 'button count read as seven from the hanger photo'],
     styling: { silhouette: 'slim, cropped at the waist', palette: ['grey-brown', 'mauve', 'pale pinkish beige', 'black'], pattern: 'cloudy tie-dye all over, with black buttons and topstitching', coverage: { neck: 'point collar, buttoned', sleeves: 'long, sheer', midriff: 'cropped at the waist' }, material: 'sheer stretch mesh, composition unknown', warmth: 1, warmthBasis: 'inferred: thin sheer mesh, though long-sleeved', weather: 'mild days, or as a layer; sheer' },
     authoring: { texture: 'procedural tieDyeData() and meshNetData() in src/doll/shirts.js, drawn locally when first worn', runtimeGeneration: false, sourcePhotosBundled: false },
+  },
+  [VANGOGH_TEE_ID]: {
+    slot: 'top',
+    id: VANGOGH_TEE_ID, name: 'Van Gogh patchwork print tee', family: 'printed-raglan-tee', version: 1,
+    status: 'reference-study-awaiting-visual-review', brandAsProvided: 'not stated',
+    source: { note: 'user supplied six product photos without a written description: front (on a model, and closer), back (two), and close-ups of the back band and the front side' },
+    referenceViews: ['front on model', 'front, closer', 'back on model', 'back, closer', 'back band close-up', 'front side close-up'],
+    details: ['fitted short-sleeved raglan tee in a fine stretch rib knit', 'pieced from panels printed with sections of Van Gogh paintings: a swirling blue sky with white clouds, and white roses with dark leaves on pale green (his Roses, 1890)', 'front: sky panel on her right, roses panel on her left, joined by a centre seam', 'back: a large white cloud on a blue and teal sky, above a band of roses across the lower back', 'raglan sleeves: her right sleeve roses and leaves, her left sleeve sky', 'every seam exposed and overlocked in sage green, slightly wavy', 'lettuce-edge hem, sleeve hems and crew neckline in the same green'],
+    material: { construction: 'fine stretch rib jersey (read from the close-ups)', composition: 'not stated', finish: 'matte print' },
+    fit: { silhouette: 'fitted, close to the body', sleeve: 'short raglan sleeves ending above the elbow', hem: 'high hip, at the waistband of high-rise jeans', neckline: 'crew', adjustment: 'fixed authored fit for review' },
+    exclusions: ['striped-shirt','knit-sweater'],
+    // Covers the waistband; the short sleeve's fabric ends at -.17 (sleeve-local), below which her arm is bare.
+    layering: { coversWaistband: true, bareArmBelow: -.17 },
+    uncertainties: ['the print is taken from the product photos, so it is softer than the real fabric and some photographed folds and shading remain', 'the doll\'s torso is wider and shorter than the model\'s, so each panel shows a shorter vertical slice of its painting', 'the sleeves are made from small crops and are blurrier than the body', 'the side seams and panel edges are placed to match the doll, from the photos'],
+    styling: { silhouette: 'fitted, high-hip length', palette: ['sky blue', 'white', 'sage green', 'teal'], pattern: 'patchwork of painting prints: a swirling sky with clouds and white roses on green, with green overlocked seams', coverage: { neck: 'crew', sleeves: 'short', midriff: 'covered' }, material: 'fine stretch rib jersey', warmth: 1, warmthBasis: 'inferred: thin fitted knit with short sleeves', weather: 'warm days, or a base layer under a jacket' },
+    authoring: { texture: 'vangogh-tee-atlas.js: the body unwrapped and the sleeves, projected from the user\'s front and back photos with studio shading partly divided out; the paintings are long out of copyright', runtimeGeneration: false, sourcePhotosBundled: 'processed crops only, as the texture atlas' },
+    // Construction for makePrintedTee() in src/doll/printed-tee.js, in outfit units. The seams sit on the panel edges of the
+    // atlas: raglan lines from the neckline (u .055 round from centre front) to the underarm (u .235, v .66), side seams at
+    // u .25 and .75, and the back band's seam at v .27 (v from hem to neck).
+    build: {
+      template: 'printed-raglan-tee',
+      colours: { overlock: '#3f564c', fallback: '#a9c0cf', printTone: '#bebebe' },
+      body: { neck: 1.91, hem: 1.19, lettuce: .0035, waves: 44, neckWaves: 30,
+        rows: [[1.91, .109, .099], [1.875, .17, .122], [1.83, .228, .152], [1.775, .265, .175], [1.65, .279, .183], [1.49, .277, .187], [1.34, .284, .196], [1.25, .29, .206], [1.19, .292, .213]] },
+      seams: { neckU: .055, armU: .235, armV: .66, band: .27 },
+      sleeve: { rows: [[.03, .108, .106], [-.04, .12, .117], [-.12, .119, .116], [-.17, .122, .119]], lettuce: .003, waves: 18 },
+    },
   },
   [BARREL_JEANS_ID]: {
     slot: 'bottom',

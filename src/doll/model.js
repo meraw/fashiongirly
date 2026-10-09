@@ -1,5 +1,6 @@
 import * as T from 'three';
 import { cleanRecipe } from './recipe.js';
+import { makePrintedTee } from './printed-tee.js';
 import { makeOuterwear } from './outerwear.js';
 import { levelCaster } from './level-caster.js';
 import { BRONZE_TOP_ID, LILAC_TOP_ID, CROCHET_TOP_ID, PLAID_JUMPER_ID, STRIPE_JUMPER_ID, POINTELLE_FLOWER_ID, SILVER_CABLE_ID, LACROIX_FLOWER_ID, TOMMY_CABLE_ID, PETIT_BATEAU_CARDIGAN_ID, TOMMY_STRIPE_POLO_ID, MOTEL_TIE_DYE_SHIRT_ID, GARMENTS } from '../wardrobe/catalog.js';
@@ -1629,6 +1630,7 @@ export function makeOutfit(raw, atlas=null) {
     :id===POINTELLE_FLOWER_ID?makePointelleJumper(id,state.skirt):id===SILVER_CABLE_ID?makeSilverCableJumper():id===LACROIX_FLOWER_ID?makeLacroixSweater(id,state.skirt)
     :id===TOMMY_CABLE_ID?makeTommyCableSweater(id,state.skirt):id===PETIT_BATEAU_CARDIGAN_ID?makeStripedCardigan(id,state.skirt)
     :id===TOMMY_STRIPE_POLO_ID?makeKnitPolo(id):id===MOTEL_TIE_DYE_SHIRT_ID?makeButtonShirt(id)
+    :GARMENTS[id]?.build?.template==='printed-raglan-tee'?makePrintedTee(id,GARMENTS[id].build,atlas?.isTexture?atlas:atlas?.[id])
     :makeReferenceTop(atlas?.isTexture?atlas:atlas?.[id],id);
   if(state.topId!=='classic')root.add(makeTop(state.topId));
   // A top that can be worn over another top (layering.overTop, such as a cardigan) may have a slim top under it
