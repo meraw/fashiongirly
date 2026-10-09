@@ -75,7 +75,7 @@ Each setting defaults to the old behaviour. The Marikoo, Red Bull and emerald ja
 
 ## Checks
 
-- `npm test`: 83 passing. The new `tests/woolrich-bomber.test.js` checks:
+- `npm test`: 84 passing after merging `main`. The new `tests/woolrich-bomber.test.js` checks:
   - the parts, and the parts it leaves out
   - the rib knit and its colour
   - the density of the ruff, and that it lies round the hood on her back

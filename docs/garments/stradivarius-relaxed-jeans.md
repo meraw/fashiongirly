@@ -1,6 +1,6 @@
 # Wardrobe item: Stradivarius relaxed jeans
 
-Authored 8 October 2026. Status: the user said they look great; colour adjusted to a greyer shade on their request. Sixth piece from the user's wardrobe list, built on the shared jeans template with no new template options.
+Authored 8 October 2026. Status: the user said they look great; colour adjusted to a greyer shade on their request; approved: the user merged it, and merging means approved (their rule). Sixth piece from the user's wardrobe list, built on the shared jeans template with no new template options.
 
 ## Source and reference reading
 

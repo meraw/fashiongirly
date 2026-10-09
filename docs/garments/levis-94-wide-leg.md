@@ -1,6 +1,6 @@
 # Wardrobe item: Levi's '94 baggy wide leg
 
-Authored 8 October 2026. Status: first interpretation awaiting the user's visual review. Fourth piece from the user's wardrobe list, built on the shared jeans template.
+Authored 8 October 2026. Status: first interpretation; approved: the user merged it, and merging means approved (their rule). Fourth piece from the user's wardrobe list, built on the shared jeans template.
 
 ## Source and reference reading
 

@@ -6,8 +6,11 @@
 // unwrapped (u = i/segments, from centre front toward her left; v from the hem up to the neck), the bottom quarter her right
 // sleeve (left half) and her left sleeve (right half), u round the sleeve from its front toward the outside, v from the hem
 // up to the shoulder. The seams below follow the panel edges in that unwrap.
+//
+// Optional, for tees that need them (a tee without them is built as before): a V-neck cut into the front (`vneck`) with a
+// bound edge, and per-tee seam placement (`seams.armTop`, `seams.centreTop`, `seams.sides`, a missing `seams.band`).
 import * as T from 'three';
-import { V, weave, solid, curve, shell, roundSleeveCap } from './model.js';
+import { V, weave, cloth, solid, curve, ribbon, shell, roundSleeveCap, trimToEdge, SHOULDER_ROWS } from './model.js';
 
 const SEG=128;
 // Lettuce edge: the hem stretched into soft waves, rising and falling with the knit.
@@ -43,6 +46,17 @@ export function makePrintedTee(id,spec,atlas=null){
   const B=spec.body,S=spec.seams,C=spec.colours;
   const map=atlas?(()=>{const m=atlas.clone();m.needsUpdate=true;m.anisotropy=4;return m;})():null;
   const body=shell(top,B.rows,knit(map,C.fallback,C.printTone),'printed-tee-body',SEG);
+  const VN=spec.vneck;
+  if(VN){
+    // The V: drawn in the atlas's own coordinates, from the neckline `half` of the way round from centre front, on each
+    // side, down to a point at `bottom` on the centre front, so it lines up with the V in the photos the atlas came from.
+    // `round` above 1 curves its sides, steep near the neckline and flatter toward the point. Each column's angle round
+    // the body is read from its ellipse (its x scaled by the row's depth over its width).
+    const ratio=y=>{const R=B.rows;let k=0;while(k<R.length-2&&R[k+1][0]>y)k++;const t=Math.max(0,Math.min(1,(R[k][0]-y)/(R[k][0]-R[k+1][0])));return (R[k][2]+(R[k+1][2]-R[k][2])*t)/(R[k][1]+(R[k+1][1]-R[k][1])*t);};
+    // Her body under clothes is cream felt, so the shoulder skin piece the stripe jumper and cardigan use fills the V.
+    shell(top,SHOULDER_ROWS,cloth('#dfb195'),'bare-shoulder-skin',48);
+    trimToEdge(body,SEG,v=>{v.x*=ratio(v.y);},(x,z)=>{const u=Math.abs(Math.atan2(x,z))/(Math.PI*2);return u>=VN.half?B.neck+1:VN.bottom+(B.neck-VN.bottom)*(1-(1-u/VN.half)**(1/(VN.round??1)));});
+  }
   const bp=body.geometry.attributes.position,uv=body.geometry.attributes.uv,span=B.neck-B.hem;
   for(let k=0;k<uv.count;k++)uv.setXY(k,(k%(SEG+1))/SEG,.25+.75*Math.max(0,Math.min(1,(bp.getY(k)-B.hem)/span)));
   uv.needsUpdate=true;
@@ -54,15 +68,23 @@ export function makePrintedTee(id,spec,atlas=null){
   const along=(a0,v0,a1,v1,n=18)=>Array.from({length:n+1},(_,k)=>[a0+(a1-a0)*k/n,yOf(v0+(v1-v0)*k/n)]);
   const U=u=>u*Math.PI*2;
   // Raglan seams from the neckline down to each underarm, front and back.
-  for(const [n,a] of [[S.neckU,S.armU],[1-S.neckU,1-S.armU],[.5-S.neckU,.5-S.armU],[.5+S.neckU,.5+S.armU]])seam(along(U(n),.985,U(a),S.armV),'raglan-seam');
+  for(const [n,a] of [[S.neckU,S.armU],[1-S.neckU,1-S.armU],[.5-S.neckU,.5-S.armU],[.5+S.neckU,.5+S.armU]])seam(along(U(n),S.armTop??.985,U(a),S.armV),'raglan-seam');
   // Centre front, the side seams, and the back band's seam across the back.
-  seam(along(0,.985,0,.012),'centre-front-seam');
-  for(const u of [.25,.75])seam(along(U(u),S.armV,U(u),.012),'side-seam');
-  seam(along(U(.25),S.band,U(.75),S.band,40),'back-band-seam');
+  seam(along(0,S.centreTop??.985,0,.012),'centre-front-seam');
+  for(const u of S.sides??[.25,.75])seam(along(U(u),S.armV,U(u),.012),'side-seam');
+  if(S.band!=null)seam(along(U(.25),S.band,U(.75),S.band,40),'back-band-seam');
   // Lettuce edges: the hem and the neckline finished in the same green.
   const edge=(y,off,count,depth,name,down)=>curve(top,Array.from({length:161},(_,k)=>{const q=at(k/160*Math.PI*2,y,off);q.y+=(down?-1:1)*depth*Math.sin(Math.atan2(q.x,q.z)*count);return q.toArray();}),.0027,overlock,name);
   edge(B.hem+.001,.002,B.waves,B.lettuce,'lettuce-hem',true);
-  edge(B.neck-.004,.004,B.neckWaves,.002,'lettuce-neckline',false);
+  if(!VN)edge(B.neck-.004,.004,B.neckWaves,.002,'lettuce-neckline',false);
+  else{
+    // A bound neckline: a narrow band lying on the knit just below the cut edge, rolled over the edge itself.
+    const pts=[],down=[],nm=[],q=new T.Vector3(),bn=body.geometry.attributes.normal;
+    for(let i=0;i<=SEG;i++){const p=new T.Vector3().fromBufferAttribute(bp,i),n=new T.Vector3().fromBufferAttribute(bn,i);if(n.x*p.x+n.z*p.z<0)n.negate();
+      pts.push(p);nm.push(n);down.push(q.fromBufferAttribute(bp,i+SEG+1).sub(p).normalize().clone());}
+    ribbon(top,pts.map((p,i)=>p.clone().addScaledVector(down[i],VN.binding/2)),nm,VN.binding,solid(C.binding,.85),'neck-binding',.0022);
+    curve(top,pts.map((p,i)=>p.clone().addScaledVector(nm[i],.0012).toArray()),.0034,solid(C.binding,.85),'bound-neckline');
+  }
   // Short raglan sleeves, close to the arm, ending above her elbow in a lettuce edge.
   const SL=spec.sleeve;
   for(const side of [-1,1]){

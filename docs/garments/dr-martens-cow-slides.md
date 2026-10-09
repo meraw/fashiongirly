@@ -1,6 +1,6 @@
 # Wardrobe item: Dr. Martens cow print platform slides
 
-Authored 8 October 2026. Status: first interpretation awaiting the user's visual review. Second pair of shoes from the user's wardrobe list, added by the shoes lane. It is the first open shoe and the first pair that raises her.
+Authored 8 October 2026. Status: first interpretation; approved: the user merged it, and merging means approved (their rule). Second pair of shoes from the user's wardrobe list, added by the shoes lane. It is the first open shoe and the first pair that raises her.
 
 ## Source and reference reading
 

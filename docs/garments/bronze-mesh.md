@@ -1,6 +1,6 @@
 # Reference test: Desigual bronze mesh top
 
-Status: user responded “This is really nice” after the sleeve-clearance correction and requested another garment. Authored 8 October 2026.
+Status: user responded “This is really nice” after the sleeve-clearance correction and requested another garment; approved: the user merged it, and merging means approved (their rule). Authored 8 October 2026.
 
 ## Source and observed construction
 

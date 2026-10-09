@@ -1,6 +1,6 @@
 # Wardrobe item: Tommy Hilfiger navy stripe knit polo
 
-Authored 8 October 2026. Status: first version, awaiting the user's visual review. The first short-sleeved top.
+Authored 8 October 2026. Status: first version; approved: the user merged it, and merging means approved (their rule). The first short-sleeved top.
 
 ## Source and reference reading
 

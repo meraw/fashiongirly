@@ -1,6 +1,6 @@
 # Wardrobe item: Urban Classics pleated linen-blend wide trousers
 
-Authored 9 October 2026. Status: first version, awaiting the user's visual review. Built on the shared jeans template, extended for it.
+Authored 9 October 2026. Status: first version; approved: the user merged it, and merging means approved (their rule). Built on the shared jeans template, extended for it.
 
 ## Source and reference reading
 
