@@ -5,34 +5,73 @@ import * as T from 'three';
 import { random, cloth, put, oval, shell, ribbed, roundSleeveCap, easeOverHand } from './model.js';
 
 const cache={};
-// Floral lace: scattered roses (rings of petals round a small centre) and leaves on a fine hexagonal net. Kept as two
-// maps: a shade (motifs light, their outlines darker, the net between) and an alpha (motifs solid, the net see-through),
-// used only where the lace is sheer.
+// Floral lace, drawn as a needle lace would be worked: sprays of layered roses, veined leaves and small daisies joined
+// by corded stems, on a fine tulle net. Each motif is outlined by a raised cord; its petals alternate between dense
+// cloth stitch and an open half stitch, so a rose reads in rings and a leaf in halves. Kept as three maps: a shade
+// (cord and cloth bright, half stitch and net darker, the net's holes darkest), a height for the relief, and an alpha
+// (motifs solid, the net see-through), used only where the lace is sheer.
+const HOLE=0,NET=1,HALF=2,CLOTH=3,CORD=4;
 function laceData(){
   if(cache.lace)return cache.lace;
-  const S=256,rand=random(151),motif=new Float32Array(S*S),outline=new Float32Array(S*S);
-  const stamp=(cx,cy,f)=>{for(let dy=-16;dy<=16;dy++)for(let dx=-16;dx<=16;dx++){const v=f(dx,dy);if(v<=0)continue;const x=((Math.round(cx)+dx)%S+S)%S,y=((Math.round(cy)+dy)%S+S)%S,i=y*S+x;
-    if(v>=1)motif[i]=1;else outline[i]=Math.max(outline[i],v);}};
-  for(let k=0;k<22;k++){const cx=rand()*S,cy=rand()*S,r=7+rand()*6,petals=5+Math.floor(rand()*3),rot=rand()*6;
-    stamp(cx,cy,(dx,dy)=>{const d=Math.hypot(dx,dy),a=Math.atan2(dy,dx),edge=r*(.8+.2*Math.cos(petals*(a+rot)));
-      if(d<edge-1.2)return (Math.abs(d-r*.45)<.8||Math.abs(Math.sin(petals*(a+rot)/2))<.08)?.6:1;return d<edge?.6:0;});}
-  for(let k=0;k<30;k++){const cx=rand()*S,cy=rand()*S,len=6+rand()*5,ang=rand()*Math.PI,c=Math.cos(ang),s=Math.sin(ang);
-    stamp(cx,cy,(dx,dy)=>{const u=dx*c+dy*s,v=-dx*s+dy*c,w=2.4*Math.sqrt(Math.max(0,1-(u/len)**2));return Math.abs(v)<w-.8?1:Math.abs(v)<w?.6:0;});}
-  const shade=new Uint8Array(S*S*4),alpha=new Uint8Array(S*S*4);
-  for(let y=0;y<S;y++)for(let x=0;x<S;x++){const i=y*S+x,hx=x%6,hy=y%5,net=hx===0||hy===0||(hx+hy)%7===0;
-    const solid=motif[i]>0,line=outline[i]>0&&!solid;
-    const v=solid?1:line?.8:net?.9:.84,a=solid?1:line?1:net?.8:.42;
-    shade[i*4]=shade[i*4+1]=shade[i*4+2]=Math.round(255*v);shade[i*4+3]=255;alpha[i*4]=alpha[i*4+1]=alpha[i*4+2]=Math.round(255*a);alpha[i*4+3]=255;}
-  return cache.lace={shade,alpha,S};
+  const S=512,rand=random(151),kind=new Uint8Array(S*S),cord=new Float32Array(S*S).fill(9),eye=new Uint8Array(S*S);
+  // The tulle: round holes on a triangular lattice, with threads between them.
+  for(let y=0;y<S;y++)for(let x=0;x<S;x++){const sp=6,r=Math.round(y/(sp*.866)),cx=x-(r%2?sp/2:0),c=Math.round(cx/sp),d=Math.hypot(cx-c*sp,y-r*sp*.866);
+    kind[y*S+x]=d<sp*.3?HOLE:NET;}
+  const wrap=v=>((Math.round(v)%S)+S)%S;
+  // Run f over a square round (cx, cy); f returns [fill kind or 0, distance to the nearest cord, eyelet].
+  const stamp=(cx,cy,R,f)=>{for(let dy=-R;dy<=R;dy++)for(let dx=-R;dx<=R;dx++){const [k,c,e]=f(dx,dy);const i=wrap(cy+dy)*S+wrap(cx+dx);
+    if(k)kind[i]=Math.max(kind[i]===NET||kind[i]===HOLE?0:kind[i],k);if(c<cord[i])cord[i]=c;if(e)eye[i]=1;}};
+  const rose=(cx,cy,R,rot)=>{const r=[.36,.68,1].map(t=>t*R),n=[5,6,8];
+    stamp(cx,cy,Math.ceil(R)+2,(dx,dy)=>{const d=Math.hypot(dx,dy),a=Math.atan2(dy,dx);let k=0,c=9;
+      for(let l=0;l<3;l++){const ph=n[l]*(a+rot+l*.7)/2,edge=r[l]*(.78+.22*Math.abs(Math.cos(ph)));c=Math.min(c,Math.abs(d-edge));
+        if(!k&&d<edge){k=l%2?HALF:CLOTH;
+          // Petal divisions: a cord between neighbouring petals, from the ring inside out to this edge.
+          if(l>0&&d>r[l-1]*.8){const m=((ph%Math.PI)+Math.PI)%Math.PI;c=Math.min(c,Math.abs(m-Math.PI/2)*d*2/n[l]);}}}
+      c=Math.min(c,Math.abs(d-R*.16));return [k,c,d<R*.1];});};
+  const leaf=(cx,cy,L,W,ang)=>{const co=Math.cos(ang),si=Math.sin(ang);
+    stamp(cx,cy,Math.ceil(L)+2,(dx,dy)=>{const u=dx*co+dy*si,v=-dx*si+dy*co,t=u/L;if(Math.abs(t)>1.15)return [0,9];
+      const w=W*Math.sqrt(Math.max(0,1-t*t))*(1-.3*t),inside=Math.abs(v)<w&&Math.abs(t)<1;
+      let c=Math.abs(Math.abs(v)-w);if(Math.abs(t)>=.98)c=Math.min(c,Math.hypot(u-Math.sign(u)*L,v));
+      if(inside){c=Math.min(c,Math.abs(v)+.2);const sv=((u+Math.abs(v)*1.1)/(L*.42))%1;if(t<.85)c=Math.min(c,Math.abs(sv-.5)*L*.42*.6+.1);}
+      return [inside?(v>0?CLOTH:HALF):0,c];});};
+  const daisy=(cx,cy,R,rot)=>stamp(cx,cy,Math.ceil(R)+2,(dx,dy)=>{const d=Math.hypot(dx,dy),a=Math.atan2(dy,dx),edge=R*(.35+.65*Math.abs(Math.cos(2.5*(a+rot)))**.7);
+    return [d<edge?CLOTH:0,Math.min(Math.abs(d-edge),Math.abs(d-R*.3)),d<R*.18];});
+  const stem=(pts)=>{for(let k=0;k<pts.length-1;k++){const [x0,y0]=pts[k],[x1,y1]=pts[k+1],n=Math.ceil(Math.hypot(x1-x0,y1-y0));
+    for(let s=0;s<=n;s++){const x=x0+(x1-x0)*s/n,y=y0+(y1-y0)*s/n;stamp(x,y,3,(dx,dy)=>[0,Math.max(0,Math.hypot(dx,dy)-.6)]);}}};
+  // Roses spaced apart (the tile wraps), each with two or three sprays curving out: leaves along the stem, a daisy or
+  // a bud at its end.
+  const roses=[];for(let k=0;k<400&&roses.length<26;k++){const x=rand()*S,y=rand()*S;
+    if(roses.every(([px,py])=>Math.hypot(Math.min(Math.abs(px-x),S-Math.abs(px-x)),Math.min(Math.abs(py-y),S-Math.abs(py-y)))>92))roses.push([x,y]);}
+  for(const [x,y] of roses){
+    const R=24+rand()*8,sprays=2+Math.floor(rand()*2),a0=rand()*6.3;
+    for(let s=0;s<sprays;s++){const a=a0+s*6.28/sprays+(rand()-.5)*.8,len=38+rand()*22,bend=(rand()-.5)*1.2,pts=[];
+      for(let t=0;t<=8;t++){const q=t/8,ang=a+bend*q,rr=R*.95+len*q;pts.push([x+Math.cos(ang)*rr,y+Math.sin(ang)*rr]);}
+      stem(pts);
+      for(const q of [.35,.7]){const [px,py]=pts[Math.round(q*8)],ang=a+bend*q,side=rand()<.5?1:-1;
+        leaf(px+Math.cos(ang+side*1.4)*9,py+Math.sin(ang+side*1.4)*9,10+rand()*4,4.5+rand()*1.5,ang+side*.9);}
+      const [ex,ey]=pts[8];rand()<.6?daisy(ex,ey,8+rand()*3,rand()*6):leaf(ex,ey,8,4,a+bend);}
+    rose(x,y,R,rand()*6.3);}
+  const shade=new Uint8Array(S*S*4),height=new Uint8Array(S*S*4),alpha=new Uint8Array(S*S*4);
+  const look={[HOLE]:[.74,0,.22],[NET]:[.88,.3,.85],[HALF]:[.9,.5,.9],[CLOTH]:[.97,.62,1]};
+  for(let y=0;y<S;y++)for(let x=0;x<S;x++){const i=y*S+x,k=kind[i],c=cord[i];let [v,h,a]=look[k];
+    // Stitch texture: fine rows in cloth stitch, an open diagonal lattice in half stitch.
+    if(k===CLOTH&&y%3===0){v-=.03;h-=.08;}
+    if(k===HALF&&(x+y)%4!==0&&(x-y+400)%4!==0){v-=.07;h-=.2;a=.75;}
+    if(eye[i]){[v,h,a]=look[HOLE];}
+    // The raised cord: bright on its crest, shadowed at its edges.
+    if(c<1.6){const t=c/1.6;v=t<.55?1:.8;h=1-t*.4;a=1;}
+    shade[i*4]=shade[i*4+1]=shade[i*4+2]=Math.round(255*v);height[i*4]=height[i*4+1]=height[i*4+2]=Math.round(255*h);alpha[i*4]=alpha[i*4+1]=alpha[i*4+2]=Math.round(255*a);
+    shade[i*4+3]=height[i*4+3]=alpha[i*4+3]=255;}
+  return cache.lace={shade,height,alpha,S};
 }
 function laceTexture(data,S,repeat,colour){
   const t=new T.DataTexture(data,S,S,T.RGBAFormat);t.colorSpace=colour?T.SRGBColorSpace:T.NoColorSpace;t.wrapS=t.wrapT=T.RepeatWrapping;t.repeat.set(...repeat);
-  t.generateMipmaps=true;t.minFilter=T.LinearMipmapLinearFilter;t.magFilter=T.LinearFilter;t.needsUpdate=true;return t;
+  t.generateMipmaps=true;t.minFilter=T.LinearMipmapLinearFilter;t.magFilter=T.LinearFilter;t.anisotropy=8;t.needsUpdate=true;return t;
 }
 // Opaque lace (the body, over its lining) or sheer lace (the sleeves and collar, showing her skin through the net).
 function lace(colour,repeat,sheer=false){
-  const {shade,alpha,S}=laceData();
-  const m=new T.MeshStandardMaterial({color:colour,map:laceTexture(shade,S,repeat,true),bumpMap:laceTexture(shade,S,repeat,false),bumpScale:.005,roughness:.85,side:T.DoubleSide});
+  const {shade,height,alpha,S}=laceData();
+  const m=new T.MeshStandardMaterial({color:colour,map:laceTexture(shade,S,repeat,true),bumpMap:laceTexture(height,S,repeat,false),bumpScale:.012,roughness:.85,side:T.DoubleSide});
   if(sheer)Object.assign(m,{alphaMap:laceTexture(alpha,S,repeat,false),transparent:true,depthWrite:false});
   return m;
 }

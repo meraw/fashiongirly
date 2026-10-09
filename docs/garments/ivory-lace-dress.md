@@ -41,7 +41,7 @@ Recorded in the catalog entry's `styling` block:
 
 Catalog ID `desigual-ivory-lace-shift-dress-v1` (slot `dress`), built by `makeLaceDress()` in `src/doll/lace-dress.js` from its `build` spec. `makeOutfit()` picks the builder by template; the half-zip dress is built as before.
 
-- **Lace.** Drawn procedurally: scattered roses and leaves on a hexagonal net, kept as a shade map and an alpha map. The body uses it opaque. The sleeves and the collar use it sheer, over her skin.
+- **Lace.** Drawn procedurally, as needle lace is worked: sprays of layered roses, veined leaves and small daisies joined by corded stems, on a fine tulle net with real holes. Each motif is outlined by a raised cord. Petals alternate between dense cloth stitch and an open half stitch, so a rose reads in rings and a leaf in halves. It is kept as shade, height (for the relief) and alpha maps. The body uses it opaque; the sleeves and the collar use it sheer, over her skin. The first version's lace had small, sparse motifs that barely showed; the user said it lacked detail, so the motifs are now larger, denser and outlined, and the net shows its holes.
 - **Body.** A straight shift from the neck to mid-thigh (hem 0.845, outfit units), with a slight wave toward the hem.
 - **Frills.** Ten bands of frilled trim, closer together lower down, and a trim along the hem. Each frill's stitched top lies close, and its lower edge flares in soft gathers.
 - **Collar.** A high sheer lace collar over skin, its top edge a ruffle. Her large head hides most of it from the front.
