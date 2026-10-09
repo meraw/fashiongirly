@@ -27,14 +27,14 @@ Colours, measured:
 
 Catalog ID `mango-halftone-dot-shirt-v1`, built by `makeButtonShirt()` in `src/doll/shirts.js`.
 
-**New shirt template options.** All are optional, and the tie-dye and spray-floral shirts don't use them. A fingerprint of every vertex and texture of every top is identical before and after the change.
+**New shirt template options.** All are optional; the other shirts don't use them. A fingerprint of every vertex and texture of every top is identical before and after the change.
 
 - `rows`: the body's shape. This shirt uses relaxed rows: wider from the chest down, easing out over the hips like the lilac top.
 - `tucked`: the body's shape over the skirt. This shirt is tucked in there: it narrows below 1.4 and ends inside the skirt's waistband.
 - `shirttail`: a curved hem. Below 1.24 each column of the body is spread down to the hem's height at its angle: 1.03 at the centre front and back, 1.10 at the side seams. The hem stitching follows the curve.
 - `concealed`: a fly-front placket. The stitching follows both sides of the open V, then a single line runs down the wearer's left of the closed edge, beside a fine fold line (`placket-edge`). No buttons show.
 - `sleeve`: the sleeve's rows. This shirt has relaxed sleeves, a little wider than the fitted ones.
-- `cuff`: a band in the print at the wrist (`shirt-cuff`), stitched along both edges and eased over her hand.
+- Cuffs: this shirt uses the mountain landscape shirt's `cuff` (from main): a band in the print over the end of the sleeve, seamed at its top, with a button on the outer side. This branch first added its own `cuff` (a plain band below a shorter sleeve, stitched along both edges, no button). When the mountain shirt reached main with a different `cuff` under the same name, the user chose to keep only the mountain shirt's. The Mango sleeves now run to the wrist, as the template's do, under that cuff.
 - `depth`: spaces the print by distance round her body rather than by angle. Spaced by angle, round dots were about a fifth wider than tall across her front, where her oval body is widest.
 
 **Layering.** The catalog has a new `layering.tucksIntoSkirt` flag. A waist-covering top with it lets the skirt's bow show, because it is tucked in over the skirt. `makeOutfit()` passes the skirt to `makeButtonShirt()`.
@@ -67,9 +67,9 @@ Relaxed and straight, hip length with a curved hem, in soft pink and cream halft
 
 ## Checks
 
-- `npm test`: 91 passing.
+- `npm test`: 92 passing.
   - The new test checks:
-    - the parts: no buttons, three placket stitch lines, cuffs reaching the wrist;
+    - the parts: no buttons down the front, three placket stitch lines, buttoned cuffs reaching the wrist;
     - the shirt-tail hem, lower at the centre than at the sides;
     - the print: pink about half, with every dot's centre and corners in opposite colours and both block kinds present;
     - over the skirt, the tucked hem and the visible bow.
