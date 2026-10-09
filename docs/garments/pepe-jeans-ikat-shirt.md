@@ -1,6 +1,6 @@
 # Wardrobe item: Pepe Jeans ikat print shirt
 
-Authored 9 October 2026. Status: first version, awaiting visual review. Added by the chat that has been doing outerwear (any chat can add any category).
+Authored 9 October 2026. Status: first version, approved: the user merged it, and merging means approved (their rule). Added by the chat that has been doing outerwear (any chat can add any category).
 
 ## Source and reference reading
 
@@ -76,7 +76,7 @@ Fits found by the shared tests:
   - that over the skirt no part of the skirt pokes through it. Building it with its usual rows over the skirt failed this check, before the template change.
 - The shared tests also run on it: every waist-covering top over every bottom, sleeves and hands, the styling facts, and outerwear over every top.
 - `npm test`: 106 passing after merging `main` (which meanwhile added, among others, the Desigual split floral, mountain, Mango, pink yoke, Levi's flannel and rugby shirts); `npm run build` succeeds.
-- Rendered in headless Chromium from the front, a turn, the side and the back. Also over the skirt. The authoring chat checked these renders; the user has not seen them yet.
+- Rendered in headless Chromium from the front, a turn, the side and the back. Also over the skirt. The authoring chat checked these renders, and the user merged the pull request after seeing them.
 
 ## Known differences
 

@@ -89,7 +89,7 @@ Fitted and cropped at the waist, in big soft pastel flowers knitted in on black.
 
 ## Checks
 
-- `npm test`: 117 passing.
+- `npm test`: 118 passing, after merging main (which added the ONLY Onlerin jacket and the hashed garment index).
 - The new `tests/painted-floral-jumper.test.js` checks:
   - the parts: rib neckband, hem band and cuffs instead of the turned hem and cuffs;
   - the print: a black ground with pink, cream, mint and royal blue flowers on the front and the back;

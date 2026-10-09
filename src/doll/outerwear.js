@@ -149,6 +149,12 @@ function fabric(map,colour,spec){
   const K=spec.padding?.crinkle;
   if(K){const {normal,S}=crackleData(),n=dataTexture(normal,S,S,K.repeat[0],K.repeat[1]);n.colorSpace=T.NoColorSpace;
     Object.assign(m,{normalMap:n,normalScale:new T.Vector2(K.scale,K.scale),sheen:K.sheen??.12});}
+  // Optional (`metallic`): a metallic coated nylon, crumpled all over: partly metal (the scene has no environment to
+  // reflect, so a full metal reads black), fairly shiny, and crinkled all over (crinkleData), the tile repeated
+  // `repeat` round and down.
+  const M=spec.metallic;
+  if(M){const {normal,S}=crinkleData(M.crinkle),n=dataTexture(normal,S,S,M.repeat[0],M.repeat[1]);n.colorSpace=T.NoColorSpace;
+    Object.assign(m,{metalness:M.metalness,roughness:M.roughness,normalMap:n,normalScale:new T.Vector2(1,1),sheen:0,bumpMap:null});}
   return m;
 }
 
@@ -256,7 +262,7 @@ function cordToggle(jacket,{at,normal,angleFor},{x,y,drop=.03},dark,cordMat){
 function makeZipWindbreaker(id,spec,overSkirt,open=false,under=null){
   const jacket=new T.Group();jacket.name='outerwear';jacket.userData.garmentId=id;jacket.userData.open=open;
   const C=spec.colours,B=spec.body,seg=128;
-  const bodyMap=windbreakerBodyData(spec),body=fabric(dataTexture(bodyMap.data,bodyMap.w,bodyMap.h),null,spec),plain=fabric(null,C.shell,spec),ecruPlain=fabric(null,C.yoke||C.shell,spec);
+  const bodyMap=windbreakerBodyData(spec),body=fabric(dataTexture(bodyMap.data,bodyMap.w,bodyMap.h),null,spec),plain=fabric(null,C.shell,spec),ecruPlain=fabric(null,C.yoke||C.shell,C.yoke&&spec.metallic?{...spec,metallic:null}:spec);// (a metallic shell's own lining, `colours.yoke`, is plain)
   const thread=solid(C.stitch,.85),white=solid(C.snap,.45),cord=solid(C.cord,.9);
   // Optional: a sherpa-lined hood and collar (`colours.sherpa`) in place of the plain lining colour.
   const pile=C.sherpa?sherpa(C.sherpa):null;
@@ -433,6 +439,40 @@ function makeZipWindbreaker(id,spec,overSkirt,open=false,under=null){
   return jacket;
 }
 
+// Crinkled metallic nylon, as a seamless normal map (`K`), built as a height field in three layers:
+// - folds: long soft ridges running down the garment (`folds` across the tile, `fold` high), so the light runs in
+//   bright and dark streaks, as on nylon that hangs;
+// - crumples: small planes (`facets` of them), each tilted its own way (up to `tilt`), their edges rounded off
+//   (`soften` pixels), so the surface is crumpled all over like paper smoothed out again;
+// - wrinkles: many short, fine creases over the top, mostly running down (`wrinkles` of them, up to `length` pixels long,
+//   about `width` wide, `wrinkle` deep).
+function crinkleData(K){
+  const key='crinkle:'+JSON.stringify(K);if(shellCache[key])return shellCache[key];
+  const S=512,rand=random(83),h=new Float32Array(S*S),c=new Float32Array(S*S),wrap=v=>((v%S)+S)%S,sm=t=>t*t*(3-2*t);
+  // Folds: two octaves of smooth noise, stretched down the tile; a soft ridge where each crosses its middle.
+  const octave=(gx,gy)=>{const g=Array.from({length:gx*gy},()=>rand());return (x,y)=>{const u=x/S*gx,v=y/S*gy,i0=Math.floor(u),j0=Math.floor(v),fu=sm(u-i0),fv=sm(v-j0),G=(i,j)=>g[(j%gy)*gx+(i%gx)];
+    return (G(i0,j0)*(1-fu)+G(i0+1,j0)*fu)*(1-fv)+(G(i0,j0+1)*(1-fu)+G(i0+1,j0+1)*fu)*fv;};};
+  const f1=octave(K.folds,Math.max(1,Math.round(K.folds/3))),f2=octave(K.folds*2,Math.max(1,Math.round(K.folds/2)));
+  const ridge=n=>1-Math.sqrt((2*n-1)**2+.01);
+  const cells=Array.from({length:K.facets},()=>{const a=rand()*Math.PI*2,t=K.tilt*(.3+.7*rand());return [rand()*S,rand()*S,Math.cos(a)*t,Math.sin(a)*t];});
+  for(let y=0;y<S;y++)for(let x=0;x<S;x++){
+    let best=1e9,q=null,ddx=0,ddy=0;for(const p of cells){let dx=x-p[0],dy=y-p[1];dx-=S*Math.round(dx/S);dy-=S*Math.round(dy/S);const d=dx*dx+dy*dy;if(d<best){best=d;q=p;ddx=dx;ddy=dy;}}
+    h[y*S+x]=K.fold*(ridge(f1(x,y))+.45*ridge(f2(x,y)));c[y*S+x]=q[2]*ddx+q[3]*ddy;}
+  // A few passes of a box blur, round and down: rounds off the crumples' edges and smooths the wrinkles.
+  const t=new Float32Array(S*S),blur=(a,r,passes)=>{for(let pass=0;pass<passes;pass++){
+    for(let y=0;y<S;y++)for(let x=0;x<S;x++){let v=0;for(let o=-r;o<=r;o++)v+=a[y*S+wrap(x+o)];t[y*S+x]=v/(2*r+1);}
+    for(let y=0;y<S;y++)for(let x=0;x<S;x++){let v=0;for(let o=-r;o<=r;o++)v+=t[wrap(y+o)*S+x];a[y*S+x]=v/(2*r+1);}}};
+  blur(c,K.soften,3);for(let i=0;i<S*S;i++){h[i]+=c[i];c[i]=0;}
+  for(let n=0;n<K.wrinkles;n++){const cx=rand()*S,cy=rand()*S,a=Math.PI/2+(rand()-.5)*2.2,len=K.length*(.4+.6*rand()),w=K.width*(.7+.6*rand()),bend=(rand()-.5)*.8,amp=K.wrinkle*(rand()<.5?-1:1)*(.5+.5*rand());
+    const steps=Math.ceil(len);
+    for(let k=0;k<=steps;k++){const t=k/steps-.5,ang=a+bend*t,px=cx+Math.cos(a)*t*len-Math.sin(a)*bend*t*t*len,py=cy+Math.sin(a)*t*len+Math.cos(a)*bend*t*t*len,fade=Math.cos(Math.PI*t);
+      for(let o=-Math.ceil(w*1.5);o<=Math.ceil(w*1.5);o++){const qx=Math.round(px-Math.sin(ang)*o),qy=Math.round(py+Math.cos(ang)*o);c[wrap(qy)*S+wrap(qx)]+=amp*fade*Math.exp(-2.5*(o/w)**2)/w;}}}
+  blur(c,1,2);for(let i=0;i<S*S;i++)h[i]+=c[i];
+  const normal=new Uint8Array(S*S*4),H=(x,y)=>h[wrap(y)*S+wrap(x)];
+  for(let y=0;y<S;y++)for(let x=0;x<S;x++){const nx=(H(x-1,y)-H(x+1,y))/2,ny=(H(x,y-1)-H(x,y+1))/2,l=Math.hypot(nx,ny,1),k=(y*S+x)*4;
+    normal[k]=Math.round((nx/l*.5+.5)*255);normal[k+1]=Math.round((ny/l*.5+.5)*255);normal[k+2]=Math.round((1/l*.5+.5)*255);normal[k+3]=255;}
+  shellCache[key]={normal,S};return shellCache[key];
+}
 // Crinkled faux leather: a tileable crackle of small domed cells split by fine creases, kept as a height field. It drives a
 // normal map (for both the leather and its glossy coat, so highlights break up along the creases) and a faint colour
 // variation. Built once and shared.
