@@ -234,13 +234,18 @@ function makeLugBoot(id,spec,tape=null){
     if(spec.sock){const K2=spec.sock,knitMat=cloth(C.sock,'knit'),sx=side*(K2.cx??cx),ring=(y,r)=>Array.from({length:49},(_,i)=>{const a=i/48*Math.PI*2;return [sx+Math.sin(a)*r[0],y,K2.z+Math.cos(a)*r[1]];});
       ringShell(boots,K2.rows.map(([y,rx,rz])=>ring(y,[rx,rz])),knitMat,'ankle-sock');
       boots.userData.ownSocks=true;}
+    // A high-top that covers her socks entirely hides them (her round doll socks would bulge through a shaft that hugs
+    // her leg).
+    if(spec.coversSocks)boots.userData.ownSocks=true;
     // Quilted collar: tan stitching along each quilting row, around the back and sides.
     for(const d of spec.quilt||[])curve(boots,Array.from({length:41},(_,i)=>{const a=Math.PI*(.45+1.1*i/40);return surf(side,collarY(a)-d-.003,a,.0015).toArray();}),.0013,thread,'quilt-stitch');
     // Sole: flared from the upper's base outline, deep lugs below a ledge, a groove, the stepped heel block and toe
     // bumper, and a lifted toe.
     const soleRows=S.groove!=null?[[0,-.008],[.007,0],[.017,0],[.028,0],[.039,0],[S.lugTop-.004,0],[S.lugTop,.005],[S.lugTop+.006,.005],[S.groove-.006,.002],[S.groove,-.004],[S.groove+.006,.002],['top',-.014,0],['top',0,-.005]]
       // A plain sole: small lugs round the bottom, then a smooth, slightly rounded sidewall up to a rounded top edge.
-      :[[0,-.006],[.005,0],[S.lugTop-.003,0],[S.lugTop,.003],...[.3,.5,.7].map(f=>['top',-(1-f)*(S.top-S.lugTop),.003+S.bulge*Math.sin(Math.PI*f)]),['top',-.008,.003],['top',-.002,-.001],['top',0,-.006]];
+      :[[0,-.006],[.005,0],[S.lugTop-.003,0],[S.lugTop,.003],
+        // Stacked platforms (ribs: heights) show a shallow groove at each join; otherwise the sidewall bulges gently.
+        ...(S.ribs?S.ribs.flatMap(r=>[[r-.006,.004],[r-.002,-.001],[r+.002,-.001],[r+.006,.004]]):[.3,.5,.7].map(f=>['top',-(1-f)*(S.top-S.lugTop),.003+S.bulge*Math.sin(Math.PI*f)])),['top',-.008,.003],['top',-.002,-.001],['top',0,-.006]];
     const ringPts=Array.from({length:4*N+1},(_,i)=>i/(4*N)*Math.PI*2),perim=[0];
     for(let i=1;i<ringPts.length;i++){const [x0,z0]=plan(yBase,ringPts[i-1],S.flare,base),[x1,z1]=plan(yBase,ringPts[i],S.flare,base);perim.push(perim[i-1]+Math.hypot(x1-x0,z1-z0));}
     const period=perim[perim.length-1]/S.lugs,soleRings=[];
@@ -253,6 +258,8 @@ function makeLugBoot(id,spec,tape=null){
         const [x,z]=plan(yBase,a,off,base);ring.push([side*cx+x,y+lift,z]);});
       soleRings.push(ring);}
     ringShell(boots,soleRings,rubber,'lug-sole');
+    // Stitch lines round the sole (stitches: heights), following its toe lift.
+    for(const h of S.stitches||[])curve(boots,ringPts.filter((_,i)=>i%2===0).map(a=>{const [,z0]=plan(yBase,a,S.flare,base),lift=S.toeLift*Math.max(0,(z0-(front-.16))/.16)**2*(1-h/soleTop(z0)),[x,z]=plan(yBase,a,S.flare+.0045,base);return [side*cx+x,h+lift,z];}),.0011,thread,'sole-stitch');
     // The sole's top edge meets the upper, rising into the heel block and over the toe bumper.
     ringShell(boots,[soleRings[soleRings.length-1],ringPts.map(a=>{const [,z0]=plan(yBase,a,0,base),y=soleTop(z0);return surf(side,Math.max(yBase,y),a).toArray();})],rubber,'sole-rim');
     // A dark welt line where the upper goes into the sole, so the two read apart.
@@ -275,6 +282,15 @@ function makeLugBoot(id,spec,tape=null){
     const L=spec.laceHalfWidth,laceRows=[...spec.eyelets,...(spec.loops||[])].sort((a,b)=>a-b),edge=(y,k)=>surf(side,y,laceAngle(y,k*L),.006);
     for(const y of spec.eyelets)for(const k of [-1,1]){const a=laceAngle(y,k*L),e=put(boots,new T.TorusGeometry(spec.eyeletSize?.[0]??.012,spec.eyeletSize?.[1]??.0042,6,14),eyelet,'eyelet');e.position.copy(surf(side,y,a,.003));e.lookAt(e.position.clone().add(normal(side,y,a)));}
     for(const y of spec.loops||[])for(const k of [-1,1]){const a=laceAngle(y,k*L);ribbon(boots,...onSurface(side,[[y,a-k*.03],[y-.002,a+k*.12],[y-.004,a+k*.26]],.006,8),.017,webbing,'webbing-loop');}
+    // On the inner side, placed as [z, y]: a round ankle patch with an embossed star, and small vent eyelets.
+    if(spec.anklePatch){const {at:[pz,py],r}=spec.anklePatch,a=angleAt(py,pz,-side),n=normal(side,py,a),badge=new T.Group();badge.name='ankle-patch';
+      badge.position.copy(surf(side,py,a,.003));badge.lookAt(badge.position.clone().add(n));badge.scale.set(1,1/BODY_HEIGHT,1);boots.add(badge);
+      const mat=new T.MeshStandardMaterial({color:C.patch||C.upper,roughness:.75});put(badge,new T.CylinderGeometry(r,r,.003,32).rotateX(Math.PI/2),mat,'ankle-patch-disc');
+      put(badge,new T.TorusGeometry(r*.8,.0013,6,40),mat,'ankle-patch-ring').position.z=.0016;
+      curve(badge,Array.from({length:11},(_,i)=>{const t=i/10*Math.PI*2+Math.PI/2,q=i%2?r*.22:r*.52;return [Math.cos(t)*q,Math.sin(t)*q,.0018];}),.0012,mat,'ankle-patch-star');}
+    for(const [vz,vy] of spec.vents||[]){const a=angleAt(vy,vz,-side),n=normal(side,vy,a),p=surf(side,vy,a,.002);
+      const e=put(boots,new T.TorusGeometry(.0058,.0022,6,14),eyelet,'vent-eyelet');e.position.copy(p);e.lookAt(p.clone().add(n));
+      const hole=put(boots,new T.CircleGeometry(.0038,12),solid('#2b2622',.9),'vent-hole');hole.position.copy(p).addScaledVector(n,-.0004);hole.lookAt(p.clone().add(n));}
     // Eyestays: dark piping and tan stitching beside the lacing, from the toe up to the collar.
     if(!spec.mesh)for(const k of [-1,1]){
       curve(boots,onSurface(side,[[y0,laceAngle(y0,k*(L+.013))],[(y0+yFront)/2,laceAngle((y0+yFront)/2,k*(L+.013))],[yFront-.006,laceAngle(yFront-.006,k*(L+.013))]],.003,16)[0].map(p=>p.toArray()),.0034,piping,'eyestay-piping');
