@@ -1,6 +1,6 @@
 # Wardrobe item: Bershka asymmetric rustic stripe jumper
 
-Authored 8 October 2026. Status: revised after the user's first review (the bare shoulder); awaiting their second look. Added by the tops chat (see “Parallel chats” in `AGENTS.md`).
+Authored 8 October 2026. Status: revised after the user's first review (the bare shoulder); approved: the user merged it, and merging means approved (their rule). Added by the tops chat (see “Parallel chats” in `AGENTS.md`).
 
 ## Source and reference reading
 

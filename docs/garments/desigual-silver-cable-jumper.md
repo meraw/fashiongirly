@@ -1,6 +1,6 @@
 # Wardrobe item: Desigual silver foil cable jumper
 
-Authored 8 October 2026. Status: first version, awaiting the user's visual review. Added by the tops chat (see “Parallel chats” in `AGENTS.md`).
+Authored 8 October 2026. Status: first version, approved: the user merged it, and merging means approved (their rule). Added by the tops chat (see “Parallel chats” in `AGENTS.md`).
 
 ## Source and reference reading
 
