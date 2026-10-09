@@ -28,6 +28,7 @@ export const check=(id,open,skirt,recipe,layer)=>{
   for(const child of outfit.children){if(!layer(child.name))continue;child.traverse(o=>{if(!o.geometry||!visible(o))return;const pos=o.geometry.attributes.position;
     for(let i=0;i<pos.count;i++){p.fromBufferAttribute(pos,i).applyMatrix4(o.matrixWorld);const y=p.y/.76;if(y<spec.hem+.004||y>spec.collarBase)continue;
       const radius=Math.hypot(p.x,p.z);if(radius<.01)continue;
-      if(open&&Math.abs(Math.atan2(p.x/1.06,p.z))<jacket.userData.opening(y)+.05)continue;
+      // Open, or (a coat with a V neckline) at the V above its top button, the front between its edges shows what is under it.
+      if((open||jacket.userData.neckline)&&Math.abs(Math.atan2(p.x/1.06,p.z))<jacket.userData.opening(y)+.05)continue;
       assert.ok(coverAt(p.y,Math.atan2(p.x,p.z))>radius+.001,`${o.name} of ${JSON.stringify(recipe)} shows through ${id}${open?' (open)':''}${skirt?' over the skirt':''} at y ${y.toFixed(3)}`);checked++;}});}
   disposeObject(outfit);return checked;};

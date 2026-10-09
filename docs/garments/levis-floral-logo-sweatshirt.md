@@ -73,7 +73,7 @@ It is about 0.3 wide on her chest, its top about a fifth of the way from the nec
   - the band sitting out over the skirt;
   - the cached rebuild time.
 - The shared tests also run on it: sleeves over her arms, cuffs clear of her hands, every waist-covering top over every bottom, styling facts, and every jacket over every top and the skirt.
-- `npm test`: 91 passing. `npm run build` succeeds.
+- `npm test`: 94 passing after merging `main` (which added the Desigual mountain landscape shirt and the ONLY taupe coat). `npm run build` succeeds.
 - The logo takes about 0.9 seconds to draw the first time the sweatshirt is worn; later outfits reuse it.
 - Rendered in headless Chromium (software WebGL):
   - front, three-quarter, side and back;
