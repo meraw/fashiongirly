@@ -58,6 +58,7 @@ export { default as pepeJeansIkatShirtV1 } from './pepe-jeans-ikat-shirt-v1.js';
 // slot 42
 // slot 43
 // slot 44
+export { default as mangoSiennaFlareCropJeansV1 } from './mango-sienna-flare-crop-jeans-v1.js';
 // slot 45
 // slot 46
 // slot 47
