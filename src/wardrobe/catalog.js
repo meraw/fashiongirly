@@ -3,6 +3,7 @@
 export const MARIKOO_WINDBREAKER_ID = 'marikoo-two-tone-windbreaker-v1';
 export const DESIGUAL_LEATHER_JACKET_ID = 'desigual-black-faux-leather-jacket-v1';
 export const RED_BULL_WINDBREAKER_ID = 'red-bull-racing-stone-windbreaker-v1';
+export const EMERALD_PARKA_ID = 'emerald-dyed-sherpa-hood-parka-v1';
 // Dresses: none by default ('none'); a catalog dress fills the 'dress' slot and is worn instead of the top and bottoms.
 export const ZIP_TRACK_DRESS_ID = 'navy-half-zip-track-dress-v1';
 // Shoes: built-in loafers are 'classic'; catalog shoes fill the 'shoes' slot.
@@ -1052,6 +1053,49 @@ export const GARMENTS = Object.freeze({
       placket: { offset: .012, width: .05, snaps: [[.075, 1.952]] },
       toggles: [{ x: .055, y: 1.075, drop: .035 }, { x: .1, y: 1.962, drop: .016 }],
       pockets: { x: .208, slant: .08, top: 1.33, bottom: 1.16, width: .02, snaps: [], snap: .0125 },
+    },
+  },
+  [EMERALD_PARKA_ID]: {
+    slot: 'outerwear',
+    id: EMERALD_PARKA_ID, name: 'Emerald hooded parka', family: 'zip-windbreaker', version: 1,
+    status: 'reference-study-awaiting-visual-review', brandAsProvided: 'not given',
+    source: { note: 'user supplied five product photos of the coat in its original navy (front, side, back, worn open, close-up); the user\'s own coat was originally a lighter blue, was damaged with bleach and dyed emerald green (Coloreria Italiana); the colour could not be photographed, so the user asked for a slightly muted emerald' },
+    referenceViews: ['front on model, zipped, hood up', 'side on model', 'back on model', 'front on model, open', 'close-up, hood up'],
+    details: ['oversized hooded parka, knee length on the model', 'hood lined in cream sherpa, with red and white drawcords at the neck', 'zip under a snap placket from the hem to the top of the collar', 'large slanted flap pockets at the hip, each with a snap', 'dropped shoulders and long, full sleeves gathered into elastic cuffs', 'drawcord hem with red and white cord ends at the front edges', 'body lined in cream sherpa (inside view)', 'plain back'],
+    material: { construction: 'woven cotton-look shell, padded or sherpa-lined', composition: 'not visible in the supplied photos', finish: 'matte, slightly crinkled; over-dyed by the user' },
+    fit: { silhouette: 'oversized, straight to a slight A-line, dropped shoulders', length: 'knee on the model; assumed at least knee length on the user, who is short', sleeve: 'long and full, gathered at the wrist', wear: 'zipped closed in real life (the user wears outerwear closed unless it is designed to be worn open), hood down; it can also be shown open on the doll', adjustment: 'fixed authored fit for review' },
+    layering: { closed: true, coversTopSleeves: true, coversWaistband: true, canOpen: true },
+    styling: {
+      observed: { palette: ['emerald green (dyed)', 'cream sherpa', 'red and white cords'], pattern: 'plain', silhouette: 'oversized knee-length parka with dropped shoulders', coverage: 'torso, hips and thighs to the knee; arms to the wrist; neck when zipped; hood', material: 'woven shell with a sherpa-lined hood and body' },
+      user: { colour: 'a slightly muted emerald green: the user dyed it after a bleach accident, and the colour does not photograph well', wear: 'zipped closed, or not worn, in real life; shown open on the doll only to see how it looks' },
+      inferred: { warmth: 'warm: a sherpa-lined parka for cold days', weather: 'cold, windy days; the hood suits rain or wind; long enough to cover a skirt or dress', unknown: ['waterproofing', 'fibre composition', 'whether the sherpa, stitching and cords took the dye (assumed not: they look as in the photos)', 'any marks left by the bleach under the dye', 'the exact length on the user'] },
+    },
+    uncertainties: ['the colour is the user\'s description, not a measurement', 'sherpa, stitching and cords are assumed to have kept their original colours', 'length assumed at the knee', 'the hood is worn down; its pile edge shows round her neck', 'pocket flaps are drawn as slanted raised flaps with one snap each'],
+    authoring: { texture: 'procedural colour and sherpa pile drawn locally in src/doll/outerwear.js; no source photos bundled', runtimeGeneration: false, sourcePhotosBundled: false },
+    // On the zip-windbreaker template, with a long A-line body to the knee, a drawcord channel at the hem in place of the
+    // elastic band, a sherpa-lined collar and hood edge, red hood and hem cords, and no sleeve badge.
+    build: {
+      template: 'zip-windbreaker', roughness: .82,
+      colours: { shell: '#0c4e38', stitch: '#0a4330', snap: '#c8c9c4', cord: '#c4504c', cordTip: '#ece7dc', zip: '#4a4a46', opening: '#06281c', toggle: '#ece7dc', sherpa: '#e6dbc4', lining: '#e2d6bd' },
+      open: { shift: .1 },
+      body: {
+        rows: [[1.975, .132, .126], [1.935, .134, .128], [1.9, .146, .135], [1.875, .21, .168], [1.84, .28, .214], [1.8, .33, .248], [1.75, .356, .264], [1.65, .366, .276], [1.5, .37, .282], [1.35, .374, .287], [1.2, .38, .291], [1.05, .392, .296], [.9, .41, .302], [.78, .424, .306], [.7, .432, .307], [.682, .43, .304]],
+        overSkirt: [[1.975, .132, .126], [1.935, .134, .128], [1.9, .146, .135], [1.875, .21, .168], [1.84, .28, .214], [1.8, .33, .248], [1.75, .356, .264], [1.65, .366, .276], [1.5, .37, .282], [1.35, .376, .288], [1.2, .39, .3], [1.05, .42, .315], [.9, .45, .33], [.78, .465, .338], [.7, .47, .338], [.682, .468, .335]],
+        hem: .655, band: .028, bandRadius: [.424, .3], bandOverSkirt: [.462, .33], bandPuckers: 64,
+        gathers: 40, gatherDepth: .006, gatherHeight: .06,
+        collarBase: 1.89, collarTop: 1.975, collarRadius: [.132, .126],
+      },
+      sleeve: {
+        rows: [[.05, .14, .13], [0, .16, .15], [-.1, .167, .158], [-.25, .166, .157], [-.38, .162, .154], [-.47, .156, .149], [-.51, .14, .134], [-.53, .125, .12]],
+        cuff: [-.522, -.575], cuffRadius: [.12, .118], cuffPuckers: 36, gathers: 16, gatherDepth: .024, gatherHeight: .09,
+      },
+      zip: { width: .016, stitch: .02 },
+      placket: { offset: .014, width: .06, snaps: [[.08, 1.95]] },
+      toggles: [{ x: .06, y: .668, drop: .06 }, { x: -.06, y: .668, drop: .06 }],
+      pockets: { x: .17, slant: .3, top: 1.22, bottom: 1.04, width: .042, snaps: [1.18], snap: .011 },
+      cords: { x: .055, top: 1.885, end: 1.8, drift: .006, radius: .005 },
+      hood: { top: 1.88, bottom: 1.55, round: .07, halfWidth: .23, lift: .085, edge: .012, label: false,
+        opening: { from: .3, rise: .05, out: .035, radius: .018, lining: { radius: .028, inset: .022 } } },
     },
   },
   // Dresses: one piece worn instead of the top and the bottoms, with bare legs; shoes and outerwear go with it.
