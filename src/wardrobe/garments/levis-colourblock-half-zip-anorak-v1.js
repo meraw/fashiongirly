@@ -16,6 +16,7 @@ export default {
       observed: { palette: ['red', 'pale pink', 'white'], pattern: 'colour-blocked: a red yoke ending in a V at the front and back', silhouette: 'boxy hip-length pullover anorak, dropped shoulders', coverage: 'torso and arms to the wrist; neck when zipped; hood (modelled down)', material: 'light woven windbreaker shell' },
       user: { wear: 'zipped closed in real life (their rule for outerwear); shown unzipped on the doll only to see how it looks' },
       inferred: { warmth: 'light layer: an unpadded shell', weather: 'mild, breezy days; the hood suits a light shower', unknown: ['lining', 'waterproofing', 'fibre composition'] },
+      warmth: 1, warmthBasis: 'inferred: an unpadded woven shell; lining unknown',
       layering: 'In the app it goes over every top, bottom, the skirt and either dress; closed, it hides the top\'s sleeves and covers the skirt\'s bow (the hoodies put their hoods away and the chenille jumper narrows its collar under it). One jacket at a time, with nothing over it. Hip length: tops longer than the hip, the skirt and dresses show below it. A pullover: shown open, only its half zip opens. In real life the user wears it zipped.',
     },
     uncertainties: ['the chest print and the cord tapes are in plain block capitals, not the brand\'s lettering', 'the hood lies down on her back; her large head and hair hide its upper part and the collar', 'the hem drawcord\'s toggle at the back is not modelled', 'a pocket is seen on her right front only; one is built on each side'],

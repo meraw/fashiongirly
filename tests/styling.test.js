@@ -2,8 +2,8 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { GARMENTS } from '../src/wardrobe/catalog.js';
 
-// Styling facts for later outfit selection, in every slot. Tops, bottoms, shoes and dresses keep them flat, with warmth
-// from 1 (light) to 4 (very warm); outerwear sorts them by where they come from (observed, user, inferred).
+// Styling facts for later outfit selection, in every slot. Tops, bottoms, shoes and dresses keep them flat; outerwear sorts
+// them by where they come from (observed, user, inferred), with its warmth level and layering note beside those groups.
 const fact = (st, key) => st[key] ?? st.observed?.[key] ?? st.user?.[key] ?? st.inferred?.[key];
 const text = v => typeof v === 'string' && v.trim().length > 0;
 
@@ -14,8 +14,9 @@ test('every garment describes its warmth, coverage, colour, pattern, silhouette 
     const palette = fact(st, 'palette'); assert.ok(Array.isArray(palette) && palette.length && palette.every(text), `${id} palette`);
     const coverage = fact(st, 'coverage');
     assert.ok(text(coverage) || (coverage && Object.values(coverage).length && Object.values(coverage).every(text)), `${id} coverage`);
-    if (g.slot === 'outerwear') assert.ok(text(st.inferred?.warmth ?? st.user?.warmth), `${id} warmth, with its basis`);
-    else assert.ok([1, 2, 3, 4].includes(st.warmth) && /^(user|inferred)/.test(st.warmthBasis), `${id} warmth and its basis`);
+    // Warmth from 1 (light) to 4 (very warm) on one scale for every slot, with its basis; outerwear also describes it in words.
+    assert.ok([1, 2, 3, 4].includes(st.warmth) && /^(user|inferred)/.test(st.warmthBasis), `${id} warmth and its basis`);
+    if (g.slot === 'outerwear') assert.ok(text(st.inferred?.warmth ?? st.user?.warmth), `${id} warmth in words`);
     // Unknowns are listed, not filled in: an empty list says nothing is known to be missing.
     const unknown = st.unknown ?? st.inferred?.unknown; assert.ok(Array.isArray(unknown) && unknown.every(text), `${id} unknown list`);
   }
