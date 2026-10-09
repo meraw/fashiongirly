@@ -61,7 +61,7 @@ Catalog ID `striped-waffle-snap-collar-jumper-v1` (slot `top`). It is built by `
   - the band sitting out over the skirt;
   - the build time.
 - The shared tests also run on it: sleeves and hands, every waist-covering top over every bottom, styling facts, and every jacket over every top and the skirt.
-- `npm test`: 96 passing. `npm run build` succeeds.
+- `npm test`: 98 passing after merging `main` (which added the adidas Originals cropped hoodie). `npm run build` succeeds.
 - Rendered in headless Chromium (software WebGL):
   - front, three-quarter, side and back;
   - a neckline close-up;

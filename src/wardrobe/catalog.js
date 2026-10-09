@@ -35,6 +35,7 @@ export const TOMMY_STRIPE_POLO_ID = 'tommy-stripe-knit-polo-v1';
 export const MOTEL_TIE_DYE_SHIRT_ID = 'motel-tie-dye-mesh-shirt-v1';
 export const DESIGUAL_SPRAY_FLORAL_SHIRT_ID = 'desigual-spray-floral-mesh-shirt-v1';
 export const DESIGUAL_MOUNTAIN_SHIRT_ID = 'desigual-mountain-landscape-mesh-shirt-v1';
+export const ADIDAS_CROPPED_HOODIE_ID = 'adidas-originals-cropped-hoodie-black-v1';
 export const VANGOGH_TEE_ID = 'van-gogh-patchwork-tee-v1';
 export const DESIGUAL_FRESCO_TEE_ID = 'desigual-fresco-rib-vneck-tee-v1';
 export const MICKEY_LONG_TEE_ID = 'black-mickey-print-long-tee-v1';
@@ -456,6 +457,35 @@ export const GARMENTS = Object.freeze({
         lilies: [[.17, .02, .14, .3, true], [.67, .07, .15, 1.1, true], [.03, .37, .12, .7, true], [.3, .4, .11, .2, false], [.55, .38, .12, 1.4, false], [.86, .32, .1, .5, false]],
         budsAt: [[.95, .27, .05, -.35, true], [.79, .41, .045, 1.3, false], [.4, .43, .04, 1.9, false], [.13, .2, .04, -2.4, false]],
         inks: { sky: '#46699a', skyLight: '#5d80ad', lily: '#e4e3ea', shade: '#aaa3bd', blush: '#d68ea3', bud: '#d9798f', leaf: '#5f8a7a', leafLight: '#88ae9c', vein: '#46695c', stamen: '#b0606f', anther: '#7a3d33', throat: '#b7c27a', ink: '#16141c' } },
+    },
+  },
+  [ADIDAS_CROPPED_HOODIE_ID]: {
+    slot: 'top',
+    id: ADIDAS_CROPPED_HOODIE_ID, name: 'adidas Originals cropped hoodie', family: 'cropped-hoodie', version: 1,
+    status: 'authored-awaiting-user-review', brandAsProvided: 'adidas Originals (the logo and patch)',
+    source: { note: 'user supplied five product photos without a written description: a front flat lay, the front on a model, and close-ups of the hem and cuff, the chest logo and patch, and the hood' },
+    referenceViews: ['front flat lay', 'front on model', 'hem and cuff close-up', 'chest logo and patch close-up', 'hood close-up'],
+    details: ['black brushed French terry (fleece)', 'boxy and cropped at the waist, with dropped shoulders', 'ribbed hem band and long ribbed cuffs, each tipped in pale mint at the edge', 'hood lined in pale mint with fine dark pinstripes, its sides crossing at the front of the neck', 'thick black braided drawcords, knotted near their frayed ends', 'white embroidered trefoil and lowercase wordmark on her left chest', 'a white woven patch below it, with a green script name and small grey type'],
+    material: { construction: 'brushed French terry, rib trims', composition: 'not stated', finish: 'matte' },
+    fit: { silhouette: 'boxy and cropped', sleeve: 'long and relaxed, gathered into long ribbed cuffs', hem: 'cropped at the waist, ribbed band', neckline: 'hood, worn down', adjustment: 'fixed authored fit for review' },
+    exclusions: ['striped-shirt','knit-sweater'],
+    uncertainties: ['the logo and patch are drawn at her scale as a suggestion of the brand\'s marks, not copied', 'the hood is shown worn down; her large head hides most of its opening from the front', 'under a jacket the hood and cords are put away and a plain neckband is worn, as the hood would push through the jacket', 'the length on the body is read from the model photo; the flat lay looks a little longer'],
+    styling: { silhouette: 'boxy, cropped at the waist', palette: ['black', 'pale mint', 'white'], pattern: 'plain, with contrast tipping and a small chest logo', coverage: { neck: 'hood, worn down', sleeves: 'long', midriff: 'cropped' }, material: 'brushed French terry', warmth: 2, warmthBasis: 'inferred: a brushed fleece sweatshirt, cropped', weather: 'cool to mild days' },
+    authoring: { template: 'makeHoodie() in src/doll/hoodie.js', texture: 'procedural fleece, braid and pinstripe lining, and the logo and patch drawn in code; colours measured from the photos', runtimeGeneration: false, sourcePhotosBundled: false },
+    // Construction for makeHoodie() in src/doll/hoodie.js, in outfit units. The body and sleeves follow the chenille jumper,
+    // which is as boxy and cropped and clears every bottom and the skirt.
+    build: {
+      template: 'cropped-hoodie',
+      colours: { fleece: '#1c1d23', sheen: '#3a3b42', tipping: '#c8d6cf', lining: '#c9d8d1', stripe: '#3a3e46', cord: '#262529', embroidery: '#f3f3f1', patch: '#f3f4f6', patchInk: '#2c6e55', patchGrey: '#9a9ea3' },
+      body: { hem: 1.27, band: .085, tip: .016, ribs: 90, bandRadius: [.29, .205],
+        rows: [[1.905, .112, .104], [1.875, .176, .128], [1.83, .242, .163], [1.775, .286, .19], [1.65, .304, .204], [1.5, .308, .21], [1.4, .31, .216], [1.372, .306, .214], [1.36, .296, .209]] },
+      sleeve: { tip: .016, cuffRibs: 26,
+        rows: [[.03, .12, .117], [-.06, .132, .127], [-.2, .13, .124], [-.33, .122, .117], [-.41, .112, .107], [-.44, .104, .1]],
+        cuff: [[-.425, .097, .093], [-.49, .093, .09], [-.565, .092, .089]] },
+      hood: { top: 1.89, bottom: 1.6, round: .07, halfWidth: .2, lift: .08, edge: .011, opening: { from: 1.05, rise: .05, out: .03, radius: .014, band: .04, dip: 0 } },
+      cords: { x: .035, drift: .012, top: 1.875, knot: 1.56, radius: .0105, tassel: .03 },
+      logo: { at: [.1, 1.765], size: .07 },
+      patch: { at: [.1, 1.69], size: [.075, .04] },
     },
   },
   [STRIPE_SNAP_JUMPER_ID]: {

@@ -4,6 +4,7 @@ import { makePrintedTee } from './printed-tee.js';
 import { makePrintedLongTee } from './printed-long-tee.js';
 import { makeChenilleJumper } from './chenille-jumper.js';
 import { makeSweatshirt } from './sweatshirt.js';
+import { makeHoodie } from './hoodie.js';
 import { makeSnapCollarJumper } from './snap-collar-jumper.js';
 import { makeOuterwear } from './outerwear.js';
 import { levelCaster } from './level-caster.js';
@@ -2011,6 +2012,7 @@ export function makeOutfit(raw, atlas=null) {
     :GARMENTS[id]?.build?.template==='printed-long-tee'?makePrintedLongTee(id,GARMENTS[id].build)
     :GARMENTS[id]?.build?.template==='chenille-high-neck'?makeChenilleJumper(id,GARMENTS[id].build)
     :GARMENTS[id]?.build?.template==='logo-sweatshirt'?makeSweatshirt(id,GARMENTS[id].build,state.skirt)
+    :GARMENTS[id]?.build?.template==='cropped-hoodie'?makeHoodie(id,GARMENTS[id].build)
     :GARMENTS[id]?.build?.template==='snap-collar-jumper'?makeSnapCollarJumper(id,GARMENTS[id].build,state.skirt)
     :makeReferenceTop(atlas?.isTexture?atlas:atlas?.[id],id);
   if(!dress&&state.topId!=='classic')root.add(makeTop(state.topId));
