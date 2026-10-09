@@ -78,7 +78,7 @@ Each defaults to the old behaviour. All eight existing jackets are unchanged: th
 
 ## Checks
 
-- `npm test`: 114 passing, including the new `tests/levis-anorak.test.js`. It checks:
+- `npm test`: 118 passing after merging `main`, including the new `tests/levis-anorak.test.js`. It checks:
   - the parts, and the parts it leaves out
   - the half zip and its stop
   - the colour block: red above the V and pink below it, front and back; the V rising to the sides; red over the collar
