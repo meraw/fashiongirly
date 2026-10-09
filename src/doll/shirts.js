@@ -6,7 +6,7 @@
 // Also optional: print repeats round a sleeve (`sleeveAround`), a chest pocket (`pocket`) and a back yoke seam (`backYoke`);
 // a short contrast placket (`placket`), appliqué patches (`patches`), ribbed cuffs (`cuff.rib`) and a shirt tucked into
 // whatever bottom she wears (`tuckIn`); and soft creases pressed into the fabric (`creases`), as linen creases in wear.
-// Also a centre back pleat below the back yoke seam (`backPleat`).
+// Also a centre back pleat below the back yoke seam (`backPleat`), and a small tonal embroidered logo (`logo`).
 import * as T from 'three';
 import { random, solid, oval, curve, shell, roundSleeveCap, surfaceProbe, easeOverHand, trimToEdge } from './model.js';
 import { levelCaster } from './level-caster.js';
@@ -228,6 +228,32 @@ function plaidData(){
     for(let k=0;k<3;k++)data[i+k]=Math.max(0,Math.min(255,c[k]*n));data[i+3]=255;
   }
   return {data,w:size,h:size};
+  });
+}
+// A woven check (template `check-shirt`): warp stripes running down and weft stripes running across, interlaced in a 2/2
+// twill as plaidData() is, from a sett in the catalog `build.check`: thread colours by name (`colours`, sRGB) and stripe
+// widths (`warp`, `weft`, [colour name, width]) for one repeat, woven `repeats` times on a tile, `unit` pixels a width.
+function wovenCheckData(C){
+  return cached('check'+JSON.stringify(C),()=>{
+  const sett=list=>{const out=[];for(let r=0;r<C.repeats;r++)for(const [c,w] of list)for(let k=0;k<w*C.unit;k++)out.push(C.colours[c]);return out;};
+  const warp=sett(C.warp),weft=sett(C.weft),w=warp.length,h=weft.length,data=new Uint8Array(w*h*4),rand=random(67);
+  for(let y=0;y<h;y++)for(let x=0;x<w;x++){const up=((x+y)%4)<2,c=up?warp[x]:weft[h-1-y],n=1+(rand()-.5)*.04,i=(y*w+x)*4;
+    for(let k=0;k<3;k++)data[i+k]=Math.max(0,Math.min(255,c[k]*n));data[i+3]=255;}
+  return {data,w,h};
+  });
+}
+// A small embroidered logo in satin stitch, tone on tone (`logo`): a batwing, a band with a straight top whose lower edge
+// sweeps up in two arcs to a point at the middle, drawn in code at her scale as a suggestion of the mark. Pixels with
+// alpha (rows from the bottom up, as the texture is laid); the stitches run across it.
+function batwingData(colour){
+  return cached('batwing'+colour,()=>{
+  const w=128,h=72,data=new Uint8Array(w*h*4),c=[1,3,5].map(i=>parseInt(colour.slice(i,i+2),16));
+  for(let y=0;y<h;y++)for(let x=0;x<w;x++){const u=x/(w-1)*2-1,v=1-y/(h-1),side=Math.abs(u);
+    // The lower edge: high at the sides, dipping in an arc each side to a point at the centre.
+    const bottom=.15+.55*Math.sqrt(Math.max(0,1-((side-.5)/.5)**2))*(side>.02?1:1.3);
+    if(side>.98||v<.12||v>.12+bottom*.85)continue;
+    const i=(y*w+x)*4,shade=.9+.1*Math.abs(Math.sin(x*.9));for(let k=0;k<3;k++)data[i+k]=Math.round(c[k]*shade);data[i+3]=255;}
+  return {data,w,h};
   });
 }
 function flannelData(){
@@ -620,6 +646,12 @@ function makeShirt(id,style,atlas=null,skirt=false,trousers=null){
   for(const P of style.patches||[]){const [cx,cy]=P.at,[pw,ph]=P.size,pix=tigerPatchData(P.colour,P.seed),map=texture(pix,true);map.wrapS=map.wrapT=T.ClampToEdgeWrapping;
     grid(top,12,8,(u,v)=>{const hit=onSurface(cx+(u-.5)*pw/1.06,cy+(v-.5)*ph/.76);return hit?hit.point.addScaledVector(hit.normal,.0035).toArray():[cx,cy,.3];},
       new T.MeshStandardMaterial({map,alphaTest:.5,roughness:.85,side:T.DoubleSide}),'applique-patch');}
+  // Optional (`logo`: { at, size, colour }): a small tonal embroidered logo on the front, its satin stitches standing a
+  // little proud of the fabric.
+  if(style.logo){const L=style.logo,[cx,cy]=L.at,[lw,lh]=L.size,map=texture(batwingData(L.colour),true);map.wrapS=map.wrapT=T.ClampToEdgeWrapping;
+    // Laid from her left toward the placket, so its faces look out from her (the mark is symmetric).
+    grid(top,12,8,(u,v)=>{const hit=onSurface(cx-(u-.5)*lw/1.06,cy+(v-.5)*lh/.76);return hit?hit.point.addScaledVector(hit.normal,.0028).toArray():[cx,cy,.3];},
+      new T.MeshStandardMaterial({map,alphaTest:.5,roughness:.6,side:T.DoubleSide}),'embroidered-logo');}
   // Optional (`backPleat`): a short box pleat at the centre back, its two folds from the back yoke's seam down to this
   // height.
   if(style.backYoke&&style.backPleat){const back=surfaceProbe(top,['mesh-shirt-body']);
@@ -641,5 +673,12 @@ export const SHIRT_IDS=Object.keys(STYLES);
 // The cropped shirts end above the skirt's waistband and the longer one covers it, so they are the same with or without
 // the skirt; a hip-length shirt with tucked rows is tucked into the skirt when she wears one.
 export function makeButtonShirt(id=MOTEL_TIE_DYE_SHIRT_ID,atlas=null,skirt=false,trousers=null){return makeShirt(id,STYLES[id]||STYLES[MOTEL_TIE_DYE_SHIRT_ID],atlas,skirt,trousers);}
+// A woven check shirt from its catalog `build` (template `check-shirt`): `check` is its weave (see wovenCheckData) with
+// how many tiles go round her body (`around`), sleeve (`sleeveAround`) and collar (`collarAround`) and how tall a tile is
+// (`high`); the rest are shirt style settings (stitch, button, buttons, cuff, backYoke and so on), the relaxed hip-length
+// shirt's by default.
+const checkShirt=({template,check,around,high,sheen,...rest})=>({bump:[crepeData,40,30,.0006],sheen:[sheen,.3,.5],roughness:.66,facing:null,collarTopstitch:true,open:null,
+  rows:RELAXED_ROWS,tucked:TUCKED_ROWS,depth:.7,...rest,print:()=>wovenCheckData(check),around,high});
+export function makeCheckShirt(id,build,skirt=false){return makeShirt(id,checkShirt(build),null,skirt);}
 // A linen shirt from its catalog `build` ({ colour, lift, seed, stitch, button, sheen }; see linenShirt above).
 export function makeLinenShirt(id,build,skirt=false){return makeShirt(id,linenShirt(build),null,skirt);}
