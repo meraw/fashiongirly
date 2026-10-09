@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import * as T from 'three';
 import { makeOutfit, disposeObject } from '../src/doll/model.js';
 import { OUTFITS } from '../src/doll/recipe.js';
-import { GARMENTS, PAISLEY_SHIRT_ID, MOTEL_TIE_DYE_SHIRT_ID, DESIGUAL_SPRAY_FLORAL_SHIRT_ID, DESIGUAL_SPLIT_FLORAL_SHIRT_ID, DESIGUAL_MOUNTAIN_SHIRT_ID } from '../src/wardrobe/catalog.js';
+import { GARMENTS, PAISLEY_SHIRT_ID, MOTEL_TIE_DYE_SHIRT_ID, DESIGUAL_SPRAY_FLORAL_SHIRT_ID, DESIGUAL_SPLIT_FLORAL_SHIRT_ID, DESIGUAL_MOUNTAIN_SHIRT_ID, MANGO_DOT_SHIRT_ID } from '../src/wardrobe/catalog.js';
 const named=(root,name)=>{const found=[];root.traverse(o=>{if(o.name===name)found.push(o);});return found;};
 const box=o=>new T.Box3().setFromObject(o);
 
@@ -40,7 +40,7 @@ test('the other shirts keep their own construction: no yoke or relaxed body, and
     assert.equal(named(top,'sleeve-hem-stitch').length,2);assert.ok(Math.abs(box(named(top,'mesh-shirt-body')[0]).min.y/.76-1.26)<.002,`${id}: cropped at 1.26`);
     disposeObject(outfit);
   }
-  // The mountain shirt has the template's long hem and cuffs, but no yoke, and keeps the fitted sleeves.
-  const outfit=makeOutfit({topId:DESIGUAL_MOUNTAIN_SHIRT_ID,knit:false,shirt:false}),top=outfit.getObjectByName(DESIGUAL_MOUNTAIN_SHIRT_ID);
-  for(const name of ['yoke-seam','back-pleat'])assert.equal(named(top,name).length,0,name);disposeObject(outfit);
+  // The mountain and Mango shirts use other template options (longer hem, own rows, cuffs), but have no yoke.
+  for(const id of [DESIGUAL_MOUNTAIN_SHIRT_ID,MANGO_DOT_SHIRT_ID]){const outfit=makeOutfit({topId:id,knit:false,shirt:false}),top=outfit.getObjectByName(id);
+    for(const name of ['yoke-seam','back-pleat'])assert.equal(named(top,name).length,0,`${id}: ${name}`);disposeObject(outfit);}
 });

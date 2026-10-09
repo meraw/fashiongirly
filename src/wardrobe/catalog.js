@@ -7,6 +7,7 @@ export const EMERALD_PARKA_ID = 'emerald-dyed-sherpa-hood-parka-v1';
 export const BOMBOOGIE_FUR_JACKET_ID = 'bomboogie-pink-faux-fur-jacket-v1';
 export const WOOLRICH_BOMBER_ID = 'woolrich-cream-fur-hood-bomber-v1';
 export const ADIDAS_CROPPED_WINDBREAKER_ID = 'adidas-cream-cropped-windbreaker-v1';
+export const ONLY_TAUPE_COAT_ID = 'only-carmakoma-taupe-wool-coat-v1';
 // Dresses: none by default ('none'); a catalog dress fills the 'dress' slot and is worn instead of the top and bottoms.
 export const ZIP_TRACK_DRESS_ID = 'navy-half-zip-track-dress-v1';
 // Shoes: built-in loafers are 'classic'; catalog shoes fill the 'shoes' slot.
@@ -39,6 +40,7 @@ export const DESIGUAL_FRESCO_TEE_ID = 'desigual-fresco-rib-vneck-tee-v1';
 export const MICKEY_LONG_TEE_ID = 'black-mickey-print-long-tee-v1';
 export const PB_CHENILLE_ID = 'pull-bear-grey-chenille-high-neck-v1';
 export const DESIGUAL_SPLIT_FLORAL_SHIRT_ID = 'desigual-split-floral-shirt-v1';
+export const MANGO_DOT_SHIRT_ID = 'mango-halftone-dot-shirt-v1';
 export const PAISLEY_SHIRT_ID = 'paisley-print-relaxed-shirt-v1';
 export const BARREL_JEANS_ID = 'topshop-barrel-jeans-v1';
 export const DAVINIA_JEANS_ID = 'desigual-davinia-jeans-v1';
@@ -401,6 +403,22 @@ export const GARMENTS = Object.freeze({
     styling: { silhouette: 'slim, high-hip length', palette: ['peach', 'rust', 'ochre', 'dark brown', 'lilac'], pattern: 'painted mountain landscape at sunset', coverage: { neck: 'point collar, buttoned to the top', sleeves: 'long, sheer, buttoned cuffs', midriff: 'covered' }, material: 'fine stretch mesh, composition unknown', warmth: 1, warmthBasis: 'inferred: thin, sheer mesh, though long-sleeved', weather: 'mild days, or as a layer; sheer' },
     authoring: { template: 'makeButtonShirt() in src/doll/shirts.js', texture: 'mountain-shirt-atlas.js: the body unwrapped and the sleeves, projected from the user\'s flat lay (front) and back photo', runtimeGeneration: false, sourcePhotosBundled: 'processed crops only, as the texture atlas' },
   },
+  [MANGO_DOT_SHIRT_ID]: {
+    slot: 'top',
+    id: MANGO_DOT_SHIRT_ID, name: 'Mango pink halftone dot shirt', family: 'relaxed-button-down-shirt', version: 1,
+    status: 'reference-study-awaiting-visual-review', brandAsProvided: 'Mango (“MNG” neck label)',
+    source: { note: 'user supplied five product photos without a description: a front flat lay, a close-up of the collar, the back on a model, and two fronts on models (one worn open low, one over white wide-leg jeans)' },
+    referenceViews: ['front flat lay', 'collar close-up', 'back on model', 'front on model, open', 'front on model, with jeans'],
+    details: ['relaxed long-sleeved shirt in a fine crepe', 'printed with a square lattice of soft pink dots on cream, in blocks of two kinds set in an uneven checker: big touching pink dots with small cream four-point stars between them, and the reverse (touching cream dots with small pink stars)', 'point collar, collar and stand in the print, one button at the collar', 'concealed placket: no buttons show down the front', 'long relaxed sleeves gathered into buttoned cuffs', 'hip length, with a curved shirt-tail hem that dips at the centre front and back', 'worn untucked and open at the neck on the models'],
+    material: { construction: 'fine crepe (read from the pebbled surface in the close-up)', composition: 'not stated', finish: 'matte, softly draping' },
+    fit: { silhouette: 'relaxed, straight', sleeve: 'long and relaxed, gathered into cuffs at the wrist', hem: 'hip length, curved shirt tail', neckline: 'point collar, top button open', adjustment: 'fixed authored fit for review' },
+    exclusions: ['striped-shirt','knit-sweater'],
+    // Hangs over every waistband; over the skirt it is tucked in, so the skirt's bow shows.
+    layering: { coversWaistband: true, tucksIntoSkirt: true },
+    uncertainties: ['the print is redrawn in code as a regular halftone lattice in an uneven checker of blocks, not copied; the real blocks vary more in size', 'the dots are drawn a little larger than on the shirt (about 16 across her front instead of about 22), so they stay visible on a phone', 'worn with the top button open, as on the models; the flat lay is buttoned to the collar', 'the dropped shoulder seam is not modelled; the sleeves join where the shirt template\'s sleeves do', 'over the skirt it is tucked in rather than worn loose'],
+    styling: { silhouette: 'relaxed and straight, hip length with a curved hem', palette: ['soft pink', 'cream'], pattern: 'pink and cream halftone dots in a patchwork checker', coverage: { neck: 'point collar, top button open', sleeves: 'long, cuffed', midriff: 'covered, to the hip' }, material: 'fine crepe, composition not stated', warmth: 1, warmthBasis: 'inferred: a light, thin crepe shirt, though long-sleeved', weather: 'mild to warm days, or as a light layer' },
+    authoring: { template: 'makeButtonShirt() in src/doll/shirts.js', texture: 'procedural dotPatchData() and crepeData() in src/doll/shirts.js, drawn locally when first worn; colours measured in the collar close-up', runtimeGeneration: false, sourcePhotosBundled: false },
+  },
   [PAISLEY_SHIRT_ID]: {
     slot: 'top',
     id: PAISLEY_SHIRT_ID, name: 'Paisley print relaxed shirt', family: 'relaxed-printed-button-down-shirt', version: 1,
@@ -414,7 +432,7 @@ export const GARMENTS = Object.freeze({
     layering: { coversWaistband: true },
     uncertainties: ['the paisley print is redrawn in code as simplified motifs (paisleys in bands, leaf sprays, tendrils), not copied from the photos, and its repeat is invented', 'the fabric composition is not stated', 'worn untucked; the photos show the front tucked into jeans', 'the hem is straight; the real one is a curved shirttail (a hem that rises at the sides would leave her waistband showing there)'],
     styling: { silhouette: 'relaxed shirt, high-hip length', palette: ['white', 'ochre yellow', 'cornflower blue', 'lilac pink', 'peach', 'sage'], pattern: 'large all-over paisley print', coverage: { neck: 'point collar, top button open', sleeves: 'long', midriff: 'covered' }, material: 'fluid woven, like viscose crepe (inferred)', warmth: 1, warmthBasis: 'inferred: a light, fluid woven shirt', weather: 'mild or warm days, or under a jacket; a light fabric that shows rain marks (inferred)' },
-    authoring: { template: 'makeButtonShirt() in src/doll/shirts.js, with its own body and sleeve rows and a back yoke, and the template\'s longer hem and buttoned cuffs', texture: 'procedural paisleyData() and crepeData() in src/doll/shirts.js; colours measured from the photos', runtimeGeneration: false, sourcePhotosBundled: false },
+    authoring: { template: 'makeButtonShirt() in src/doll/shirts.js, with its own body and sleeve rows (`rows`, `sleeve`), buttoned cuffs and a back yoke', texture: 'procedural paisleyData() in src/doll/shirts.js, with the template\'s crepe bump; colours measured from the photos', runtimeGeneration: false, sourcePhotosBundled: false },
   },
   [BARREL_JEANS_ID]: {
     slot: 'bottom',
@@ -1473,7 +1491,7 @@ export const GARMENTS = Object.freeze({
   [WOOLRICH_BOMBER_ID]: {
     slot: 'outerwear',
     id: WOOLRICH_BOMBER_ID, name: 'Woolrich cream hooded bomber', family: 'zip-windbreaker', version: 1,
-    status: 'reference-study-awaiting-visual-review', brandAsProvided: 'Woolrich (John Rich & Bros), vintage; size XS on the label',
+    status: 'user-approved', brandAsProvided: 'Woolrich (John Rich & Bros), vintage; size XS on the label',
     source: { note: 'user supplied eight resale-listing photos of their own vintage jacket (Vestiaire Collective): front laid out, front and back on a bed, the sleeve pocket and label, and the inside (lining, hood fur and label)' },
     referenceViews: ['front flat, open', 'front on bed, open', 'front on bed, hood up', 'back with hood', 'sleeve pocket and label', 'inside: quilted lining and hood fur', 'hood fur and label close-ups'],
     details: ['cream cotton canvas bomber, slightly yellowed with age, tonal topstitching', 'hood lined in grey-beige faux fur, with a darker dark-tipped faux-fur ruff round the opening; the hood zips on and closes with snaps', 'zip under a storm flap closing with metal snaps; snaps on the stand collar', 'raglan sleeves; centre-back seam', 'large flap pockets at the hip with snaps', 'zip pocket and a white Woolrich label on the upper left sleeve', 'rib-knit hem band and long rib-knit cuffs in cream', 'navy quilted lining (onion quilting)', 'snap tabs at the sides of the waist'],
@@ -1524,7 +1542,7 @@ export const GARMENTS = Object.freeze({
   [ADIDAS_CROPPED_WINDBREAKER_ID]: {
     slot: 'outerwear',
     id: ADIDAS_CROPPED_WINDBREAKER_ID, name: 'adidas cream cropped windbreaker', family: 'zip-windbreaker', version: 1,
-    status: 'reference-study-awaiting-visual-review', brandAsProvided: 'adidas Originals (tonal trefoil on the chest)',
+    status: 'user-approved', brandAsProvided: 'adidas Originals (tonal trefoil on the chest)',
     source: { note: 'user supplied two resale-listing photos of the jacket on a dress form: front zipped and back' },
     referenceViews: ['front on dress form, zipped', 'back on dress form'],
     details: ['cream (off-white) woven nylon shell, all tonal', 'tall stand collar folded over, tonal coil zip to the top', 'tonal embossed trefoil on the left chest', 'dropped shoulders and very full balloon sleeves', 'cropped body blousing over a wide shirred elastic waistband at the waist', 'long shirred elastic cuffs', 'two seams down the front from the chest to the band', 'back yoke seam and centre-back seam'],
@@ -1564,6 +1582,44 @@ export const GARMENTS = Object.freeze({
         cuff: [-.5, -.575], cuffRadius: [.124, .122], cuffPuckers: 40, cuffChannels: 3, gathers: 18, gatherDepth: .035, gatherHeight: .1,
       },
       zip: { width: .014, stitch: .016 },
+    },
+  },
+  [ONLY_TAUPE_COAT_ID]: {
+    slot: 'outerwear',
+    id: ONLY_TAUPE_COAT_ID, name: 'ONLY Carmakoma taupe coat', family: 'tailored-coat', version: 1,
+    status: 'reference-study-awaiting-visual-review', brandAsProvided: 'ONLY Carmakoma (from the product photos)',
+    source: { note: 'user supplied five product photos: front flat, front on a model (open), a close-up of the lapels and buttons, back, and full length on the model; the user said their coat has only one button' },
+    referenceViews: ['front flat, buttoned', 'front on model, open', 'lapel and button close-up', 'back on model', 'full length on model'],
+    details: ['taupe brown melange felted wool-look double-face fabric', 'notched lapel collar', 'single-breasted; the user\'s coat has one button, at the lapel break', 'clean raw edges throughout, as on double-face wool', 'slanted welt pockets at the hip', 'long plain sleeves', 'centre-back seam', 'slightly oversized, straight, to just above the knee'],
+    material: { construction: 'double-face felted knit or woven, wool-look', composition: 'not visible in the supplied photos', finish: 'matte melange with raw edges' },
+    fit: { silhouette: 'straight and slightly oversized', length: 'just above the knee', sleeve: 'long and plain', wear: 'buttoned closed in real life (the user wears outerwear closed unless it is designed to be worn open), with its one button; it can also be shown open on the doll', adjustment: 'fixed authored fit for review' },
+    layering: { closed: true, coversTopSleeves: true, coversWaistband: true, canOpen: true },
+    styling: {
+      observed: { palette: ['taupe melange'], pattern: 'plain melange', silhouette: 'straight single-breasted coat with notched lapels, above the knee', coverage: 'torso, hips and thighs to just above the knee; arms to the wrist; a V at the neck', material: 'felted wool-look double-face' },
+      user: { buttons: 'one button (the other is missing)', wear: 'buttoned, or not worn, in real life (their rule for outerwear); shown open on the doll only to see how it looks' },
+      inferred: { warmth: 'warm: a thick felted coat, unlined', weather: 'cool to cold dry days; not for rain', unknown: ['fibre composition', 'which button is left (assumed the top one, at the lapel break)', 'the exact length on the user'] },
+    },
+    uncertainties: ['the single button is placed at the lapel break', 'the lapels are drawn lying on the front, and the collar round the back of her neck is mostly hidden by her head', 'the melange is drawn procedurally'],
+    authoring: { texture: 'procedural melange, raw edges and seams drawn locally in src/doll/tailored-coat.js; colour measured from the photos', runtimeGeneration: false, sourcePhotosBundled: false },
+    // Built by makeTailoredCoat() (src/doll/tailored-coat.js) on the shared jacket body.
+    build: {
+      template: 'tailored-coat', roughness: 1,
+      colours: { shell: '#6b645e', edge: '#8e8479', stitch: '#5d5650', button: '#1d2226', shadow: '#403a35' },
+      tiles: { body: [14, 9], sleeve: [6, 6] },
+      open: { shift: .1 },
+      body: {
+        rows: [[1.92, .136, .129], [1.9, .146, .134], [1.875, .212, .169], [1.84, .287, .216], [1.8, .34, .253], [1.75, .366, .27], [1.65, .376, .282], [1.5, .379, .288], [1.35, .382, .291], [1.2, .388, .294], [1.05, .4, .298], [.9, .413, .302], [.78, .423, .305], [.74, .426, .305]],
+        overSkirt: [[1.92, .136, .129], [1.9, .146, .134], [1.875, .212, .169], [1.84, .287, .216], [1.8, .34, .253], [1.75, .366, .27], [1.65, .376, .282], [1.5, .379, .288], [1.35, .384, .292], [1.2, .395, .3], [1.05, .424, .316], [.9, .452, .331], [.78, .465, .338], [.74, .467, .337]],
+        hem: .74, collarBase: 1.9, drape: .016, folds: 6, drapeTop: 1.15,
+      },
+      lapel: { break: 1.47, neck: .1, top: 1.86, width: .1, notchAt: .82, narrow: .45, lift: .01 },
+      collar: { from: .62, depth: .06, lift: .016 },
+      buttons: [1.465],
+      pockets: { x: .215, slant: .05, top: 1.2, bottom: 1.02, width: .014 },
+      sleeve: {
+        rows: [[.05, .142, .132], [0, .16, .15], [-.1, .165, .155], [-.25, .163, .154], [-.4, .161, .153], [-.5, .16, .152], [-.575, .16, .152]],
+        cuff: [-.545, -.575], cuffRadius: [.161, .153],
+      },
     },
   },
   // Dresses: one piece worn instead of the top and the bottoms, with bare legs; shoes and outerwear go with it.

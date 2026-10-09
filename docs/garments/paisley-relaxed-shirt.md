@@ -22,15 +22,16 @@ Measured: the ground about RGB 236, 237, 239 in the evenly lit back view. Ochre-
 
 Catalog ID `paisley-print-relaxed-shirt-v1` (slot `top`), built by `makeButtonShirt()` in `src/doll/shirts.js`, the template of the two fitted mesh shirts, with a new style. The template picks it up by its style, so `makeOutfit` is unchanged.
 
-**Template options.** The shirt template has optional settings, used only by the shirts that set them. This shirt adds three:
+**Template options.** The shirt template has optional settings, used only by the shirts that set them. This shirt uses:
 
-- `body`: the shirt's own body rows. They are fuller than the fitted shirts below the chest, down to the hem, and as wide there as the Tommy sweater, which clears every jacket, bottom and the skirt.
-- `sleeveRows`: fuller sleeves, gathering toward her wrist.
-- `yoke`: a seam across her upper back, with a short box pleat at the centre below it.
+- `rows`: its own body rows, fuller than the fitted shirts below the chest, down to a hem at her high hip (1.19), as wide there as the Tommy sweater, which clears every jacket, bottom and the skirt;
+- `sleeve`: fuller sleeve rows, gathering toward her wrist;
+- `cuff`: buttoned cuffs, a band over the sleeve's end, seamed at its top, with a button on its outer side;
+- `yoke`, which it adds: a seam across her upper back, with a short box pleat at the centre below it.
 
-It also uses two settings that the mountain landscape mesh shirt added to the template while this one was being built: the longer `hem` (at her high hip, 1.19) and buttoned `cuff`s (a band over the sleeve's end, seamed at its top, with a button on its outer side). This shirt had first been built with its own longer hem and cuffs. When `main` was merged, the user chose to use the template's, so there is one way to do each.
+This shirt was first built with its own body and sleeve rows, longer hem, cuffs and crepe. Meanwhile the mountain landscape shirt (`hem`, `cuff`) and the Mango dot shirt (`rows`, `sleeve`, a crepe bump) added the same to the template. At each merge the user chose the template's, so there is one way to do each; the paisley shirt's shape is unchanged, and its fabric now uses the Mango shirt's crepe.
 
-No other shirt sets `body`, `sleeveRows` or `yoke`. Every outfit that `main` can build was built on `main` and on this branch and compared, with no difference in geometry, materials or textures.
+No other shirt sets `yoke`. Every outfit that `main` can build was built on `main` and on this branch and compared, with no difference in geometry, materials or textures.
 
 **Print:** drawn in code (`paisleyData()`), not copied from the photos. One tile is half her girth wide and in proportion high, so the motifs stay round; a large paisley is about a third of her front's width, as on the model. On the tile:
 
@@ -41,7 +42,7 @@ No other shirt sets `body`, `sleeveRows` or `yoke`. Every outfit that `main` can
 
 The tile wraps seamlessly. The inks are deeper than measured, because the studio's exposure lifted the first version to pastels; the ground renders at about 231, 229, 228.
 
-**Fabric:** a fine crepe bump and a soft sheen. White buttons, worn with the top button open as on the model.
+**Fabric:** the template's fine crepe bump and a soft sheen. White buttons, worn with the top button open as on the model.
 
 **Preset:** "Paisley shirt study", with the Tommy mom jeans.
 
@@ -51,13 +52,13 @@ A relaxed shirt to the high hip; a large all-over paisley print in white, ochre,
 
 ## Checks
 
-- `npm test` passes (93), including a new `tests/paisley-shirt.test.js`, which checks:
+- `npm test` passes (96), including a new `tests/paisley-shirt.test.js`, which checks:
   - the parts: body, sleeves, cuffs with buttons and stitching, collar, eight buttons, the yoke seam and pleat, the hem stitching;
   - it is wider at the waist and longer than the fitted shirts;
   - the yoke and pleat are on her back;
   - the print is about half ground, with yellow, blue, pink and green inks in it;
   - the tile repeats without a seam both ways;
-  - the other shirts keep their own construction: the fitted ones (tie-dye, spray floral, split floral) have no cuffs, yoke or relaxed body and are still cropped at 1.26; the mountain shirt has no yoke.
+  - the other shirts keep their own construction: the fitted ones (tie-dye, spray floral, split floral) have no cuffs, yoke or relaxed body and are still cropped at 1.26; the mountain and Mango shirts have no yoke.
 
   The shared tests cover it too: every waist-covering top over every bottom, the outerwear coverage of every top, and the triangle budget.
 - `npm run build` succeeds.
