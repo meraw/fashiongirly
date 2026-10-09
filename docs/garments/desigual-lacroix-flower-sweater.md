@@ -1,6 +1,6 @@
 # Wardrobe item: Desigual × Christian Lacroix giant flower sweater
 
-Authored 8 October 2026. Status: revised after the user's first look (jagged sleeve ends); awaiting their next review. Added by the tops chat (see “Parallel chats” in `AGENTS.md`).
+Authored 8 October 2026. Status: revised after the user's first look (jagged sleeve ends); approved: the user merged it, and merging means approved (their rule). Added by the tops chat (see “Parallel chats” in `AGENTS.md`).
 
 ## Source and reference reading
 

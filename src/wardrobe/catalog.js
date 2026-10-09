@@ -3,6 +3,7 @@
 export const MARIKOO_WINDBREAKER_ID = 'marikoo-two-tone-windbreaker-v1';
 export const DESIGUAL_LEATHER_JACKET_ID = 'desigual-black-faux-leather-jacket-v1';
 export const RED_BULL_WINDBREAKER_ID = 'red-bull-racing-stone-windbreaker-v1';
+export const EMERALD_PARKA_ID = 'emerald-dyed-sherpa-hood-parka-v1';
 // Dresses: none by default ('none'); a catalog dress fills the 'dress' slot and is worn instead of the top and bottoms.
 export const ZIP_TRACK_DRESS_ID = 'navy-half-zip-track-dress-v1';
 // Shoes: built-in loafers are 'classic'; catalog shoes fill the 'shoes' slot.
@@ -109,7 +110,7 @@ export const GARMENTS = Object.freeze({
   [STRIPE_JUMPER_ID]: {
     slot: 'top',
     id: STRIPE_JUMPER_ID, name: 'Asymmetric rustic stripe jumper', family: 'off-shoulder-knit-jumper', version: 1,
-    status: 'reference-study-awaiting-visual-review', brandAsProvided: 'Bershka',
+    status: 'user-approved', brandAsProvided: 'Bershka',
     source: { note: 'user supplied two phone screenshots of a Myntra listing (Bershka Asymmetric Rustic Stripe Jumper): front on model and a flat lay; no other views were available' },
     referenceViews: ['front on model', 'front flat lay'],
     details: ['wide asymmetric neckline worn off one shoulder: high at the base of the neck on her right, slipping below the shoulder onto the upper arm on her left', 'ecru slub ("rustic") knit with even dark green horizontal stripes', 'stripes near the neckline follow its slant and level out lower down', 'deep plain ecru ribbed hem band', 'long straight sleeves with deep plain ribbed cuffs', 'boxy body with dropped shoulders, ending at the high hip', 'narrow plain edge around the neckline'],
@@ -126,7 +127,7 @@ export const GARMENTS = Object.freeze({
   [POINTELLE_FLOWER_ID]: {
     slot: 'top',
     id: POINTELLE_FLOWER_ID, name: 'Cream pointelle flower jumper', family: 'boxy-openwork-knit-jumper', version: 1,
-    status: 'reference-study-awaiting-visual-review', brandAsProvided: null,
+    status: 'user-approved', brandAsProvided: null,
     source: { note: "the user's own jumper, photographed flat on the floor from the front and the back; the user could not find the product online" },
     referenceViews: ['front flat on the floor', 'back flat on the floor'],
     details: ['cream openwork knit: bands of two staggered eyelet rows between raised horizontal ridges', 'eight raised embroidered flowers scattered over the front only: six raspberry petals with a darker centre, two dark green leaves above each, so the flowers hang', 'wide boat neckline', 'raglan seams from the neckline to the underarms', 'boxy body about as long as it is wide, ending at the hip', 'long wide straight sleeves', 'narrow plain bands with small scallops at the neckline, hem and sleeve ends'],
@@ -141,7 +142,7 @@ export const GARMENTS = Object.freeze({
   [SILVER_CABLE_ID]: {
     slot: 'top',
     id: SILVER_CABLE_ID, name: 'Silver foil cable jumper', family: 'cropped-cable-knit-jumper', version: 1,
-    status: 'reference-study-awaiting-visual-review', brandAsProvided: 'Desigual',
+    status: 'user-approved', brandAsProvided: 'Desigual',
     source: { note: 'user supplied five phone screenshots of a Modivo listing (Desigual knit jumper): front and back on a model, a front close-up, a neckline close-up and a flat lay' },
     referenceViews: ['front on model', 'back on model', 'front close-up', 'neckline close-up', 'front flat lay'],
     details: ['black yarn coated with silver foil: raised stitches shine silver, grooves and gaps stay black', 'centre panel of fine twisted-stitch cables forming a diamond lattice, front and back', 'columns of twisted ribs and small rope cables either side of the panel', 'a large wavy cable down each sleeve, with black slits where its strands part', 'deep ribbed hem band, long ribbed cuffs and a ribbed crew neck, black in every groove', 'slim fit, cropped at the waist, set-in sleeves'],
@@ -155,7 +156,7 @@ export const GARMENTS = Object.freeze({
   [LACROIX_FLOWER_ID]: {
     slot: 'top',
     id: LACROIX_FLOWER_ID, name: 'Lacroix giant flower sweater', family: 'printed-knit-sweater', version: 1,
-    status: 'reference-study-awaiting-visual-review', brandAsProvided: 'Desigual, designed by Christian Lacroix',
+    status: 'user-approved', brandAsProvided: 'Desigual, designed by Christian Lacroix',
     source: { note: 'user supplied five phone screenshots of the desigual.com (NZ) listing "Sweater designed by Mr. Christian Lacroix": flat lay, front and back on a model, a neckline close-up and a front close-up' },
     referenceViews: ['front flat lay', 'front on model', 'back on model', 'neckline close-up', 'front close-up'],
     details: ['fuzzy olive-green knit', 'one giant painterly violet flower across the front: five streaked petals fading to lilac and white, a mint throat, black stamens and a thick black stem from her right shoulder', 'a second violet flower low on her right with a diagonal black stem, and a white and mint peony sketched in black low on her left', 'a giant violet flower across the upper back', 'flowers on both forearms: violet on her right, the peony and violet on her left', 'olive ribbed cuffs, a lilac ribbed crew neck, and a hem rib that carries the print', 'regular fit to the high hip'],
@@ -170,7 +171,7 @@ export const GARMENTS = Object.freeze({
   [TOMMY_CABLE_ID]: {
     slot: 'top',
     id: TOMMY_CABLE_ID, name: 'Green cable knit wool sweater', family: 'cable-knit-sweater', version: 1,
-    status: 'reference-study-awaiting-visual-review', brandAsProvided: 'Tommy Hilfiger',
+    status: 'user-approved', brandAsProvided: 'Tommy Hilfiger',
     source: { note: 'user supplied five phone screenshots of a Rinascente listing (Tommy Hilfiger cable knit wool sweater): front and full length on a model, a close-up, the back and a flat lay' },
     referenceViews: ['front on model', 'full length on model', 'front close-up', 'back on model', 'front flat lay'],
     details: ['forest green wool', 'rope cables all over: about eight columns across the front and the back, continuing down the sleeves', 'raglan sleeves with seams from the neck to each underarm', 'narrow ribbed crew neck', 'deep ribbed hem band and long ribbed cuffs', 'small embroidered flag on her left chest', 'relaxed fit to the hip'],
@@ -185,7 +186,7 @@ export const GARMENTS = Object.freeze({
   [PETIT_BATEAU_CARDIGAN_ID]: {
     slot: 'top',
     id: PETIT_BATEAU_CARDIGAN_ID, name: 'Striped fisherman rib cardigan', family: 'button-front-cardigan', version: 1,
-    status: 'reference-study-awaiting-visual-review', brandAsProvided: 'Petit Bateau',
+    status: 'user-approved', brandAsProvided: 'Petit Bateau',
     source: { note: 'user supplied four phone screenshots of a petit-bateau.it listing: flat lay buttoned, on a model, flat lay with the front opened, and the back' },
     referenceViews: ['front flat lay, buttoned', 'front on model', 'front flat lay, opened', 'back flat lay'],
     details: ['cream fisherman rib knit', 'three wide navy stripes round the lower body, front and back, above a cream ribbed hem', 'three navy stripes on each forearm, above long cream ribbed cuffs', 'deep V-neck with ribbed button bands meeting at the first button', 'five cream buttons down the front', 'a small navy badge on her left upper sleeve', 'oversized and boxy with dropped shoulders; on the user it hangs well below the crotch, to mid-thigh, and the sleeves cover most of the hands'],
@@ -1119,7 +1120,7 @@ export const GARMENTS = Object.freeze({
   [RED_BULL_WINDBREAKER_ID]: {
     slot: 'outerwear',
     id: RED_BULL_WINDBREAKER_ID, name: 'Red Bull Racing stone windbreaker', family: 'zip-windbreaker', version: 1,
-    status: 'reference-study-awaiting-visual-review', brandAsProvided: 'Red Bull Racing (printed on the jacket)',
+    status: 'user-approved', brandAsProvided: 'Red Bull Racing (printed on the jacket)',
     source: { note: 'user supplied five phone screenshots of a product gallery (images 1, 3, 4, 5 and 6 of 6): front on a model worn open, back on a model, a collar close-up, and front and back flat lays, zipped' },
     referenceViews: ['front on model, open', 'back on model', 'collar close-up', 'front flat lay', 'back flat lay'],
     details: ['one-colour stone (light greige) woven shell', 'tall stand collar with the hood stowed inside it, a zip seam across its back, metal snaps and a small cord toggle', 'zip covered by a storm placket from the hem to the top of the collar', 'raglan sleeves', 'curved front panel seams sweeping from the sides down to pocket openings low on each front', 'a horizontal flap seam across the middle of the back', 'reflective prints: RED BULL RACING running down beside the placket, Red Bull across the back above the flap', 'elastic gathered hem band with a cord toggle, elastic cuffs', 'small rectangular rubber patch on the upper left sleeve', 'boxy, hip length'],
@@ -1170,11 +1171,56 @@ export const GARMENTS = Object.freeze({
       pockets: { x: .208, slant: .08, top: 1.33, bottom: 1.16, width: .02, snaps: [], snap: .0125 },
     },
   },
+  [EMERALD_PARKA_ID]: {
+    slot: 'outerwear',
+    id: EMERALD_PARKA_ID, name: 'Emerald hooded parka', family: 'zip-windbreaker', version: 1,
+    status: 'reference-study-awaiting-visual-review', brandAsProvided: 'not given',
+    source: { note: 'user supplied five product photos of the coat in its original navy (front, side, back, worn open, close-up); the user\'s own coat was originally a lighter blue, was damaged with bleach and dyed emerald green (Coloreria Italiana); the colour could not be photographed, so the user asked for a slightly muted emerald' },
+    referenceViews: ['front on model, zipped, hood up', 'side on model', 'back on model', 'front on model, open', 'close-up, hood up'],
+    details: ['oversized hooded parka, knee length on the model', 'hood lined in cream sherpa, with red and white drawcords at the neck', 'zip under a snap placket from the hem to the top of the collar', 'large slanted flap pockets at the hip, each with a snap', 'dropped shoulders and long, full sleeves gathered into elastic cuffs', 'drawcord hem with red and white cord ends at the front edges', 'body lined in cream sherpa (inside view)', 'plain back'],
+    material: { construction: 'woven cotton-look shell, padded or sherpa-lined', composition: 'not visible in the supplied photos', finish: 'matte, slightly crinkled; over-dyed by the user' },
+    fit: { silhouette: 'oversized, straight to a slight A-line, dropped shoulders', length: 'knee on the model; assumed at least knee length on the user, who is short', sleeve: 'long and full, gathered at the wrist', wear: 'zipped closed in real life (the user wears outerwear closed unless it is designed to be worn open), hood down; it can also be shown open on the doll', adjustment: 'fixed authored fit for review' },
+    layering: { closed: true, coversTopSleeves: true, coversWaistband: true, canOpen: true },
+    styling: {
+      observed: { palette: ['muted blue-green emerald (dyed over powder blue)', 'cream sherpa', 'red and white cords'], pattern: 'plain', silhouette: 'oversized knee-length parka with dropped shoulders', coverage: 'torso, hips and thighs to the knee; arms to the wrist; neck when zipped; hood', material: 'woven shell with a sherpa-lined hood and body' },
+      user: { colour: 'a muted, less saturated emerald: the user dyed it emerald over its original carta zucchero (dusty powder blue) after a bleach accident; the two blended, more green than blue; the colour does not photograph well', wear: 'zipped closed, or not worn, in real life; shown open on the doll only to see how it looks' },
+      inferred: { warmth: 'warm: a sherpa-lined parka for cold days', weather: 'cold, windy days; the hood suits rain or wind; long enough to cover a skirt or dress', unknown: ['waterproofing', 'fibre composition', 'whether the sherpa, stitching and cords took the dye (assumed not: they look as in the photos)', 'any marks left by the bleach under the dye', 'the exact length on the user'] },
+    },
+    uncertainties: ['the colour is the user\'s description, not a measurement', 'sherpa, stitching and cords are assumed to have kept their original colours', 'length assumed at the knee', 'the hood is worn down; its pile edge shows round her neck', 'pocket flaps are drawn as slanted raised flaps with one snap each'],
+    authoring: { texture: 'procedural colour and sherpa pile drawn locally in src/doll/outerwear.js; no source photos bundled', runtimeGeneration: false, sourcePhotosBundled: false },
+    // On the zip-windbreaker template, with a long A-line body to the knee, a drawcord channel at the hem in place of the
+    // elastic band, a sherpa-lined collar and hood edge, red hood and hem cords, and no sleeve badge.
+    build: {
+      template: 'zip-windbreaker', roughness: .82,
+      colours: { shell: '#2f5249', stitch: '#27453d', snap: '#c8c9c4', cord: '#c4504c', cordTip: '#ece7dc', zip: '#4a4a46', opening: '#0f2a24', toggle: '#ece7dc', sherpa: '#e6dbc4', lining: '#e2d6bd' },
+      open: { shift: .1 },
+      // Padded and warm, not a thin shell: soft puffiness and folds, a matte crinkled cotton, rolled edges and the lining at the hem.
+      padding: { puff: .01, drape: .026, folds: 7, drapeTop: 1.2, sleeveFolds: .03, hemRoll: .018, edgeRoll: .014, crinkle: { repeat: [9, 6], scale: .22, sheen: .1 } },
+      body: {
+        rows: [[1.975, .132, .126], [1.935, .134, .128], [1.9, .146, .135], [1.875, .215, .172], [1.84, .293, .224], [1.8, .345, .259], [1.75, .372, .276], [1.65, .382, .288], [1.5, .387, .295], [1.35, .391, .3], [1.2, .397, .304], [1.05, .41, .309], [.9, .428, .316], [.78, .443, .32], [.7, .451, .321], [.682, .449, .318]],
+        overSkirt: [[1.975, .132, .126], [1.935, .134, .128], [1.9, .146, .135], [1.875, .215, .172], [1.84, .293, .224], [1.8, .345, .259], [1.75, .372, .276], [1.65, .382, .288], [1.5, .387, .295], [1.35, .393, .301], [1.2, .408, .313], [1.05, .439, .329], [.9, .47, .345], [.78, .486, .353], [.7, .491, .353], [.682, .489, .35]],
+        hem: .655, band: .028, bandRadius: [.443, .313], bandOverSkirt: [.483, .345], bandPuckers: 64,
+        gathers: 40, gatherDepth: .006, gatherHeight: .06,
+        collarBase: 1.89, collarTop: 1.975, collarRadius: [.132, .126],
+      },
+      sleeve: {
+        rows: [[.05, .15, .14], [0, .172, .162], [-.1, .181, .171], [-.25, .181, .171], [-.38, .177, .168], [-.47, .169, .161], [-.51, .149, .143], [-.53, .13, .125]],
+        cuff: [-.522, -.575], cuffRadius: [.12, .118], cuffPuckers: 36, gathers: 16, gatherDepth: .024, gatherHeight: .09,
+      },
+      zip: { width: .016, stitch: .02 },
+      placket: { offset: .014, width: .06, snaps: [[.08, 1.95]], roll: .009 },
+      toggles: [{ x: .06, y: .668, drop: .06 }, { x: -.06, y: .668, drop: .06 }],
+      pockets: { x: .17, slant: .3, top: 1.22, bottom: 1.04, width: .042, snaps: [1.18], snap: .011 },
+      cords: { x: .055, top: 1.885, end: 1.8, drift: .006, radius: .005 },
+      hood: { top: 1.88, bottom: 1.55, round: .07, halfWidth: .23, lift: .085, edge: .012, label: false,
+        opening: { from: .3, rise: .05, out: .035, radius: .018, lining: { radius: .028, inset: .022 } } },
+    },
+  },
   // Dresses: one piece worn instead of the top and the bottoms, with bare legs; shoes and outerwear go with it.
   [ZIP_TRACK_DRESS_ID]: {
     slot: 'dress',
     id: ZIP_TRACK_DRESS_ID, name: 'Navy half-zip track mini dress', family: 'long-sleeve-mini-dress', version: 1,
-    status: 'reference-study-awaiting-visual-review', brandAsProvided: null,
+    status: 'user-approved', brandAsProvided: null,
     source: { note: 'user supplied five phone screenshots of a listing (images 2, 3, 5, 7 and 9 of 9): arms crossed, full length front, back, a collar close-up and a hem close-up' },
     referenceViews: ['front, arms crossed', 'full length front', 'back', 'collar and zip close-up', 'hem and cuff close-up'],
     details: ['navy textured jersey with fine vertical cable ribs', 'tall stand-up funnel collar that can fold down like a polo', 'quarter zip from the collar to mid-chest: silver teeth and slider with a navy tab', 'raglan sleeves: navy, with a wide cream textured panel down the outside of each sleeve from the neckline to the wrist, split by a narrow navy stripe', 'navy fine-ribbed cuffs', 'short A-line skirt to the upper thigh', 'worn with bare legs, white socks and white sneakers in the photos'],
