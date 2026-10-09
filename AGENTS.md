@@ -25,7 +25,7 @@ Several chats may add garments at the same time. Categories are not assigned to 
 - Small layering fixes that a new garment needs in another category (for example easing a top's hem over a new waistband) are allowed; record them in the garment record and the pull request.
 - **One garment, its own files (the user's decision, 9 October 2026, after repeated merge conflicts).** A new garment must not edit any line another chat might edit. Put it in:
   - `src/wardrobe/garments/<id>.js`: its catalog entry as the file's default export (the same fields as a `catalog.js` entry, with the id as a string). It may also carry its study preset, `study: { name, note, recipe }`, where the recipe holds only what differs from the defaults (the garment fills its own slot, and other garments are named by their id strings), and, if the 3D view must load a texture module for it, `atlas: [path from src/doll/view.js, export name]`;
-  - one line in `src/wardrobe/garments/index.js`, in alphabetical order;
+  - its line in `src/wardrobe/garments/index.js`: run `node scripts/garment-index.mjs`, which rewrites the index from the folder. Each line sits under one of 64 slots that its id hashes to, so two chats' lines almost never land next to each other; don't place lines by hand;
   - its garment record in `docs/garments/`, its test in `tests/`, and any texture or template module of its own.
 
   Do not add it to `catalog.js`, `index.html`, `OUTFITS` in `recipe.js`, `view.js`, `README.md` or the handoff's lists and counts. The app adds its selector option, joins its study to the others of its slot and loads its atlas from the garment file; `tests/garment-files.test.js` checks this layout.

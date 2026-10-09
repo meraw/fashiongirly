@@ -5,7 +5,7 @@
 export default {
     slot: 'top',
     id: 'pepe-jeans-ikat-shirt-v1', name: 'Pepe Jeans ikat print shirt', family: 'button-down-shirt', version: 1,
-    status: 'reference-study-awaiting-visual-review', brandAsProvided: 'Pepe Jeans (label inside the collar)',
+    status: 'user-approved', brandAsProvided: 'Pepe Jeans (label inside the collar)',
     source: { note: 'user supplied two photos, all they could find: a studio flat lay of the shirt and their own flat lay on a wooden floor (sleeves rolled up in both)' },
     referenceViews: ['studio flat lay, front', 'user\'s flat lay, front'],
     details: ['long-sleeved button-down shirt in a light, slightly slubbed woven', 'ikat print: soft vertical streaks of lavender and periwinkle on white, with tall feathered diamonds: navy clusters of four parted by a white cross, single and paired navy diamonds, and coral diamonds', 'point collar, the stand and back neck lined in blue chambray', 'pale buttons down the front; the top one open in the flat lay', 'one patch chest pocket on her left', 'buttoned cuffs', 'curved shirttail hem, longer at the front and back than at the sides, falling past the hips'],
