@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import * as T from 'three';
 import { makeOutfit, disposeObject } from '../src/doll/model.js';
 import { OUTFITS } from '../src/doll/recipe.js';
-import { GARMENTS, PAISLEY_SHIRT_ID, MOTEL_TIE_DYE_SHIRT_ID, DESIGUAL_SPRAY_FLORAL_SHIRT_ID, DESIGUAL_SPLIT_FLORAL_SHIRT_ID, DESIGUAL_MOUNTAIN_SHIRT_ID, MANGO_DOT_SHIRT_ID } from '../src/wardrobe/catalog.js';
+import { GARMENTS, PAISLEY_SHIRT_ID, MOTEL_TIE_DYE_SHIRT_ID, DESIGUAL_SPRAY_FLORAL_SHIRT_ID, DESIGUAL_SPLIT_FLORAL_SHIRT_ID, DESIGUAL_MOUNTAIN_SHIRT_ID, MANGO_DOT_SHIRT_ID, PINK_YOKE_SHIRT_ID } from '../src/wardrobe/catalog.js';
 import { PAISLEY_SHIRT_ATLAS } from '../src/wardrobe/paisley-shirt-atlas.js';
 const named=(root,name)=>{const found=[];root.traverse(o=>{if(o.name===name)found.push(o);});return found;};
 const box=o=>new T.Box3().setFromObject(o);
@@ -11,7 +11,7 @@ const box=o=>new T.Box3().setFromObject(o);
 test('paisley shirt: relaxed and longer than the fitted shirts, cuffed sleeves, a back yoke with a pleat, printed from its photo atlas',()=>{
   const g=GARMENTS[PAISLEY_SHIRT_ID];assert.equal(g.slot,'top');assert.ok(g.layering?.coversWaistband);assert.ok(OUTFITS.some(look=>look.recipe.topId===PAISLEY_SHIRT_ID),'a study preset wears it');
   const outfit=makeOutfit({topId:PAISLEY_SHIRT_ID,knit:false,shirt:false}),top=outfit.getObjectByName(PAISLEY_SHIRT_ID);outfit.updateMatrixWorld(true);
-  for(const [name,count] of [['mesh-shirt-body',1],['mesh-shirt-sleeve',2],['shirt-cuff',2],['cuff-button',2],['cuff-seam',2],['shirt-collar-fall',1],['shirt-button',8],['yoke-seam',1],['back-pleat',2],['hem-stitch',1]])
+  for(const [name,count] of [['mesh-shirt-body',1],['mesh-shirt-sleeve',2],['shirt-cuff',2],['cuff-button',2],['cuff-seam',2],['shirt-collar-fall',1],['shirt-button',8],['back-yoke-seam',1],['back-pleat',2],['hem-stitch',1]])
     assert.equal(named(top,name).length,count,name);
   // Relaxed: wider than the fitted shirts at her waist, and longer, to a hem below the waistband.
   const fitted=makeOutfit({topId:MOTEL_TIE_DYE_SHIRT_ID,knit:false,shirt:false});fitted.updateMatrixWorld(true);
@@ -19,7 +19,7 @@ test('paisley shirt: relaxed and longer than the fitted shirts, cuffed sleeves, 
   assert.ok(ours.max.x>theirs.max.x+.01,`wider (${ours.max.x.toFixed(3)} against ${theirs.max.x.toFixed(3)})`);
   assert.ok(ours.min.y/.76<theirs.min.y/.76-.05,`longer (hem ${(ours.min.y/.76).toFixed(3)} against ${(theirs.min.y/.76).toFixed(3)})`);
   // The yoke seam and pleat are on her back.
-  for(const name of ['yoke-seam','back-pleat'])for(const o of named(top,name))assert.ok(box(o).max.z<0,`${name} on the back`);
+  for(const name of ['back-yoke-seam','back-pleat'])for(const o of named(top,name))assert.ok(box(o).max.z<0,`${name} on the back`);
   // The print comes from its atlas of the product photos: the body from the top three quarters, each sleeve from its own
   // half of the bottom quarter (her right sleeve on the left half), the cuffs and collar from it too.
   assert.match(PAISLEY_SHIRT_ATLAS,/^data:image\/webp;base64,/);
@@ -37,11 +37,12 @@ test('paisley shirt: relaxed and longer than the fitted shirts, cuffed sleeves, 
 test('the other shirts keep their own construction: no yoke or relaxed body, and the fitted ones no cuffs',()=>{
   for(const id of [MOTEL_TIE_DYE_SHIRT_ID,DESIGUAL_SPRAY_FLORAL_SHIRT_ID,DESIGUAL_SPLIT_FLORAL_SHIRT_ID]){
     const outfit=makeOutfit({topId:id,knit:false,shirt:false}),top=outfit.getObjectByName(id);outfit.updateMatrixWorld(true);
-    for(const name of ['shirt-cuff','cuff-button','cuff-seam','yoke-seam','back-pleat'])assert.equal(named(top,name).length,0,`${id}: ${name}`);
+    for(const name of ['shirt-cuff','cuff-button','cuff-seam','back-yoke-seam','back-pleat'])assert.equal(named(top,name).length,0,`${id}: ${name}`);
     assert.equal(named(top,'sleeve-hem-stitch').length,2);assert.ok(Math.abs(box(named(top,'mesh-shirt-body')[0]).min.y/.76-1.26)<.002,`${id}: cropped at 1.26`);
     disposeObject(outfit);
   }
-  // The mountain and Mango shirts use other template options (longer hem, own rows, cuffs), but have no yoke.
-  for(const id of [DESIGUAL_MOUNTAIN_SHIRT_ID,MANGO_DOT_SHIRT_ID]){const outfit=makeOutfit({topId:id,knit:false,shirt:false}),top=outfit.getObjectByName(id);
-    for(const name of ['yoke-seam','back-pleat'])assert.equal(named(top,name).length,0,`${id}: ${name}`);disposeObject(outfit);}
+  // The mountain, Mango and pink yoke shirts use other template options (longer hem, own rows, cuffs, an all-round yoke),
+  // but no back yoke.
+  for(const id of [DESIGUAL_MOUNTAIN_SHIRT_ID,MANGO_DOT_SHIRT_ID,PINK_YOKE_SHIRT_ID]){const outfit=makeOutfit({topId:id,knit:false,shirt:false}),top=outfit.getObjectByName(id);
+    for(const name of ['back-yoke-seam','back-pleat'])assert.equal(named(top,name).length,0,`${id}: ${name}`);disposeObject(outfit);}
 });

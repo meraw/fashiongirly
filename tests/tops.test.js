@@ -410,6 +410,38 @@ test('Mango halftone dot shirt: relaxed and hip length with a shirt-tail hem, a 
   disposeObject(skirted);
 });
 
+test('pink yoke shirt: gathered below a yoke front and back, a curved hem at the top of her thigh, a big point collar, cream buttons, full cuffed sleeves and the ditsy print',()=>{
+  const id='pink-ditsy-floral-yoke-shirt-v1';
+  assert.equal(cleanRecipe({topId:id,knit:true,shirt:true}).knit,false);
+  const outfit=makeOutfit({topId:id});outfit.updateMatrixWorld(true);
+  const all=name=>{const found=[];outfit.traverse(o=>{if(o.name===name)found.push(o);});return found;};
+  for(const name of ['mesh-shirt-body','shirt-collar-fall','yoke-seam','hem-stitch'])assert.ok(outfit.getObjectByName(name),name);
+  // Seven cream buttons, the top one open; buttoned cuffs on full sleeves.
+  const buttons=all('shirt-button');assert.equal(buttons.length,7);const c=buttons[0].material.color;assert.ok(c.r>.8&&c.g>.8,'cream buttons');
+  assert.equal(all('shirt-cuff').length,2);assert.equal(all('cuff-button').length,2);
+  for(const s of all('mesh-shirt-sleeve')){const b=new T.Box3().setFromObject(s);assert.ok(b.max.x-b.min.x>.3,'full sleeves');}
+  // Gathered below the yoke: the body's radius ripples round her just under the seam, and is smooth above it.
+  const p=outfit.getObjectByName('mesh-shirt-body').geometry.attributes.position,band=(lo,hi)=>{const r=[];
+    for(let i=0;i<p.count;i++){const y=p.getY(i);if(y>lo&&y<hi&&p.getZ(i)<0)r.push(Math.hypot(p.getX(i)/.3,p.getZ(i)/.21));}return Math.max(...r)-Math.min(...r);};
+  assert.ok(band(1.62,1.66)>2*band(1.73,1.76),`gathers ${band(1.62,1.66)} vs yoke ${band(1.73,1.76)}`);
+  // To the top of her thigh, with a gently curved hem: lowest at the centre front and back, a little higher at the sides.
+  const hemAt={front:Infinity,back:Infinity,side:Infinity};
+  for(let i=0;i<p.count;i++){const x=p.getX(i),y=p.getY(i),z=p.getZ(i);if(Math.abs(x)<.01)hemAt[z>0?'front':'back']=Math.min(hemAt[z>0?'front':'back'],y);if(Math.abs(z)<.01)hemAt.side=Math.min(hemAt.side,y);}
+  assert.ok(hemAt.front<1.04&&hemAt.back<1.04,`centre hem at ${hemAt.front}, ${hemAt.back}`);assert.ok(hemAt.side>hemAt.front+.04&&hemAt.side<1.1,`side hem at ${hemAt.side}`);
+  // A big collar: its points hang lower than the other shirts' collars.
+  const low=o=>new T.Box3().setFromObject(o.getObjectByName('shirt-collar-fall')).min.y,spray=makeOutfit({topId:'desigual-spray-floral-mesh-shirt-v1'});
+  assert.ok(low(outfit)<low(spray)-.02,'longer collar points');disposeObject(spray);
+  // The print: pink ground, cream daisies and rust flowers, in about the measured shares.
+  const px=outfit.getObjectByName('mesh-shirt-body').material.map.image.data,share={pink:0,cream:0,rust:0},ref={pink:[168,126,122],cream:[172,158,140],rust:[100,52,30]};
+  for(let i=0;i<px.length;i+=4){let best='pink',d=Infinity;for(const [k,v] of Object.entries(ref)){const e=(px[i]-v[0])**2+(px[i+1]-v[1])**2+(px[i+2]-v[2])**2;if(e<d){d=e;best=k;}}share[best]++;}
+  const n=px.length/4;assert.ok(share.pink/n>.45&&share.pink/n<.7&&share.cream/n>.15&&share.rust/n>.12,`shares ${JSON.stringify(share)}`);
+  disposeObject(outfit);
+  // Over the skirt it is tucked in: it ends inside the skirt's waistband, and the skirt's bow shows.
+  const skirted=makeOutfit({topId:id,skirt:true});skirted.updateMatrixWorld(true);assert.ok(skirted.getObjectByName('ribbon-knot'));
+  const hem=new T.Box3().setFromObject(skirted.getObjectByName('mesh-shirt-body')).min.y/.76;assert.ok(hem>1.24&&hem<1.28,`tucked hem at ${hem}`);
+  disposeObject(skirted);
+});
+
 test('every top records styling facts for later outfit selection',()=>{
   // Relative warmth (1 light to 4 very warm) with what it is based on; silhouette, palette, pattern, coverage and material.
   for(const [id,g] of Object.entries(GARMENTS).filter(([,g])=>g.slot==='top')){
