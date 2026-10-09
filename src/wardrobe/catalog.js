@@ -44,6 +44,7 @@ export const PB_CHENILLE_ID = 'pull-bear-grey-chenille-high-neck-v1';
 export const DESIGUAL_SPLIT_FLORAL_SHIRT_ID = 'desigual-split-floral-shirt-v1';
 export const MANGO_DOT_SHIRT_ID = 'mango-halftone-dot-shirt-v1';
 export const LEVIS_FLORAL_LOGO_SWEATSHIRT_ID = 'levis-floral-batwing-sweatshirt-v1';
+export const PINK_YOKE_SHIRT_ID = 'pink-ditsy-floral-yoke-shirt-v1';
 export const BARREL_JEANS_ID = 'topshop-barrel-jeans-v1';
 export const DAVINIA_JEANS_ID = 'desigual-davinia-jeans-v1';
 export const LEVIS_94_ID = 'levis-94-wide-leg-v1';
@@ -408,7 +409,7 @@ export const GARMENTS = Object.freeze({
   [MANGO_DOT_SHIRT_ID]: {
     slot: 'top',
     id: MANGO_DOT_SHIRT_ID, name: 'Mango pink halftone dot shirt', family: 'relaxed-button-down-shirt', version: 1,
-    status: 'reference-study-awaiting-visual-review', brandAsProvided: 'Mango (“MNG” neck label)',
+    status: 'user-approved', brandAsProvided: 'Mango (“MNG” neck label)',
     source: { note: 'user supplied five product photos without a description: a front flat lay, a close-up of the collar, the back on a model, and two fronts on models (one worn open low, one over white wide-leg jeans)' },
     referenceViews: ['front flat lay', 'collar close-up', 'back on model', 'front on model, open', 'front on model, with jeans'],
     details: ['relaxed long-sleeved shirt in a fine crepe', 'printed with a square lattice of soft pink dots on cream, in blocks of two kinds set in an uneven checker: big touching pink dots with small cream four-point stars between them, and the reverse (touching cream dots with small pink stars)', 'point collar, collar and stand in the print, one button at the collar', 'concealed placket: no buttons show down the front', 'long relaxed sleeves gathered into buttoned cuffs', 'hip length, with a curved shirt-tail hem that dips at the centre front and back', 'worn untucked and open at the neck on the models'],
@@ -487,6 +488,22 @@ export const GARMENTS = Object.freeze({
       logo: { at: [.1, 1.765], size: .07 },
       patch: { at: [.1, 1.69], size: [.075, .04] },
     },
+  },
+  [PINK_YOKE_SHIRT_ID]: {
+    slot: 'top',
+    id: PINK_YOKE_SHIRT_ID, name: 'Pink ditsy floral yoke shirt', family: 'gathered-yoke-button-down-shirt', version: 1,
+    status: 'reference-study-awaiting-visual-review', brandAsProvided: 'not stated',
+    source: { note: 'user supplied four product photos without a description: full length on a model with grey skinny jeans, a closer front, the back, and a close-up of the collar, yoke and sleeve' },
+    referenceViews: ['front full length on model', 'front, closer', 'back on model', 'collar, yoke and sleeve close-up'],
+    details: ['boxy long-sleeved shirt in a soft, fluid fabric with a slight sheen', 'printed with small florals on soft pink: cream five-petal daisies with rust centres, rust flowers with cream centres, rust leaves on fine stems and tiny cream sprigs', 'big 1970s point collar with long points', 'a yoke across the front and back, with the body gathered below it', 'cream buttons down the front, worn with the top one open', 'full sleeves, gathered at a dropped shoulder and into buttoned cuffs', 'to the top of the thigh, with a gently curved hem, lowest at the centre front and back'],
+    material: { construction: 'soft woven fabric with a slight sheen (read from the photos)', composition: 'not stated', finish: 'soft sheen' },
+    fit: { silhouette: 'boxy, gathered below the yoke', sleeve: 'long, full, gathered into cuffs', hem: 'top of the thigh, gently curved (lengthened and curved after the user\'s first look)', neckline: 'big point collar, top button open', adjustment: 'fixed authored fit for review' },
+    exclusions: ['striped-shirt','knit-sweater'],
+    // Hangs over every waistband; over the skirt it is tucked in, so the skirt's bow shows.
+    layering: { coversWaistband: true, tucksIntoSkirt: true },
+    uncertainties: ['the print is redrawn in code as scattered daisies, rust flowers, leaves and sprigs, not copied from the photos', 'the flowers are drawn a little larger than on the shirt, so they stay visible on a phone', 'the dropped shoulder seam and the gathers at the sleeve head are not modelled; the sleeves are full and gather into the cuffs', 'over the skirt it is tucked in rather than worn loose', 'brand not stated'],
+    styling: { silhouette: 'boxy, gathered below a yoke, to the top of the thigh', palette: ['soft pink', 'cream', 'rust'], pattern: 'small scattered florals (ditsy)', coverage: { neck: 'big point collar, top button open', sleeves: 'long, full, cuffed', midriff: 'covered, to the top of the thigh' }, material: 'soft woven fabric, composition not stated', warmth: 1, warmthBasis: 'inferred: a light, fluid shirt fabric, though long-sleeved', weather: 'mild to warm days, or as a light layer' },
+    authoring: { template: 'makeButtonShirt() in src/doll/shirts.js', texture: 'procedural ditsyFloralData() and crepeData() in src/doll/shirts.js, drawn locally when first worn; colours measured in the close-up', runtimeGeneration: false, sourcePhotosBundled: false },
   },
   [BARREL_JEANS_ID]: {
     slot: 'bottom',
