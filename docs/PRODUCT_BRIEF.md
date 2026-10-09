@@ -14,7 +14,7 @@ The user has a separate project, [meraw/outfits](https://github.com/meraw/outfit
 
 ## Character and visual direction
 
-The app around her (the user's request, 9 October 2026): colours taken from the Desigual mountain landscape shirt, with a purple and orange contrast; a simple animated sky behind her that follows the weather (sun, rain, heavy rain and so on), in the spirit of the Google weather frog but simpler; and separate pages (Today, Dress her, Wardrobe) rather than everything on one. The user found the first single-page layout's manual controls a mess.
+The app around her (the user's request, 9 October 2026): colours taken from the Desigual mountain landscape shirt, with a purple and orange contrast; a simple animated sky behind her that follows the weather (sun, rain, heavy rain and so on), in the spirit of the Google weather frog but simpler; and separate pages (Today, Dress her, Wardrobe) rather than everything on one. The user found the first single-page layout's manual controls a mess. After the redesign the user wanted it richer, not plain beige: the background is now the shirt's sunset in purple, lilac and orange. Each day offers exactly three looks, her pick, a bolder one and an easier one, fixed for the day, plus one-at-a-time further ideas: endless variations confuse rather than inspire.
 
 
 The user rejected a human-like vector character as resembling a textbook illustration. Of four concept directions, they chose D: a tiny tactile doll, cute and intentionally unreal, with an oversized soft head, embroidered-looking eyes with star highlights, rosy cheeks, a fuzzy dark bob, a flower clip, tiny hands, and miniature expressive clothes. A subsequent set of outfit concept images received “Perfect!”

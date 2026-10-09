@@ -1,110 +1,122 @@
-// The Today panel: each morning (from 5:00) she checks the weather and dresses herself, and the user can refine it.
+// Today: each morning (from 5:00) she checks the weather and chooses three looks for the day: her pick, a bolder one
+// and an easier one. They stay the same all day (the user's request, 9 October 2026: three fixed choices inspire,
+// endless variations confuse). "Another idea" shows one more outfit, and Undo goes back.
 // The weather comes from the phone's location by default, or a typed town, through Open-Meteo; without a forecast
 // the user chooses the weather. Everything she remembers stays in this browser's storage.
-import { composeOutfit, adjustOutfit, replacePiece } from '../style/stylist.js';
-import { DEFAULT_DARING, LEARNED_KEY, cleanLearned, learn } from '../style/taste.js';
+import { composeTrio, composeOutfit } from '../style/stylist.js';
+import { LEARNED_KEY, learn } from '../style/taste.js';
+import { stylingFacts } from '../style/facts.js';
 import { dayKey, describe, cleanConditions, presetConditions, PRESETS } from '../weather/conditions.js';
 import { fetchConditions, findPlace } from '../weather/open-meteo.js';
 import { cleanRecipe } from '../doll/recipe.js';
 import { hairName } from '../hair/catalog.js';
 import { paintSky } from './sky.js';
 
-export const TODAY_KEY = 'fashiongirly.today.v1', HISTORY_KEY = 'fashiongirly.days.v1', PLACE_KEY = 'fashiongirly.place.v1', WEATHER_KEY = 'fashiongirly.weather.v1';
+export const TODAY_KEY = 'fashiongirly.today.v2', HISTORY_KEY = 'fashiongirly.days.v1', PLACE_KEY = 'fashiongirly.place.v1', WEATHER_KEY = 'fashiongirly.weather.v1';
+export const LOOKS = [['pick', 'Her pick'], ['bolder', 'Bolder'], ['easier', 'Easier']];
+const TITLES = { pick: 'Her pick for today.', bolder: 'Her bolder look.', easier: 'Her easier look.', idea: 'Another idea.' };
 const SLOT_NAMES = { dress: 'Dress', top: 'Top', under: 'Under it', bottom: 'Bottoms', shoes: 'Shoes', outerwear: 'Outerwear', hair: 'Hair' };
-const LOCKABLE = new Set(['dress', 'top', 'bottom', 'shoes', 'outerwear', 'hair']);
-const daringName = d => d < .3 ? 'easy to wear' : d > .7 ? 'daring' : 'playful';
 const seedOf = day => [...day].reduce((h, c) => Math.imul(h ^ c.charCodeAt(0), 16777619) >>> 0, 2166136261);
 const sentence = s => s.charAt(0).toUpperCase() + s.slice(1) + '.';
-const structuredCloneSafe = v => JSON.parse(JSON.stringify(v));
+const copy = v => JSON.parse(JSON.stringify(v));
+const hsl = c => `hsl(${Math.round(c.h)} ${Math.round(c.s * 100)}% ${Math.round(c.l * 100)}%)`;
+// A row of colour dots: the leading colour of each garment given, or its first few colours for a single garment.
+function dots(doc, ids, max = 5) {
+  const span = doc.createElement('span'); span.className = 'dots'; span.setAttribute('aria-hidden', 'true');
+  const colours = ids.length === 1 ? stylingFacts(ids[0])?.main || [] : ids.map(id => stylingFacts(id)?.main?.[0]);
+  for (const c of colours.filter(Boolean).slice(0, max)) { const i = doc.createElement('i'); i.style.background = hsl(c); span.append(i); }
+  return span;
+}
+const lookIds = result => (result?.pieces || []).filter(p => p.slot !== 'under').map(p => p.id);
 
 export function mountToday(doc, { storage = null, getRecipe, wear, fetch: fetchImpl = null, geolocation = null, now = () => Date.now() } = {}) {
   const $ = id => doc.getElementById(id);
   const read = (key, fallback) => { try { const v = JSON.parse(storage?.getItem(key) || 'null'); return v ?? fallback; } catch { return fallback; } };
   const write = (key, value) => { try { storage?.setItem(key, JSON.stringify(value)); } catch {} };
-  let state = read(TODAY_KEY, null), busy = false, undo = [], disposed = false;
+  let state = read(TODAY_KEY, null), busy = false, disposed = false;
   if (!state || typeof state !== 'object' || typeof state.day !== 'string') state = null;
 
   // The page can go away while the weather is on its way; then there is nothing left to update.
   const gone = () => disposed || !$('today');
-  function status(text) { if (!gone()) $('today-status').textContent = text || ''; }
-  function setBusy(value) { busy = value; if (gone()) return; for (const id of ['today-another', 'today-bolder', 'today-easier', 'today-undo', 'today-first']) $(id).disabled = busy || !state?.result || (id === 'today-undo' && !undo.length) || (id === 'today-first' && (!state.first || JSON.stringify(state.first.recipe) === JSON.stringify(state.result.recipe))); }
-  function place() { const p = read(PLACE_KEY, null); return p?.mode === 'typed' && Number.isFinite(p.lat) && Number.isFinite(p.lon) ? p : { mode: 'device' }; }
-
-  function render() {
-    if (gone()) return;
-    const day = state?.day ?? dayKey(now());
-    $('today-date').textContent = new Date(`${day}T12:00:00`).toLocaleDateString('en-GB', { weekday: 'long', day: 'numeric', month: 'long' });
-    const p = place();
-    $('today-place').textContent = p.mode === 'typed' ? p.name : 'your location';
-    $('today-weather').textContent = state?.conditions ? describe(state.conditions) : '';
-    paintSky($('sky'), state?.conditions);
-    const list = $('today-pieces'); list.replaceChildren();
-    const result = state?.result, keep = state?.keep || {};
-    if (result) {
-      const rows = [...result.pieces, { slot: 'hair', id: result.recipe.hairId, name: hairName(result.recipe.hairId) }];
-      if (!result.pieces.some(r => r.slot === 'outerwear')) rows.splice(rows.length - 1, 0, { slot: 'outerwear', id: 'none', name: 'No jacket' });
-      for (const row of rows) {
-        const li = doc.createElement('li'), label = doc.createElement('span'), name = doc.createElement('span');
-        label.className = 'today-slot'; label.textContent = SLOT_NAMES[row.slot]; name.textContent = row.name; li.append(label, name);
-        if (LOCKABLE.has(row.slot)) {
-          const kept = keep[row.slot] === row.id, lock = doc.createElement('button');
-          lock.type = 'button'; lock.className = 'today-keep'; lock.textContent = kept ? 'Kept' : 'Keep';
-          lock.setAttribute('aria-pressed', String(kept)); lock.setAttribute('aria-label', `${kept ? 'Stop keeping' : 'Keep'} ${row.name}`);
-          lock.onclick = () => { state.keep = { ...state.keep }; if (kept) delete state.keep[row.slot]; else state.keep[row.slot] = row.id; save(); render(); status(kept ? `${row.name} can change again.` : `${row.name} stays when you ask for another idea.`); };
-          li.append(lock);
-          if (row.id !== 'none' && row.slot !== 'hair') {
-            const aside = doc.createElement('button'); aside.type = 'button'; aside.className = 'today-aside'; aside.textContent = '×';
-            aside.setAttribute('aria-label', `Not ${row.name} today`);
-            aside.onclick = () => setAside(row); li.append(aside);
-          }
-        }
-        list.append(li);
-      }
-    }
-    $('today-reasons').replaceChildren(...(result?.reasons || []).map(r => { const li = doc.createElement('li'); li.textContent = sentence(r); return li; }));
-    $('today-daring').textContent = daringName(state?.daring ?? DEFAULT_DARING);
-    setBusy(busy);
-  }
-  function save() { write(TODAY_KEY, state); }
+  const status = text => { if (!gone()) $('today-status').textContent = text || ''; };
+  const place = () => { const p = read(PLACE_KEY, null); return p?.mode === 'typed' && Number.isFinite(p.lat) && Number.isFinite(p.lon) ? p : { mode: 'device' }; };
+  const current = () => state?.choice === 'idea' ? state.idea : state?.trio?.[state?.choice];
+  const save = () => write(TODAY_KEY, state);
   function remember(recipe) {
     const history = read(HISTORY_KEY, []).filter(h => h?.day && h.day !== state.day).slice(0, 13);
     write(HISTORY_KEY, [{ day: state.day, recipe }, ...history]);
   }
+  function setBusy(value) {
+    busy = value; if (gone()) return;
+    $('today-another').disabled = busy || !state?.trio;
+    $('today-undo').disabled = busy || !state?.undo?.length;
+    for (const [key] of LOOKS) $(`look-${key}`).disabled = busy || !state?.trio;
+  }
 
-  const options = () => ({
-    seed: state.seed, daring: state.daring ?? DEFAULT_DARING, keep: state.keep || {}, avoid: state.avoid || [],
-    recent: read(HISTORY_KEY, []).filter(h => h?.day && h.day < state.day).map(h => h.recipe).slice(0, 7),
-    shownToday: state.shown || [], learned: read(LEARNED_KEY, null), current: getRecipe(),
-  });
-  // Wear a new result, keeping the one before for Undo; the day's first pick is kept so she can go back to it.
-  function show(result) {
-    if (state.result) undo = [...undo, structuredCloneSafe(state)].slice(-10);
-    state.result = result; state.first ??= result; save(); remember(result.recipe); wear(result.recipe); render();
+  function render() {
+    if (gone()) return;
+    const day = state?.day ?? dayKey(now()), c = state?.conditions;
+    $('today-date').textContent = new Date(`${day}T12:00:00`).toLocaleDateString('en-GB', { weekday: 'long', day: 'numeric', month: 'long' });
+    const p = place();
+    $('today-place').textContent = p.mode === 'typed' ? p.name : 'your location';
+    $('today-temp').textContent = c ? `${Math.round(c.feels)}°` : '';
+    $('today-weather').textContent = c ? describe(c) : '';
+    paintSky($('sky'), c);
+    // The three looks under the doll, each with its colours; the one she wears is pressed.
+    for (const [key, label] of LOOKS) {
+      const b = $(`look-${key}`), look = state?.trio?.[key], name = doc.createElement('span');
+      name.className = 'look-name'; name.textContent = label;
+      b.replaceChildren(name, dots(doc, lookIds(look)));
+      b.setAttribute('aria-pressed', String(state?.choice === key));
+    }
+    const result = current(), list = $('today-pieces');
+    $('today-look').textContent = state?.choice ? TITLES[state.choice] : '';
+    list.replaceChildren();
+    if (result) {
+      const rows = [...result.pieces, ...(result.pieces.some(r => r.slot === 'outerwear') ? [] : [{ slot: 'outerwear', id: 'none', name: 'No jacket' }]), { slot: 'hair', id: result.recipe.hairId, name: hairName(result.recipe.hairId) }];
+      for (const row of rows) {
+        const li = doc.createElement('li'), label = doc.createElement('span'), name = doc.createElement('span');
+        label.className = 'today-slot'; label.textContent = SLOT_NAMES[row.slot]; name.textContent = row.name;
+        li.append(label, name, dots(doc, row.id === 'none' || row.slot === 'hair' ? [] : [row.id], 3));
+        list.append(li);
+      }
+    }
+    $('today-reasons').replaceChildren(...(result?.reasons || []).map(r => { const li = doc.createElement('li'); li.textContent = sentence(r); return li; }));
+    setBusy(busy);
   }
-  // What she is wearing now: edits made on the Dress her page count, unless they use the built-in study pieces.
-  function wearing() {
-    const r = cleanRecipe(getRecipe());
-    return (r.dressId !== 'none' || (r.topId !== 'classic' && r.bottomId !== 'classic')) && r.shoesId !== 'classic' ? r : state.result.recipe;
-  }
-  // A whole new look with the current conditions, locks and set-aside pieces.
-  function compose({ newIdea = false } = {}) {
-    if (!state?.conditions) return false;
-    if (newIdea && state.result) { state.shown = [...(state.shown || []), state.result.recipe].slice(-12); state.seed = (state.seed + 1) >>> 0; }
-    const result = composeOutfit(state.conditions, options());
-    if (!result) { status('Nothing in the wardrobe fits those choices. Try keeping fewer pieces.'); return false; }
-    show(result);
+
+  const recent = () => read(HISTORY_KEY, []).filter(h => h?.day && h.day < state.day).map(h => h.recipe).slice(0, 7);
+  // Choose the day's three looks for the current weather and wear her pick.
+  function chooseLooks() {
+    const trio = composeTrio(state.conditions, { seed: state.seed, recent: recent(), learned: read(LEARNED_KEY, null), current: getRecipe() });
+    if (!trio) { status('Nothing in the wardrobe suits that weather.'); return false; }
+    Object.assign(state, { trio, choice: 'pick', idea: null, ideas: [], undo: [] });
+    save(); remember(trio.pick.recipe); wear(trio.pick.recipe); render();
     return true;
   }
-  const changes = result => result.changed.map(c => c.slot === 'outerwear' && c.to === 'no jacket' ? `no ${c.from}` : `the ${c.to} instead of the ${c.from}`).join(', and ');
-  // Bolder or easier: the smallest change to the look she is wearing, never a whole new outfit.
-  function adjust(direction) {
-    if (!state?.result) return;
-    const result = adjustOutfit(state.conditions, wearing(), direction, options());
-    if (!result) { status(direction > 0 ? 'That is as bold as she goes today, with what you kept and the weather.' : 'That is as easy as she goes today, with what you kept and the weather.'); return; }
-    state.daring = Math.max(0, Math.min(1, (state.daring ?? DEFAULT_DARING) + .2 * direction));
-    show(result);
-    status(`${direction > 0 ? 'Bolder' : 'Easier'}: ${changes(result)}.`);
+  // Put on one of the three looks. These never change during the day.
+  function choose(key) {
+    if (!state?.trio || busy) return;
+    state.choice = key; save(); remember(state.trio[key].recipe); wear(state.trio[key].recipe); render();
+    status('');
   }
+  // One more outfit, different from the three and from earlier ideas; Undo goes back to what she wore before.
+  function another() {
+    if (!state?.trio || busy) return;
+    const shown = [...LOOKS.map(([k]) => state.trio[k].recipe), ...(state.ideas || [])];
+    const idea = composeOutfit(state.conditions, { seed: state.seed + 7 * (state.ideas.length + 1), recent: recent(), shownToday: shown, learned: read(LEARNED_KEY, null), current: getRecipe() });
+    if (!idea) { status('No other outfit suits this weather.'); return; }
+    state.undo = [...(state.undo || []), { choice: state.choice, idea: state.idea }].slice(-10);
+    Object.assign(state, { choice: 'idea', idea, ideas: [...state.ideas, idea.recipe].slice(-12) });
+    save(); remember(idea.recipe); wear(idea.recipe); render();
+    status('');
+  }
+  function undo() {
+    const prev = state?.undo?.pop(); if (!prev) return;
+    Object.assign(state, prev); save();
+    const r = current(); remember(r.recipe); wear(r.recipe); render();
+  }
+
   function locate() {
     return new Promise((resolve, reject) => {
       if (!geolocation?.getCurrentPosition) { reject(new Error('This browser cannot share its location.')); return; }
@@ -122,50 +134,34 @@ export function mountToday(doc, { storage = null, getRecipe, wear, fetch: fetchI
     write(WEATHER_KEY, { key, conditions });
     return conditions;
   }
+  const fresh = day => ({ day, conditions: null, seed: seedOf(day), trio: null, choice: null, idea: null, ideas: [], undo: [] });
+  const failed = error => { if (gone()) return; status(`${error.message} Choose today's weather, or type a town.`); $('today-manual').open = true; };
 
-  // A new day: check the weather and choose a new look. Without a forecast, ask for the weather.
+  // A new day: check the weather and choose the day's looks. Without a forecast, ask for the weather.
   async function dressForToday() {
-    const day = dayKey(now());
-    state = { day, conditions: null, seed: seedOf(day), daring: state?.daring ?? DEFAULT_DARING, keep: {}, avoid: [], shown: [], result: null };
-    undo = []; save(); render(); setBusy(true); status('Checking the weather…');
-    try {
-      state.conditions = await forecast(day);
-      if (gone()) return;
-      status('');
-      compose();
-    } catch (error) {
-      if (gone()) return;
-      status(`${error.message} Choose today's weather, or type a town.`);
-      $('today-manual').open = true;
-    } finally { setBusy(false); }
+    state = fresh(dayKey(now())); save(); render(); setBusy(true); status('Checking the weather…');
+    try { state.conditions = await forecast(state.day); if (gone()) return; status(''); chooseLooks(); }
+    catch (error) { failed(error); }
+    finally { setBusy(false); }
   }
+  // The place changed: new weather, so new looks.
   async function refetch() {
     if (!state || state.day !== dayKey(now())) return dressForToday();
     setBusy(true); status('Checking the weather…');
-    try { state.conditions = await forecast(state.day); status(''); compose({ newIdea: !!state.result }); }
-    catch (error) { if (!gone()) { status(`${error.message} Choose today's weather, or type a town.`); $('today-manual').open = true; } }
+    try { state.conditions = await forecast(state.day); status(''); chooseLooks(); }
+    catch (error) { failed(error); }
     finally { setBusy(false); }
   }
-  function setAside(row) {
-    state.avoid = [...new Set([...(state.avoid || []), row.id])];
-    if (state.keep?.[row.slot] === row.id) { state.keep = { ...state.keep }; delete state.keep[row.slot]; }
-    write(LEARNED_KEY, learn(read(LEARNED_KEY, null), 'set-aside', [row.id]));
-    const result = replacePiece(state.conditions, wearing(), row.slot, options());
-    if (!result) { status(`Nothing else suits that today, so the ${row.name} stays.`); return; }
-    show(result);
-    status(`Not the ${row.name} today: ${changes(result)}.`);
-  }
 
-  $('today-another').onclick = () => { if (compose({ newIdea: true })) status('Another idea.'); };
-  $('today-bolder').onclick = () => adjust(1);
-  $('today-easier').onclick = () => adjust(-1);
-  $('today-first').onclick = () => { if (!state?.first) return; show(state.first); status('Back to her first pick of the day.'); };
-  $('today-undo').onclick = () => { const prev = undo.pop(); if (!prev) return; state = prev; save(); remember(state.result.recipe); wear(state.result.recipe); render(); status('Back to the look before.'); };
+  for (const [key] of LOOKS) $(`look-${key}`).onclick = () => choose(key);
+  $('today-another').onclick = another;
+  $('today-undo').onclick = undo;
   $('today-presets').replaceChildren(...PRESETS.map(p => {
     const b = doc.createElement('button'); b.type = 'button'; b.textContent = p.label;
     b.onclick = () => {
-      if (!state || state.day !== dayKey(now())) state = { day: dayKey(now()), seed: seedOf(dayKey(now())), daring: state?.daring ?? DEFAULT_DARING, keep: {}, avoid: [], shown: [], result: null };
-      state.conditions = presetConditions(p.id, state.day); if (compose({ newIdea: !!state.result })) status(`Dressed for ${p.label.toLowerCase()} weather.`);
+      if (!state || state.day !== dayKey(now())) state = fresh(dayKey(now()));
+      state.conditions = presetConditions(p.id, state.day);
+      if (chooseLooks()) status(`Dressed for ${p.label.toLowerCase()} weather.`);
     };
     return b;
   }));
@@ -188,9 +184,9 @@ export function mountToday(doc, { storage = null, getRecipe, wear, fetch: fetchI
   doc.addEventListener('visibilitychange', onVisible);
 
   render();
-  const ready = state?.day === dayKey(now()) ? Promise.resolve() : dressForToday();
+  const ready = state?.day === dayKey(now()) && state.trio ? Promise.resolve() : dressForToday();
   return {
-    ready, getState: () => state && structuredCloneSafe(state),
+    ready, getState: () => state && copy(state), title: () => state?.choice ? TITLES[state.choice] : null,
     dispose() { disposed = true; doc.removeEventListener('visibilitychange', onVisible); $('save')?.removeEventListener('click', onSave); },
   };
 }

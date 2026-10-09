@@ -1,51 +1,76 @@
-/* Fashiongirly. Colours from the Desigual mountain landscape shirt: a peach and apricot sunset sky, ochre and rust
-   mountains, dark brown slopes and lilac snow, pushed to a purple and orange contrast. */
+/* Fashiongirly. Colours from the Desigual mountain landscape shirt: a sunset sky from deep purple through lilac to
+   apricot and orange, ochre and rust mountains with lilac snow, and dark brown slopes. The page is that sunset; the
+   cards are warm cream paper laid over it. */
 :root{
-  --paper:#fdf3ea;--paper-2:#f7e4d4;--card:#fffaf5;--line:#ecd3c1;
-  --ink:#3b2234;--muted:#86666f;
-  --purple:#5f3d8a;--purple-2:#7b58a8;--lilac:#c6b2e2;--lilac-soft:#eee6f7;
-  --orange:#e5733a;--orange-deep:#b8501f;--ochre:#d49a55;--peach:#f4c3a0;--rust:#a2583f;
-  --radius:20px;
-  font-family:system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif;color:var(--ink);background:var(--paper);
+  --night:#2c1546;--plum:#4a2468;--violet:#7a4aa6;--lilac:#c7b0e6;--lilac-soft:#efe6fa;
+  --orange:#ef7b3c;--orange-deep:#b8501f;--apricot:#f6a56a;--ochre:#d99a52;--rust:#a2583f;--brown:#6a3527;
+  --paper:#fff5ec;--card:#fff8f1;--line:#efd6c3;--ink:#36203a;--muted:#86666f;--cream:#fff1e2;
+  --purple:#5f3d8a;--purple-2:#7b58a8;--peach:#f7c6a2;
+  --radius:24px;
+  font-family:system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif;color:var(--ink);
 }
 *{box-sizing:border-box}
-body{margin:0;min-height:100vh;background:radial-gradient(120% 60% at 100% 0%,#f9dcc4 0%,transparent 60%),radial-gradient(90% 50% at 0% 100%,#ece2f6 0%,transparent 60%),var(--paper)}
+html{background:var(--night)}
+body{margin:0;min-height:100vh;color:var(--ink);background:
+  radial-gradient(60% 40% at 85% 8%,#ff9a5a55 0%,transparent 70%),
+  radial-gradient(50% 35% at 10% 30%,#c7b0e640 0%,transparent 70%),
+  linear-gradient(180deg,var(--night) 0%,var(--plum) 22%,#8a4f9e 48%,#d77a77 68%,var(--apricot) 84%,#f8c290 100%);
+  background-attachment:fixed}
+/* A little paper grain over everything, so the colour has texture. */
+body::after{content:"";position:fixed;inset:0;pointer-events:none;z-index:50;opacity:.07;mix-blend-mode:multiply;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E")}
 button,textarea,input,select{font:inherit;color:inherit}
 button{cursor:pointer}
 a{color:inherit}
-:focus-visible{outline:3px solid var(--purple-2);outline-offset:3px}
+:focus-visible{outline:3px solid var(--apricot);outline-offset:3px}
 h2{font:400 28px/1.15 Georgia,"Times New Roman",serif;letter-spacing:-.4px;margin:0}
 h2 em{color:var(--orange-deep)}
 h3{font-size:13px;margin:0}
-.eyebrow,.small{font-size:10px;letter-spacing:1.6px;text-transform:uppercase;color:var(--muted);margin:0 0 8px}
+.eyebrow,.small{font-size:10px;letter-spacing:1.8px;text-transform:uppercase;color:var(--muted);margin:0 0 8px}
 .help{font-size:11px;line-height:1.55;color:var(--muted);margin:6px 0 0}
-.lede{font-size:13px;line-height:1.6;color:var(--muted);margin:10px 0 0}
+.lede{font-size:14px;line-height:1.6;margin:10px 0 0}
 
-/* Header and page tabs. On a phone the tabs sit at the bottom, like an app. */
-.topbar{position:sticky;top:0;z-index:20;display:flex;align-items:center;justify-content:space-between;gap:16px;padding:14px max(20px,4vw);background:color-mix(in srgb,var(--paper) 88%,transparent);backdrop-filter:blur(10px);border-bottom:1px solid var(--line)}
-.logo{font:700 26px Georgia,serif;letter-spacing:-1.2px;text-decoration:none;color:var(--ink)}
-.logo span{color:var(--orange)}
-.tabs{display:flex;gap:4px;align-items:center}
-.tabs a,.tabs button{border:0;background:transparent;text-decoration:none;font-size:14px;padding:9px 14px;border-radius:999px;color:var(--ink)}
-.tabs a[aria-current=page]{background:var(--purple);color:#fff6ee}
-.tabs a:not([aria-current=page]):hover,.tabs button:hover{background:var(--lilac-soft)}
-.tab-looks span{display:inline-block;min-width:22px;margin-left:4px;padding:2px 6px;border-radius:999px;background:var(--peach);font-size:12px;text-align:center}
+/* The mountains from the shirt along the bottom of the screen, and stars in the purple above. */
+.scenery{position:fixed;inset:0;z-index:0;pointer-events:none;overflow:hidden}
+.scenery svg{position:absolute;left:0;right:0;bottom:0;width:100%;height:30vh;min-height:170px}
+.stars{position:absolute;top:0;left:0;width:2px;height:2px;border-radius:50%;background:#fff;opacity:.8;box-shadow:
+  8vw 6vh #fff,17vw 14vh #fffc,26vw 4vh #fff9,33vw 19vh #fff,41vw 9vh #fffb,52vw 3vh #fff,58vw 15vh #fff9,66vw 7vh #fff,
+  73vw 18vh #fffc,81vw 5vh #fff,88vw 12vh #fff9,95vw 3vh #fff,4vw 22vh #fffa,22vw 27vh #fff8,46vw 24vh #fff9,
+  62vw 29vh #fff8,77vw 26vh #fffa,92vw 23vh #fff9,12vw 34vh #fff6,37vw 32vh #fff6,70vw 36vh #fff6;animation:twinkle 6s ease-in-out infinite alternate}
+@keyframes twinkle{to{opacity:.45}}
+
+/* Header and page tabs on the sunset. On a phone the tabs sit at the bottom, like an app. */
+.topbar{position:sticky;top:0;z-index:20;display:flex;align-items:center;justify-content:space-between;gap:16px;padding:16px max(20px,4vw);background:linear-gradient(180deg,#2c1546ee,#2c154600)}
+.logo{font:700 28px Georgia,serif;letter-spacing:-1.2px;text-decoration:none;color:var(--cream)}
+.logo span{color:var(--apricot)}
+.tabs{display:flex;gap:4px;align-items:center;padding:5px;border-radius:999px;background:#ffffff1a;border:1px solid #ffffff2a;backdrop-filter:blur(8px)}
+.tabs a,.tabs button{border:0;background:transparent;text-decoration:none;font-size:14px;padding:9px 16px;border-radius:999px;color:var(--cream)}
+.tabs a[aria-current=page]{background:var(--cream);color:var(--purple);font-weight:600}
+.tabs a:not([aria-current=page]):hover,.tabs button:hover{background:#ffffff22}
+.tab-looks span{display:inline-block;min-width:22px;margin-left:4px;padding:2px 6px;border-radius:999px;background:var(--orange);color:#2b1424;font-size:12px;text-align:center}
 
 /* The doll and her sky beside the page in view. */
-.app{display:grid;grid-template-columns:minmax(0,1.05fr) minmax(0,1fr);gap:28px;max-width:1240px;margin:0 auto;padding:24px max(20px,4vw) 40px;align-items:start}
-.stage-panel{position:sticky;top:84px;border-radius:var(--radius);overflow:hidden;background:var(--card);border:1px solid var(--line);box-shadow:0 18px 40px -28px #5f3d8a55}
-#stage{position:relative;height:clamp(440px,calc(100vh - 250px),760px);container-type:size}
+.app{position:relative;z-index:1;display:grid;grid-template-columns:minmax(0,1.05fr) minmax(0,1fr);gap:32px;max-width:1240px;margin:0 auto;padding:12px max(20px,4vw) 60px;align-items:start}
+.stage-panel{position:sticky;top:88px;border-radius:var(--radius);overflow:hidden;background:var(--card);border:1px solid #ffffff55;box-shadow:0 30px 60px -30px #1c0b2fcc,0 0 0 6px #ffffff14}
+#stage{position:relative;height:clamp(420px,calc(100vh - 300px),720px);container-type:size}
 #stage canvas{position:relative;z-index:1;display:block;width:100%;height:100%}
 #loading{position:absolute;z-index:2;top:46%;width:100%;text-align:center;color:var(--muted);font:19px Georgia,serif}
+.drag-hint{position:absolute;z-index:2;left:0;right:0;bottom:8px;margin:0;text-align:center;font-size:11px;color:#36203a99;pointer-events:none}
 #view-error{margin:10px 16px;line-height:1.6;background:#fff3e8;padding:14px;border-radius:12px;font-size:12px}
-.stage-bar{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:12px 16px;border-top:1px solid var(--line)}
-.camera{display:flex;gap:6px;flex-wrap:wrap}
-.camera button{font-size:12px;border:1px solid var(--lilac);background:transparent;border-radius:999px;padding:8px 13px;color:var(--purple)}
-.camera button[aria-pressed=true]{background:var(--purple);border-color:var(--purple);color:#fff6ee}
-.save{flex-shrink:0;width:44px;height:44px;border-radius:50%;border:1px solid var(--orange);background:#fff4ec;color:var(--orange-deep);font-size:24px;line-height:1}
-.look-caption{padding:2px 18px 16px}
+/* Today's three looks, under the doll so they can be compared at a glance. */
+.looks{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;padding:12px 12px 4px;background:linear-gradient(180deg,#f3e3f6,var(--card))}
+.look{display:flex;flex-direction:column;align-items:center;gap:7px;border:1.5px solid var(--lilac);background:#fffaf6;border-radius:18px;padding:11px 6px 12px;color:var(--purple);transition:transform .15s,background .15s}
+.look-name{font:600 15px/1.1 Georgia,serif}
+.look:hover:not(:disabled){transform:translateY(-1px)}
+.look:disabled{opacity:.5;cursor:default}
+#look-pick[aria-pressed=true]{background:var(--orange);border-color:var(--orange);color:#2b1424}
+#look-bolder[aria-pressed=true]{background:var(--purple);border-color:var(--purple);color:#fff6ee}
+#look-easier[aria-pressed=true]{background:var(--lilac);border-color:var(--lilac);color:var(--ink)}
+.look .dots i{width:12px;height:12px;border:1.5px solid #fff}
+.look-caption{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:10px 18px 14px}
 .look-caption h2{font-size:22px}
-#message{font-size:12px;line-height:1.5;color:var(--purple);margin:6px 0 0}
+.look-caption .eyebrow{margin-bottom:4px}
+.save{flex-shrink:0;width:46px;height:46px;border-radius:50%;border:1.5px solid var(--orange);background:#fff1e6;color:var(--orange-deep);font-size:24px;line-height:1}
+#message{font-size:12px;line-height:1.5;color:var(--purple);margin:0;padding:0 18px 14px}
 #message:empty{display:none}
 
 /* The sky: drawn from the weather by src/today/sky.js. */
@@ -85,31 +110,35 @@ h3{font-size:13px;margin:0}
   .sky .cloud{left:var(--x)}.sky .drop,.sky .flake{top:var(--y)}
 }
 
-/* Pages. */
+/* Pages: a heading on the sunset, then a card. */
 .pages{min-width:0}
-.page{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:26px 28px 30px}
 .page[hidden]{display:none}
+.hero{color:var(--cream);padding:6px 4px 18px}
+.hero .eyebrow{color:#f3d9ff;opacity:.85}
+.hero h2{font-size:34px;color:var(--cream);text-shadow:0 2px 18px #2c154666}
+.hero h2 em{color:var(--apricot)}
+.hero .lede{color:#fbe7ff}
+.card{background:var(--card);border:1px solid #ffffff66;border-radius:var(--radius);padding:24px 26px 28px;box-shadow:0 30px 60px -32px #1c0b2fcc}
 
 /* Today. */
-.today h2{font-size:30px}
-.today-weather{font:16px/1.5 Georgia,serif;color:var(--rust);margin:12px 0 0}
+.hero-weather{display:flex;align-items:center;gap:16px;margin:4px 0 14px}
+.temp{font:400 64px/1 Georgia,serif;color:#fff;text-shadow:0 4px 24px #ef7b3c88}
+.temp:empty{display:none}
+.today-weather{font:16px/1.45 Georgia,serif;color:#fde8d8;margin:0;max-width:360px}
 .today-weather:empty{display:none}
-.today-status{font-size:12px;line-height:1.5;color:var(--purple);margin:10px 0 0}
+.today-status{font-size:13px;line-height:1.5;color:#fff;background:#ffffff22;border-radius:12px;padding:8px 12px;margin:14px 0 0}
 .today-status:empty{display:none}
-.today-pieces{list-style:none;padding:0;margin:18px 0 0;border-top:1px solid var(--line)}
-.today-pieces li{display:flex;align-items:center;gap:8px;padding:10px 0;border-bottom:1px solid var(--line);font-size:14px}
+.today-look{font:400 24px/1.2 Georgia,serif;margin:0}
+.today-pieces{list-style:none;padding:0;margin:14px 0 0;border-top:1px solid var(--line)}
+.today-pieces li{display:flex;align-items:center;gap:10px;padding:11px 0;border-bottom:1px solid var(--line);font-size:14px}
 .today-pieces li>span:nth-child(2){flex:1;min-width:0}
 .today-slot{flex:0 0 84px;font-size:10px;letter-spacing:1.3px;text-transform:uppercase;color:var(--muted)}
-.today-keep,.today-aside{border:1px solid var(--lilac);background:transparent;border-radius:999px;font-size:12px;padding:6px 12px;flex-shrink:0;color:var(--purple)}
-.today-keep[aria-pressed=true]{background:var(--purple);border-color:var(--purple);color:#fff6ee}
-.today-aside{width:30px;padding:6px 0;font-size:15px;line-height:1}
-.today-reasons{margin:16px 0 0;padding-left:18px;font:15px/1.55 Georgia,serif;color:var(--ink)}
+.today-reasons{margin:16px 0 0;padding:14px 16px 14px 32px;border-radius:16px;background:linear-gradient(135deg,#fdeee2,#f3e9fb);font:15px/1.55 Georgia,serif;color:var(--ink)}
 .today-reasons li::marker{color:var(--orange)}
 .today-reasons:empty{display:none}
 .today-actions{display:flex;flex-wrap:wrap;gap:8px;margin-top:18px}
-.today-actions button{border:1px solid var(--lilac);background:var(--card);border-radius:999px;padding:10px 16px;font-size:13px;color:var(--purple)}
-.today-actions #today-another{background:var(--orange);border-color:var(--orange);color:#2b1424;font-weight:600}
-.today-actions #today-bolder{background:var(--purple);border-color:var(--purple);color:#fff6ee}
+.today-actions button{border:1.5px solid var(--lilac);background:transparent;border-radius:999px;padding:11px 18px;font-size:14px;color:var(--purple)}
+.today-actions #today-another{background:var(--purple);border-color:var(--purple);color:#fff6ee;font-weight:600}
 .today-actions button:disabled{opacity:.4;cursor:default}
 .today-note{font-size:12px;line-height:1.6;color:var(--muted);margin:14px 0 0}
 .today-manual{margin-top:16px;font-size:13px}
@@ -122,6 +151,8 @@ h3{font-size:13px;margin:0}
 .today-device{margin-top:10px}
 .today-presets{display:flex;flex-wrap:wrap;gap:6px}
 .today-credit{font-size:11px;line-height:1.6;color:var(--muted);margin:16px 0 0}
+.dots{display:flex;gap:3px;flex-shrink:0}
+.dots i{width:13px;height:13px;border-radius:50%;border:1px solid #0001}
 
 /* Dress her. */
 .fields{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px 18px;margin-top:22px}
@@ -168,7 +199,7 @@ input[type=range]{width:100%;accent-color:var(--orange);margin:8px 0 0}
 
 /* My looks. */
 dialog{border:1px solid var(--line);border-radius:var(--radius);background:var(--card);color:var(--ink);width:min(560px,92%);max-height:80vh;padding:24px}
-dialog::backdrop{background:#3b223480}
+dialog::backdrop{background:#2c1546aa}
 .dialog-heading{display:flex;justify-content:space-between;align-items:start;gap:20px}
 .dialog-heading h2{font-size:26px}
 .dialog-heading button{border:0;background:none;font-size:27px}
@@ -178,16 +209,23 @@ dialog::backdrop{background:#3b223480}
 .saved-colours i{height:22px;width:22px;border-radius:50%}
 .saved-empty{font-size:13px;line-height:1.5;margin:24px 0;color:var(--muted)}
 
-/* Phone: the doll on top, the page below, the tabs at the bottom. */
+@media(prefers-reduced-motion:reduce){.stars{animation:none}}
+
+/* Phone: the doll and her three looks on top, the page below, the tabs at the bottom. */
 @media(max-width:820px){
-  /* No blur here: a backdrop filter would make the fixed tab bar sit inside the header instead of at the bottom. */
-  .topbar{padding:12px 16px;backdrop-filter:none;background:var(--paper)}
-  .tabs{position:fixed;left:0;right:0;bottom:0;z-index:30;justify-content:space-around;gap:0;padding:8px 8px calc(8px + env(safe-area-inset-bottom));background:var(--card);border-top:1px solid var(--line);box-shadow:0 -10px 24px -18px #3b223466}
-  .tabs a,.tabs button{flex:1;text-align:center;padding:10px 4px;font-size:13px}
-  .app{grid-template-columns:minmax(0,1fr);gap:16px;padding:14px 12px 96px}
+  .topbar{position:relative;padding:14px 16px 10px;background:none}
+  /* No backdrop filter on the bar's parent: it would trap the fixed tab bar inside the header. */
+  .tabs{position:fixed;left:10px;right:10px;bottom:calc(10px + env(safe-area-inset-bottom));z-index:30;justify-content:space-around;gap:0;padding:6px;background:#2c1546e6;border:1px solid #ffffff33;box-shadow:0 12px 30px -10px #1c0b2fcc}
+  .tabs a,.tabs button{flex:1;text-align:center;padding:10px 4px;font-size:13px;white-space:nowrap}
+  .tab-looks span{margin-left:2px;min-width:18px;padding:1px 5px;font-size:11px}
+  .app{grid-template-columns:minmax(0,1fr);gap:18px;padding:4px 12px 110px}
   .stage-panel{position:relative;top:auto}
-  #stage{height:min(56vh,540px);min-height:360px}
-  .page{padding:22px 18px 26px}
+  #stage{height:min(54vh,520px);min-height:340px}
+  /* On a phone the heading can sit over the bright mountains: give it a dusk-coloured backing. */
+  .hero{padding:16px 16px 16px;margin-bottom:12px;border-radius:20px;background:#2c1546b8;backdrop-filter:blur(6px)}
+  .hero h2{font-size:28px}
+  .temp{font-size:54px}
+  .card{padding:20px 18px 24px}
   .fields{grid-template-columns:minmax(0,1fr)}
   .today-slot{flex-basis:70px}
   .today-place-form input,select,.request-box textarea{font-size:16px}

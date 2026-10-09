@@ -44,8 +44,9 @@ export async function startStudio(doc=document, makeView, options={}) {
     const detachable=GARMENTS[recipe.outerwearId]?.layering?.detachable;$('outerwear-insert').checked=recipe.outerwearInsert;$('outerwear-insert').disabled=!detachable;$('outerwear-insert-label').textContent=detachable?.label??'Wear its detachable part';
     for(const key of ['knit','shirt'])$(key).disabled=dress||recipe.topId!=='classic';$('skirt').disabled=dress;$('under-select').disabled||=dress;
     const selected=OUTFITS.find(look=>Object.keys(DEFAULT).filter(key=>key!=='hairId').every(key=>look.recipe[key]===recipe[key]));
-    const pick=today?.getState()?.result?.recipe,same=pick&&JSON.stringify(cleanRecipe(pick))===JSON.stringify(cleanRecipe(recipe));
-    $('outfit-title').textContent=selected?.name||(same?'Her pick for today.':'Her own little experiment.');
+    // One of today's looks, or Another idea, is named as such until she is dressed differently.
+    const day=today?.getState(),look=day&&(day.choice==='idea'?day.idea:day.trio?.[day.choice]),same=look&&JSON.stringify(cleanRecipe(look.recipe))===JSON.stringify(cleanRecipe(recipe));
+    $('outfit-title').textContent=selected?.name||(same?today.title():'Her own little experiment.');
     // Controls that do not apply to what she is wearing are put away rather than greyed out.
     $('under-field').hidden=$('under-select').disabled;
     $('outerwear-options').hidden=recipe.outerwearId==='none';$('outerwear-open-field').hidden=$('outerwear-open').disabled;$('outerwear-insert-field').hidden=$('outerwear-insert').disabled;
@@ -74,7 +75,6 @@ export async function startStudio(doc=document, makeView, options={}) {
   $('outerwear-open').onchange=()=>{recipe=cleanRecipe({...recipe,outerwearOpen:$('outerwear-open').checked});sync();apply();message(recipe.outerwearOpen?'Worn open.':'Zipped closed.');};
   $('edit-form').onsubmit=e=>{e.preventDefault();const result=editRecipe(recipe,$('request').value);recipe=result.recipe;sync();apply();message(result.changes.length?`Changed: ${result.changes.join(', ')}. Only these supported details were interpreted.`:(recipe.topId==='classic'?'I could not interpret that yet. Try “butter sweater, enormous sleeves, cropped”.':'This reference top has a fixed fit and print for now. Try “straight jeans” or “add a skirt”.'));};
   $('reset').onclick=()=>{recipe=cleanRecipe(DEFAULT);sync();apply();message('Back to the original outfit.');};
-  for(const b of doc.querySelectorAll('[data-angle]'))b.onclick=()=>{view?.turn(Number(b.dataset.angle));for(const other of doc.querySelectorAll('[data-angle]'))other.setAttribute('aria-pressed',String(other===b));};
   function storeLooks(next){try{if(!storage)throw new Error();storage.setItem(BOOK,JSON.stringify(next));looks=next;sync();return true;}catch{message('This browser could not save your look.');return false;}}
   $('save').onclick=()=>{if(looks.length>=24){message('Your lookbook is full. Remove a look to make room.');return;}if(storeLooks([cleanRecipe(recipe),...looks]))message('Saved in My looks.');};
   function book(){

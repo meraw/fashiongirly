@@ -31,7 +31,9 @@ test('in the morning she checks the forecast for where the phone is and dresses 
   const r = p.app.getRecipe(), today = p.read(TODAY_KEY);
   assert.equal(today.day, '2026-10-09');
   assert.ok(GARMENTS[lead(r)], 'she wears a piece from the wardrobe');
-  assert.deepEqual(r, today.result.recipe);
+  assert.deepEqual(r, today.trio.pick.recipe, 'she wears her pick');
+  assert.equal(p.d.getElementById('look-pick').getAttribute('aria-pressed'), 'true');
+  assert.equal(p.d.getElementById('outfit-title').textContent, 'Her pick for today.');
   assert.equal(p.asked.length, 1);
   assert.match(p.asked[0], /latitude=51\.51&longitude=-0\.13/, 'the phone location is used by default');
   assert.match(p.d.getElementById('today-weather').textContent, /Your location · \w+ · .*rain likely/);
@@ -60,48 +62,43 @@ test('reopening the same day keeps her look; after 5:00 the next day she dresses
   next.close();
 });
 
-// The slots in which two recipes differ (hair aside, which these buttons leave alone).
-const differ = (a, b) => ['topId', 'underTopId', 'bottomId', 'dressId', 'shoesId', 'outerwearId'].filter(k => a[k] !== b[k]);
+const looks = p => ({ pick: p.read(TODAY_KEY).trio.pick.recipe, bolder: p.read(TODAY_KEY).trio.bolder.recipe, easier: p.read(TODAY_KEY).trio.easier.recipe });
 
-test('keep a piece, ask for another idea, set one aside, then undo', async () => {
-  const p = await open(), d = p.d, before = p.app.getRecipe();
-  const keep = [...d.querySelectorAll('#today-pieces li')].find(li => li.textContent.startsWith('Shoes')).querySelector('.today-keep');
-  keep.click();
-  assert.equal(p.read(TODAY_KEY).keep.shoes, before.shoesId);
-  click(d, 'today-another');
-  const other = p.app.getRecipe();
-  assert.equal(other.shoesId, before.shoesId, 'the kept shoes stay');
-  assert.notEqual(lead(other), lead(before), 'another idea changes the top or dress');
-  const top = [...d.querySelectorAll('#today-pieces li')].find(li => /^(Top|Dress)/.test(li.textContent));
-  top.querySelector('.today-aside').click();
-  const third = p.app.getRecipe();
-  assert.notEqual(lead(third), lead(other), 'a piece set aside is not worn today');
-  assert.deepEqual(differ(third, other), [third.dressId !== 'none' ? 'dressId' : 'topId'], 'and only that piece changes');
-  assert.ok(p.read(TODAY_KEY).avoid.includes(lead(other)));
-  assert.ok(p.read(LEARNED_KEY).pieces[lead(other)] < 0, 'and counts a little against it');
-  click(d, 'today-undo');
-  assert.deepEqual(p.app.getRecipe(), other, 'undo brings back the look before');
-  click(d, 'today-first');
-  assert.deepEqual(p.app.getRecipe(), before, 'her first pick of the day comes back');
-  assert.equal(d.getElementById('outfit-title').textContent, 'Her pick for today.');
+test('three looks for the day, under the doll, that stay the same', async () => {
+  const { boldness } = await import('../src/style/taste.js'), { outfitOf } = await import('../src/style/stylist.js');
+  const p = await open(), d = p.d, b = r => boldness(outfitOf(r)), day = looks(p);
+  assert.ok(b(day.bolder) > b(day.pick) && b(day.easier) < b(day.pick), 'bolder is bolder, easier is quieter');
+  assert.equal(new Set(Object.values(day).map(lead)).size, 3, 'three different outfits');
+  click(d, 'look-bolder');
+  assert.deepEqual(p.app.getRecipe(), day.bolder);
+  assert.equal(d.getElementById('look-bolder').getAttribute('aria-pressed'), 'true');
+  assert.equal(d.getElementById('look-pick').getAttribute('aria-pressed'), 'false');
+  assert.equal(d.getElementById('outfit-title').textContent, 'Her bolder look.');
+  click(d, 'look-easier'); click(d, 'look-bolder'); click(d, 'look-pick');
+  assert.deepEqual(p.app.getRecipe(), day.pick, 'pressing again gives the same looks');
+  assert.deepEqual(looks(p), day, 'the three never change during the day');
+  assert.ok(d.querySelectorAll('#look-bolder .dots i').length >= 3, 'each shows its colours');
+  assert.equal(d.querySelectorAll('[data-angle]').length, 0, 'the turn buttons are gone; drag to turn her');
   p.close();
 });
 
-test('bolder and easier change her look a piece at a time, in the direction asked', async () => {
-  const { boldness } = await import('../src/style/taste.js'), { outfitOf } = await import('../src/style/stylist.js');
-  const p = await open(), d = p.d, b = r => boldness(outfitOf(r));
-  const start = p.app.getRecipe();
-  click(d, 'today-bolder');
-  const bolder = p.app.getRecipe();
-  assert.ok(b(bolder) > b(start), 'bolder is bolder');
-  assert.ok(differ(bolder, start).length >= 1 && differ(bolder, start).length <= 2, 'one or two pieces change, not the whole look');
-  assert.equal(bolder.hairId, start.hairId);
-  assert.match(d.getElementById('today-status').textContent, /^Bolder: the .* instead of the /);
-  assert.ok(p.read(TODAY_KEY).daring > .5);
-  click(d, 'today-easier'); click(d, 'today-easier');
-  const easier = p.app.getRecipe();
-  assert.ok(b(easier) < b(bolder), 'easier is quieter');
-  assert.ok(differ(easier, bolder).length <= 4);
+test('another idea shows a different outfit, and undo goes back', async () => {
+  const p = await open(), d = p.d, day = looks(p);
+  click(d, 'look-easier');
+  assert.equal(d.getElementById('today-undo').disabled, true);
+  click(d, 'today-another');
+  const idea = p.app.getRecipe();
+  assert.ok(!Object.values(day).map(lead).includes(lead(idea)), 'not one of the three');
+  assert.equal(d.getElementById('outfit-title').textContent, 'Another idea.');
+  for (const k of ['pick', 'bolder', 'easier']) assert.equal(d.getElementById(`look-${k}`).getAttribute('aria-pressed'), 'false');
+  click(d, 'today-another');
+  assert.notEqual(lead(p.app.getRecipe()), lead(idea), 'a second idea is new too');
+  click(d, 'today-undo');
+  assert.deepEqual(p.app.getRecipe(), idea);
+  click(d, 'today-undo');
+  assert.deepEqual(p.app.getRecipe(), day.easier, 'back to the look before the ideas');
+  assert.equal(d.getElementById('today-undo').disabled, true);
+  assert.deepEqual(looks(p), day, 'the three looks are untouched');
   p.close();
 });
 
