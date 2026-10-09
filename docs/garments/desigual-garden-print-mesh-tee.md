@@ -92,7 +92,7 @@ A fitted, high-hip mesh tee with long sleeves, in a photographic garden print: s
 
 ## Checks
 
-- `npm test` passes (119), including a new `tests/garden-mesh-tee.test.js`, which checks:
+- `npm test` passes (122), including a new `tests/garden-mesh-tee.test.js`, which checks:
   - the parts: the body, the neckband, the two yoke seams, the sleeves and the cuffs;
   - the front seam is on her front and the back seam on her back, lower;
   - each cuff is metallic and covers its sleeve's end;
