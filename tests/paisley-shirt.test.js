@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import * as T from 'three';
 import { makeOutfit, disposeObject } from '../src/doll/model.js';
 import { OUTFITS } from '../src/doll/recipe.js';
-import { GARMENTS, PAISLEY_SHIRT_ID, MOTEL_TIE_DYE_SHIRT_ID, DESIGUAL_SPRAY_FLORAL_SHIRT_ID } from '../src/wardrobe/catalog.js';
+import { GARMENTS, PAISLEY_SHIRT_ID, MOTEL_TIE_DYE_SHIRT_ID, DESIGUAL_SPRAY_FLORAL_SHIRT_ID, DESIGUAL_SPLIT_FLORAL_SHIRT_ID } from '../src/wardrobe/catalog.js';
 const named=(root,name)=>{const found=[];root.traverse(o=>{if(o.name===name)found.push(o);});return found;};
 const box=o=>new T.Box3().setFromObject(o);
 
@@ -34,7 +34,7 @@ test('paisley shirt: relaxed and longer than the fitted shirts, cuffed sleeves, 
 });
 
 test('the fitted shirts keep their own construction: no cuffs, yoke or relaxed body',()=>{
-  for(const id of [MOTEL_TIE_DYE_SHIRT_ID,DESIGUAL_SPRAY_FLORAL_SHIRT_ID]){
+  for(const id of [MOTEL_TIE_DYE_SHIRT_ID,DESIGUAL_SPRAY_FLORAL_SHIRT_ID,DESIGUAL_SPLIT_FLORAL_SHIRT_ID]){
     const outfit=makeOutfit({topId:id,knit:false,shirt:false}),top=outfit.getObjectByName(id);outfit.updateMatrixWorld(true);
     for(const name of ['shirt-cuff','cuff-button','cuff-stitch','yoke-seam','back-pleat'])assert.equal(named(top,name).length,0,`${id}: ${name}`);
     assert.equal(named(top,'sleeve-hem-stitch').length,2);assert.ok(Math.abs(box(named(top,'mesh-shirt-body')[0]).min.y/.76-1.26)<.002,`${id}: cropped at 1.26`);

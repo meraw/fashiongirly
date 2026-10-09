@@ -37,6 +37,7 @@ export const VANGOGH_TEE_ID = 'van-gogh-patchwork-tee-v1';
 export const DESIGUAL_FRESCO_TEE_ID = 'desigual-fresco-rib-vneck-tee-v1';
 export const MICKEY_LONG_TEE_ID = 'black-mickey-print-long-tee-v1';
 export const PB_CHENILLE_ID = 'pull-bear-grey-chenille-high-neck-v1';
+export const DESIGUAL_SPLIT_FLORAL_SHIRT_ID = 'desigual-split-floral-shirt-v1';
 export const PAISLEY_SHIRT_ID = 'paisley-print-relaxed-shirt-v1';
 export const BARREL_JEANS_ID = 'topshop-barrel-jeans-v1';
 export const DAVINIA_JEANS_ID = 'desigual-davinia-jeans-v1';
@@ -369,6 +370,20 @@ export const GARMENTS = Object.freeze({
         rows: [[.03, .12, .117], [-.06, .132, .127], [-.2, .13, .124], [-.33, .122, .117], [-.41, .112, .107], [-.44, .104, .1]],
         cuff: [[-.425, .097, .093], [-.49, .093, .09], [-.565, .092, .089]] },
     },
+  },
+  [DESIGUAL_SPLIT_FLORAL_SHIRT_ID]: {
+    slot: 'top',
+    id: DESIGUAL_SPLIT_FLORAL_SHIRT_ID, name: 'Desigual split floral shirt', family: 'fitted-mesh-button-down-shirt', version: 1,
+    status: 'reference-study-awaiting-visual-review', brandAsProvided: 'Desigual (the neck label)',
+    source: { note: 'user supplied seven phone screenshots of an Amazon listing: three fronts on a model, a close front, a close-up worn with an arm raised, a front flat lay and the back on a model' },
+    referenceViews: ['front on model (three)', 'front close', 'close-up, arm raised', 'front flat lay', 'back on model'],
+    details: ['black cotton shirt with a split print', 'her right front, right sleeve and the back below the yoke: a dense scatter of small flowers (red daisies, cream and yellow blossoms, blue buds, green sprigs)', 'her left front, left sleeve and the back yoke: plain black with large painted flowers (a red lily, cream blooms, a blue flower, green leaves)', 'every motif edged in a light-blue outline', 'point collar in the print, split the same way', 'black buttons, tonal stitching', 'long sleeves with cuffs', 'curved shirttail hem'],
+    material: { construction: 'woven cotton poplin', composition: 'not visible in the supplied screenshots', finish: 'matte' },
+    fit: { silhouette: 'regular, slightly fitted', sleeve: 'long, to the wrist', hem: 'hip with a curved shirttail on the model; drawn cropped at the waist like the other button-downs', adjustment: 'fixed authored fit for review' },
+    exclusions: ['striped-shirt','knit-sweater'],
+    uncertainties: ['the flowers are drawn procedurally to match the photos\' colours, motif sizes and layout, not copied', 'worn with the top button open, as on the model', 'the shirttail hem and the cuffs are simplified to the template\'s straight hem and plain sleeve ends'],
+    styling: { silhouette: 'slim, cropped at the waist', palette: ['black', 'red', 'cream', 'yellow', 'blue', 'green'], pattern: 'split floral: small scattered flowers on one half, large painted flowers on black on the other', coverage: { neck: 'point collar, top button open', sleeves: 'long', midriff: 'cropped at the waist' }, material: 'woven cotton poplin, composition unknown', warmth: 2, warmthBasis: 'inferred: an opaque woven shirt with long sleeves', weather: 'mild days, or as a layer under a jacket', mood: 'bold, playful, eclectic' },
+    authoring: { template: 'makeButtonShirt() in src/doll/shirts.js', texture: 'procedural split floral print in src/doll/split-floral-print.js, drawn locally when first worn', runtimeGeneration: false, sourcePhotosBundled: false },
   },
   [PAISLEY_SHIRT_ID]: {
     slot: 'top',
