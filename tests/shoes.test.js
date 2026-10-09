@@ -6,7 +6,7 @@ import { readFileSync } from 'node:fs';
 import { makeDoll, makeOutfit, disposeObject, fitDoll } from '../src/doll/model.js';
 import { OUTFITS, cleanRecipe } from '../src/doll/recipe.js';
 import { startStudio } from '../src/doll/app.js';
-import { GARMENTS, BUFFALO_ASPHA_ID, DM_COW_SLIDE_ID, UGG_LOWMEL_ID, DM_BLAIRE_CHAIN_ID, NB_550_ID } from '../src/wardrobe/catalog.js';
+import { GARMENTS, BUFFALO_ASPHA_ID, DM_COW_SLIDE_ID, UGG_LOWMEL_ID, DM_BLAIRE_CHAIN_ID, CONVERSE_LIFT_HI_ID, NB_550_ID } from '../src/wardrobe/catalog.js';
 import { levelCaster } from '../src/doll/level-caster.js';
 const shoes=Object.keys(GARMENTS).filter(id=>GARMENTS[id].slot==='shoes');
 const named=(root,name)=>{const found=[];root.traverse(o=>{if(o.name===name)found.push(o);});return found;};
@@ -205,4 +205,36 @@ test('UI: choosing shoes is saved with the look, and the boots study wears them'
   const study=OUTFITS.find(look=>look.recipe.shoesId===BUFFALO_ASPHA_ID);assert.ok(study,'a study preset wears the boots');
   [...d.getElementById('outfit-ideas').children].find(b=>b.textContent===study.name).click();assert.equal(select.value,BUFFALO_ASPHA_ID);
   app.dispose();dom.window.close();
+});
+
+test('Converse Modern Lift high-tops: stacked platform, seven eyelets, inner ankle patch and vents, a shaft that hugs her leg over hidden socks',()=>{
+  const spec=GARMENTS[CONVERSE_LIFT_HI_ID].build,outfit=makeOutfit({shoesId:CONVERSE_LIFT_HI_ID,dressId:'navy-half-zip-track-dress-v1'}),doll=makeDoll();fitDoll(doll,outfit);
+  doll.updateMatrixWorld(true);outfit.updateMatrixWorld(true);const shoes=outfit.getObjectByName('shoes');
+  for(const name of ['lug-sole','sole-stitch','boot-upper','tongue','eyelet','lace','lace-bow','ankle-patch','vent-eyelet'])assert.ok(shoes.getObjectByName(name),name);
+  // The rubber toe cap: the sole's material, over the front of each toe.
+  const caps=named(shoes,'toe-cap');assert.equal(caps.length,4,'a cap half on each side of each toe');assert.equal(caps[0].material,named(shoes,'lug-sole')[0].material,'rubber, like the sole');
+  // Every half faces out of the shoe (one half once came out inside-out and was lit like the inside, so the cap
+  // looked like half a cap).
+  for(const c of caps){const b=new T.Box3().setFromObject(c);assert.ok(b.max.z>.4&&b.max.y/.76>.16,'over the front of the toe, up the toe box');
+    const n=c.geometry.attributes.normal;let nz=0;for(let i=0;i<n.count;i++)nz+=n.getZ(i);assert.ok(nz/n.count>.2,`cap faces out (${(nz/n.count).toFixed(2)})`);}
+  assert.equal(named(shoes,'eyelet').length,2*2*7);assert.equal(named(shoes,'vent-eyelet').length,4);assert.equal(named(shoes,'ankle-patch').length,2);
+  assert.equal(named(shoes,'sole-stitch').length,4,'two stitch lines round each sole');
+  // Not raised: the platform stays within her foot height.
+  assert.ok(!outfit.userData.lift);
+  // The ankle patch and vents are on the inner side of each foot.
+  for(const name of ['ankle-patch','vent-eyelet'])for(const o of named(shoes,name)){const x=o.getWorldPosition(new T.Vector3()).x/1.06;assert.ok(Math.abs(x)<spec.cx,`${name} on the inner side (${x.toFixed(3)})`);}
+  // The stacked platform: grooves cut into the sidewall at each layer.
+  const sole=named(shoes,'lug-sole')[0].geometry.attributes.position;let grooves=0;for(let i=0;i<sole.count;i++){const y=sole.getY(i);if(spec.sole.ribs.some(r=>Math.abs(y-r)<.003))grooves++;}assert.ok(grooves>500,'grooves between the layers');
+  // Her socks are covered, so hidden; her leg stays inside the shaft up to the collar.
+  doll.traverse(o=>{if(o.name==='sock')assert.equal(o.visible,false,'socks hidden');});
+  const uppers=around(named(shoes,'boot-upper')),top=Math.min(...Object.values(spec.collar));let checked=0;
+  doll.traverse(o=>{if(o.name!=='leg')return;eachVertex(o,p=>{const y=p.y/.76;if(y<spec.sole.top+.03||y>top-.01)return;
+    const c=cast(uppers,Math.sign(p.x)*spec.cx*1.06,p);if(!c)return;assert.ok(c.hit&&c.hit.distance>c.r+.002,`leg shows through the shaft at y ${y.toFixed(3)}`);checked++;});});
+  assert.ok(checked>30,`checked ${checked}`);
+  // The shaft hugs her leg: just below the collar it is barely wider than her leg.
+  const shaft=new T.Box3();for(const u of named(shoes,'boot-upper')){const pos=u.geometry.attributes.position,v=new T.Vector3();for(let i=0;i<pos.count;i++){v.fromBufferAttribute(pos,i).applyMatrix4(u.matrixWorld);if(v.x>0&&Math.abs(v.y/.76-(top-.03))<.01)shaft.expandByPoint(v);}}
+  assert.ok(shaft.max.z-shaft.min.z<.2,`shaft depth ${(shaft.max.z-shaft.min.z).toFixed(3)}`);
+  [doll,outfit].forEach(disposeObject);
+  // The existing laced shoes do not carry the new parts.
+  for(const id of [BUFFALO_ASPHA_ID,UGG_LOWMEL_ID]){const o=makeOutfit({shoesId:id});for(const name of ['sole-stitch','ankle-patch','vent-eyelet'])assert.equal(named(o,name).length,0,`${id} has no ${name}`);disposeObject(o);}
 });
