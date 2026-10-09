@@ -340,6 +340,38 @@ test('spray floral mesh shirt: on the shirt template, worn open at the top, with
   disposeObject(outfit);
 });
 
+test('Mango halftone dot shirt: relaxed and hip length with a shirt-tail hem, a concealed placket, cuffs and the measured print',()=>{
+  const id='mango-halftone-dot-shirt-v1';
+  assert.equal(cleanRecipe({topId:id,knit:true,shirt:true}).knit,false);
+  const outfit=makeOutfit({topId:id});outfit.updateMatrixWorld(true);
+  const all=name=>{const found=[];outfit.traverse(o=>{if(o.name===name)found.push(o);});return found;};
+  for(const name of ['mesh-shirt-body','shirt-collar-fall','shirt-collar-stand','hem-stitch','placket-edge'])assert.ok(outfit.getObjectByName(name),name);
+  // A concealed placket worn open at the top: no buttons show; stitching down both sides of the V, then one line down the
+  // closed fly front. No contrast topstitching on the collar.
+  assert.equal(all('shirt-button').length,0);assert.equal(all('placket-stitch').length,3);assert.equal(all('shirt-collar-topstitch').length,0);
+  // Long sleeves gathered into cuffs at her wrists, stitched along both edges.
+  assert.equal(all('mesh-shirt-sleeve').length,2);assert.equal(all('shirt-cuff').length,2);assert.equal(all('cuff-stitch').length,4);assert.equal(all('sleeve-hem-stitch').length,0);
+  for(const c of all('shirt-cuff'))assert.ok(new T.Box3().setFromObject(c).min.y/.76<1.32,'the cuff reaches the wrist');
+  // Hip length, with a shirt-tail hem: lowest at the centre front and back, higher at the side seams.
+  const p=outfit.getObjectByName('mesh-shirt-body').geometry.attributes.position,low={front:Infinity,back:Infinity,side:Infinity};
+  for(let i=0;i<p.count;i++){const x=p.getX(i),y=p.getY(i),z=p.getZ(i);if(Math.abs(x)<.01)low[z>0?'front':'back']=Math.min(low[z>0?'front':'back'],y);if(Math.abs(z)<.01)low.side=Math.min(low.side,y);}
+  assert.ok(low.front<1.05&&low.back<1.05,`centre hem at ${low.front}, ${low.back}`);assert.ok(low.side>1.08&&low.side<1.12,`side hem at ${low.side}`);
+  // The print: pink and cream in about equal shares overall (blocks of mostly pink and mostly cream), on a lattice of
+  // 16 dots across the tile.
+  const map=outfit.getObjectByName('mesh-shirt-body').material.map.image,px=map.data;let pink=0;
+  for(let i=0;i<px.length;i+=4)if(px[i+1]<150)pink++;
+  assert.ok(pink/(px.length/4)>.4&&pink/(px.length/4)<.6,`pink share ${pink/(px.length/4)}`);
+  // In a pink block the centre of a dot is pink and the corner between dots (a star) is cream; a cream block the reverse.
+  const at=(x,y)=>px[(y*map.width+x)*4+1]<150,cell=map.width/16;let blocks={pink:0,cream:0};
+  for(let cy=0;cy<16;cy++)for(let cx=0;cx<16;cx++){const centre=at(cx*cell+cell/2,cy*cell+cell/2),corner=at(cx*cell+1,cy*cell+1);assert.notEqual(centre,corner,`dot ${cx},${cy}`);blocks[centre?'pink':'cream']++;}
+  assert.ok(blocks.pink>90&&blocks.cream>90,`blocks ${JSON.stringify(blocks)}`);
+  disposeObject(outfit);
+  // Over the skirt it is tucked in: it ends inside the skirt's waistband, and the skirt's bow shows.
+  const skirted=makeOutfit({topId:id,skirt:true});skirted.updateMatrixWorld(true);assert.ok(skirted.getObjectByName('ribbon-knot'));
+  const hem=new T.Box3().setFromObject(skirted.getObjectByName('mesh-shirt-body')).min.y/.76;assert.ok(hem>1.24&&hem<1.28,`tucked hem at ${hem}`);
+  disposeObject(skirted);
+});
+
 test('every top records styling facts for later outfit selection',()=>{
   // Relative warmth (1 light to 4 very warm) with what it is based on; silhouette, palette, pattern, coverage and material.
   for(const [id,g] of Object.entries(GARMENTS).filter(([,g])=>g.slot==='top')){

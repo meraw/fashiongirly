@@ -34,6 +34,7 @@ export const DESIGUAL_SPRAY_FLORAL_SHIRT_ID = 'desigual-spray-floral-mesh-shirt-
 export const VANGOGH_TEE_ID = 'van-gogh-patchwork-tee-v1';
 export const DESIGUAL_FRESCO_TEE_ID = 'desigual-fresco-rib-vneck-tee-v1';
 export const MICKEY_LONG_TEE_ID = 'black-mickey-print-long-tee-v1';
+export const MANGO_DOT_SHIRT_ID = 'mango-halftone-dot-shirt-v1';
 export const BARREL_JEANS_ID = 'topshop-barrel-jeans-v1';
 export const DAVINIA_JEANS_ID = 'desigual-davinia-jeans-v1';
 export const LEVIS_94_ID = 'levis-94-wide-leg-v1';
@@ -334,6 +335,22 @@ export const GARMENTS = Object.freeze({
         mix: { head: .3, shorts: .22, glove: .26, shoe: .22 },
         inksFor: { head: ['cream', 'cream', 'cream', 'ochre', 'red'], shorts: ['red', 'red', 'red', 'ochre'], glove: ['cream', 'cream', 'ochre'], shoe: ['ochre', 'ochre', 'ochre', 'red', 'cream'] } },
     },
+  },
+  [MANGO_DOT_SHIRT_ID]: {
+    slot: 'top',
+    id: MANGO_DOT_SHIRT_ID, name: 'Mango pink halftone dot shirt', family: 'relaxed-button-down-shirt', version: 1,
+    status: 'reference-study-awaiting-visual-review', brandAsProvided: 'Mango (“MNG” neck label)',
+    source: { note: 'user supplied five product photos without a description: a front flat lay, a close-up of the collar, the back on a model, and two fronts on models (one worn open low, one over white wide-leg jeans)' },
+    referenceViews: ['front flat lay', 'collar close-up', 'back on model', 'front on model, open', 'front on model, with jeans'],
+    details: ['relaxed long-sleeved shirt in a fine crepe', 'printed with a square lattice of soft pink dots on cream, in blocks of two kinds set in an uneven checker: big touching pink dots with small cream four-point stars between them, and the reverse (touching cream dots with small pink stars)', 'point collar, collar and stand in the print, one button at the collar', 'concealed placket: no buttons show down the front', 'long relaxed sleeves gathered into buttoned cuffs', 'hip length, with a curved shirt-tail hem that dips at the centre front and back', 'worn untucked and open at the neck on the models'],
+    material: { construction: 'fine crepe (read from the pebbled surface in the close-up)', composition: 'not stated', finish: 'matte, softly draping' },
+    fit: { silhouette: 'relaxed, straight', sleeve: 'long and relaxed, gathered into cuffs at the wrist', hem: 'hip length, curved shirt tail', neckline: 'point collar, top button open', adjustment: 'fixed authored fit for review' },
+    exclusions: ['striped-shirt','knit-sweater'],
+    // Hangs over every waistband; over the skirt it is tucked in, so the skirt's bow shows.
+    layering: { coversWaistband: true, tucksIntoSkirt: true },
+    uncertainties: ['the print is redrawn in code as a regular halftone lattice in an uneven checker of blocks, not copied; the real blocks vary more in size', 'the dots are drawn a little larger than on the shirt (about 16 across her front instead of about 22), so they stay visible on a phone', 'worn with the top button open, as on the models; the flat lay is buttoned to the collar', 'the dropped shoulder seam is not modelled; the sleeves join where the shirt template\'s sleeves do', 'over the skirt it is tucked in rather than worn loose'],
+    styling: { silhouette: 'relaxed and straight, hip length with a curved hem', palette: ['soft pink', 'cream'], pattern: 'pink and cream halftone dots in a patchwork checker', coverage: { neck: 'point collar, top button open', sleeves: 'long, cuffed', midriff: 'covered, to the hip' }, material: 'fine crepe, composition not stated', warmth: 1, warmthBasis: 'inferred: a light, thin crepe shirt, though long-sleeved', weather: 'mild to warm days, or as a light layer' },
+    authoring: { template: 'makeButtonShirt() in src/doll/shirts.js', texture: 'procedural dotPatchData() and crepeData() in src/doll/shirts.js, drawn locally when first worn; colours measured in the collar close-up', runtimeGeneration: false, sourcePhotosBundled: false },
   },
   [BARREL_JEANS_ID]: {
     slot: 'bottom',
