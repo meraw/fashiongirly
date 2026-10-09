@@ -62,6 +62,7 @@ export { default as pepeJeansIkatShirtV1 } from './pepe-jeans-ikat-shirt-v1.js';
 // slot 47
 // slot 48
 // slot 49
+export { default as desigualPaintedFloralKnitJumperV1 } from './desigual-painted-floral-knit-jumper-v1.js';
 // slot 50
 export { default as tommyJeansRedVarsityCrestJumperV1 } from './tommy-jeans-red-varsity-crest-jumper-v1.js';
 // slot 51
