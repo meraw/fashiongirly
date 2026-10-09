@@ -93,7 +93,7 @@ A boxy hoodie cropped at the waist, in white with red, black and royal blue band
 
 ## Checks
 
-- `npm test` passes (131), including a new `tests/racing-hoodie.test.js`, which checks:
+- `npm test` passes, including a new `tests/racing-hoodie.test.js`, which checks:
   - the parts: the body, hem band, sleeves, cuffs, hood, cords, eyelets, tips, letters, signature, badge and patches;
   - down the body's centre front: white, red, black, blue, white;
   - above the bands: the white yoke at the centre front and back, red toward the sides;
