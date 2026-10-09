@@ -58,7 +58,7 @@ It covers the waistband, like the other tops at this length. The short sleeve's 
   - that every seam lies on the knit
   - that it still dresses her in a flat sky colour if the atlas fails to load
 - The shared tests also run on it: sleeves and hands, every waist-covering top over every bottom, the styling facts, and every jacket over every top.
-- `npm test`: 63 passing after merging `main`; `npm run build` succeeds.
+- `npm test`: 65 passing after merging `main` (which added the dress slot); `npm run build` succeeds.
 - Rendered in headless Chromium from the front, a turn, the side and the back, at twice the resolution. The authoring chat checked these renders; the user has not seen them yet.
 
 ## Known differences
