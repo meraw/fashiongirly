@@ -2,6 +2,8 @@
 // Outerwear: none by default ('none'); catalog coats and jackets fill the 'outerwear' slot.
 export const MARIKOO_WINDBREAKER_ID = 'marikoo-two-tone-windbreaker-v1';
 export const DESIGUAL_LEATHER_JACKET_ID = 'desigual-black-faux-leather-jacket-v1';
+// Dresses: none by default ('none'); a catalog dress fills the 'dress' slot and is worn instead of the top and bottoms.
+export const ZIP_TRACK_DRESS_ID = 'navy-half-zip-track-dress-v1';
 // Shoes: built-in loafers are 'classic'; catalog shoes fill the 'shoes' slot.
 export const BUFFALO_ASPHA_ID = 'buffalo-aspha-mid-olive-v1';
 export const DM_COW_SLIDE_ID = 'dr-martens-cow-slide-v1';
@@ -18,6 +20,7 @@ export const TOMMY_CABLE_ID = 'tommy-green-cable-sweater-v1';
 export const PETIT_BATEAU_CARDIGAN_ID = 'petit-bateau-striped-cardigan-v1';
 export const TOMMY_STRIPE_POLO_ID = 'tommy-stripe-knit-polo-v1';
 export const MOTEL_TIE_DYE_SHIRT_ID = 'motel-tie-dye-mesh-shirt-v1';
+export const DESIGUAL_SPRAY_FLORAL_SHIRT_ID = 'desigual-spray-floral-mesh-shirt-v1';
 export const BARREL_JEANS_ID = 'topshop-barrel-jeans-v1';
 export const DAVINIA_JEANS_ID = 'desigual-davinia-jeans-v1';
 export const LEVIS_94_ID = 'levis-94-wide-leg-v1';
@@ -217,6 +220,20 @@ export const GARMENTS = Object.freeze({
     uncertainties: ['the tie-dye is drawn procedurally to match the photos\' colours and patch size, not copied', 'worn buttoned to the top, as on the hanger; the model wears it open at the neck', 'only the sleeves are drawn sheer; over her body (cream felt, not skin) sheer mesh would show the felt', 'button count read as seven from the hanger photo'],
     styling: { silhouette: 'slim, cropped at the waist', palette: ['grey-brown', 'mauve', 'pale pinkish beige', 'black'], pattern: 'cloudy tie-dye all over, with black buttons and topstitching', coverage: { neck: 'point collar, buttoned', sleeves: 'long, sheer', midriff: 'cropped at the waist' }, material: 'sheer stretch mesh, composition unknown', warmth: 1, warmthBasis: 'inferred: thin sheer mesh, though long-sleeved', weather: 'mild days, or as a layer; sheer' },
     authoring: { texture: 'procedural tieDyeData() and meshNetData() in src/doll/shirts.js, drawn locally when first worn', runtimeGeneration: false, sourcePhotosBundled: false },
+  },
+  [DESIGUAL_SPRAY_FLORAL_SHIRT_ID]: {
+    slot: 'top',
+    id: DESIGUAL_SPRAY_FLORAL_SHIRT_ID, name: 'Spray-paint floral mesh shirt', family: 'fitted-mesh-button-down-shirt', version: 1,
+    status: 'reference-study-awaiting-visual-review', brandAsProvided: 'Desigual',
+    source: { note: 'user supplied four product photos: two fronts on a model, a front flat lay and the back on a model' },
+    referenceViews: ['front on model (arms crossed)', 'front on model', 'front flat lay', 'back on model'],
+    details: ['fine-rib stretch mesh printed with blurred pink, coral, red and orange spray-paint clouds', 'cream stencilled flowers, leaves and petals sprayed over the clouds, with speckled overspray', 'point collar in the print', 'eight pale peach buttons from the collar to the hem; worn with the top button open', 'tonal stitching on the placket and hems', 'long fitted sleeves to the wrist', 'slim, cropped at the waist'],
+    material: { construction: 'fine-rib stretch mesh', composition: 'not visible in the supplied photos', finish: 'slight sheen' },
+    fit: { silhouette: 'slim, fitted', sleeve: 'long and fitted, to the wrist', hem: 'cropped at the waist', adjustment: 'fixed authored fit for review' },
+    exclusions: ['striped-shirt','knit-sweater'],
+    uncertainties: ['the clouds and stencils are drawn procedurally to match the photos\' colours, shares and motif sizes, not copied', 'worn with the top button open, as on the model; the flat lay is fully buttoned', 'the hem is drawn straight; on the model it dips slightly at the centre front', 'not see-through, as for the tie-dye mesh shirt'],
+    styling: { silhouette: 'slim, cropped at the waist', palette: ['pink', 'coral', 'red', 'orange', 'cream'], pattern: 'blurred spray-paint clouds with large cream stencilled flowers and leaves', coverage: { neck: 'point collar, top button open', sleeves: 'long, sheer', midriff: 'cropped at the waist' }, material: 'fine-rib stretch mesh, composition unknown', warmth: 1, warmthBasis: 'inferred: thin, sheer mesh, though long-sleeved', weather: 'mild to warm days, or as a layer; sheer' },
+    authoring: { template: 'makeButtonShirt() in src/doll/shirts.js', texture: 'procedural sprayFloralData() and fineRibData() in src/doll/shirts.js, drawn locally when first worn', runtimeGeneration: false, sourcePhotosBundled: false },
   },
   [BARREL_JEANS_ID]: {
     slot: 'bottom',
@@ -806,5 +823,20 @@ export const GARMENTS = Object.freeze({
         cuff: [-.5, -.568], cuffRadius: [.121, .118], ruche: [-.28, -.49], rucheDepth: .02, rucheFreq: 70,
       },
     },
+  },
+  // Dresses: one piece worn instead of the top and the bottoms, with bare legs; shoes and outerwear go with it.
+  [ZIP_TRACK_DRESS_ID]: {
+    slot: 'dress',
+    id: ZIP_TRACK_DRESS_ID, name: 'Navy half-zip track mini dress', family: 'long-sleeve-mini-dress', version: 1,
+    status: 'reference-study-awaiting-visual-review', brandAsProvided: null,
+    source: { note: 'user supplied five phone screenshots of a listing (images 2, 3, 5, 7 and 9 of 9): arms crossed, full length front, back, a collar close-up and a hem close-up' },
+    referenceViews: ['front, arms crossed', 'full length front', 'back', 'collar and zip close-up', 'hem and cuff close-up'],
+    details: ['navy textured jersey with fine vertical cable ribs', 'tall stand-up funnel collar that can fold down like a polo', 'quarter zip from the collar to mid-chest: silver teeth and slider with a navy tab', 'raglan sleeves: navy, with a wide cream textured panel down the outside of each sleeve from the neckline to the wrist, split by a narrow navy stripe', 'navy fine-ribbed cuffs', 'short A-line skirt to the upper thigh', 'worn with bare legs, white socks and white sneakers in the photos'],
+    material: { construction: 'textured cable-rib jersey', composition: 'not visible in the supplied screenshots', finish: 'matte' },
+    fit: { silhouette: 'close at the chest, gently A-line', sleeve: 'long raglan, ribbed cuffs', hem: 'upper thigh', neckline: 'stand collar with quarter zip, worn zipped up', adjustment: 'fixed authored fit for review' },
+    layering: { replacesTop: true, replacesBottom: true, bareLegs: true },
+    styling: { silhouette: 'A-line mini, upper thigh', palette: ['navy', 'cream'], pattern: 'sporty colour-blocked raglan sleeves', coverage: { neck: 'high stand collar', sleeves: 'long', midriff: 'covered', legs: 'bare from the upper thigh' }, material: 'textured cable-rib jersey', warmth: 2, warmthBasis: 'inferred: long-sleeved jersey, but bare legs', weather: 'mild days; bare legs below the hem' },
+    uncertainties: ['the brand is not shown on the dress in the screenshots (only the sneakers carry a logo)', 'the rib texture is drawn, not copied', 'the sleeve panel layout is read from the front and back photos; the underarm is not shown', 'the collar is modelled standing, as in three of the photos'],
+    authoring: { texture: 'procedural zipDressData() in src/doll/model.js', runtimeGeneration: false, sourcePhotosBundled: false },
   },
 });

@@ -19,7 +19,7 @@ Measured on the hanger photos (front and back agree): from darkest to palest ten
 
 ## Implementation
 
-Catalog ID `motel-tie-dye-mesh-shirt-v1`, built by `makeButtonShirt()` in the new `src/doll/shirts.js`. No image asset is bundled.
+Catalog ID `motel-tie-dye-mesh-shirt-v1`, built by `makeButtonShirt()` in the new `src/doll/shirts.js`. No image asset is bundled. Since the [spray-paint floral shirt](desigual-spray-floral-shirt.md), `makeButtonShirt()` is a template with one style per shirt; this shirt's style keeps the values below, and its geometry and texture are unchanged.
 
 - **Print:** `tieDyeData()` draws a seamless tile of cloudy patches from wrapped, warped value noise, with speckles breaking up the patch edges. The values are then spread evenly from darkest to palest along a measured colour ramp, as in the photos. The print is mapped around her and up her body in tiles sized to her, so the patches are the same size on the body, collar and sleeves and stay round on her squat torso.
 - **Mesh:** `meshNetData()` is a fine lattice of tiny holes, used as a bump map. The material has a slight sheen.

@@ -318,6 +318,28 @@ test('tie-dye mesh shirt: point collar with black topstitching, seven black butt
   assert.ok(checked>200,`checked ${checked}`);
 });
 
+test('spray floral mesh shirt: on the shirt template, worn open at the top, with peach buttons, tonal stitching and the measured print',()=>{
+  const id='desigual-spray-floral-mesh-shirt-v1';
+  assert.equal(cleanRecipe({topId:id,knit:true}).knit,false);
+  const outfit=makeOutfit({topId:id});outfit.updateMatrixWorld(true);
+  for(const name of ['mesh-shirt-body','shirt-collar-fall','shirt-collar-stand','hem-stitch'])assert.ok(outfit.getObjectByName(name),name);
+  const all=name=>{const found=[];outfit.traverse(o=>{if(o.name===name)found.push(o);});return found;};
+  // Eight buttons in the flat lay; worn with the top one open, seven show. No contrast topstitching on the collar.
+  const buttons=all('shirt-button');assert.equal(buttons.length,7);assert.equal(all('shirt-collar-topstitch').length,0);
+  const c=buttons[0].material.color;assert.ok(c.r>c.g&&c.g>.4,'pale peach buttons');
+  assert.ok(Math.max(...buttons.map(b=>b.getWorldPosition(new T.Vector3()).y/.76))<1.8,'the top button is open');
+  // The top button is open: the body is cut into a narrow V at the front, down to the second button.
+  const p=outfit.getObjectByName('mesh-shirt-body').geometry.attributes.position;let front=-Infinity;
+  for(let i=0;i<p.count;i++)if(p.getZ(i)>.09&&Math.abs(p.getX(i))<.004)front=Math.max(front,p.getY(i));
+  assert.ok(front<1.81&&front>1.79,`V bottom at ${front}`);
+  // The print: pink to red clouds with cream stencils. About a quarter of it is deep red-pink or red (measured shares:
+  // red-pink 15%, red 10%), and some of it is cream.
+  const px=outfit.getObjectByName('mesh-shirt-body').material.map.image.data;let deep=0,cream=0;
+  for(let i=0;i<px.length;i+=4){const [r,g,b]=[px[i],px[i+1],px[i+2]];if(r>g*3&&g<40)deep++;if(g>160&&b>160)cream++;}
+  const n=px.length/4;assert.ok(deep/n>.15&&deep/n<.4,`deep ${deep/n}`);assert.ok(cream/n>.05&&cream/n<.35,`cream ${cream/n}`);
+  disposeObject(outfit);
+});
+
 test('every top records styling facts for later outfit selection',()=>{
   // Relative warmth (1 light to 4 very warm) with what it is based on; silhouette, palette, pattern, coverage and material.
   for(const [id,g] of Object.entries(GARMENTS).filter(([,g])=>g.slot==='top')){

@@ -61,7 +61,7 @@ Plain fabric in the photos measures RGB 186, 65, 105 and 196, 61, 95 at the fron
 
 ## Checks
 
-- `npm test`: 62 passing. A new test checks:
+- `npm test`: 65 passing after merging the other chats' spray-paint floral shirt and track dress. A new test checks:
   - none of the jeans hardware is present
   - the knot, cords and welt
   - the tick is on the front of the left thigh
