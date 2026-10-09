@@ -1,6 +1,6 @@
 # Wardrobe item: adidas Campus 00s grey suede trainers
 
-Authored 9 October 2026. Status: revised after the user's first review (laces, stripes, matte black); awaiting their second look. A pair of shoes from the user's wardrobe list, built on the shared laced-shoe template (`makeLugBoot()`, template `sneaker`).
+Authored 9 October 2026. Status: approved after revisions: the user said “They look okay now” once the laces, stripes, matte black and plain toe were revised. A pair of shoes from the user's wardrobe list, built on the shared laced-shoe template (`makeLugBoot()`, template `sneaker`).
 
 ## Source and reference reading
 

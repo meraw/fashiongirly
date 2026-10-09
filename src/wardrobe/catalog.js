@@ -1027,7 +1027,7 @@ export const GARMENTS = Object.freeze({
   [ADIDAS_CAMPUS_ID]: {
     slot: 'shoes',
     id: ADIDAS_CAMPUS_ID, name: 'adidas Campus 00s grey suede trainers', family: 'skate-sneaker', version: 1,
-    status: 'reference-study-awaiting-visual-review', brandAsProvided: 'adidas (insole, trefoil and “CAMPUS” on the side)',
+    status: 'user-approved-after-revisions', brandAsProvided: 'adidas (insole, trefoil and “CAMPUS” on the side)',
     source: { note: 'user supplied four product images: front three-quarter pair, back pair, outer side, top pair; the user said their pair has black laces rather than the white ones shown' },
     referenceViews: ['front three-quarter', 'back', 'outer side', 'top'],
     details: ['chunky low skate-style trainer in pale grey suede', 'three black serrated leather stripes on each side, leaning forward toward the lacing', 'black leather heel tab with a white trefoil', 'thick padded suede tongue with a round white trefoil badge in a black ring', 'very wide, puffy flat laces, laced to the top: black on the user\'s pair (white in the photos)', 'padded collar with a white terry lining', 'cream cupsole with a gum rubber strip round the bottom', 'gold “CAMPUS” lettering on the outer side'],
