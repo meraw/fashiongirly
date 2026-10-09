@@ -42,6 +42,7 @@ export const MICKEY_LONG_TEE_ID = 'black-mickey-print-long-tee-v1';
 export const PB_CHENILLE_ID = 'pull-bear-grey-chenille-high-neck-v1';
 export const DESIGUAL_SPLIT_FLORAL_SHIRT_ID = 'desigual-split-floral-shirt-v1';
 export const MANGO_DOT_SHIRT_ID = 'mango-halftone-dot-shirt-v1';
+export const LEVIS_PLAID_FLANNEL_ID = 'levis-oversized-plaid-flannel-shirt-v1';
 export const LEVIS_FLORAL_LOGO_SWEATSHIRT_ID = 'levis-floral-batwing-sweatshirt-v1';
 export const BARREL_JEANS_ID = 'topshop-barrel-jeans-v1';
 export const DAVINIA_JEANS_ID = 'desigual-davinia-jeans-v1';
@@ -486,6 +487,22 @@ export const GARMENTS = Object.freeze({
       logo: { at: [.1, 1.765], size: .07 },
       patch: { at: [.1, 1.69], size: [.075, .04] },
     },
+  },
+  [LEVIS_PLAID_FLANNEL_ID]: {
+    slot: 'top',
+    id: LEVIS_PLAID_FLANNEL_ID, name: "Levi's oversized plaid flannel shirt", family: 'relaxed-button-down-shirt', version: 1,
+    status: 'authored-awaiting-user-review', brandAsProvided: "Levi's (the neck label and the tonal embroidery)",
+    source: { note: 'user supplied five product photos without a written description: the front on a model, the back on a model, a closer front, a front flat lay, and the model seated' },
+    referenceViews: ['front on model', 'back on model', 'front, closer', 'front flat lay', 'seated on model'],
+    details: ['soft brushed cotton flannel in a large plaid: a navy-black ground crossed by grey, light grey and white stripes, with a coral red line in each band', 'the stripes woven in a twill, hatching where they cross the ground', 'oversized and relaxed, with dropped shoulders, hip length with a curved shirt tail', 'point collar in the plaid', 'eight pale grey buttons from the collar stand to the hem; worn buttoned to the top', 'patch chest pocket on her left', 'back yoke', 'long sleeves with buttoned cuffs', 'small tonal embroidered mark on the lower left front'],
+    material: { construction: 'brushed cotton flannel, twill weave', composition: 'not stated', finish: 'matte, brushed' },
+    fit: { silhouette: 'oversized and relaxed', sleeve: 'long and relaxed, with buttoned cuffs at the wrist', hem: 'hip length, curved shirt tail', neckline: 'point collar, buttoned to the top', adjustment: 'fixed authored fit for review' },
+    exclusions: ['striped-shirt','knit-sweater'],
+    // Hangs over every waistband; over the skirt it is tucked in, so the skirt's bow shows.
+    layering: { coversWaistband: true, tucksIntoSkirt: true },
+    uncertainties: ['the plaid is woven in code from the stripe widths and colours measured on the flat lay, not copied; the checks are a little squatter than on the shirt, to suit her proportions', 'the dropped shoulders and the tonal embroidered mark are not modelled', 'the plaid is not matched across the placket, pocket and seams as carefully as on the shirt'],
+    styling: { silhouette: 'oversized and relaxed, hip length with a curved hem', palette: ['navy-black', 'grey', 'white', 'coral red'], pattern: 'large plaid', coverage: { neck: 'point collar, buttoned to the top', sleeves: 'long, cuffed', midriff: 'covered' }, material: 'brushed cotton flannel', warmth: 2, warmthBasis: 'inferred: a brushed cotton flannel shirt, long-sleeved', weather: 'cool to mild days, or as a light layer' },
+    authoring: { template: 'makeButtonShirt() in src/doll/shirts.js', texture: 'procedural plaidData() and flannelData() in src/doll/shirts.js, woven locally when first worn; stripe widths and colours measured on the flat lay', runtimeGeneration: false, sourcePhotosBundled: false },
   },
   [BARREL_JEANS_ID]: {
     slot: 'bottom',
