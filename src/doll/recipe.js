@@ -1,8 +1,9 @@
 import { DEFAULT_HAIR_ID, cleanHairId } from '../hair/catalog.js';
 import { BRONZE_TOP_ID, LILAC_TOP_ID, CROCHET_TOP_ID, PLAID_JUMPER_ID, STRIPE_JUMPER_ID, POINTELLE_FLOWER_ID, SILVER_CABLE_ID, LACROIX_FLOWER_ID, TOMMY_CABLE_ID, PETIT_BATEAU_CARDIGAN_ID, TOMMY_STRIPE_POLO_ID, MOTEL_TIE_DYE_SHIRT_ID, DESIGUAL_SPRAY_FLORAL_SHIRT_ID, BARREL_JEANS_ID, DAVINIA_JEANS_ID, LEVIS_94_ID, TOMMY_MOM_ID, STRADIVARIUS_RELAXED_ID, MANGO_BLACK_JEANS_ID, BERSHKA_GREY_ID, TOMMY_CARPENTER_ID, ZARA_CARGO_ID, CRYSTAL_JEANS_ID, GARMENTS } from '../wardrobe/catalog.js';
 import { BUFFALO_ASPHA_ID, DM_COW_SLIDE_ID, UGG_LOWMEL_ID } from '../wardrobe/catalog.js';
+import { ZIP_TRACK_DRESS_ID } from '../wardrobe/catalog.js';
 import { MARIKOO_WINDBREAKER_ID, DESIGUAL_LEATHER_JACKET_ID } from '../wardrobe/catalog.js';
-export const DEFAULT = Object.freeze({ sweater: '#bf303e', trousers: '#283c59', sleeve: .74, hem: .3, barrel: .78, knit: true, shirt: true, skirt: false, skirtColour: '#bd9bc8', topId: 'classic', bottomId: 'classic', shoesId: 'classic', underTopId: 'none', outerwearId: 'none', outerwearOpen: false, hairId: DEFAULT_HAIR_ID });
+export const DEFAULT = Object.freeze({ sweater: '#bf303e', trousers: '#283c59', sleeve: .74, hem: .3, barrel: .78, knit: true, shirt: true, skirt: false, skirtColour: '#bd9bc8', topId: 'classic', bottomId: 'classic', shoesId: 'classic', underTopId: 'none', dressId: 'none', outerwearId: 'none', outerwearOpen: false, hairId: DEFAULT_HAIR_ID });
 export const SWATCHES = [['Tomato', '#bf303e'], ['Butter', '#ead391'], ['Lilac', '#bd9bc8'], ['Cobalt', '#315cb3'], ['Moss', '#74804b'], ['Cream', '#f0e3cb']];
 export function cleanRecipe(value = {}) {
   const v = value && typeof value === 'object' ? value : {};
@@ -15,6 +16,8 @@ export function cleanRecipe(value = {}) {
   if (GARMENTS[v.bottomId]?.slot==='bottom') result.bottomId=v.bottomId;
   if (GARMENTS[v.shoesId]?.slot==='shoes') result.shoesId=v.shoesId;
   if (GARMENTS[v.outerwearId]?.slot==='outerwear') result.outerwearId=v.outerwearId;
+  // A dress is worn instead of the top and the bottoms. They stay in the recipe, so taking the dress off restores them.
+  if (GARMENTS[v.dressId]?.slot==='dress') result.dressId=v.dressId;
   // A top worn over another top (a cardigan, say) may have a slim top under it; anything else falls back to none.
   const under=GARMENTS[v.underTopId];
   if (GARMENTS[result.topId]?.layering?.overTop && under?.slot==='top' && under.layering?.underTop && v.underTopId!==result.topId) result.underTopId=v.underTopId;
@@ -65,6 +68,7 @@ export const OUTFITS = [
   { name: 'Crochet flower study', note: 'Reference study: joined crochet flowers, open lace, a filet neckband and scalloped edges. The motif repeat is drawn from the photos, not copied.', recipe: { ...DEFAULT, topId: CROCHET_TOP_ID, knit: false, shirt: false, trousers: '#d9cbb2', barrel: .3 } },
   { name: 'Lilac portrait study', note: 'Portrait and floral front, silvery back, navy patterned sleeves and a raised collar. Artwork is an interpretation of the references.', recipe: { ...DEFAULT, topId: LILAC_TOP_ID, knit: false, shirt: false, trousers: '#39363b', barrel: .12 } },
   { name: 'Bronze mesh study', note: 'Reference study: fitted mesh, bronze stripes and Buddha print. Sleeve artwork is approximate.', recipe: { ...DEFAULT, topId: BRONZE_TOP_ID, knit: false, shirt: false, trousers: '#39363b', barrel: .2 } },
+  { name: 'Half-zip dress study', note: 'Reference study: a navy textured mini dress with a tall zip collar and cream panels down the raglan sleeves, worn with bare legs, white socks and cream sneakers. The panels and rib are drawn from the photos, not copied.', recipe: { ...DEFAULT, dressId: ZIP_TRACK_DRESS_ID, shoesId: UGG_LOWMEL_ID } },
   { name: 'Marikoo windbreaker study', note: 'Reference study: a slate-blue windbreaker zipped closed, with an ecru yoke ending in a V at the front, the hood down, drawcords, snap welt pockets and elastic hem and cuffs.', recipe: { ...DEFAULT, topId: CROCHET_TOP_ID, bottomId: TOMMY_MOM_ID, outerwearId: MARIKOO_WINDBREAKER_ID, knit: false, shirt: false } },
   { name: 'Leather jacket study', note: 'Reference study: a cropped black faux-leather jacket, worn open as the user wears it, with a point collar, zip pockets over flap pockets with silver snaps, a rib-knit hem band and ruched sleeves. The crinkled gloss is drawn procedurally.', recipe: { ...DEFAULT, topId: STRIPE_JUMPER_ID, bottomId: STRADIVARIUS_RELAXED_ID, outerwearId: DESIGUAL_LEATHER_JACKET_ID, outerwearOpen: true, knit: false, shirt: false } },
   { name: 'Buffalo boots study', note: 'Reference study: chunky olive platform boots with deep lugs, a quilted padded collar, Buffalo logo tape on the heel and tongue, and webbing details, worn with the cropped Davinia jeans so the whole boot shows. Colours measured from the product photos.', recipe: { ...DEFAULT, topId: PLAID_JUMPER_ID, bottomId: DAVINIA_JEANS_ID, shoesId: BUFFALO_ASPHA_ID, knit: false, shirt: false } },

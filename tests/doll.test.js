@@ -90,8 +90,9 @@ test('reference sleeves cover the upper arm with clearance and round over the sh
 test('cuffs and sleeve ends never cut through her mittens or thumbs',()=>{
   const doll=makeDoll();doll.updateMatrixWorld(true);const hands=[];doll.traverse(o=>{if(['tiny-mitten','mitten-thumb'].includes(o.name))hands.push(o);});
   const ray=new T.Raycaster(),p=new T.Vector3(),local=new T.Vector3(),origin=new T.Vector3();
-  for(const topId of Object.keys(GARMENTS).filter(id=>GARMENTS[id].slot==='top')){
-    const outfit=makeOutfit({topId});outfit.updateMatrixWorld(true);const ends=[];
+  // Every top, and every dress (whose sleeves end in cuffs the same way).
+  for(const topId of Object.keys(GARMENTS).filter(id=>['top','dress'].includes(GARMENTS[id].slot))){
+    const outfit=makeOutfit(GARMENTS[topId].slot==='dress'?{dressId:topId}:{topId});outfit.updateMatrixWorld(true);const ends=[];
     outfit.traverse(o=>{if(o.isMesh&&/cuff|sleeve/.test(o.name)){o.geometry.computeBoundingBox();ends.push(o);}});
     for(const hand of hands){const pos=hand.geometry.attributes.position;
       for(let i=0;i<pos.count;i++){p.fromBufferAttribute(pos,i).applyMatrix4(hand.matrixWorld);
@@ -107,3 +108,70 @@ test('cuffs and sleeve ends never cut through her mittens or thumbs',()=>{
   disposeObject(doll);
 });
 
+
+test('dress slot: worn instead of the top and bottoms, with bare legs; the top and bottoms come back when it is off',async()=>{
+  const id='navy-half-zip-track-dress-v1';
+  assert.equal(GARMENTS[id].slot,'dress');
+  assert.equal(cleanRecipe({dressId:id}).dressId,id);assert.equal(cleanRecipe(null).dressId,'none');
+  assert.equal(cleanRecipe({dressId:'tommy-green-cable-sweater-v1'}).dressId,'none','a top is not a dress');
+  assert.equal(cleanRecipe({topId:id}).topId,'classic','a dress is not a top');assert.equal(cleanRecipe({bottomId:id}).bottomId,'classic');
+  const recipe=cleanRecipe({dressId:id,topId:'petit-bateau-striped-cardigan-v1',underTopId:'lilac-portrait-mockneck-v1',bottomId:'levis-94-wide-leg-v1',skirt:true});
+  assert.equal(recipe.topId,'petit-bateau-striped-cardigan-v1','the top stays in the recipe for when the dress comes off');
+  // With the dress on, nothing of the top, the under top, the classic layers, the bottoms or the skirt is built.
+  const doll=makeDoll(),outfit=makeOutfit({...recipe,knit:true,shirt:true});doll.updateMatrixWorld(true);outfit.updateMatrixWorld(true);
+  for(const name of ['dress-body','stand-collar','zip-teeth','zip-stop','raglan-seam','bare-leg-skin'])assert.ok(outfit.getObjectByName(name),name);
+  for(const name of ['petit-bateau-striped-cardigan-v1','under-top','shirt','sweater','layered-skirt'])assert.equal(outfit.getObjectByName(name),undefined,name);
+  let trouserMeshes=0;outfit.getObjectByName('trousers').traverse(o=>{if(o.isMesh)trouserMeshes++;});assert.equal(trouserMeshes,0,'no bottoms under a dress');
+  const off=makeOutfit({...recipe,dressId:'none'});assert.ok(off.getObjectByName('petit-bateau-striped-cardigan-v1'));assert.equal(off.getObjectByName('dress-body'),undefined);disposeObject(off);
+  // A short A-line: the hem sits on the upper thigh, below the crotch and well above the knee.
+  const hem=new T.Box3().setFromObject(outfit.getObjectByName('dress-body')).min.y/.76;assert.ok(hem>.8&&hem<.92,`hem at ${hem}`);
+  const ray=new T.Raycaster(),p=new T.Vector3(),origin=new T.Vector3(),axis=new T.Vector3(0,1,0);
+  // Her body and legs are inside the dress down to its hem, and her legs are skin from the hem down into her socks.
+  const body=outfit.getObjectByName('dress-body'),skins=[];outfit.traverse(o=>{if(o.name==='bare-leg-skin')skins.push(o);});assert.equal(skins.length,2);
+  let inside=0,bare=0;
+  doll.traverse(o=>{if(!['leg','cloth-body'].includes(o.name))return;const pos=o.geometry.attributes.position;
+    for(let i=0;i<pos.count;i+=2){p.fromBufferAttribute(pos,i).applyMatrix4(o.matrixWorld);const y=p.y/.76;if(y>1.85||y<.42)continue;
+      if(y>hem+.01){origin.set(0,p.y,0);const r=p.distanceTo(origin);if(r<.01)continue;ray.set(origin,p.clone().sub(origin).normalize().applyAxisAngle(axis,1e-4));
+        const hit=ray.intersectObject(body,false)[0];assert.ok(hit&&hit.distance>r,`${o.name} vertex ${i} shows through the dress`);inside++;}
+      else if(o.name==='leg'){const skin=skins.find(s=>Math.sign(new T.Box3().setFromObject(s).getCenter(new T.Vector3()).x)===Math.sign(p.x));
+        const c=new T.Box3().setFromObject(skin).getCenter(new T.Vector3());origin.set(c.x,p.y,0);const r=p.distanceTo(origin);if(r<.005)continue;
+        ray.set(origin,p.clone().sub(origin).normalize().applyAxisAngle(axis,1e-4));const hit=ray.intersectObject(skin,false)[0];
+        assert.ok(hit&&hit.distance>r,`leg vertex ${i} is cream felt below the hem, not skin`);bare++;}}});
+  assert.ok(inside>200&&bare>50,`inside ${inside}, bare ${bare}`);
+  // Her arms stay inside the sleeves, which round over the shoulders, and the cuffs ease over her hands.
+  const arms=[],sleeves=[];doll.traverse(o=>{if(o.name==='arm')arms.push(o);});outfit.traverse(o=>{if(o.name==='knit-jumper-sleeve')sleeves.push(o);});
+  let checked=0;for(let side=0;side<2;side++){const arm=arms[side],sleeve=sleeves[side],v=arm.geometry.attributes.position;
+    for(let i=0;i<v.count;i+=2){p.fromBufferAttribute(v,i).applyMatrix4(arm.matrixWorld);sleeve.worldToLocal(p);if(p.y<-.44)continue;
+      origin.set(0,Math.min(p.y,0),0);sleeve.localToWorld(origin);sleeve.localToWorld(p);const r=p.distanceTo(origin);if(r<.01)continue;
+      ray.set(origin,p.clone().sub(origin).normalize());const hit=ray.intersectObject(sleeve,false)[0];assert.ok(hit&&hit.distance>r+.002,`arm ${side} vertex ${i} pokes through the sleeve`);checked++;}}
+  assert.ok(checked>100);disposeObject(doll);disposeObject(outfit);
+  // In the studio: choosing the dress rests the top's and bottoms' layer controls; choosing a top takes the dress off.
+  const dom=new JSDOM(readFileSync('index.html','utf8'),{url:'https://example.com/'}),d=dom.window.document;
+  const app=await startStudio(d,async()=>({update(){},turn(){},dispose(){}}));
+  const pick=d.getElementById('dress-select');pick.value=id;pick.dispatchEvent(new dom.window.Event('change'));
+  assert.equal(app.getRecipe().dressId,id);for(const key of ['knit','shirt','skirt','barrel'])assert.equal(d.getElementById(key).disabled,true,key);
+  d.getElementById('save').click();assert.equal(JSON.parse(dom.window.localStorage.getItem('fashiongirly.plush-looks.v1'))[0].dressId,id);
+  const top=d.getElementById('top-select');top.value='tommy-green-cable-sweater-v1';top.dispatchEvent(new dom.window.Event('change'));
+  assert.equal(app.getRecipe().dressId,'none');assert.equal(app.getRecipe().topId,'tommy-green-cable-sweater-v1');
+  app.dispose();dom.window.close();
+});
+
+test('dress under outerwear: a closed jacket covers it from the jacket hem up, and the skirt of the dress hangs below',()=>{
+  const id='navy-half-zip-track-dress-v1';
+  for(const outerwearId of Object.keys(GARMENTS).filter(k=>GARMENTS[k].slot==='outerwear')){
+    const outfit=makeOutfit({dressId:id,outerwearId});outfit.updateMatrixWorld(true);
+    assert.ok(outfit.getObjectByName('dress-body'));assert.ok(outfit.getObjectByName('outerwear'),outerwearId);
+    // The dress sleeves are hidden inside the jacket's.
+    outfit.traverse(o=>{if(o.name==='knit-jumper-sleeve'){let v=true;for(let q=o;q;q=q.parent)if(!q.visible)v=false;assert.equal(v,false,`${outerwearId}: dress sleeve hidden`);}});
+    const spec=GARMENTS[outerwearId].build?.body;
+    if(GARMENTS[outerwearId].layering?.closed&&spec?.hem){
+      const jacket=outfit.getObjectByName('outerwear'),cover=[];jacket.traverse(o=>{if(o.isMesh&&/jacket-body|hem-band/.test(o.name))cover.push(o);});
+      const dress=outfit.getObjectByName('dress-body'),pos=dress.geometry.attributes.position,ray=new T.Raycaster(),p=new T.Vector3();let checked=0;
+      for(let i=0;i<pos.count;i+=3){p.fromBufferAttribute(pos,i).applyMatrix4(dress.matrixWorld);const y=p.y/.76;if(y<spec.hem+.012||y>spec.collarBase)continue;
+        const r=Math.hypot(p.x,p.z);ray.set(new T.Vector3(0,p.y,0),new T.Vector3(p.x,0,p.z).normalize().applyAxisAngle(new T.Vector3(0,1,0),1e-4));
+        const hits=ray.intersectObjects(cover,false);assert.ok(hits.some(h=>h.distance>r),`${outerwearId}: dress shows through at y ${y.toFixed(3)}`);checked++;}
+      assert.ok(checked>100,`${outerwearId} checked ${checked}`);
+    }
+    disposeObject(outfit);
+  }
+});
