@@ -1,6 +1,6 @@
 # Wardrobe item: striped waffle-knit snap-collar jumper
 
-Authored 9 October 2026. Status: second version awaiting the user's visual review. Added by the chat that has been doing shoes, outerwear and tops (any chat can add any category).
+Authored 9 October 2026. Status: second version; approved: the user merged it, and merging means approved (their rule). Added by the chat that has been doing shoes, outerwear and tops (any chat can add any category).
 
 ## Source and reference reading
 
@@ -73,7 +73,7 @@ The user found the collar strange: it was folded, but the folded part didn't con
   - over the skirt, and under the open leather jacket;
   - in the real app with its study preset.
 
-  The user has not yet seen it, and nothing has been checked on a device.
+  The user merged the pull request after seeing the revised collar. Nothing has been checked on a device.
 
 ## Known differences
 
