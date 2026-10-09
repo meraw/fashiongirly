@@ -10,13 +10,14 @@ Read [PRODUCT_BRIEF.md](PRODUCT_BRIEF.md) for the product's intent and agreed co
 
 Weather-aware daily self-dressing is a core goal: she checks the weather and creates her own playful, daring outfit from the user's imported wardrobe, with hair chosen as part of the look. Finish wardrobe import first, then build that experience. Manual selectors and preset studies are the current construction/review tools, not the final goal.
 
-Every chat should retain independently selectable garments and record known styling, coverage/warmth and layer-compatibility information needed by later outfit selection. Mark unknowns rather than inventing weather performance. The current no-API phase remains in force; the weather source and daily/background behaviour are not yet chosen. The product brief now records the sequence and boundaries.
+Every chat should retain independently selectable garments and record known styling, coverage/warmth and layer-compatibility information needed by later outfit selection. Mark unknowns rather than inventing weather performance. The current no-API phase remains in force for AI; on 9 October 2026 the user allowed weather from a free source (a keyless forecast, proposed: Open-Meteo). Daily/background behaviour is not yet chosen. The product brief records the sequence and boundaries, and [DAILY_STYLING_PLAN.md](DAILY_STYLING_PLAN.md) the proposed path from here to daily self-dressing.
 
 Since 9 October 2026 every garment, in every slot, has a `styling` record, checked by `tests/styling.test.js`: silhouette, palette, pattern, coverage, material, warmth with its basis, weather, a `layering` note and an `unknown` list. Warmth runs from 1 (light) to 4 (very warm) on one scale for every slot, so a jacket can be compared with a jumper (outerwear since the user agreed on 9 October 2026). Tops, bottoms, shoes and dresses keep the tops' flat format; outerwear keeps its observed, user and inferred groups (warmth also in words and unknowns under `inferred`), with `warmth`, `warmthBasis` and `layering` beside them. A `layering` note says how the piece combines in the app (over or under which layers, how a hem meets the shoes) and anything the user said about how they wear it; the test checks it against the catalog's layering flags. List what is not known in `unknown` rather than guessing it; an empty list means nothing is known to be missing. A new garment needs these fields for `npm test` to pass.
 
 ## Current implementation
 
-- Static JavaScript app with Three.js 0.180.0; no runtime AI or service API calls.
+- Static JavaScript app with Three.js 0.180.0; no runtime AI calls. Its one network request is the day's forecast from Open-Meteo (free, no key), allowed by the user on 9 October 2026.
+- Daily self-dressing, first version (9 October 2026): the Today panel at the top of the studio (`src/today/today.js`) checks the weather on the first open after 5:00 and dresses her with the stylist (`src/style/`). See [DAILY_STYLING_PLAN.md](DAILY_STYLING_PLAN.md) for how it works, what she judges, and what is left.
 - Procedural doll and a separate replaceable wardrobe group. The cute face and revised compact body are the current visual baseline. The shoulders were softened on user request: arms start slightly lower (`makeDoll`), and `roundSleeveCap()` curves the outer top of every reference-top sleeve.
 - Knit sweater, striped shirt, barrel jeans, and optional pleated skirt over jeans with a ribbon.
 - Outerwear slot with two zip windbreakers and a leather jacket, worn over any top, bottoms, skirt or dress (`src/doll/outerwear.js`).
@@ -58,6 +59,12 @@ Since 9 October 2026 every garment, in every slot, has a `styling` record, check
 | `tests/outerwear-bottoms.test.js` | Outerwear coverage of every bottom and the skirt (the coverage check is shared in `tests/outerwear-coverage.js`) |
 | `tests/shoes.test.js` | Shoe slot, boot construction, how every bottom layers with every shoe, shoe selector |
 | `src/doll/level-caster.js` | `levelCaster()`: the same hit as a three.js Raycaster for level rays, much faster, optionally around a vertical axis the rays start from; used by `makeJeans()`, `surfaceProbe()` and the layering tests (`tests/level-caster.test.js`) |
+| `src/style/facts.js` | Reads every garment's styling facts (three shapes in the catalog) into one form: warmth 1–4, rain, colours, pattern, shape |
+| `src/style/taste.js` | Her taste written down: principles with weights, the daring default, and what she learns from saved and set-aside pieces |
+| `src/style/stylist.js` | `composeOutfit(conditions, options)`: weather needs, candidate outfits, scoring, hair; returns a recipe `cleanRecipe()` accepts unchanged |
+| `src/weather/` | Conditions, presets, the 5:00 day boundary, and the Open-Meteo forecast and place search |
+| `src/today/today.js` | The Today panel: daily look, keep, another idea, bolder/easier, set aside, undo, place and manual weather; state in local storage |
+| `tests/stylist.test.js`, `tests/weather.test.js`, `tests/today.test.js` | Facts for every garment, weather rules for every preset, the forecast fixture, and the panel in jsdom |
 | `scripts/build.mjs` | Static build including local Three.js dependencies |
 | `.github/workflows/pages.yml` | Manually dispatched Pages deployment |
 

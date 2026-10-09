@@ -2,7 +2,7 @@
 
 A tiny living fashion doll with a playful wardrobe. The current homepage is a **reusable 3D doll study** with separate, editable clothing geometry.
 
-The intended product is a girl who **checks the weather and dresses herself each morning**, choosing playful, daring combinations from the user's wardrobe. Finish wardrobe import first, then build daily styling; the current manual studio is the foundation. Weather integration and autonomous outfit selection are not implemented yet.
+The intended product is a girl who **checks the weather and dresses herself each morning**, choosing playful, daring combinations from the user's wardrobe. A first version of that now runs: each morning (from 5:00) the **Today** panel checks the forecast for the phone's location, or a typed town, and she dresses herself from the wardrobe, with hair, and says why. You can keep pieces, ask for another idea, make her bolder or easier, set a piece aside, undo, and save the look. Her choices follow written styling rules ([src/style/taste.js](src/style/taste.js)), not AI. See the [daily styling plan](docs/DAILY_STYLING_PLAN.md).
 
 ## Start here in a new chat
 
@@ -50,6 +50,9 @@ For GitHub Pages: select **Settings → Pages → Source → GitHub Actions**, t
 - `src/doll/recipe.js`: clothing recipe validation and bounded description editing.
 - `src/doll/view.js`: Three.js camera, lighting, touch rotation, and rendering lifecycle.
 - `src/doll/app.js`: controls, draft storage, and lookbook.
+- `src/today/today.js`: the Today panel: the daily look, refinements, location and weather choice.
+- `src/style/`: the stylist. `facts.js` reads each garment's styling facts, `taste.js` is her taste written down, `stylist.js` dresses her for the weather.
+- `src/weather/`: the day's conditions (`conditions.js`) and the Open-Meteo forecast and place search (`open-meteo.js`), the app's only network request.
 - `illustration.html`: the earlier vector study, retained for comparison.
 
 The renderer rebuilds only the outfit on a wardrobe edit. The doll's identity remains in the scene. Sleeve, body, cuff, collar, and trouser surfaces are authored approximations with explicit controls, not sewing-pattern reconstruction.
@@ -58,7 +61,7 @@ The renderer rebuilds only the outfit on a wardrobe edit. The doll's identity re
 
 `npm test` covers finite geometry and supported parameter extremes, layer toggles, silhouette changes, safe recipe handling, description editing, UI save/restore, and failed WebGL startup. It also preserves the earlier vector recipe tests. An offline geometry projection was inspected; it does not reproduce WebGL fabric shading. Browser/device QA remains outstanding.
 
-Data lives in this browser. Clearing browser storage removes drafts and saved looks. Weather, autonomous daily styling, arbitrary garment generation, automatic reference-photo intake, real cloth physics, animation, and cloud sync are future work.
+Data lives in this browser. Clearing browser storage removes drafts, saved looks, her daily looks and what she has learned. The forecast comes from [Open-Meteo](https://open-meteo.com) (free, no key, non-commercial use; credited in the panel); without it, choose the weather by hand. Background updates and notifications, arbitrary garment generation, automatic reference-photo intake, real cloth physics, animation, and cloud sync are future work.
 
 ### Playful outfit studies
 
