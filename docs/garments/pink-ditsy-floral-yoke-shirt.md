@@ -1,6 +1,6 @@
 # Wardrobe item: Pink ditsy floral yoke shirt
 
-Authored 9 October 2026. Status: second version (longer, with a curved hem, after the user's first look), awaiting the user's visual review. The fourth relaxed shirt on the shirt template, and the first with a yoke.
+Authored 9 October 2026. Status: second version (longer, with a curved hem, after the user's first look); approved: the user merged it, and merging means approved (their rule). The fourth relaxed shirt on the shirt template, and the first with a yoke.
 
 ## Source and reference reading
 
@@ -79,7 +79,7 @@ Boxy, gathered below a yoke and to the top of the thigh with a gently curved hem
     - over the skirt, the tucked hem and the visible bow.
   - The shared sleeve, hand, waistband, outerwear and styling tests also run on it.
 - `npm run build` succeeds.
-- Rendered in headless Chromium (software WebGL) from the front, a turn, the side and the back, over the grey jeans and tucked into the skirt. Only the authoring chat has checked these renders; the user has not seen them yet. No device check.
+- Rendered in headless Chromium (software WebGL) from the front, a turn, the side and the back, over the grey jeans and tucked into the skirt. The user saw them and merged the shirt. No device check.
 
 ## Known differences
 

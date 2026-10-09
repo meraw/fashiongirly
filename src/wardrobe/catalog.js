@@ -45,6 +45,7 @@ export const DESIGUAL_SPLIT_FLORAL_SHIRT_ID = 'desigual-split-floral-shirt-v1';
 export const MANGO_DOT_SHIRT_ID = 'mango-halftone-dot-shirt-v1';
 export const LEVIS_FLORAL_LOGO_SWEATSHIRT_ID = 'levis-floral-batwing-sweatshirt-v1';
 export const PINK_YOKE_SHIRT_ID = 'pink-ditsy-floral-yoke-shirt-v1';
+export const STRIPE_SNAP_JUMPER_ID = 'striped-waffle-snap-collar-jumper-v1';
 export const PAISLEY_SHIRT_ID = 'paisley-print-relaxed-shirt-v1';
 export const BARREL_JEANS_ID = 'topshop-barrel-jeans-v1';
 export const DAVINIA_JEANS_ID = 'desigual-davinia-jeans-v1';
@@ -426,7 +427,7 @@ export const GARMENTS = Object.freeze({
   [LEVIS_FLORAL_LOGO_SWEATSHIRT_ID]: {
     slot: 'top',
     id: LEVIS_FLORAL_LOGO_SWEATSHIRT_ID, name: "Levi's floral batwing logo sweatshirt", family: 'crew-neck-sweatshirt', version: 1,
-    status: 'reference-study-awaiting-visual-review', brandAsProvided: "Levi's (the logo and the red side tab)",
+    status: 'user-approved', brandAsProvided: "Levi's (the logo and the red side tab)",
     source: { note: 'user supplied four product photos without a description: a close-up of the chest, a full-length front on a model, the back on a model and the front on a model' },
     referenceViews: ['chest close-up', 'front full length on model', 'back on model', 'front on model'],
     details: ['washed black cotton fleece sweatshirt, relaxed and slightly boxy', "chest logo: the Levi's batwing filled with white lilies, pink buds and green leaves on a sky-blue ground, some lilies spilling over its edges", "black lettering across it and a registered mark at its top right", 'ribbed crew neckband', 'dropped shoulders and full long sleeves gathered into rib cuffs', 'a deep rib hem band at the waistband of high-rise jeans, the body blousing a little over it', 'a small red tab in her left side seam just above the band', 'plain back'],
@@ -493,7 +494,7 @@ export const GARMENTS = Object.freeze({
   [PINK_YOKE_SHIRT_ID]: {
     slot: 'top',
     id: PINK_YOKE_SHIRT_ID, name: 'Pink ditsy floral yoke shirt', family: 'gathered-yoke-button-down-shirt', version: 1,
-    status: 'reference-study-awaiting-visual-review', brandAsProvided: 'not stated',
+    status: 'user-approved', brandAsProvided: 'not stated',
     source: { note: 'user supplied four product photos without a description: full length on a model with grey skinny jeans, a closer front, the back, and a close-up of the collar, yoke and sleeve' },
     referenceViews: ['front full length on model', 'front, closer', 'back on model', 'collar, yoke and sleeve close-up'],
     details: ['boxy long-sleeved shirt in a soft, fluid fabric with a slight sheen', 'printed with small florals on soft pink: cream five-petal daisies with rust centres, rust flowers with cream centres, rust leaves on fine stems and tiny cream sprigs', 'big 1970s point collar with long points', 'a yoke across the front and back, with the body gathered below it', 'cream buttons down the front, worn with the top one open', 'full sleeves, gathered at a dropped shoulder and into buttoned cuffs', 'to the top of the thigh, with a gently curved hem, lowest at the centre front and back'],
@@ -505,6 +506,44 @@ export const GARMENTS = Object.freeze({
     uncertainties: ['the print is redrawn in code as scattered daisies, rust flowers, leaves and sprigs, not copied from the photos', 'the flowers are drawn a little larger than on the shirt, so they stay visible on a phone', 'the dropped shoulder seam and the gathers at the sleeve head are not modelled; the sleeves are full and gather into the cuffs', 'over the skirt it is tucked in rather than worn loose', 'brand not stated'],
     styling: { silhouette: 'boxy, gathered below a yoke, to the top of the thigh', palette: ['soft pink', 'cream', 'rust'], pattern: 'small scattered florals (ditsy)', coverage: { neck: 'big point collar, top button open', sleeves: 'long, full, cuffed', midriff: 'covered, to the top of the thigh' }, material: 'soft woven fabric, composition not stated', warmth: 1, warmthBasis: 'inferred: a light, fluid shirt fabric, though long-sleeved', weather: 'mild to warm days, or as a light layer' },
     authoring: { template: 'makeButtonShirt() in src/doll/shirts.js', texture: 'procedural ditsyFloralData() and crepeData() in src/doll/shirts.js, drawn locally when first worn; colours measured in the close-up', runtimeGeneration: false, sourcePhotosBundled: false },
+  },
+  [STRIPE_SNAP_JUMPER_ID]: {
+    slot: 'top',
+    id: STRIPE_SNAP_JUMPER_ID, name: 'Striped waffle-knit snap-collar jumper', family: 'snap-collar-knit-jumper', version: 1,
+    status: 'reference-study-awaiting-visual-review', brandAsProvided: 'not stated (the neck label is not legible in the photos)',
+    source: { note: 'user supplied two second-hand photos (the only ones they could find): a mirror selfie wearing it buttoned to the top, and the front on a hanger; the user wears it with a few snaps open' },
+    referenceViews: ['front on the wearer (mirror selfie, buttoned up)', 'front on a hanger'],
+    details: ['relaxed waffle-knit jumper in cream with slate-grey horizontal stripes, the grey a little narrower than the cream', 'raglan sleeves', 'a big ribbed fold-over collar in cream, with snaps on its front ends', 'a cream half placket closed with four metal snaps (silver rings round dark eyelets)', 'a deep cream rib hem band, the body blousing a little over it', 'full sleeves into long cream rib cuffs', 'hip length'],
+    wear: { userNote: 'usually worn with a few buttons unbuttoned' },
+    material: { construction: 'chunky waffle (thermal) knit with rib trims', composition: 'not stated', finish: 'matte, textured' },
+    fit: { silhouette: 'relaxed, slightly boxy', sleeve: 'long and full, raglan, into long rib cuffs', hem: 'hip, deep rib band', neckline: 'big fold-over collar on a snap placket, worn open at the top', adjustment: 'fixed authored fit for review; worn open as the user wears it' },
+    exclusions: ['striped-shirt','knit-sweater'],
+    layering: { coversWaistband: true },
+    uncertainties: ['only two second-hand photos: the back, the stripe count on the back and the exact collar shape open are not shown', 'worn with the top two snaps open (the user: "a few"), which opens a V and spreads the collar; how far it opens is a choice', 'the waffle knit is drawn in code, not copied from the photos', 'the brand is not known'],
+    styling: { silhouette: 'relaxed, hip length', palette: ['cream', 'slate grey'], pattern: 'horizontal stripes', coverage: { neck: 'big collar, open V at the top', sleeves: 'long', midriff: 'covered' }, material: 'chunky waffle knit', warmth: 3, warmthBasis: 'inferred: a chunky knit with long sleeves and rib cuffs, open at the neck', weather: 'cool days; the open neck lets some air in', mood: 'relaxed, preppy-casual' },
+    authoring: { template: 'makeSnapCollarJumper() in src/doll/snap-collar-jumper.js', texture: 'procedural waffle knit and stripes in src/doll/snap-collar-jumper.js; colours measured from the photos', runtimeGeneration: false, sourcePhotosBundled: false },
+    // Construction for makeSnapCollarJumper() in src/doll/snap-collar-jumper.js, in outfit units. The body and sleeves
+    // follow the green cable sweater's relaxed raglan fit, which clears every bottom and the skirt.
+    build: {
+      template: 'snap-collar-jumper',
+      colours: { rib: '#c6bfae', skin: '#dfb195', metal: '#8e9097', eyelet: '#2a292d' },
+      // The waffle knit: cells per stripe repeat (the first `stripeRows` grey), the repeat's height and cells round the body.
+      knit: { ground: '#c0b7a4', stripe: '#3a3e4c', cells: 7, stripeRows: 3, pitch: .1, around: 140 },
+      body: { hem: 1.14, band: .085,
+        rows: [[1.905, .112, .104], [1.875, .172, .126], [1.83, .238, .16], [1.775, .282, .188], [1.65, .302, .204], [1.45, .308, .214], [1.3, .311, .222]],
+        blouse: [.314, .232], bandRadius: [.312, .23], bandOverSkirt: [.338, .252] },
+      sleeve: { around: 60, cuffRibs: 32,
+        rows: [[.03, .122, .118], [-.06, .135, .13], [-.2, .136, .13], [-.33, .13, .125], [-.42, .118, .113], [-.455, .104, .1]],
+        cuff: [[-.445, .096, .092], [-.5, .093, .09], [-.565, .092, .089]] },
+      // The open V: its bottom, its half-width at the neck, the placket's width and lower end, the snap size, and the
+      // heights of the open snaps (a cap and a stud each side of the V) and the closed ones below it.
+      placket: { vBottom: 1.765, vHalf: .065, width: .024, end: 1.645, snap: .0085, open: [1.87, 1.815], closed: [1.735, 1.68] },
+      // The collar: its fold (height and radii), how much lower the fold is at the front, and the stand's depth; its outer
+      // edge's height at the back, how far lower it lies at the front, and how far its rounded front corners drop over what
+      // share of its length; how far across its front ends spread; the share of its depth over which it comes down from the
+      // fold, how far off the body it lies and how much it rolls (less above `flatAbove`); the top of the lapels' roll lines; and where its snaps sit (along and across it).
+      collar: { fold: [1.955, .12, .118], frontDrop: .03, stand: .05, outer: 1.85, outerDrop: .21, cornerDrop: .03, corner: .12, spread: .2, drape: .35, lift: .01, roll: .006, flatAbove: 1.9, rollTop: 1.86, snapU: .045, snapV: [.5, .8] },
+    },
   },
   [PAISLEY_SHIRT_ID]: {
     slot: 'top',
