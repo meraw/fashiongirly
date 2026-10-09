@@ -5,6 +5,8 @@ export const DESIGUAL_LEATHER_JACKET_ID = 'desigual-black-faux-leather-jacket-v1
 export const RED_BULL_WINDBREAKER_ID = 'red-bull-racing-stone-windbreaker-v1';
 export const EMERALD_PARKA_ID = 'emerald-dyed-sherpa-hood-parka-v1';
 export const BOMBOOGIE_FUR_JACKET_ID = 'bomboogie-pink-faux-fur-jacket-v1';
+export const WOOLRICH_BOMBER_ID = 'woolrich-cream-fur-hood-bomber-v1';
+export const ADIDAS_CROPPED_WINDBREAKER_ID = 'adidas-cream-cropped-windbreaker-v1';
 // Dresses: none by default ('none'); a catalog dress fills the 'dress' slot and is worn instead of the top and bottoms.
 export const ZIP_TRACK_DRESS_ID = 'navy-half-zip-track-dress-v1';
 // Shoes: built-in loafers are 'classic'; catalog shoes fill the 'shoes' slot.
@@ -1435,6 +1437,102 @@ export const GARMENTS = Object.freeze({
         rows: [[.045, .124, .118], [0, .138, .132], [-.1, .142, .136], [-.25, .14, .135], [-.38, .136, .132], [-.45, .132, .128], [-.495, .124, .12]],
         cuff: [-.495, -.568], cuffRadius: [.128, .124], gathers: 9, gatherDepth: .035, gatherHeight: .08, cuffRoll: .009,
       },
+    },
+  },
+  [WOOLRICH_BOMBER_ID]: {
+    slot: 'outerwear',
+    id: WOOLRICH_BOMBER_ID, name: 'Woolrich cream hooded bomber', family: 'zip-windbreaker', version: 1,
+    status: 'reference-study-awaiting-visual-review', brandAsProvided: 'Woolrich (John Rich & Bros), vintage; size XS on the label',
+    source: { note: 'user supplied eight resale-listing photos of their own vintage jacket (Vestiaire Collective): front laid out, front and back on a bed, the sleeve pocket and label, and the inside (lining, hood fur and label)' },
+    referenceViews: ['front flat, open', 'front on bed, open', 'front on bed, hood up', 'back with hood', 'sleeve pocket and label', 'inside: quilted lining and hood fur', 'hood fur and label close-ups'],
+    details: ['cream cotton canvas bomber, slightly yellowed with age, tonal topstitching', 'hood lined in grey-beige faux fur, with a darker dark-tipped faux-fur ruff round the opening; the hood zips on and closes with snaps', 'zip under a storm flap closing with metal snaps; snaps on the stand collar', 'raglan sleeves; centre-back seam', 'large flap pockets at the hip with snaps', 'zip pocket and a white Woolrich label on the upper left sleeve', 'rib-knit hem band and long rib-knit cuffs in cream', 'navy quilted lining (onion quilting)', 'snap tabs at the sides of the waist'],
+    material: { construction: 'cotton canvas shell, padded, with a quilted nylon lining', composition: 'not visible in the supplied photos', finish: 'matte, softly wrinkled cotton' },
+    fit: { silhouette: 'boxy bomber, raglan sleeves', length: 'hip, to a rib band', sleeve: 'long, gathered into long rib cuffs', wear: 'zipped closed in real life (the user wears outerwear closed unless it is designed to be worn open), hood down; it can also be shown open on the doll', adjustment: 'fixed authored fit for review' },
+    layering: { closed: true, coversTopSleeves: true, coversWaistband: true, canOpen: true },
+    styling: {
+      observed: { palette: ['vintage cream', 'grey-beige fur', 'navy lining'], pattern: 'plain', silhouette: 'boxy hip-length hooded bomber with raglan sleeves', coverage: 'torso and arms to the wrist; neck when zipped; hood', material: 'cotton canvas shell, padded, quilted lining, faux-fur hood lining and ruff' },
+      user: { wear: 'zipped closed, or not worn, in real life (their rule for outerwear); shown open on the doll only to see how it looks' },
+      inferred: { warmth: 'warm: padded with a quilted lining and a fur-lined hood', weather: 'cold, dry or windy days; the cotton shell is not waterproof', unknown: ['fibre composition', 'whether the hood is detached when worn', 'how the user wears it'] },
+    },
+    uncertainties: ['the fur is drawn as a pile texture, not individual fibres', 'the ruff lies round her neck with the hood down, where her large head hides most of it from the front', 'the waist snap tabs are not modelled', 'the label carries no lettering'],
+    authoring: { texture: 'procedural colour, seams, pile and rib knit drawn locally in src/doll/outerwear.js; colours measured from the photos', runtimeGeneration: false, sourcePhotosBundled: false },
+    // On the zip-windbreaker template, with the Marikoo jacket's hip-length body made a little fuller, rib knit at the hem
+    // and cuffs, a storm flap with snaps, flap pockets, a sleeve zip pocket and label, and a fur-lined hood with a ruff.
+    build: {
+      template: 'zip-windbreaker', roughness: .9,
+      colours: { shell: '#9f9383', stitch: '#8d8273', snap: '#d9d3c6', cord: '#cfc8ba', zip: '#9a9892', opening: '#665d4f', rib: '#aba294', badge: '#ece9e1', sherpa: '#b3a891', lining: '#1c2233' },
+      open: { shift: .09 }, liningFinish: 'nylon',
+      padding: { puff: .006, drape: 0, folds: 5, sleeveFolds: .022, crinkle: { repeat: [10, 7], scale: .16, sheen: .1 } },
+      body: {
+        rows: [[1.975, .132, .126], [1.935, .133, .127], [1.9, .143, .132], [1.875, .207, .165], [1.84, .278, .212], [1.8, .33, .249], [1.75, .358, .267], [1.65, .37, .28], [1.5, .374, .286], [1.35, .376, .29], [1.22, .375, .291], [1.16, .368, .285], [1.135, .356, .274], [1.118, .346, .265]],
+        overSkirt: [[1.975, .132, .126], [1.935, .133, .127], [1.9, .143, .132], [1.875, .207, .165], [1.84, .278, .212], [1.8, .33, .249], [1.75, .358, .267], [1.65, .37, .28], [1.5, .374, .286], [1.35, .378, .292], [1.22, .385, .297], [1.16, .386, .296], [1.135, .382, .29], [1.118, .376, .283]],
+        hem: 1.04, band: .08, bandRadius: [.338, .258], bandOverSkirt: [.374, .277], bandPuckers: 120,
+        gathers: 30, gatherDepth: .01, gatherHeight: .08,
+        collarBase: 1.89, collarTop: 1.975, collarRadius: [.132, .126],
+      },
+      // Raglan seams front and back, and a centre-back seam, as seen straight on.
+      lines: [
+        { points: [[.125, 1.885], [.2, 1.77], [.345, 1.6]], mirror: true, width: .0022, shade: .9 },
+        { points: [[.125, 1.885], [.2, 1.77], [.345, 1.6]], mirror: true, back: true, width: .0022, shade: .9 },
+        { points: [[0, 1.89], [0, 1.13]], back: true, width: .002, shade: .9 },
+      ],
+      sleeve: {
+        rows: [[.05, .142, .132], [0, .162, .152], [-.1, .169, .16], [-.25, .168, .159], [-.38, .163, .155], [-.45, .156, .149], [-.49, .14, .134], [-.51, .126, .121]],
+        cuff: [-.495, -.575], cuffRadius: [.124, .122], cuffPuckers: 44, gathers: 14, gatherDepth: .02, gatherHeight: .07,
+        badge: { y: -.13, shape: 'rect', w: .06, h: .026 },
+        zipPocket: { y: -.2, h: .085, w: .06 },
+      },
+      zip: { width: .016, stitch: .02 },
+      placket: { offset: .014, width: .058, snaps: [[.08, 1.952]], studs: [1.2, 1.36, 1.52, 1.68, 1.83], roll: .006 },
+      pockets: { style: 'flap', x0: .14, x1: .31, top: 1.33, height: .072, point: .008, lift: .014 },
+      hood: { top: 1.88, bottom: 1.6, round: .07, halfWidth: .22, lift: .09, edge: .012, label: false,
+        opening: { from: .32, rise: .05, out: .035, radius: .018, lining: { radius: .026, inset: .02 } },
+        ruff: { along: 'rim', radius: .026, tufts: 1800, colour: '#7f7669', tip: '#4a443e' } },
+    },
+  },
+  [ADIDAS_CROPPED_WINDBREAKER_ID]: {
+    slot: 'outerwear',
+    id: ADIDAS_CROPPED_WINDBREAKER_ID, name: 'adidas cream cropped windbreaker', family: 'zip-windbreaker', version: 1,
+    status: 'reference-study-awaiting-visual-review', brandAsProvided: 'adidas Originals (tonal trefoil on the chest)',
+    source: { note: 'user supplied two resale-listing photos of the jacket on a dress form: front zipped and back' },
+    referenceViews: ['front on dress form, zipped', 'back on dress form'],
+    details: ['cream (off-white) woven nylon shell, all tonal', 'tall stand collar folded over, tonal coil zip to the top', 'tonal embossed trefoil on the left chest', 'dropped shoulders and very full balloon sleeves', 'cropped body blousing over a wide shirred elastic waistband at the waist', 'long shirred elastic cuffs', 'two seams down the front from the chest to the band', 'back yoke seam and centre-back seam'],
+    material: { construction: 'woven windbreaker shell', composition: 'not visible in the supplied photos', finish: 'matte, softly crinkled' },
+    fit: { silhouette: 'cropped and blousy, dropped shoulders, balloon sleeves', length: 'waist, to a shirred band', sleeve: 'long and very full, gathered into shirred cuffs', wear: 'zipped closed in real life (the user wears outerwear closed unless it is designed to be worn open); it can also be shown open on the doll', adjustment: 'fixed authored fit for review' },
+    layering: { closed: true, coversTopSleeves: true, coversWaistband: true, canOpen: true },
+    styling: {
+      observed: { palette: ['cream'], pattern: 'plain, tonal logo', silhouette: 'cropped blouson with balloon sleeves', coverage: 'torso to the waist and arms to the wrist; neck when zipped; the top shows below the band', material: 'woven windbreaker shell, unlined or lightly lined' },
+      user: { wear: 'zipped closed, or not worn, in real life (their rule for outerwear); shown open on the doll only to see how it looks' },
+      inferred: { warmth: 'light layer: a thin unpadded shell', weather: 'mild, breezy days; not for rain or cold', unknown: ['lining', 'fibre composition', 'how the user wears it'] },
+    },
+    uncertainties: ['the trefoil is a small generic three-leaf emblem in a tonal shade, not the exact logo', 'side seam pockets, if any, are not modelled', 'the collar is drawn standing; on the dress form it is folded over'],
+    authoring: { texture: 'procedural colour, seams and tonal logo drawn locally in src/doll/outerwear.js; colour measured from the photos', runtimeGeneration: false, sourcePhotosBundled: false },
+    // On the zip-windbreaker template: a short, blousy body over a shirred waistband, balloon sleeves into shirred cuffs, a
+    // tall stand collar and a tonal coil zip; no hood, cords or pockets.
+    build: {
+      template: 'zip-windbreaker', roughness: .82,
+      colours: { shell: '#aaa59f', stitch: '#9b968f', snap: '#d6d2ca', cord: '#c8c3ba', zip: '#f0ece5', opening: '#8a857c', lining: '#d9d4cb' },
+      open: { shift: .085 },
+      padding: { puff: .004, drape: 0, folds: 5, sleeveFolds: .028, crinkle: { repeat: [12, 8], scale: .14, sheen: .14 } },
+      body: {
+        rows: [[2, .13, .124], [1.96, .131, .125], [1.92, .138, .129], [1.9, .142, .132], [1.875, .207, .165], [1.84, .277, .211], [1.8, .329, .248], [1.75, .357, .266], [1.65, .37, .279], [1.55, .375, .286], [1.45, .377, .29], [1.37, .375, .289], [1.32, .366, .285], [1.295, .352, .276], [1.283, .343, .27]],
+        overSkirt: [[2, .13, .124], [1.96, .131, .125], [1.92, .138, .129], [1.9, .142, .132], [1.875, .207, .165], [1.84, .277, .211], [1.8, .329, .248], [1.75, .357, .266], [1.65, .37, .279], [1.55, .375, .286], [1.45, .378, .291], [1.37, .38, .292], [1.32, .374, .29], [1.295, .364, .282], [1.283, .357, .277]],
+        hem: 1.2, band: .086, bandRadius: [.33, .264], bandOverSkirt: [.35, .274], bandPuckers: 96, bandChannels: 4,
+        gathers: 30, gatherDepth: .018, gatherHeight: .12,
+        collarBase: 1.89, collarTop: 2, collarRadius: [.13, .124],
+      },
+      // Front seams from the chest to the band, and a back yoke with a centre-back seam, as seen straight on.
+      lines: [
+        { points: [[.17, 1.68], [.165, 1.5], [.17, 1.3]], mirror: true, width: .0022, shade: .9 },
+        { points: [[-.37, 1.7], [.37, 1.7]], back: true, width: .0024, shade: .88, shadow: .02 },
+        { points: [[0, 1.7], [0, 1.29]], back: true, width: .002, shade: .9 },
+      ],
+      logo: { x: .16, y: 1.72, size: .055, shade: .93 },
+      sleeve: {
+        rows: [[.05, .145, .135], [0, .172, .16], [-.1, .188, .176], [-.25, .193, .181], [-.38, .187, .176], [-.46, .17, .162], [-.5, .148, .142], [-.52, .13, .125]],
+        cuff: [-.5, -.575], cuffRadius: [.124, .122], cuffPuckers: 40, cuffChannels: 3, gathers: 18, gatherDepth: .035, gatherHeight: .1,
+      },
+      zip: { width: .014, stitch: .016 },
     },
   },
   // Dresses: one piece worn instead of the top and the bottoms, with bare legs; shoes and outerwear go with it.
