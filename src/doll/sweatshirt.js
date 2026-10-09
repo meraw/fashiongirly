@@ -5,12 +5,15 @@
 // Optional, for a knitted jumper on the same fit (a sweatshirt without them is built as before): a chunky rib knit in a
 // marled, flecked yarn instead of fleece (`knit`), embroidered lettering on the chest instead of the logo (`embroidery`),
 // and no side tab (leave out `tab`).
+// Also optional: heather flecks in the fleece (`colours.fleck`), a varsity crest print instead of the batwing
+// (`logo.kind: 'varsity-crest'`, drawn in varsity-crest.js) and a mock neck (`body.neckName`, `body.neckRoll`).
 // Built in outfit units like the other tops (makeOutfit scales the whole outfit by 1.06 across and .76 high).
 //
 // The body takes a front panel and a back panel side by side in one texture, each projected flat from the front and
 // back, as the printed long tee does, so the logo stays upright and flat on her chest.
 import * as T from 'three';
 import { random, weave, shell, ribbed, roundSleeveCap, easeOverHand } from './model.js';
+import { drawVarsityCrest } from './varsity-crest.js';
 
 const PX=1300;// texture pixels per world unit
 const hex=h=>[1,3,5].map(i=>parseInt(h.slice(i,i+2),16));
@@ -22,10 +25,14 @@ function valueNoise(seed,period,rows){const r=random(seed),g=new Float32Array(pe
     return a+(b-a)*u+(c-a)*v+(a-b-c+d)*u*v;};}
 
 // Washed fleece: the ground colour, faintly mottled where the dye has faded, with a fine grain. Wraps across.
-function fleecePixels(w,h,colour,seed){
+// A heathered knit (optional `fleck`: [colour, share]) also has short flecks of a lighter yarn scattered through it.
+function fleecePixels(w,h,colour,seed,fleck=null){
   const data=new Uint8Array(w*h*4),bg=hex(colour),cells=Math.max(1,Math.round(w/140)),fade=valueNoise(seed,cells,Math.ceil(h/140)+1),grain=valueNoise(seed+1,Math.max(1,Math.round(w/4)),Math.ceil(h/4)+1);
   for(let y=0;y<h;y++)for(let x=0;x<w;x++){const i=(y*w+x)*4,k=1+.16*(fade(x*cells/w,y/140)-.5)+.1*(grain(x*Math.round(w/4)/w,y/4)-.5);
     for(let c=0;c<3;c++)data[i+c]=clamp(bg[c]*k,0,255);data[i+3]=255;}
+  if(fleck){const r=random(seed+7),col=hex(fleck[0]),n=Math.round(w*h*fleck[1]/2);
+    for(let k=0;k<n;k++){const x=Math.floor(r()*w),y=Math.floor(r()*h),len=1+Math.floor(r()*3),a=.5+.5*r();
+      for(let d=0;d<len;d++){const i=(y*w+(x+d)%w)*4;for(let c=0;c<3;c++)data[i+c]=data[i+c]*(1-a)+col[c]*a;}}}
   return data;
 }
 
@@ -181,6 +188,8 @@ function leaf(P,I,cx,cy,size,rot,a,clip){const ca=Math.cos(rot),sa=Math.sin(rot)
 // The logo's pixels at their final size (`w` by `h`, `ppu` pixels to a logo width), with transparency outside it.
 const logoCache=new Map();
 function drawLogo(L,ppu){
+  // Other kinds of chest print have their own drawing (the batwing is the default).
+  if(L.kind==='varsity-crest')return drawVarsityCrest(L,ppu);
   const key=JSON.stringify(L)+ppu;if(logoCache.has(key))return logoCache.get(key);
   const S=3,scale=ppu*S,W=Math.ceil((1+2*L.margin)*ppu),H=Math.ceil((L.height+2*L.margin)*ppu),w=W*S,h=H*S,I=Object.fromEntries(Object.entries(L.inks).map(([k,v])=>[k,hex(v)]));
   const P=painter(w,h,scale,L),rand=random(L.seed);
@@ -211,7 +220,7 @@ const bodyCache=new Map();
 function bodyPixels(key,panelW,h,spec){
   if(bodyCache.has(key))return bodyCache.get(key);
   const B=spec.body,L=spec.logo,w=panelW*2,K=spec.knit;
-  const data=K?knitPixels(w,h,K,B.seed??5,Math.round(w/(K.column*PX)),Math.round(h/(K.row*PX))):fleecePixels(w,h,spec.colours.fleece,B.seed??5);
+  const data=K?knitPixels(w,h,K,B.seed??5,Math.round(w/(K.column*PX)),Math.round(h/(K.row*PX))):fleecePixels(w,h,spec.colours.fleece,B.seed??5,spec.colours.fleck);
   if(spec.embroidery)embroider(data,w,h,spec.embroidery,panelW/2,(B.neck-spec.embroidery.top)*.76*PX,PX);
   if(!L){const out={data,w,h};bodyCache.set(key,out);return out;}
   const logo=drawLogo(L,Math.round(L.width*PX)),x0=Math.round(panelW/2-(.5+L.margin)*L.width*PX),y0=Math.round((B.neck-L.top)*.76*PX-L.margin*L.width*PX);
@@ -229,8 +238,8 @@ function fleece(spec,map){
 }
 function plainFleece(spec,u,v){
   // A knit's tile holds whole stitches (`tile`: columns and rows), so it repeats seamlessly round the sleeves and bands.
-  const K=spec.knit,c=K?JSON.stringify(K):spec.colours.fleece;
-  if(!tiles.has(c))tiles.set(c,K?knitPixels(256,256,K,9,K.tile[0],K.tile[1]):fleecePixels(256,256,c,9));
+  const K=spec.knit,c=K?JSON.stringify(K):spec.colours.fleece+(spec.colours.fleck?JSON.stringify(spec.colours.fleck):'');
+  if(!tiles.has(c))tiles.set(c,K?knitPixels(256,256,K,9,K.tile[0],K.tile[1]):fleecePixels(256,256,spec.colours.fleece,9,spec.colours.fleck));
   const map=texture(tiles.get(c),256,256,true);map.repeat.set(u,v);return K?knitted(spec,map,u*K.tile[0],v*K.tile[1]):fleece(spec,map);
 }
 // A chunky knit: matte and soft, its rib columns raised in the bump (`u` and `v`: stitches across and down).
@@ -256,11 +265,12 @@ export function makeSweatshirt(id,spec,overSkirt=false){
   uv.needsUpdate=true;
   // The deep rib band, which the body blouses over; it hugs the jeans or sits out over the skirt.
   ribbed(shell(top,[[hem+band+.01,...flare],[hem+band/2,flare[0]-.002,flare[1]-.001],[hem,flare[0]-.004,flare[1]-.002]],rib(spec,12,1),'ribbed-hem-band',512),B.ribs,.01);
-  ribbed(shell(top,B.neckband,rib(spec,10,1),'ribbed-crew-neck',384),B.neckRibs,.016);
+  // The neckband: a crew neck, or a taller mock neck (optional `neckName`) with its top edge rolled over (`neckRoll`).
+  const neckRib=rib(spec,10,1);ribbed(shell(top,B.neckband,neckRib,B.neckName??'ribbed-crew-neck',384),B.neckRibs,.016);
+  if(B.neckRoll){const [ty,trx,trz]=B.neckband[0];shell(top,[[ty+.005,trx-.001,trz-.001],[ty+.003,trx+.005,trz+.005],[ty-.008,trx+.006,trz+.006]],neckRib,'neck-roll',128);}
   // The woven tab sewn into the left side seam just above the band, folded flat against the side and pointing forward.
   // (Optional: a knit jumper has none.)
-  const tab=spec.tab;
-  if(tab){const ty=hem+band+tab.above;let sx=0;
+  if(spec.tab){const tab=spec.tab,ty=hem+band+tab.above;let sx=0;
   for(let i=0;i<p.count;i++)if(Math.abs(p.getY(i)-ty)<.02&&Math.abs(p.getZ(i))<.03)sx=Math.max(sx,p.getX(i));
   const tabMesh=new T.Mesh(new T.BoxGeometry(.004,tab.height,tab.out),new T.MeshStandardMaterial({color:C.tab,roughness:.75}));
   tabMesh.name='side-seam-tab';tabMesh.position.set(sx+.002,ty,tab.out/2);tabMesh.castShadow=true;top.add(tabMesh);}

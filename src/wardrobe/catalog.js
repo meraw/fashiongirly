@@ -49,6 +49,7 @@ export const LEVIS_FLORAL_LOGO_SWEATSHIRT_ID = 'levis-floral-batwing-sweatshirt-
 export const DESIGUAL_LIFE_AWESOME_ID = 'desigual-life-is-awesome-jumper-v1';
 export const PINK_YOKE_SHIRT_ID = 'pink-ditsy-floral-yoke-shirt-v1';
 export const STRIPE_SNAP_JUMPER_ID = 'striped-waffle-snap-collar-jumper-v1';
+export const TOMMY_VARSITY_JUMPER_ID = 'tommy-jeans-red-varsity-crest-jumper-v1';
 export const BARREL_JEANS_ID = 'topshop-barrel-jeans-v1';
 export const DAVINIA_JEANS_ID = 'desigual-davinia-jeans-v1';
 export const LEVIS_94_ID = 'levis-94-wide-leg-v1';
@@ -512,7 +513,7 @@ export const GARMENTS = Object.freeze({
   [STRIPE_SNAP_JUMPER_ID]: {
     slot: 'top',
     id: STRIPE_SNAP_JUMPER_ID, name: 'Striped waffle-knit snap-collar jumper', family: 'snap-collar-knit-jumper', version: 1,
-    status: 'reference-study-awaiting-visual-review', brandAsProvided: 'not stated (the neck label is not legible in the photos)',
+    status: 'user-approved', brandAsProvided: 'not stated (the neck label is not legible in the photos)',
     source: { note: 'user supplied two second-hand photos (the only ones they could find): a mirror selfie wearing it buttoned to the top, and the front on a hanger; the user wears it with a few snaps open' },
     referenceViews: ['front on the wearer (mirror selfie, buttoned up)', 'front on a hanger'],
     details: ['relaxed waffle-knit jumper in cream with slate-grey horizontal stripes, the grey a little narrower than the cream', 'raglan sleeves', 'a big ribbed fold-over collar in cream, with snaps on its front ends', 'a cream half placket closed with four metal snaps (silver rings round dark eyelets)', 'a deep cream rib hem band, the body blousing a little over it', 'full sleeves into long cream rib cuffs', 'hip length'],
@@ -612,6 +613,44 @@ export const GARMENTS = Object.freeze({
     uncertainties: ['worn tucked in as the user does, so the dress length and side slits are not shown', 'the tigers are drawn in code at her scale as a suggestion of the patches, not copied', 'the dropped shoulders are not modelled'],
     styling: { silhouette: 'oversized, tucked in and bloused at the waist', palette: ['navy', 'cream', 'blue', 'pink', 'yellow'], pattern: 'plain, with a contrast collar and placket and three small appliqué tigers', coverage: { neck: 'rugby collar, buttoned', sleeves: 'long, ribbed cuffs', midriff: 'covered' }, material: 'smooth heavy jersey', warmth: 2, warmthBasis: 'inferred: a long-sleeved heavy jersey', weather: 'cool to mild days' },
     authoring: { template: 'makeButtonShirt() in src/doll/shirts.js', texture: 'procedural jerseyData() and tigerPatchData() in src/doll/shirts.js; colours measured on the flat lay', runtimeGeneration: false, sourcePhotosBundled: false },
+  },
+  [TOMMY_VARSITY_JUMPER_ID]: {
+    slot: 'top',
+    id: TOMMY_VARSITY_JUMPER_ID, name: 'Tommy Jeans red varsity crest jumper', family: 'cropped-knit-jumper', version: 1,
+    status: 'reference-study-awaiting-visual-review', brandAsProvided: 'Tommy Jeans (the knitted-in lettering and crest)',
+    source: { note: 'user supplied two product photos without a description: the front and the back on a model, over light jeans' },
+    referenceViews: ['front on model', 'back on model'],
+    details: ['boxy, cropped jumper in a heathered red knit flecked with lighter yarn', 'knitted in off-white across the front: TOMMY JEANS in worn varsity capitals, arched over an oval crest', 'the crest: a ring lettered TOMMY JEANS, MANHATTAN and NEW YORK round a shield with a big T and a crown, small TOMMY and JEANS banners, 1985, and a VARSITY CHAMPS ribbon across its foot', 'a ribbed mock neck', 'dropped shoulders, full sleeves gathered into long rib cuffs', 'a deep rib hem band ending at the waistband of high-rise jeans', 'plain back'],
+    material: { construction: 'fine-gauge jacquard knit with rib trims', composition: 'not stated', finish: 'soft, slightly fuzzy heathered red' },
+    fit: { silhouette: 'boxy and cropped', sleeve: 'long and full, dropped shoulders, long rib cuffs', hem: 'cropped at the waist, deep rib band', neckline: 'ribbed mock neck', adjustment: 'fixed authored fit for review' },
+    exclusions: ['striped-shirt','knit-sweater'],
+    uncertainties: ['the lettering and crest are redrawn in code in a simple stroke lettering with slab serifs, not the brand\'s typeface or artwork; the crest\'s details are simplified', 'the motif is fitted to her wider, shorter torso: it is a little squatter than on the model', 'her big head hides most of the mock neck, as with the other high necks'],
+    styling: { silhouette: 'boxy, cropped at the waist', palette: ['red', 'off-white'], pattern: 'varsity lettering and crest on the front', coverage: { neck: 'mock neck', sleeves: 'long', midriff: 'cropped at the waist' }, material: 'knit, composition unknown', warmth: 3, warmthBasis: 'inferred: a knit jumper with a mock neck and long sleeves, though cropped', weather: 'cool, dry days', mood: 'sporty, collegiate, bold' },
+    authoring: { template: 'makeSweatshirt() in src/doll/sweatshirt.js (the logo-sweatshirt template)', texture: 'procedural heathered knit; the lettering and crest drawn in code in src/doll/varsity-crest.js; colours measured from the photos', runtimeGeneration: false, sourcePhotosBundled: false },
+    // Construction for makeSweatshirt() in src/doll/sweatshirt.js, in outfit units: the chenille jumper's boxy cropped body
+    // and sleeves, which clear every bottom; a mock neck; and the crest in place of the batwing logo.
+    build: {
+      template: 'logo-sweatshirt',
+      colours: { fleece: '#a00610', fleck: ['#c84a50', .03], sheen: '#a8202a' },
+      body: { neck: 1.905, hem: 1.27, band: .09, ribs: 64, neckRibs: 48, seed: 11, neckName: 'ribbed-mock-neck', neckRoll: true,
+        rows: [[1.905, .112, .104], [1.875, .176, .128], [1.83, .242, .163], [1.775, .286, .19], [1.65, .304, .204], [1.5, .308, .21], [1.4, .31, .216]],
+        blouse: [.306, .214], bandRadius: [.29, .205], bandOverSkirt: [.29, .205],
+        neckband: [[1.975, .11, .104], [1.945, .112, .105], [1.915, .116, .109], [1.885, .121, .113]] },
+      sleeve: { cuffRibs: 26,
+        rows: [[.03, .12, .117], [-.06, .132, .127], [-.2, .13, .124], [-.33, .122, .117], [-.41, .112, .107], [-.44, .104, .1]],
+        cuff: [[-.425, .097, .093], [-.49, .093, .09], [-.565, .092, .089]] },
+      // The print, drawn by drawVarsityCrest() in src/doll/varsity-crest.js. Its width is in world units and its top in
+      // outfit units; everything else is in print widths (x across, y down from its top). The lettering arches from a
+      // straight top down to a bottom that rises `lift` toward the middle, worn by broken red streaks; the crest's ring
+      // texts run clockwise between angles (degrees from the top).
+      logo: { kind: 'varsity-crest', seed: 3, width: .44, top: 1.85, height: .8, margin: .04, ink: '#ddd3c7', inkFlecks: .05,
+        arch: { text: 'TOMMY JEANS', left: .01, right: .99, top: 0, topArch: 0, bottom: .28, lift: .1, stroke: .015, streaks: 420, streakShare: .16, streakRuns: 6 },
+        crest: { centre: [.5, .48], radii: [.2, .235], band: .055, line: .005, textSize: .032, textStroke: .0042,
+          ringText: [['TOMMY JEANS', -50, 50], ['·', 56, 56], ['MANHATTAN', 62, 132], ['NEW YORK', -128, -62], ['·', -56, -56]],
+          shield: { centre: [.5, .42], size: [.15, .16], t: [.75, .62, .12] }, crown: [.07, .04],
+          scrolls: [['TOMMY', .39, .47], ['JEANS', .53, .61]], scrollY: .56, scrollDip: .012, smallSize: .02, year: { text: '1985', at: [.5, .605], width: .06 },
+          ribbon: { y: .695, sag: .025, half: .2, height: .05, text: 'VARSITY CHAMPS', textSize: .03, tail: .05, tailDrop: .03 } } },
+    },
   },
   [BARREL_JEANS_ID]: {
     slot: 'bottom',
