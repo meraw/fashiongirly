@@ -1,6 +1,6 @@
 # Wardrobe item: Levi's floral batwing logo sweatshirt
 
-Authored 9 October 2026. Status: first interpretation awaiting the user's visual review. Added by the chat that has been doing shoes, outerwear and tops (any chat can add any category).
+Authored 9 October 2026. Status: first interpretation; approved: the user merged it, and merging means approved (their rule). Added by the chat that has been doing shoes, outerwear and tops (any chat can add any category).
 
 ## Source and reference reading
 
@@ -81,7 +81,7 @@ It is about 0.3 wide on her chest, its top about a fifth of the way from the nec
   - over the skirt, and under the open leather jacket;
   - in the real app with its study preset.
 
-  The user has not yet seen it, and nothing has been checked on a device.
+  The user merged the pull request after seeing these renders. Nothing has been checked on a device.
 
 ## Known differences
 
