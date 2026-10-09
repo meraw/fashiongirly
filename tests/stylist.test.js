@@ -4,7 +4,7 @@ import { GARMENTS } from '../src/wardrobe/catalog.js';
 import { cleanRecipe } from '../src/doll/recipe.js';
 import { makeOutfit, disposeObject } from '../src/doll/model.js';
 import { stylingFacts, wardrobe, readColour } from '../src/style/facts.js';
-import { composeOutfit, needsFor, adjustOutfit, replacePiece, outfitOf } from '../src/style/stylist.js';
+import { composeOutfit, needsFor, adjustOutfit, composeTrio, outfitOf } from '../src/style/stylist.js';
 import { learn, cleanLearned, learnedBonus, boldness } from '../src/style/taste.js';
 import { PRESETS, presetConditions } from '../src/weather/conditions.js';
 
@@ -105,7 +105,7 @@ test('boldness reads colour and print: black is quiet, all pink and prints are b
   assert.ok(pink > black + .5, `head-to-toe pink is bold (${pink})`);
 });
 
-test('bolder, easier and set-aside change as little as possible, and keep kept pieces', () => {
+test('bolder and easier adjustments change as little as possible, and keep kept pieces', () => {
   for (const id of ['mild', 'chilly', 'rainy']) for (const seed of [1, 2]) {
     const c = presetConditions(id), r = composeOutfit(c, { seed }).recipe, now = boldness(outfitOf(r));
     for (const dir of [1, -1]) {
@@ -118,9 +118,17 @@ test('bolder, easier and set-aside change as little as possible, and keep kept p
     }
     const kept = adjustOutfit(c, r, 1, { seed, keep: { shoes: r.shoesId, bottom: r.bottomId } });
     if (kept) { assert.equal(kept.recipe.shoesId, r.shoesId); if (r.dressId === 'none') assert.equal(kept.recipe.bottomId, r.bottomId); }
-    const swap = replacePiece(c, r, 'shoes', { seed, avoid: [r.shoesId] });
-    assert.notEqual(swap.recipe.shoesId, r.shoesId);
-    assert.deepEqual(swap.changed.map(x => x.slot), ['shoes'], 'only the shoes change');
+  }
+});
+
+test('each day has three fixed looks: her pick, a bolder one and an easier one', () => {
+  for (const id of PRESETS.map(p => p.id)) for (const seed of [1, 2]) {
+    const c = presetConditions(id, '2026-10-09'), t = composeTrio(c, { seed });
+    assert.ok(t.pick && t.bolder && t.easier, `${id} ${seed}: three looks`);
+    assert.ok(t.bolder.boldness > t.pick.boldness, `${id} ${seed}: bolder (${t.bolder.boldness.toFixed(2)}) is bolder than her pick (${t.pick.boldness.toFixed(2)})`);
+    assert.ok(t.easier.boldness < t.pick.boldness, `${id} ${seed}: easier (${t.easier.boldness.toFixed(2)}) is quieter than her pick`);
+    for (const r of [t.pick, t.bolder, t.easier]) assert.deepEqual(cleanRecipe(r.recipe), r.recipe);
+    assert.deepEqual(composeTrio(c, { seed }).bolder.recipe, t.bolder.recipe, 'the same day gives the same three');
   }
 });
 

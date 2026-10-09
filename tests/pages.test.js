@@ -4,7 +4,8 @@ import { JSDOM } from 'jsdom';
 import { readFileSync } from 'node:fs';
 import { startStudio } from '../src/doll/app.js';
 import { GARMENTS } from '../src/wardrobe/catalog.js';
-import { skyKind, paintSky } from '../src/today/sky.js';
+import { skyKind, paintSky, codeKind, weatherIcon } from '../src/today/sky.js';
+import { swatchBackground, outfitSwatch } from '../src/doll/swatch.js';
 import { presetConditions } from '../src/weather/conditions.js';
 
 async function studio(hash = '') {
@@ -77,4 +78,37 @@ test('the sky follows the weather', () => {
   assert.equal(el.querySelectorAll('.sun').length, 1); assert.equal(el.querySelectorAll('.drop').length, 0);
   paintSky(el, presetConditions('windy'));
   assert.ok(el.querySelectorAll('.gust').length > 0);
+  // The painted mountains and her hill sit behind whatever falls, which falls in front of them.
+  paintSky(el, presetConditions('rainy'));
+  const order = [...el.children].map(c => c.className);
+  assert.ok(order.indexOf('land') >= 0 && order.indexOf('land') < order.indexOf('ground') && order.indexOf('ground') < order.indexOf('drop'));
+  assert.ok(order.indexOf('cloud') < order.indexOf('land'), 'clouds are behind the mountains');
+});
+
+test('the weather has a small picture, for the day and for each hour', () => {
+  assert.equal(codeKind(61, { rainChance: 80 }), 'rain');
+  assert.equal(codeKind(0), 'sun');
+  assert.equal(codeKind(73), 'snow');
+  assert.equal(codeKind(null, { feels: 25 }), 'sun');
+  const d = new JSDOM('').window.document;
+  const rain = weatherIcon(d, 'rain'), sun = weatherIcon(d, 'sun', { animate: false });
+  assert.equal(rain.querySelectorAll('.wx-cloud').length, 1);
+  assert.equal(rain.querySelectorAll('.wx-drop').length, 3);
+  assert.equal(weatherIcon(d, 'heavy-rain').querySelectorAll('.wx-drop').length, 5);
+  assert.equal(sun.querySelectorAll('.wx-sun').length, 1);
+  assert.ok(sun.classList.contains('still'));
+  assert.equal(rain.getAttribute('aria-hidden'), 'true');
+});
+
+test('every garment has a fabric swatch with a hint of its pattern', () => {
+  for (const [id, g] of Object.entries(GARMENTS)) assert.ok(swatchBackground(id), `${id} has a swatch`);
+  const kind = id => swatchBackground(id);
+  assert.match(kind('pink-ditsy-floral-yoke-shirt-v1'), /radial-gradient/, 'a print scatters its colours');
+  assert.match(kind('mango-plaid-jumper-v1'), /repeating-linear-gradient\(90deg[\s\S]*repeating-linear-gradient\(0deg/, 'a check crosses');
+  assert.match(kind('tommy-stripe-knit-polo-v1'), /repeating-linear-gradient\(0deg/, 'stripes run across');
+  assert.equal(swatchBackground('no-such-garment'), null);
+  const d = new JSDOM('').window.document;
+  const strip = outfitSwatch(d, [{ slot: 'top', id: 'pink-ditsy-floral-yoke-shirt-v1' }, { slot: 'under', id: 'desigual-bronze-mesh-v1' }, { slot: 'bottom', id: 'mango-washed-black-v1' }, { slot: 'shoes', id: 'new-balance-550-cream-v1' }]);
+  assert.equal(strip.children.length, 3, 'the under-top is not shown');
+  assert.ok(Number(strip.children[0].style.flexGrow) > Number(strip.children[2].style.flexGrow), 'the top shows more than the shoes');
 });

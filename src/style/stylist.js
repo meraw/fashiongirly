@@ -224,7 +224,22 @@ export function adjustOutfit(conditions, recipe, direction, options = {}) {
   const now = boldness(outfitOf(recipe)), step = .12;
   return smallestChange(conditions, recipe, options, SLOTS, o => (boldness(o) - now) * direction >= step);
 }
-// Another piece in one slot only, everything else unchanged ("not this one today").
-export function replacePiece(conditions, recipe, slot, options = {}) {
-  return smallestChange(conditions, recipe, options, [slot === 'outerwear' ? 'outer' : slot], () => true);
+// The day's three looks: her pick, a bolder one and an easier one, chosen once and fixed for the day (the user's
+// request, 9 October 2026: three fixed choices inspire; endless variations confuse). Each is a different outfit in the
+// same weather; the bolder is bolder than her pick and the easier quieter, measured by boldness(). If a whole new
+// outfit cannot be found in that direction, the smallest change to her pick is used instead.
+export const DARING = { easier: .08, pick: .5, bolder: .95 };
+export function composeTrio(conditions, options = {}) {
+  const pick = composeOutfit(conditions, { ...options, daring: DARING.pick });
+  if (!pick) return null;
+  const lead = r => r.recipe.dressId !== 'none' ? r.recipe.dressId : r.recipe.topId;
+  const away = (direction, shown) => {
+    for (let i = 0; i < 4; i++) {
+      const r = composeOutfit(conditions, { ...options, seed: (options.seed ?? 1) + 101 * (i + 1) * direction, daring: direction > 0 ? DARING.bolder : DARING.easier, shownToday: [...(options.shownToday || []), ...shown.map(x => x.recipe)] });
+      if (r && (r.boldness - pick.boldness) * direction > .05 && !shown.some(x => lead(x) === lead(r))) return r;
+    }
+    return adjustOutfit(conditions, pick.recipe, direction, options) || pick;
+  };
+  const bolder = away(1, [pick]), easier = away(-1, [pick, bolder]);
+  return { pick, bolder, easier };
 }

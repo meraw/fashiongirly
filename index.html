@@ -1,35 +1,45 @@
 <!doctype html>
 <html lang="en">
 <head>
-<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="theme-color" content="#fdf3ea">
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="theme-color" content="#3b1f5c">
 <title>Fashiongirly — a little living doll</title>
 <link rel="stylesheet" href="./src/doll/studio.css">
 <script type="importmap">{"imports":{"three":"./node_modules/three/build/three.module.js"}}</script>
 </head>
 <body>
-<header class="topbar"><a class="logo" href="#today">fashiongirly <span>✳</span></a>
+<div class="scenery" aria-hidden="true"><div class="glow"></div><div class="range"></div><div class="stars"></div></div>
+<header class="topbar"><a class="logo" href="#today"><span class="logo-flower" aria-hidden="true"></span>fashiongirly</a>
 <nav class="tabs" aria-label="Pages"><a href="#today" data-page="today">Today</a><a href="#dress" data-page="dress">Dress her</a><a href="#wardrobe" data-page="wardrobe">Wardrobe</a><button id="lookbook-open" type="button" class="tab-looks">My looks <span id="count">0</span></button></nav></header>
 <main class="app">
 <section class="stage-panel" aria-label="The doll">
-<div id="stage"><div id="sky" class="sky" data-kind="none" aria-hidden="true"></div><p id="loading">Getting her dressed…</p></div><p id="view-error" role="alert" hidden></p>
-<div class="stage-bar"><div class="camera" aria-label="Doll viewing angle"><button data-angle="0" aria-pressed="false">Front</button><button data-angle="-25" aria-pressed="true">A little turn</button><button data-angle="180" aria-pressed="false">Back</button></div><button id="save" class="save" aria-label="Save this outfit">♡</button></div>
-<div class="look-caption"><p class="eyebrow">SHE'S WEARING</p><h2 id="outfit-title">Her own little experiment.</h2><p id="message" role="status" aria-live="polite"></p></div>
+<div id="stage"><div id="sky" class="sky" data-kind="none" aria-hidden="true"></div><p id="loading">Getting her dressed…</p><p class="drag-hint">Drag to turn her</p></div><p id="view-error" role="alert" hidden></p>
+<div class="looks" role="group" aria-label="Today's three looks"><button id="look-pick" type="button" class="look" aria-pressed="false">Her pick</button><button id="look-bolder" type="button" class="look" aria-pressed="false">Bolder</button><button id="look-easier" type="button" class="look" aria-pressed="false">Easier</button></div>
+<div class="look-caption"><div><p class="tag small-tag">She's wearing</p><h2 id="outfit-title">Her own little experiment.</h2></div><button id="save" class="save" aria-label="Save this outfit">♡</button></div>
+<p id="message" role="status" aria-live="polite"></p>
 </section>
 <section class="pages">
 <div class="page" id="page-today" data-page="today">
-<section id="today" class="today" aria-labelledby="today-heading"><p class="eyebrow">TODAY · <span id="today-date"></span></p><h2 id="today-heading">She checked the weather <em>and dressed herself.</em></h2>
-<p id="today-weather" class="today-weather"></p><p id="today-status" class="today-status" role="status" aria-live="polite"></p>
-<ul id="today-pieces" class="today-pieces" aria-label="Her outfit today"></ul><ul id="today-reasons" class="today-reasons" aria-label="Why she chose it"></ul>
-<div class="today-actions"><button id="today-another" type="button">Another idea</button><button id="today-easier" type="button">Easier</button><button id="today-bolder" type="button">Bolder</button><button id="today-undo" type="button">Undo</button><button id="today-first" type="button">Her first pick</button></div>
-<p class="today-note">Feeling <span id="today-daring"></span>. Weather for <span id="today-place"></span>. <b>Bolder</b>, <b>Easier</b> and × change one piece at a time; <b>Another idea</b> starts a new look around the pieces you keep. The heart saves the look and teaches her what you like.</p>
+<section id="today" class="today" aria-labelledby="today-heading">
+<div class="hero"><p class="eyebrow">TODAY · <span id="today-date"></span></p>
+<div class="hero-weather"><span id="today-icon" class="today-icon"></span><span id="today-temp" class="temp"></span><p id="today-weather" class="today-weather"></p></div>
+<ul id="today-hours" class="today-hours" aria-label="Her day, hour by hour"></ul>
+<h2 id="today-heading">She checked the weather <em>and chose three looks.</em></h2>
+<p id="today-status" class="today-status" role="status" aria-live="polite"></p></div>
+<div class="card">
+<p class="tag">Now showing</p><h3 id="today-look" class="today-look"></h3>
+<ul id="today-pieces" class="today-pieces" aria-label="Her outfit"></ul><ul id="today-reasons" class="today-reasons" aria-label="Why she chose it"></ul>
+<div class="today-actions"><button id="today-another" type="button">Another idea</button><button id="today-undo" type="button">Undo</button></div>
+<p class="today-note">Her pick, Bolder and Easier stay the same all day. Weather for <span id="today-place"></span>. The heart saves a look and teaches her what you like.</p>
 <details id="today-manual" class="today-manual"><summary>Change the place or the weather</summary>
 <form id="today-place-form" class="today-place-form"><label for="today-place-input">Type a town</label><div><input id="today-place-input" type="text" autocomplete="address-level2" placeholder="Dublin"><button type="submit">Use it</button></div></form>
 <button id="today-device" type="button" class="today-device">Use my phone's location</button>
 <p class="today-label">Or choose the weather</p><div id="today-presets" class="today-presets"></div></details>
-<p class="today-credit">Her choices follow written styling rules, not AI. <a href="https://open-meteo.com/" rel="noopener">Weather data by Open-Meteo.com</a></p></section>
+<p class="today-credit">Her choices follow written styling rules, not AI. <a href="https://open-meteo.com/" rel="noopener">Weather data by Open-Meteo.com</a></p>
+</div></section>
 </div>
 <div class="page" id="page-dress" data-page="dress" hidden>
-<p class="eyebrow">DRESS HER YOURSELF</p><h2>Pick each piece <em>and she wears it.</em></h2>
+<div class="hero"><p class="eyebrow">DRESS HER YOURSELF</p><h2>Pick each piece <em>and she wears it.</em></h2></div>
+<div class="card">
 <div class="fields">
 <div class="field"><label for="top-select">Top</label><select id="top-select"><option value="classic">Classic knit &amp; shirt layers</option><option value="desigual-bronze-mesh-v1">Desigual bronze mesh</option><option value="lilac-portrait-mockneck-v1">Lilac portrait mock neck</option><option value="desigual-crochet-flowers-v1">Desigual crochet flowers</option><option value="mango-plaid-jumper-v1">Mango windowpane jumper</option><option value="bershka-asymmetric-stripe-jumper-v1">Bershka off-shoulder stripe jumper</option><option value="cream-pointelle-flower-jumper-v1">Cream pointelle flower jumper</option><option value="desigual-silver-cable-jumper-v1">Desigual silver foil cable jumper</option><option value="desigual-lacroix-flower-sweater-v1">Desigual × Lacroix giant flower sweater</option><option value="tommy-green-cable-sweater-v1">Tommy Hilfiger green cable sweater</option><option value="petit-bateau-striped-cardigan-v1">Petit Bateau striped cardigan</option><option value="tommy-stripe-knit-polo-v1">Tommy Hilfiger navy stripe knit polo</option><option value="motel-tie-dye-mesh-shirt-v1">Motel tie-dye mesh shirt</option><option value="desigual-spray-floral-mesh-shirt-v1">Desigual spray-paint floral mesh shirt</option><option value="van-gogh-patchwork-tee-v1">Van Gogh patchwork print tee</option><option value="desigual-fresco-rib-vneck-tee-v1">Desigual fresco print V-neck tee</option><option value="black-mickey-print-long-tee-v1">Black Mickey Mouse print long-sleeve tee</option><option value="pull-bear-grey-chenille-high-neck-v1">Pull &amp; Bear grey chenille high-neck jumper</option><option value="desigual-split-floral-shirt-v1">Desigual split floral shirt</option><option value="desigual-mountain-landscape-mesh-shirt-v1">Desigual mountain landscape mesh shirt</option><option value="mango-halftone-dot-shirt-v1">Mango pink halftone dot shirt</option><option value="levis-floral-batwing-sweatshirt-v1">Levi's floral batwing logo sweatshirt</option><option value="desigual-life-is-awesome-jumper-v1">Desigual “Life is awesome” jumper</option><option value="adidas-originals-cropped-hoodie-black-v1">adidas Originals cropped hoodie</option><option value="pink-ditsy-floral-yoke-shirt-v1">Pink ditsy floral yoke shirt</option><option value="striped-waffle-snap-collar-jumper-v1">Striped waffle-knit snap-collar jumper</option><option value="levis-oversized-plaid-flannel-shirt-v1">Levi’s oversized plaid flannel shirt</option><option value="desigual-navy-rugby-tiger-patches-v1">Desigual navy rugby shirt with tiger patches</option></select></div>
 <div class="field" id="under-field"><label for="under-select">Under it</label><select id="under-select"><option value="none">Nothing: her skin shows</option><option value="desigual-bronze-mesh-v1">Desigual bronze mesh</option><option value="lilac-portrait-mockneck-v1">Lilac portrait mock neck</option></select><p class="help">For a top worn over another, such as a cardigan.</p></div>
@@ -50,12 +60,13 @@
 <form id="edit-form"><label for="request">Quick edits</label><div class="request-box"><textarea id="request" rows="2" maxlength="250" placeholder="Butter sweater, enormous sleeves, wider jeans…"></textarea><button type="submit" aria-label="Apply outfit changes">↗</button></div></form><p class="help">Try tomato, butter, lilac, cobalt, moss or cream; cropped or longer; slim or enormous sleeves; straight or wider jeans; add a skirt or remove the skirt.</p>
 </details>
 <button id="reset" class="reset" type="button">Back to her original outfit ↺</button>
-</div>
+</div></div>
 <div class="page" id="page-wardrobe" data-page="wardrobe" hidden>
-<p class="eyebrow">HER WARDROBE</p><h2>Your clothes, <em>her size.</em></h2><p class="lede">Tap a piece to put it on her; the rest of her outfit stays.</p>
+<div class="hero"><p class="eyebrow">HER WARDROBE</p><h2>Your clothes, <em>her size.</em></h2><p class="lede">Tap a piece to put it on her; the rest of her outfit stays.</p></div>
+<div class="card">
 <div id="wardrobe-groups"></div>
 <details class="studies"><summary>Study looks</summary><p class="help">The looks each piece was reviewed in when it was added.</p><div id="outfit-ideas" class="outfit-ideas" aria-label="Try a study look"></div></details>
-</div>
+</div></div>
 </section>
 </main>
 <dialog id="lookbook"><div class="dialog-heading"><h2>Her favourite experiments.</h2><button id="lookbook-close" aria-label="Close saved looks">×</button></div><div id="saved-list"></div></dialog>
