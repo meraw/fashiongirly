@@ -3,7 +3,7 @@
 export default {
     slot: 'top',
     id: 'replay-cream-rose-embroidered-sweatshirt-v1', name: 'Replay cream rose embroidered sweatshirt', family: 'crew-neck-sweatshirt', version: 1,
-    status: 'reference-study-awaiting-visual-review', brandAsProvided: 'Replay (the script on the sleeve)',
+    status: 'user-approved', brandAsProvided: 'Replay (the script on the sleeve)',
     source: { note: 'user supplied three photos: the front on a model (cropped, with black jeans), the front on another model (with light jeans), and a crumpled photo of the front on a hanger, sent to show the details in front' },
     referenceViews: ['front on model, cropped', 'front on model', 'front on a hanger, crumpled'],
     details: ['cream cotton fleece, boxy and cropped', 'a spray of embroidered red roses across the chest: a large rose in the middle, a smaller one to her right lower down and one to her left higher up, with buds, stems and many green leaves', 'ribbed crew neckband with a stitched V insert below it', 'dropped shoulders, the seam low on her upper arm', 'very full long sleeves into long rib cuffs', 'a deep rib hem band, dipping lower at the back', 'a small navy embroidered script on her left sleeve above the cuff'],

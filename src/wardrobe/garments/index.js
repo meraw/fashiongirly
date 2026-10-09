@@ -11,7 +11,9 @@ export { default as whiteLinenButtonDownShirtV1 } from './white-linen-button-dow
 export { default as lapisBlueLinenButtonDownShirtV1 } from './lapis-blue-linen-button-down-shirt-v1.js';
 // slot 04
 // slot 05
+export { default as levisColourblockHalfZipAnorakV1 } from './levis-colourblock-half-zip-anorak-v1.js';
 // slot 06
+export { default as mangoClaudiaSlimCropJeansV1 } from './mango-claudia-slim-crop-jeans-v1.js';
 // slot 07
 // slot 08
 // slot 09
