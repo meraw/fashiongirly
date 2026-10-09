@@ -50,7 +50,7 @@ A low sneaker on a tall stacked platform; cream, forest green and gold on a gum 
 
 ## Checks
 
-- `npm test`: 78 passing after merging `main`. A new test in `tests/shoes.test.js` checks:
+- `npm test`: 80 passing after merging `main`. A new test in `tests/shoes.test.js` checks:
   - the parts, and that the lug sole, plain heel tab and pull loop are absent;
   - three tiers per shoe stacked from the floor to the sole's top;
   - three stripes on each side of each shoe;

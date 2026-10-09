@@ -1,6 +1,6 @@
 # Wardrobe item: Petit Bateau striped fisherman rib cardigan
 
-Authored 8 October 2026. Status: refitted after the user's first review (oversized on them); awaiting their next look.
+Authored 8 October 2026. Status: refitted after the user's first review (oversized on them); approved: the user merged it, and merging means approved (their rule).
 
 ## Sorting: a top that can also go over another top
 

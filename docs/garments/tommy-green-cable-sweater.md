@@ -1,6 +1,6 @@
 # Wardrobe item: Tommy Hilfiger green cable knit wool sweater
 
-Authored 8 October 2026. Status: revised after the user's first review (too much dark space between the cables); awaiting their next look. Added by the tops chat (see “Parallel chats” in `AGENTS.md`).
+Authored 8 October 2026. Status: revised after the user's first review (too much dark space between the cables); approved: the user merged it, and merging means approved (their rule). Added by the tops chat (see “Parallel chats” in `AGENTS.md`).
 
 ## Source and reference reading
 
