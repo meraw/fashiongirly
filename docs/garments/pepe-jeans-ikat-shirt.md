@@ -24,20 +24,16 @@ Measured colours (studio photo; the user's own photo has a blue cast): navy abou
 
 Catalog ID `pepe-jeans-ikat-shirt-v1` (slot `top`). It is built by the existing button-down shirt template (`makeButtonShirt()` in `src/doll/shirts.js`), from a new style there.
 
-**Template changes (additive).** New style options, each unused by the two cropped shirts:
+**Template.** The shirt template gained its long-shirt options on `main` from the Mango halftone dot shirt while this shirt was being built. This chat had built the same features its own way. The user chose to use the Mango shirt's options and drop this chat's own, so the shirt uses:
 
-- `body`: a longer body. It keeps the cropped shirts' rows down to 1.4, then follows its own:
-  - `rows`: the striped cardigan's rows, which clear every bottom
-  - `skirtRows`: the cardigan's rows over the skirt's flare, a little closer at 1.0 to 1.1 (about 2%), used when she wears the skirt
-  - `hem`: the hem height
-  - `tail`: how far the hem rises toward the sides, for a shirttail. Each column of the body is cut shorter along its own surface, so the raised sides keep the body's shape at that height.
-  The placket stitching and buttons run down to this hem, and the hem stitching follows its curve.
-- `pocket`: a patch pocket on her left chest, in the print a little out of step with the body, stitched round with a line across its top hem.
-- Cuffs: it uses the `cuff` option added on `main` for the Desigual mountain shirt (a band from `from` to `to`, seamed at its top, with a button), as `{ from: -.48, to: -.535, button: true }`. This chat had built its own cuff option at the same time; the user chose to combine the two shirts' changes, so that one was dropped.
+- `rows`: its body. The cropped shirts' rows down to 1.4, then easing out past her hips like the striped cardigan, slimmer at the hem (0.324 across at 0.97). This lets the shirttail's raised sides fit under the jackets' hems.
+- `shirttail`: from 1.12 down, a hem lowest at the centre front and back (0.97) and highest at the sides (1.045).
+- `tucked`: its shape over the skirt. Here it hangs loose over the skirt's flare (the cardigan's over-skirt rows, a little closer at 1.0 to 1.1), with a level hem.
+- `cuff`: the mountain shirt's buttoned cuff, `{ from: -.48, to: -.535, button: true }`.
 
-`makeButtonShirt()` takes the skirt setting as its third argument (after the mountain shirt's atlas), and `makeOutfit()` passes it (its dispatch line for shirts). The other shirts ignore it. The template's own `hem` (the mountain shirt's high-hip hem) and this shirt's `body` sit side by side: a shirt with `body` takes its rows from it, the others from `bodyRows()`.
+It adds one option, `pocket`: a patch pocket on her left chest, in the print a little out of step with the body, stitched round with a line across its top hem.
 
-The tie-dye, spray floral, Desigual split floral and Desigual mountain shirts (the last two added on `main` meanwhile, with their own template options) render pixel-identical to `main`, from the front and the side, with and without the skirt.
+The tie-dye, spray floral, split floral, mountain and Mango shirts render pixel-identical to `main`, from the front and the side, with and without the skirt.
 
 **Print.** Drawn in code, not copied from the photos, in the new file `src/doll/ikat-print.js`:
 
@@ -47,7 +43,7 @@ The tie-dye, spray floral, Desigual split floral and Desigual mountain shirts (t
 - Colours: the blues are much deeper than measured. The studio's exposure and tone mapping washed the measured pale blues almost to white in the first renders. The shirt has no sheen, for the same reason.
 - Repeat: the tile repeats three times round her, and once for every 1.05 of her height.
 
-**Fit.** Straight from the shoulders, then loose past her hips like the cardigan. The front and back hem is at 0.97, and the sides rise by 0.075. It is worn untucked, with the top button open and the cuffs down.
+**Fit.** Straight from the shoulders, then loose past her hips. The front and back hem is at 0.97, and the sides rise to 1.045. It is worn untucked, with the top button open and the cuffs down.
 
 **Preset.** “Ikat shirt study”: the shirt over the Levi's washed black wide legs.
 
@@ -55,10 +51,11 @@ The tie-dye, spray floral, Desigual split floral and Desigual mountain shirts (t
 
 It covers the waistband (`layering.coversWaistband`), so the skirt's bow is hidden. Over the skirt it follows the skirt's flare. A jacket hides its sleeves, as for every top.
 
-Two fits came from the shared tests:
+Fits found by the shared tests:
 
-- **The windbreaker over the skirt.** Lifting the hem first carried the hem's flare up to the windbreaker's hem, where it showed through. Cutting the shirttail along the body fixed that over jeans. Over the skirt, the rows at 1.0 to 1.1 were brought in by about 2%, so the Marikoo windbreaker and the Woolrich bomber (added on `main` meanwhile, its hem at 1.04) still cover the shirt there; it still clears the skirt. The hem stitching lies on the body's surface just above the hem, rather than at the hem's radius, so it does not stand out from the narrower body at the raised sides.
-- **Waist coverage (shared test changed).** `tests/bottoms.test.js` (“every waist-covering top hides every bottom between its hem and the waist”) measured each top's hem as its lowest point. With a shirttail, the bottoms rightly show at the sides below the raised hem, so the test now takes the hem's height all round her: the lowest point of the top in each 2-degree slice, taking the higher of the neighbouring slices, with empty slices filled from the nearest. For tops with a level hem nothing changes. Narrowing this shirt at the hips still fails the test.
+- **Under jackets.** The shirttail lifts the hem's lower rows at the sides. With the cardigan's full flare at the hem, the raised sides showed through the Woolrich bomber's hem (at 1.04). The lowest rows are slimmer so they stay under it.
+- **Over the skirt.** Its rows at 1.0 to 1.1 are about 2% inside the cardigan's, so the windbreakers and the bomber still cover it there. It still clears the skirt.
+- **Waist coverage.** The shared test now measures a top's hem all round her, so the bottoms may show at the sides below a shirttail. That change came from the Mango shirt; this chat had made the same change, and dropped its own.
 
 ## Styling facts
 
@@ -76,9 +73,9 @@ Two fits came from the shared tests:
   - that the hem is lowest at the centre front and rises toward the sides
   - that the pocket sits on her left chest
   - that the print holds navy, coral, the blues and white
-  - that over the skirt no part of the skirt pokes through it. Building it with its usual rows over the skirt fails this check.
-- The shared tests also run on it, with the change to the waist coverage test above: every waist-covering top over every bottom, sleeves and hands, the styling facts, and outerwear over every top.
-- `npm test`: 94 passing after merging `main` (which added the Pull & Bear chenille jumper, the Woolrich bomber, the adidas cropped windbreaker, the Desigual split floral and mountain shirts and the ONLY Carmakoma coat); `npm run build` succeeds.
+  - that over the skirt no part of the skirt pokes through it. Building it with its usual rows over the skirt failed this check, before the template change.
+- The shared tests also run on it: every waist-covering top over every bottom, sleeves and hands, the styling facts, and outerwear over every top.
+- `npm test`: 96 passing after merging `main` (which meanwhile added, among others, the Desigual split floral, mountain and Mango shirts); `npm run build` succeeds.
 - Rendered in headless Chromium from the front, a turn, the side and the back. Also over the skirt. The authoring chat checked these renders; the user has not seen them yet.
 
 ## Known differences
