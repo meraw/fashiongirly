@@ -61,7 +61,7 @@ Catalog ID `tommy-jeans-red-varsity-crest-jumper-v1` (slot `top`), on the logo-s
   - that the Levi's sweatshirt keeps its crew neck and tab;
   - the cached rebuild time.
 - The shared tests also run on it: sleeves and hands, styling facts, and every jacket over every top and the skirt.
-- `npm test`: 101 passing. `npm run build` succeeds.
+- `npm test`: 102 passing after merging `main` (which added the Levi's plaid flannel shirt). `npm run build` succeeds.
 - The Levi's sweatshirt renders pixel-identical to `main`.
 - Rendered in headless Chromium (software WebGL):
   - front, three-quarter, side and back;
