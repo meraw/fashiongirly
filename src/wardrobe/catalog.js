@@ -2,6 +2,7 @@
 // Outerwear: none by default ('none'); catalog coats and jackets fill the 'outerwear' slot.
 export const MARIKOO_WINDBREAKER_ID = 'marikoo-two-tone-windbreaker-v1';
 export const DESIGUAL_LEATHER_JACKET_ID = 'desigual-black-faux-leather-jacket-v1';
+export const RED_BULL_WINDBREAKER_ID = 'red-bull-racing-stone-windbreaker-v1';
 // Dresses: none by default ('none'); a catalog dress fills the 'dress' slot and is worn instead of the top and bottoms.
 export const ZIP_TRACK_DRESS_ID = 'navy-half-zip-track-dress-v1';
 // Shoes: built-in loafers are 'classic'; catalog shoes fill the 'shoes' slot.
@@ -782,6 +783,58 @@ export const GARMENTS = Object.freeze({
         rows: [[.045, .114, .108], [0, .126, .12], [-.1, .128, .122], [-.25, .125, .12], [-.38, .122, .118], [-.46, .121, .117], [-.505, .12, .117]],
         cuff: [-.5, -.568], cuffRadius: [.121, .118], ruche: [-.28, -.49], rucheDepth: .02, rucheFreq: 70,
       },
+    },
+  },
+  [RED_BULL_WINDBREAKER_ID]: {
+    slot: 'outerwear',
+    id: RED_BULL_WINDBREAKER_ID, name: 'Red Bull Racing stone windbreaker', family: 'zip-windbreaker', version: 1,
+    status: 'reference-study-awaiting-visual-review', brandAsProvided: 'Red Bull Racing (printed on the jacket)',
+    source: { note: 'user supplied five phone screenshots of a product gallery (images 1, 3, 4, 5 and 6 of 6): front on a model worn open, back on a model, a collar close-up, and front and back flat lays, zipped' },
+    referenceViews: ['front on model, open', 'back on model', 'collar close-up', 'front flat lay', 'back flat lay'],
+    details: ['one-colour stone (light greige) woven shell', 'tall stand collar with the hood stowed inside it, a zip seam across its back, metal snaps and a small cord toggle', 'zip covered by a storm placket from the hem to the top of the collar', 'raglan sleeves', 'curved front panel seams sweeping from the sides down to pocket openings low on each front', 'a horizontal flap seam across the middle of the back', 'reflective prints: RED BULL RACING running down beside the placket, Red Bull across the back above the flap', 'elastic gathered hem band with a cord toggle, elastic cuffs', 'small rectangular rubber patch on the upper left sleeve', 'boxy, hip length'],
+    material: { construction: 'woven windbreaker shell', composition: 'not visible in the supplied screenshots', finish: 'matte, slightly technical; reflective prints' },
+    fit: { silhouette: 'boxy and relaxed, raglan shoulders', length: 'hip', sleeve: 'long and relaxed, gathered at the wrist', wear: 'zipped closed: the user wears outerwear closed unless it is designed to be worn open (the model wears it open)', adjustment: 'fixed authored fit for review' },
+    layering: { closed: true, coversTopSleeves: true, coversWaistband: true },
+    styling: {
+      observed: { palette: ['stone', 'silver-white reflective print'], pattern: 'plain, with tonal reflective lettering', silhouette: 'boxy hip-length blouson, raglan sleeves', coverage: 'torso and arms to the wrist; neck when zipped (tall collar)', material: 'woven windbreaker shell' },
+      user: { wear: 'zipped closed, or not worn' },
+      inferred: { warmth: 'light layer: unpadded shell', weather: 'mild, breezy or cool days; the stowed hood suits light showers', unknown: ['waterproofing', 'lining', 'fibre composition'] },
+    },
+    uncertainties: ['the reflective prints are suggested by glyph blocks, not the brand lettering', 'the hood stays stowed in the collar and is not modelled', 'the sleeve patch carries no lettering', 'pocket openings are drawn as narrow welts along the curved seams'],
+    authoring: { texture: 'procedural colour, seams and prints drawn locally in src/doll/outerwear.js (plainBodyData); colours measured from the photos', runtimeGeneration: false, sourcePhotosBundled: false },
+    // On the zip-windbreaker template (same body and sleeve rows as the Marikoo jacket), with the template's optional
+    // one-colour layout: no yoke, hood or drawcords; a covered zip, drawn seams, prints, toggles and a rectangular patch.
+    build: {
+      template: 'zip-windbreaker', roughness: .8,
+      colours: { shell: '#97938a', stitch: '#817d74', snap: '#c9c5bc', cord: '#a9a59c', zip: '#8d8a86', opening: '#6c6861', print: '#f4f1eb', printShade: '#8c8880', badge: '#a29d94', toggle: '#2b2b2d' },
+      body: {
+        rows: [[1.975, .13, .124], [1.935, .131, .125], [1.9, .14, .13], [1.875, .2, .16], [1.84, .268, .205], [1.8, .318, .24], [1.75, .345, .258], [1.65, .357, .27], [1.5, .36, .276], [1.35, .362, .28], [1.22, .362, .282], [1.16, .356, .277], [1.135, .346, .266], [1.118, .338, .258]],
+        overSkirt: [[1.975, .13, .124], [1.935, .131, .125], [1.9, .14, .13], [1.875, .2, .16], [1.84, .268, .205], [1.8, .318, .24], [1.75, .345, .258], [1.65, .357, .27], [1.5, .36, .276], [1.35, .365, .282], [1.22, .374, .288], [1.16, .376, .288], [1.135, .374, .282], [1.118, .37, .276]],
+        hem: 1.06, band: .06, bandRadius: [.336, .255], bandOverSkirt: [.372, .274], bandPuckers: 72,
+        gathers: 34, gatherDepth: .012, gatherHeight: .09,
+        collarBase: 1.89, collarTop: 1.975, collarRadius: [.13, .124],
+      },
+      // Seams and prints, as seen straight on from the front or the back.
+      lines: [
+        { points: [[.125, 1.885], [.2, 1.77], [.335, 1.62]], mirror: true, width: .0022, shade: .86 },
+        { points: [[.125, 1.885], [.2, 1.77], [.335, 1.62]], mirror: true, back: true, width: .0022, shade: .86 },
+        { points: [[.36, 1.48], [.3, 1.4], [.235, 1.345], [.21, 1.33]], mirror: true, width: .0022, shade: .86 },
+        { points: [[-.34, 1.425], [.34, 1.425]], back: true, width: .0025, shade: .8, shadow: .03 },
+        { points: [[-.34, 1.434], [.34, 1.434]], back: true, width: .0012, shade: .88 },
+      ],
+      prints: [
+        { x: -.064, y: 1.835, vertical: true, length: .32, height: .028, glyphs: 15, seed: 11 },
+        { x: 0, y: 1.445, back: true, length: .42, height: .07, glyphs: 7, seed: 3 },
+      ],
+      sleeve: {
+        rows: [[.05, .135, .126], [0, .152, .143], [-.1, .158, .15], [-.25, .156, .148], [-.38, .152, .145], [-.47, .146, .14], [-.51, .132, .127], [-.53, .121, .116]],
+        cuff: [-.522, -.575], cuffRadius: [.12, .118], cuffPuckers: 36, gathers: 14, gatherDepth: .02, gatherHeight: .08,
+        badge: { y: -.12, radius: .02, shape: 'rect', w: .046, h: .026 },
+      },
+      zip: { width: .016, stitch: .02 },
+      placket: { offset: .012, width: .05, snaps: [[.075, 1.952]] },
+      toggles: [{ x: .055, y: 1.075, drop: .035 }, { x: .1, y: 1.962, drop: .016 }],
+      pockets: { x: .208, slant: .08, top: 1.33, bottom: 1.16, width: .02, snaps: [], snap: .0125 },
     },
   },
   // Dresses: one piece worn instead of the top and the bottoms, with bare legs; shoes and outerwear go with it.
