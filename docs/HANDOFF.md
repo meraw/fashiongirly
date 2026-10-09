@@ -101,7 +101,14 @@ Sort garments by how the user wears them, not by the shop's name for them (8 Oct
 - **A top that can also go over another top** (cardigans; zip hoodies worn either way) stays a top, with `layering.overTop: true`. It can take one slim top under it, chosen by `underTopId` (default `'none'`, so saved looks are unchanged) from the tops marked `layering.underTop: true` (the bronze and lilac tops so far; the user's blue sleeveless top when it arrives). `cleanRecipe()` enforces both flags.
 - `makeOutfit` builds the under top with the same builders (`makeTop()`, named `under-top`). It hides the under top's sleeves inside the outer sleeves, hides the outer top's skin piece, and eases the under top's body in a little below its collar. The collar still shows above the outer neckline, as a crew or mock neck does. A test checks that every under top stays inside the cardigan except in its V. The studio has an “Under it” selector, enabled only for such tops.
 
-Each new kind of garment needs its slot the first time it appears. Top, bottom, shoe and outerwear slots exist. Dresses still need a slot with layering rules. Button-downs need collar, placket and button details; hoodies need a hood that clears her large head and hair.
+Each new kind of garment needs its slot the first time it appears. Top, bottom, shoe, outerwear and dress slots exist.
+
+The dress slot (added 9 October 2026 with the first dress, by the chat the user sent it to):
+- `dressId` (`'none'` by default, so saved looks are unchanged) holds a catalog entry with `slot: 'dress'`.
+- A dress is worn instead of the top, any under top, the classic knit and shirt, the bottoms and the skirt. Those stay in the recipe, so taking the dress off restores them; `makeOutfit` simply does not build them.
+- Shoes, hair and outerwear go with a dress. Outerwear is measured or closed over it like over a top, and hides the dress sleeves.
+- A dress brings skin for her legs below its hem (her body under clothes is cream felt), down into her socks.
+- In the studio, “Choose a dress” follows “Choose outerwear”. Choosing a top or bottoms takes the dress off, and the top's and bottoms' layer controls rest while a dress is on. Button-downs need collar, placket and button details; hoodies need a hood that clears her large head and hair.
 
 The outerwear slot and its layering rules were built with the first jacket (see its record):
 
@@ -145,6 +152,7 @@ Items added so far:
 22. [UGG cream platform sneakers](garments/ugg-cream-sneakers.md). Low chunky cream sneakers, suede over mesh, with big puffy patterned laces in a floppy bow, a heel pull loop and a rounded platform sole. The first low shoe: it brings her own slim ankle socks (her round doll socks would bulge over the collar). Built on the Buffalo boots' laced-shoe template. The user liked the soles but found the ankle too loose, so the collar now hugs the ankle and the sock is fuller. Awaiting their second look.
 23. [Crystal-embellished straight jeans](garments/crystal-straight-jeans.md). Light vintage wash, high rise, straight and full length, with a grid of crystals over the whole front (one instanced mesh); adds `crystals`. The shared layering test now checks instanced pieces too. The user found it very realistic but could not see the crystals at screen size: they are now fewer, larger and near-white, in dark settings, and read clearly at phone size. The user said the revision “looks great”.
 24. [Motel tie-dye mesh button-down shirt](garments/motel-tie-dye-mesh-shirt.md). The first button-down. Fitted, cropped stretch mesh in a grey-mauve tie-dye (drawn procedurally; its spread from dark to pale is measured from the photos), a point collar with black topstitching on a black-faced stand, a black-stitched placket with seven black buttons, long fitted sleeves and a black-stitched hem; built by `makeButtonShirt()` in `src/doll/shirts.js`. A zipped jacket now hides any `shirt-collar*` piece. Awaiting visual review.
+25. [Navy half-zip track mini dress](garments/navy-half-zip-track-dress.md), the first dress, which added the dress slot. Navy textured rib jersey with cream raglan sleeve panels, a tall zip collar and a short A-line skirt, worn with bare legs. Awaiting visual review.
 
 Fit follows the user, not the product photos: when the user says a garment fits them differently (length, rise, looseness), build it that way and note it in the garment record.
 
