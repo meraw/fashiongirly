@@ -198,7 +198,7 @@ function makeLugBoot(id,spec,tape=null){
   // Smooth polished leather instead of nubuck (spec.finish 'leather'): a soft gloss with a faint grain.
   if(spec.finish==='leather'){nubuck.map=null;nubuck.roughness=.45;nubuck.sheen=0;nubuck.clearcoat=.35;nubuck.clearcoatRoughness=.32;nubuck.bumpScale=.0012;}
   // Smooth leather uppers (an option): a fine grain and a soft gloss.
-  const leather=spec.leather?new T.MeshPhysicalMaterial({color:C.upper,roughness:.68,clearcoat:.1,clearcoatRoughness:.7,bumpMap:grain,bumpScale:.0012,side:T.DoubleSide}):null;
+  const leather=spec.leather?new T.MeshPhysicalMaterial({color:C.upper,roughness:.72,clearcoat:.05,clearcoatRoughness:.7,bumpMap:grain,bumpScale:.0012,side:T.DoubleSide}):null;
   const rubberGrain=weave('felt');rubberGrain.repeat.set(16,4);
   const rubber=new T.MeshStandardMaterial({color:C.sole,roughness:.82,bumpMap:rubberGrain,bumpScale:.0012,side:T.DoubleSide});
   const thread=solid(C.thread,.85),piping=solid(C.piping,.6),webbing=cloth(C.webbing),lace=solid(C.lace,.9),lining=solid(C.lining,.95),eyelet=spec.punched?solid(C.eyelet,.95):new T.MeshStandardMaterial({color:C.eyelet,metalness:.7,roughness:.4});
@@ -452,9 +452,9 @@ function makeLugBoot(id,spec,tape=null){
           for(let i=0;i<=nu;i++){const z=z0+(z1-z0)*i/nu,lo=P.bottom?edgeAt(P.bottom,z):ySole(z),hi=edgeAt(P.top,z);
             for(let j=0;j<=nv;j++){const y=lo+(hi-lo)*j/nv,yy=Math.max(yBase,Math.min(collarY(Math.PI/2)+.03,y)),p=surf(side,yy,angleAt(yy,z,k),P.off??.0035).setY(y);pos.push(p.x,p.y,p.z);uv.push(z*3,y*3);}}
           for(let i=0;i<nu;i++)for(let j=0;j<nv;j++){const a=i*(nv+1)+j,b=a+nv+1;idx.push(a,b,a+1,a+1,b,b+1);}
-          // A rubber panel is turned to face out of the shoe (on one side of the foot its grid comes out wound inside-out,
-          // which lit that half like the inside).
-          if(P.rubber){let out=0;for(let i=0;i<idx.length;i+=3){const a=V(pos[idx[i]*3],pos[idx[i]*3+1],pos[idx[i]*3+2]),b=V(pos[idx[i+1]*3],pos[idx[i+1]*3+1],pos[idx[i+1]*3+2]),c=V(pos[idx[i+2]*3],pos[idx[i+2]*3+1],pos[idx[i+2]*3+2]);
+          // A rubber, leather or textured panel is turned to face out of the shoe (on one side of the foot its grid comes out
+          // wound inside-out, which lit that half like the inside).
+          if(P.rubber||P.leather||P.bump){let out=0;for(let i=0;i<idx.length;i+=3){const a=V(pos[idx[i]*3],pos[idx[i]*3+1],pos[idx[i]*3+2]),b=V(pos[idx[i+1]*3],pos[idx[i+1]*3+1],pos[idx[i+1]*3+2]),c=V(pos[idx[i+2]*3],pos[idx[i+2]*3+1],pos[idx[i+2]*3+2]);
             const n=new T.Vector3().crossVectors(b.clone().sub(a),c.clone().sub(a)),m=a.add(b).add(c).divideScalar(3);out+=n.x*(m.x-side*cx)+n.z*(m.z-centreZ(m.y));}
             if(out<0)for(let i=0;i<idx.length;i+=3)[idx[i+1],idx[i+2]]=[idx[i+2],idx[i+1]];}
           const geo=new T.BufferGeometry();geo.setAttribute('position',new T.Float32BufferAttribute(pos,3));geo.setAttribute('uv',new T.Float32BufferAttribute(uv,2));geo.setIndex(idx);geo.computeVertexNormals();put(boots,geo,mat,P.name);

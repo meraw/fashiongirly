@@ -1,6 +1,6 @@
 # Wardrobe item: New Balance 550 cream leather sneakers
 
-Authored 9 October 2026. Status: first interpretation awaiting the user's visual review. Fifth pair of shoes from the user's wardrobe list.
+Authored 9 October 2026. Status: second version awaiting the user's visual review. Fifth pair of shoes from the user's wardrobe list.
 
 ## Source and reference reading
 
@@ -33,10 +33,27 @@ Catalog ID `new-balance-550-cream-v1` (slot `shoes`), template `sneaker`. It is 
   - Outfit heights stand at 0.76 of their length on her, so heights from the photo were scaled up to match.
   - The collar and tongue must stay below where the classic trousers end. Otherwise they would show through those trousers' cuff.
   - So the upper is a little lower than in the photo, and the shoe a tenth shorter than the measured length, so it doesn't look long and low.
-- **Colours:** measured in the side photo and adjusted after comparing renders: the leather is about 214, 210, 204, the N is darker suede, the midsole 195, 186, 174 and the outsole grey 147.
+- **Colours:** measured in the photos (the leather about 214, 210, 204, the N darker suede, the midsole 195, 186, 174, the outsole grey 147), then set darker than that for the app's lighting (see the revision below). The piping and laces stay bright white.
 - **Her socks and height:** like the UGG sneakers, the shoe brings her slim ankle socks and hides her round doll socks. The sole stays within her normal foot height, so she is not raised.
 - **Layering:** the same shoe-side settings as the UGG sneakers. Long jeans and the track pants rest on the shoe, and cropped and classic jeans end above the collar. No trousers code changed.
 - **Styling notes** (catalog `styling`): a closed low sneaker; all seasons except deep cold; cream and off-white with a grey outsole; retro sporty.
+
+## Revision after the user's first review
+
+The user found the side view good, but the shoes completely washed out on the doll. In the app, the 550 rendered nearly white (about 228, 224, 219 at the median, with almost no shading), while the front photo's median is about 201, 197, 188, with deep shading.
+
+There were three causes:
+- the smooth leather has no mottled texture, so it rendered brighter than the suede or nubuck of the other shoes in the same colour;
+- seen from the app's camera, the top of the shoe faces the overhead lights;
+- on one side of each shoe, the overlay panels were wound inside-out and lit like the inside of the shoe.
+
+The fixes:
+- The leather, panel, collar, tongue and N colours are about a fifth darker and a little warmer, and the midsole slightly darker.
+- The leather's gloss is reduced.
+- The 550's leather and textured panels now face out of the shoe, as the Converse toe cap already did (`P.leather` and `P.bump` panels; no other pair uses them).
+- The white piping and laces are unchanged, so they now stand out against the cream.
+
+In the app, the 550 now measures about 221, 214, 200 at the median, with visible shading. The side close-up is a little more beige than before.
 
 ## Checks
 

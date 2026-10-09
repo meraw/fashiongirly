@@ -998,7 +998,7 @@ export const GARMENTS = Object.freeze({
     // end (.29), so the shoe is a little shorter than the photo's proportions to keep it from looking long and low.
     build: {
       template: 'sneaker', cx: .168, leather: true, punched: true,
-      colours: { upper: '#d6cfc3', sole: '#d2c4ab', outsole: '#959698', thread: '#cbc2b3', piping: '#f2f0eb', trim: '#f4f2ee', welt: '#bdb3a2', lace: '#f3f1ed', laceLine: '#f3f1ed', collar: '#e0dbd2', eyelet: '#b3ab9e', lining: '#e6c590', webbing: '#e2ddd4', sock: '#ecdcac', tongue: '#dcd2c4' },
+      colours: { upper: '#b6ad9d', sole: '#bbaf99', outsole: '#959698', thread: '#cbc2b3', piping: '#f2f0eb', trim: '#f4f2ee', welt: '#bdb3a2', lace: '#f3f1ed', laceLine: '#f3f1ed', collar: '#bdb5a7', eyelet: '#b3ab9e', lining: '#c8ab7d', webbing: '#e2ddd4', sock: '#ecdcac', tongue: '#b8afa0' },
       // Cupsole: a grey outsole, higher round the heel and toe, with block lugs, under a cream midsole with two grooves.
       sole: { top: .105, heelTop: .105, heelFrom: -.043, rand: .085, randFrom: .126, lugTop: .016, groove: null, bulge: 0, flare: .012, toeLift: .014, lugs: 64, lugDepth: .005,
         cup: { outsole: .016, heel: .048, heelFrom: -.016, toe: .04, toeFrom: .18, slot: .036, gap: .17, grooves: [.06, .08] } },
@@ -1012,14 +1012,14 @@ export const GARMENTS = Object.freeze({
       // Overlays, as [z, y] edges on both sides: the heel counter, a mesh window under the collar, the perforated quarter
       // below the lacing and the toe cap.
       panels: [
-        { name: 'heel-counter', leather: true, colour: '#cfc7ba', z: [-.196, .04], top: [[-.196, .219], [-.165, .219], [-.113, .195], [-.07, .165], [-.044, .144], [.002, .12], [.04, .111]] },
-        { name: 'side-window', bump: 'mesh', colour: '#cfc5b3', z: [-.093, .016], bottom: [[-.093, .166], [.016, .178]], top: [[-.093, .198], [.016, .207]] },
-        { name: 'perforated-quarter', leather: true, bump: 'perforated', colour: '#d2cabd', stitch: false, z: [.011, .227], top: [[.011, .116], [.04, .109], [.079, .116], [.119, .145], [.155, .181], [.177, .201], [.205, .183], [.227, .147]] },
-        { name: 'toe-cap', leather: true, colour: '#ded9d1', off: .0045, z: [.182, .434], top: [[.182, .126], [.254, .135], [.344, .14], [.434, .14]] },
+        { name: 'heel-counter', leather: true, colour: '#afa595', z: [-.196, .04], top: [[-.196, .219], [-.165, .219], [-.113, .195], [-.07, .165], [-.044, .144], [.002, .12], [.04, .111]] },
+        { name: 'side-window', bump: 'mesh', colour: '#a99e8c', z: [-.093, .016], bottom: [[-.093, .166], [.016, .178]], top: [[-.093, .198], [.016, .207]] },
+        { name: 'perforated-quarter', leather: true, bump: 'perforated', colour: '#b2a899', stitch: false, z: [.011, .227], top: [[.011, .116], [.04, .109], [.079, .116], [.119, .145], [.155, .181], [.177, .201], [.205, .183], [.227, .147]] },
+        { name: 'toe-cap', leather: true, colour: '#aca394', off: .0045, z: [.182, .434], top: [[.182, .126], [.254, .135], [.344, .14], [.434, .14]] },
       ],
       // White leather piping: the sweep from the heel down and forward, then up to the lacing.
       trims: [[[-.165, .219], [-.113, .195], [-.07, .165], [-.044, .144], [.002, .12], [.04, .111], [.079, .118], [.119, .147], [.155, .183], [.177, .207]]],
-      logo: { z: .067, y: .17, w: .07, h: .092, slant: .24, colour: '#c9bdb2' },
+      logo: { z: .067, y: .17, w: .07, h: .092, slant: .24, colour: '#a29487' },
     },
   },
   // Outerwear.
