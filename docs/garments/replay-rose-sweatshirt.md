@@ -1,6 +1,6 @@
 # Wardrobe item: Replay cream rose embroidered sweatshirt
 
-Authored 9 October 2026. Status: first version, awaiting visual review. It adds the `embroidered-sweatshirt` template (`src/doll/embroidered-sweatshirt.js`).
+Authored 9 October 2026. Status: first version, approved: the user merged it, and merging means approved (their rule). It adds the `embroidered-sweatshirt` template (`src/doll/embroidered-sweatshirt.js`).
 
 ## Source and reference reading
 
