@@ -66,7 +66,7 @@ The user found the collar strange: it was folded, but the folded part didn't con
   - the band sitting out over the skirt;
   - the build time.
 - The shared tests also run on it: sleeves and hands, every waist-covering top over every bottom, styling facts, and every jacket over every top and the skirt.
-- `npm test`: 98 passing after merging `main` (which added the adidas Originals cropped hoodie). `npm run build` succeeds.
+- `npm test`: 100 passing after merging `main` (which added the adidas Originals cropped hoodie, the ivory lace dress and the pink yoke shirt). `npm run build` succeeds.
 - Rendered in headless Chromium (software WebGL):
   - front, three-quarter, side and back;
   - a neckline close-up;
