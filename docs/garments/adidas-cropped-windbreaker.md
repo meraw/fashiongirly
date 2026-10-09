@@ -59,7 +59,7 @@ Each setting defaults to the old behaviour. The other four windbreakers are unch
 
 ## Checks
 
-- `npm test`: 87 passing. The new `tests/adidas-cropped-windbreaker.test.js` checks:
+- `npm test`: 89 passing after merging `main`. The new `tests/adidas-cropped-windbreaker.test.js` checks:
   - the parts, and the parts it leaves out
   - that the band sits at her waist
   - that the band is shirred in channels
