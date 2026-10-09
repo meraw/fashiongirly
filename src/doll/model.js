@@ -1,8 +1,9 @@
 import * as T from 'three';
 import { cleanRecipe } from './recipe.js';
+import { makePrintedTee } from './printed-tee.js';
 import { makeOuterwear } from './outerwear.js';
 import { levelCaster } from './level-caster.js';
-import { BRONZE_TOP_ID, LILAC_TOP_ID, CROCHET_TOP_ID, PLAID_JUMPER_ID, STRIPE_JUMPER_ID, POINTELLE_FLOWER_ID, SILVER_CABLE_ID, LACROIX_FLOWER_ID, TOMMY_CABLE_ID, PETIT_BATEAU_CARDIGAN_ID, TOMMY_STRIPE_POLO_ID, GARMENTS } from '../wardrobe/catalog.js';
+import { BRONZE_TOP_ID, LILAC_TOP_ID, CROCHET_TOP_ID, PLAID_JUMPER_ID, STRIPE_JUMPER_ID, POINTELLE_FLOWER_ID, SILVER_CABLE_ID, LACROIX_FLOWER_ID, TOMMY_CABLE_ID, PETIT_BATEAU_CARDIGAN_ID, ZIP_TRACK_DRESS_ID, TOMMY_STRIPE_POLO_ID, GARMENTS } from '../wardrobe/catalog.js';
 import { makeKnitPolo } from './polo.js';
 import { makeButtonShirt, SHIRT_IDS } from './shirts.js';
 // Body and wardrobe share one toy proportion system; the face stays unscaled.
@@ -1213,6 +1214,82 @@ function makeStripedCardigan(id=PETIT_BATEAU_CARDIGAN_ID,overSkirt=false){
     const b=oval(top,[0,0,0],[.011,.011,.0035],buttonMat,'cardigan-button',16);b.position.copy(hit.point).addScaledVector(hit.normal,.007);b.lookAt(b.position.clone().add(hit.normal));b.scale.set(.011/BODY_WIDTH,.011/BODY_HEIGHT,.0035);}
   return top;
 }
+// Navy half-zip track dress: textured cable-rib jersey, cream panels down the raglan sleeves, a tall zip collar.
+// Darker than the photographed jersey: exposure and tone mapping lift these values.
+const TRACK={navy:[30,31,58],cream:[222,216,206]};
+const DRESS_NECK=1.905,DRESS_HEM=.86;
+let trackPixels={};
+function cableRibTile(){
+  // Height field for the jersey: fine vertical ribs, each with small twists stacked up it, as in the close-ups.
+  if(trackPixels.rib)return trackPixels.rib;
+  const w=32,h=64,data=new Uint8Array(w*h*4);
+  for(let y=0;y<h;y++)for(let x=0;x<w;x++){const s=x/w,t=y/h,rib=Math.sin(Math.PI*((s*2)%1)),twist=.5+.5*Math.sin(Math.PI*2*(t*4+((s*2)%1)*.8)),i=(y*w+x)*4;
+    const v=Math.round(255*Math.max(0,Math.min(1,.15+.55*rib+.25*rib*twist)));data[i]=data[i+1]=data[i+2]=v;data[i+3]=255;}
+  trackPixels.rib={data,w,h};return trackPixels.rib;
+}
+const DRESS_ROWS=[[DRESS_NECK,.112,.104],[1.875,.172,.126],[1.83,.235,.158],[1.775,.272,.183],[1.65,.286,.193],[1.5,.29,.2],[1.35,.293,.208],[1.2,.3,.22],[1.1,.31,.228],[1.0,.325,.236],[.92,.338,.243],[DRESS_HEM,.346,.247]];
+const dressHalfWidth=y=>{const r=DRESS_ROWS;for(let k=0;k<r.length-1;k++)if(y<=r[k][0]&&y>=r[k+1][0]){const t=(r[k][0]-y)/(r[k][0]-r[k+1][0]);return r[k][1]+(r[k+1][1]-r[k][1])*t;}return r.at(-1)[1];};
+// The raglan seam, seen from the front or back: from the neckline at x .1 down to the underarm at x .29.
+const RAGLAN={x:.1,span:.19,y:DRESS_NECK-.008,drop:.26};
+function zipDressData(part){
+  // Colour maps, with the fine ribbing baked in. The body is painted by angle round her (0 at the front, a quarter turn
+  // at her left side) and height; above the raglan seams the cream sleeve panels come up to the neckline, front and
+  // back, split by a narrow navy stripe along the top of the shoulder. On the sleeves the cream panel wraps the outside
+  // of the arm, leaving navy on the inner side, with the same narrow navy stripe down the middle.
+  if(trackPixels[part])return trackPixels[part];
+  const body=part==='body',w=body?1024:256,h=body?512:64,data=new Uint8Array(w*h*4),rand=random(53),ribs=body?96:30;
+  for(let y=0;y<h;y++)for(let x=0;x<w;x++){
+    const u=(x+.5)/w,v=(y+.5)/h;let cream=false;
+    if(body){const a=u*Math.PI*2,height=DRESS_HEM+(DRESS_NECK-DRESS_HEM)*v,t=(RAGLAN.y-height)/RAGLAN.drop,seam=RAGLAN.x+RAGLAN.span*t;
+      const fromSide=Math.abs(Math.asin(Math.cos(a)));
+      cream=t<1&&Math.abs(Math.sin(a))*dressHalfWidth(height)>seam&&fromSide>.06;}
+    else{const d=Math.min(Math.abs(u-.25),1-Math.abs(u-.25));cream=d<.3&&d>.03;}
+    const c=cream?TRACK.cream:TRACK.navy,rib=.9+.1*Math.sin(Math.PI*((u*ribs*2)%1)),grain=rib*(1+(rand()-.5)*.08),i=(y*w+x)*4;
+    for(let k=0;k<3;k++)data[i+k]=Math.max(0,Math.min(255,c[k]*grain));data[i+3]=255;
+  }
+  trackPixels[part]={data,w,h};return trackPixels[part];
+}
+function trackMaterial(part,ribsAround,ribsDown){
+  const {data,w,h}=zipDressData(part),map=new T.DataTexture(data,w,h,T.RGBAFormat);map.colorSpace=T.SRGBColorSpace;map.wrapS=T.RepeatWrapping;
+  map.generateMipmaps=true;map.minFilter=T.LinearMipmapLinearFilter;map.magFilter=T.LinearFilter;map.needsUpdate=true;
+  const rib=cableRibTile(),bump=new T.DataTexture(rib.data,rib.w,rib.h,T.RGBAFormat);bump.wrapS=bump.wrapT=T.RepeatWrapping;bump.repeat.set(ribsAround,ribsDown);bump.generateMipmaps=true;bump.minFilter=T.LinearMipmapLinearFilter;bump.needsUpdate=true;
+  return new T.MeshPhysicalMaterial({map,bumpMap:bump,bumpScale:.02,roughness:.9,sheen:.25,sheenColor:new T.Color('#9aa0c0'),sheenRoughness:.9,side:T.DoubleSide});
+}
+// Her legs, as makeDoll() builds them: ovals .092 by .094 across, .49 tall, centred .16 either side at height .69.
+const legRadius=y=>Math.sqrt(Math.max(0,1-((y-.69)/.49)**2));
+function makeZipTrackDress(id=ZIP_TRACK_DRESS_ID){
+  const top=new T.Group();top.name=id;
+  // Bare legs below the hem: her body under clothes is cream felt, so skin covers her legs down inside her socks.
+  const skin=cloth('#dfb195');
+  for(const side of [-1,1])shell(top,[1.0,.94,.86,.78,.69,.6,.5,.4,.3,.24].map(y=>[y,.092*legRadius(y)+.005,.094*legRadius(y)+.005,side*.16]),skin,'bare-leg-skin',32);
+  // Close at the chest, then a gentle A-line to the upper thigh; the hem ripples softly as jersey does.
+  const body=shell(top,DRESS_ROWS,trackMaterial('body',96,34),'dress-body',128);
+  mapByHeight(body,DRESS_HEM,DRESS_NECK);
+  const p=body.geometry.attributes.position;
+  for(let i=0;i<p.count;i++){const y=p.getY(i),fall=Math.max(0,Math.min(1,(1.15-y)/.3)),k=1+.018*fall*Math.sin(Math.atan2(p.getX(i),p.getZ(i))*9);p.setX(i,p.getX(i)*k);p.setZ(i,p.getZ(i)*k);}
+  p.needsUpdate=true;body.geometry.computeVertexNormals();
+  const navyRib=woolMaterial(null);navyRib.color.set('#1e2040');
+  // The tall stand collar, zipped up; her big head hides most of it from the front.
+  ribbed(shell(top,[[1.985,.118,.111],[1.95,.113,.106],[1.91,.117,.109]],navyRib,'stand-collar',384),48,.012);
+  for(const side of [-1,1]){
+    const arm=new T.Group();arm.position.set(side*.242,1.815,0);arm.rotation.z=side*.22;
+    // Long raglan sleeves; the cream panel runs down the outside of each arm, split by a narrow navy stripe.
+    const mat=trackMaterial('sleeve',30,16);mat.map.offset.x=side>0?0:.5;
+    const sleeve=shell(arm,[[.03,.112,.11],[-.05,.123,.118],[-.17,.12,.114],[-.29,.114,.108],[-.4,.106,.1],[-.47,.098,.094]],mat,'knit-jumper-sleeve',96);
+    roundSleeveCap(sleeve,side,.03);mapByHeight(sleeve,-.47,.03);
+    easeOverHand(ribbed(shell(arm,[[-.46,.096,.092],[-.5,.092,.089],[-.55,.091,.088]],navyRib,'ribbed-cuff',256),32,.03),side);
+    top.add(arm);
+  }
+  // Raglan seams follow the edges of the cream panels, from the neckline to the underarms.
+  const onSurface=surfaceProbe(top,['dress-body','knit-jumper-sleeve']);
+  raglanSeams(top,onSurface,navyRib,RAGLAN);
+  // The quarter zip: silver teeth from the collar to mid-chest, ending in a small stop.
+  const steel=new T.MeshStandardMaterial({color:'#c9ccd2',metalness:.85,roughness:.3}),teeth=[];
+  for(let k=0;k<=16;k++){const hit=onSurface(0,DRESS_NECK-.004-(DRESS_NECK-.004-1.71)*k/16,true);if(hit)teeth.push(hit.point.clone().addScaledVector(hit.normal,.003));}
+  if(teeth.length>8){for(const dx of [-.0045,.0045])curve(top,teeth.map(q=>[q.x+dx,q.y,q.z]),.0028,steel,'zip-teeth');
+    const end=teeth.at(-1);oval(top,[end.x,end.y-.004,end.z+.002],[.006,.005,.003],steel,'zip-stop',12);}
+  return top;
+}
 // Acid-wash barrel jeans: construction is read from the product photos.
 let washPixels=null;
 function acidWashData(base=[48,61,70]){
@@ -1580,7 +1657,7 @@ function makeJeans(id,spec,swatch=null,rest=LOAFER_REST){
   for(const [x,y,w] of spec.abrasions||[])patchOn([[x-w/2,y-.004],[x+w/2,y-.004],[x+w/2,y+.004],[x-w/2,y+.004]],'abrasion',false,.0015,solid('#b9c8d6',1));
   if(spec.centreBack)curve(jeans,on(spec.centreBack,true),.0018,thread,'centre-back-seam');
   if(spec.centreFront)curve(jeans,on(spec.centreFront),.0018,thread,'centre-front-seam');
-  if(spec.welt)curve(jeans,on(spec.welt,true,.005),.0028,fold,'welt-pocket');
+  if(spec.welt)curve(jeans,on(spec.welt,true,.005),.0028,spec.weltColour?solid(spec.weltColour,.9):fold,'welt-pocket');
   const lp=spec.labelPatch;if(lp){const leather=put(jeans,new T.BoxGeometry(...lp.size),solid(lp.colour,.95),lp.name);leather.position.set(...lp.position);leather.rotation.y=lp.rotationY;
   for(const [x0,y0,x1,y1,c] of lp.blocks||[]){
     // Coloured blocks on the patch's outer face (no lettering).
@@ -1593,12 +1670,29 @@ function makeJeans(id,spec,swatch=null,rest=LOAFER_REST){
   }}
   if(spec.drawstring){
     // A drawstring threaded out through two eyelets at the front of the waistband, its ends hanging flat against the
-    // trousers, finished with metal tips.
-    const ds=spec.drawstring,cord=solid(ds.colour,.8),tip=new T.MeshStandardMaterial({color:ds.tip,metalness:.85,roughness:.3});
+    // trousers, finished with metal tips (or tips in the cord's own fabric), and tied in a knot when the spec says so.
+    const ds=spec.drawstring,cord=solid(ds.colour,.8),tip=new T.MeshStandardMaterial({color:ds.tip,metalness:ds.metal===false?0:.85,roughness:ds.metal===false?.8:.3});
+    if(ds.knot){const ky=wb.y-wb.h*.15-.004;oval(jeans,[0,ky,depth(0,ky)+.007],[.009,.0065,.005],cord,'drawstring-knot',14);}
     for(const side of [-1,1]){const x0=side*ds.x,ends=[[x0,wb.y-wb.h*.15],[x0+side*.004,wb.y-wb.h/2-.02],[x0-side*.002,wb.y-wb.h/2-.06],[x0+side*.006,wb.y-wb.h/2-ds.length]];
       oval(jeans,[x0,wb.y-wb.h*.15,depth(x0,wb.y-wb.h*.15)+.004],[.0045,.0045,.0015],tip,'drawstring-eyelet',12);
       const pts=on(dense(ends,.012),false,.0035);curve(jeans,pts,.0022,cord,'drawstring');
       const [x,y,z]=pts[pts.length-1],aglet=put(jeans,new T.CylinderGeometry(.0028,.0028,.016,10),tip,'drawstring-tip');aglet.position.set(x,y-.007,z);}
+  }
+  if(spec.piping){
+    // Contrast piping sewn into seams that curve down each leg: each line runs from the waistband to the hem at angles
+    // measured from the side seam (positive toward the front), mirrored on both legs.
+    const pp=spec.piping,pipe=solid(pp.colour,.6);
+    for(const side of [-1,1])for(const line of pp.lines){const path=new T.CatmullRomCurve3(line.map(([y,t])=>V(y,t,0)));
+      // Where a long hem lifts over the shoe, a point near the hem can miss the near side of the leg and land on the far
+      // side; the line stops before that.
+      const pts=[];for(let k=0;k<=48;k++){const q=path.getPoint(k/48),a=outAngle(side,q.x)-side*q.y,pt=legPoint(side,q.x,a,pp.radius*.7),cx=lerpRows(legRows(side),q.x)[3];
+        if((pt[0]-cx)*Math.sin(a)+pt[2]*Math.cos(a)<=0)break;pts.push(pt);}
+      if(pts.length>1)curve(jeans,pts,pp.radius,pipe,'piping');}
+  }
+  if(spec.tick){
+    // A small embroidered tick on the front of one thigh: a curved tapering mark, its point toward the side seam.
+    const tk=spec.tick,mark=[[.02,.32],[0,.15],[.06,.03],[.18,-.01],[.35,.02],[.7,.18],[1,.34],[.62,.2],[.4,.13],[.22,.1],[.12,.12],[.07,.2]];
+    patchOn(mark.map(([x,y])=>[tk.x+tk.side*(x-.5)*tk.size,tk.y+(y-.16)*tk.size]),'embroidered-tick',false,.0035,solid(tk.colour,.7));
   }
   // A stitched hem: a ring of topstitching just above the hem edge of each leg.
   if(spec.hemStitch)for(const side of [-1,1]){const pts=[];for(let k=0;k<=64;k++)pts.push(legPoint(side,hemTop+spec.hemStitch,k/64*Math.PI*2,.002));curve(jeans,pts,.0018*sw,thread,'hem-stitch');}
@@ -1613,8 +1707,10 @@ export function makeOutfit(raw, atlas=null) {
   const state=cleanRecipe(raw),root=new T.Group();root.name='wardrobe';
   const shirt=cloth('#e6e6de'),stripe=solid('#829bb9'),denim=cloth(state.trousers,'denim'),knit=cloth(state.sweater,'knit'),stitch=solid('#ae8c62');
   const shoes=makeShoes(state.shoesId,atlas?.isTexture?null:atlas?.[state.shoesId]);root.add(shoes);
-  const bottom=GARMENTS[state.bottomId],trousers=bottom?.build?.template==='jeans'?makeJeans(state.bottomId,bottom.build,atlas?.isTexture?null:atlas?.[state.bottomId],shoes.userData.rest):new T.Group();trousers.name='trousers';root.add(trousers);
-  if(state.bottomId==='classic'){
+  // A dress is worn instead of the top, any top under it, the classic layers, the bottoms and the skirt.
+  const dress=GARMENTS[state.dressId]?.slot==='dress'?state.dressId:null,skirtOn=state.skirt&&!dress;
+  const bottom=dress?null:GARMENTS[state.bottomId],trousers=bottom?.build?.template==='jeans'?makeJeans(state.bottomId,bottom.build,atlas?.isTexture?null:atlas?.[state.bottomId],shoes.userData.rest):new T.Group();trousers.name='trousers';root.add(trousers);
+  if(!dress&&state.bottomId==='classic'){
   // One pelvis shell overlaps leg roots; both are separate from the doll.
   shell(trousers,[[1.23,.252,.177],[1.15,.272,.194],[1.05,.267,.19],[.96,.235,.176]],denim,'jeans-hips');
   ring(trousers,1.22,.254,.181,denim,'jeans-waistband',.065);
@@ -1631,13 +1727,15 @@ export function makeOutfit(raw, atlas=null) {
     :id===POINTELLE_FLOWER_ID?makePointelleJumper(id,state.skirt):id===SILVER_CABLE_ID?makeSilverCableJumper():id===LACROIX_FLOWER_ID?makeLacroixSweater(id,state.skirt)
     :id===TOMMY_CABLE_ID?makeTommyCableSweater(id,state.skirt):id===PETIT_BATEAU_CARDIGAN_ID?makeStripedCardigan(id,state.skirt)
     :id===TOMMY_STRIPE_POLO_ID?makeKnitPolo(id):SHIRT_IDS.includes(id)?makeButtonShirt(id)
+    :GARMENTS[id]?.build?.template==='printed-raglan-tee'?makePrintedTee(id,GARMENTS[id].build,atlas?.isTexture?atlas:atlas?.[id])
     :makeReferenceTop(atlas?.isTexture?atlas:atlas?.[id],id);
-  if(state.topId!=='classic')root.add(makeTop(state.topId));
+  if(!dress&&state.topId!=='classic')root.add(makeTop(state.topId));
+  if(dress)root.add(makeZipTrackDress(dress));
   // A top that can be worn over another top (layering.overTop, such as a cardigan) may have a slim top under it
   // (layering.underTop). The under top shows in the opening instead of her skin; its sleeves stay inside the outer
   // sleeves (hidden), and its body is eased in a little below its collar so it sits inside the outer top; its collar
   // stays as it is and shows above the outer top's neckline, as a crew or mock neck does.
-  if(state.underTopId!=='none'){
+  if(!dress&&state.underTopId!=='none'){
     const under=makeTop(state.underTopId);under.name='under-top';under.userData.garmentId=state.underTopId;root.add(under);
     under.traverse(o=>{if(o.isGroup&&o.rotation.z!==0&&o.children.some(c=>c.isMesh&&/sleeve/.test(c.name)))o.visible=false;});
     for(const o of under.children){if(!o.isMesh)continue;const p=o.geometry.attributes.position;
@@ -1645,7 +1743,7 @@ export function makeOutfit(raw, atlas=null) {
       p.needsUpdate=true;o.geometry.computeVertexNormals();}
     root.getObjectByName(state.topId)?.traverse(o=>{if(o.name==='bare-shoulder-skin')o.visible=false;});
   }
-  if(state.shirt){
+  if(state.shirt&&!dress){
     const layer=new T.Group();layer.name='shirt';root.add(layer);
     shell(layer,[[1.8,.22,.145],[1.69,.267,.174],[1.43,.284,.185],[1.19,.288,.198],[1.145,.265,.19]],shirt,'shirt-body');
     for(let i=-6;i<=6;i++) {const x=i*.037;if(Math.abs(x)>.26)continue;const z=.201*Math.sqrt(1-(x/.30)**2);curve(layer,[[x,1.17,z],[x,1.4,z-.01],[x*.89,1.68,z-.02]],.008,stripe,'shirt-stripe');}
@@ -1654,7 +1752,7 @@ export function makeOutfit(raw, atlas=null) {
     }
     for(let y=1.19;y<(state.knit?1.38-state.hem*.19-.025:1.76);y+=.095)oval(layer,[.007,y,.207],[.011,.011,.006],solid('#e0d5bd'),'shirt-button',12);
   }
-  if(state.knit){
+  if(state.knit&&!dress){
     const sweater=new T.Group();sweater.name='sweater';root.add(sweater);
     const hem=1.38-state.hem*.19;
     shell(sweater,[[1.88,.108,.104],[1.83,.22,.158],[1.77,.288,.19],[1.62,.298,.205],[hem+.065,.301,.213],[hem,.284,.204]],knit,'knit-body');
@@ -1663,7 +1761,7 @@ export function makeOutfit(raw, atlas=null) {
     const ribs=new T.Group();ribs.name='hem-ribs';sweater.add(ribs);
     for(let i=0;i<52;i++){const a=i/52*Math.PI*2;curve(ribs,[[Math.sin(a)*.29,hem-.004,Math.cos(a)*.212],[Math.sin(a)*.291,hem+.051,Math.cos(a)*.213]],.0027,knit,'rib');}
   }
-  if(state.skirt){
+  if(skirtOn){
     const skirt=new T.Group();skirt.name='layered-skirt';root.add(skirt);
     const satin=cloth(state.skirtColour);satin.roughness=.7;satin.sheenRoughness=.6;
     const panel=shell(skirt,[[1.24,.292,.219],[1.17,.317,.23],[1.02,.356,.253],[.85,.39,.273],[.79,.395,.277]],satin,'pleated-skirt',96);
@@ -1695,7 +1793,7 @@ export function makeOutfit(raw, atlas=null) {
     if(outerwear.layering?.coversTopSleeves)for(const layer of root.children)layer.traverse(o=>{if(o.isGroup&&o.rotation.z!==0&&o.children.some(c=>c.isMesh&&/sleeve/.test(c.name)))o.visible=false;});
     // Zipped to the chin, it also closes over the striped shirt's collar points and a polo's or button-down's collar.
     if(outerwear.layering?.closed&&!state.outerwearOpen)root.traverse(o=>{if(o.name.startsWith('shirt-collar')||o.name.startsWith('polo-collar'))o.visible=false;});
-    const outer=makeOuterwear(state.outerwearId,state.skirt,{under:root,open:state.outerwearOpen});
+    const outer=makeOuterwear(state.outerwearId,skirtOn,{under:root,open:state.outerwearOpen});
     if(outer)root.add(outer);
   }
   // Materials that were not used in the selected layers are not retained.

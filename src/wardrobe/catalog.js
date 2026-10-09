@@ -2,6 +2,8 @@
 // Outerwear: none by default ('none'); catalog coats and jackets fill the 'outerwear' slot.
 export const MARIKOO_WINDBREAKER_ID = 'marikoo-two-tone-windbreaker-v1';
 export const DESIGUAL_LEATHER_JACKET_ID = 'desigual-black-faux-leather-jacket-v1';
+// Dresses: none by default ('none'); a catalog dress fills the 'dress' slot and is worn instead of the top and bottoms.
+export const ZIP_TRACK_DRESS_ID = 'navy-half-zip-track-dress-v1';
 // Shoes: built-in loafers are 'classic'; catalog shoes fill the 'shoes' slot.
 export const BUFFALO_ASPHA_ID = 'buffalo-aspha-mid-olive-v1';
 export const DM_COW_SLIDE_ID = 'dr-martens-cow-slide-v1';
@@ -19,6 +21,7 @@ export const PETIT_BATEAU_CARDIGAN_ID = 'petit-bateau-striped-cardigan-v1';
 export const TOMMY_STRIPE_POLO_ID = 'tommy-stripe-knit-polo-v1';
 export const MOTEL_TIE_DYE_SHIRT_ID = 'motel-tie-dye-mesh-shirt-v1';
 export const DESIGUAL_SPRAY_FLORAL_SHIRT_ID = 'desigual-spray-floral-mesh-shirt-v1';
+export const VANGOGH_TEE_ID = 'van-gogh-patchwork-tee-v1';
 export const BARREL_JEANS_ID = 'topshop-barrel-jeans-v1';
 export const DAVINIA_JEANS_ID = 'desigual-davinia-jeans-v1';
 export const LEVIS_94_ID = 'levis-94-wide-leg-v1';
@@ -29,6 +32,7 @@ export const BERSHKA_GREY_ID = 'bershka-grey-wide-leg-v1';
 export const TOMMY_CARPENTER_ID = 'tommy-remastered-carpenter-v1';
 export const ZARA_CARGO_ID = 'zara-cargo-joggers-v1';
 export const CRYSTAL_JEANS_ID = 'crystal-straight-jeans-v1';
+export const NIKE_TRACK_ID = 'nike-piped-track-pants-v1';
 export const TOPSHOP_BLACK_CROP_ID = 'topshop-washed-black-wide-crop-v1';
 export const GARMENTS = Object.freeze({
   [BRONZE_TOP_ID]: {
@@ -232,6 +236,33 @@ export const GARMENTS = Object.freeze({
     uncertainties: ['the clouds and stencils are drawn procedurally to match the photos\' colours, shares and motif sizes, not copied', 'worn with the top button open, as on the model; the flat lay is fully buttoned', 'the hem is drawn straight; on the model it dips slightly at the centre front', 'not see-through, as for the tie-dye mesh shirt'],
     styling: { silhouette: 'slim, cropped at the waist', palette: ['pink', 'coral', 'red', 'orange', 'cream'], pattern: 'blurred spray-paint clouds with large cream stencilled flowers and leaves', coverage: { neck: 'point collar, top button open', sleeves: 'long, sheer', midriff: 'cropped at the waist' }, material: 'fine-rib stretch mesh, composition unknown', warmth: 1, warmthBasis: 'inferred: thin, sheer mesh, though long-sleeved', weather: 'mild to warm days, or as a layer; sheer' },
     authoring: { template: 'makeButtonShirt() in src/doll/shirts.js', texture: 'procedural sprayFloralData() and fineRibData() in src/doll/shirts.js, drawn locally when first worn', runtimeGeneration: false, sourcePhotosBundled: false },
+  },
+  [VANGOGH_TEE_ID]: {
+    slot: 'top',
+    id: VANGOGH_TEE_ID, name: 'Van Gogh patchwork print tee', family: 'printed-raglan-tee', version: 1,
+    status: 'reference-study-awaiting-visual-review', brandAsProvided: 'not stated',
+    source: { note: 'user supplied six product photos without a written description: front (on a model, and closer), back (two), and close-ups of the back band and the front side' },
+    referenceViews: ['front on model', 'front, closer', 'back on model', 'back, closer', 'back band close-up', 'front side close-up'],
+    details: ['fitted short-sleeved raglan tee in a fine stretch rib knit', 'pieced from panels printed with sections of Van Gogh paintings: a swirling blue sky with white clouds, and white roses with dark leaves on pale green (his Roses, 1890)', 'front: sky panel on her right, roses panel on her left, joined by a centre seam', 'back: a large white cloud on a blue and teal sky, above a band of roses across the lower back', 'raglan sleeves: her right sleeve roses and leaves, her left sleeve sky', 'every seam exposed and overlocked in sage green, slightly wavy', 'lettuce-edge hem, sleeve hems and crew neckline in the same green'],
+    material: { construction: 'fine stretch rib jersey (read from the close-ups)', composition: 'not stated', finish: 'matte print' },
+    fit: { silhouette: 'fitted, close to the body', sleeve: 'short raglan sleeves ending above the elbow', hem: 'high hip, at the waistband of high-rise jeans', neckline: 'crew', adjustment: 'fixed authored fit for review' },
+    exclusions: ['striped-shirt','knit-sweater'],
+    // Covers the waistband; the short sleeve's fabric ends at -.17 (sleeve-local), below which her arm is bare.
+    layering: { coversWaistband: true, bareArmBelow: -.17 },
+    uncertainties: ['the print is taken from the product photos, so it is softer than the real fabric and some photographed folds and shading remain', 'the doll\'s torso is wider and shorter than the model\'s, so each panel shows a shorter vertical slice of its painting', 'the sleeves are made from small crops and are blurrier than the body', 'the side seams and panel edges are placed to match the doll, from the photos'],
+    styling: { silhouette: 'fitted, high-hip length', palette: ['sky blue', 'white', 'sage green', 'teal'], pattern: 'patchwork of painting prints: a swirling sky with clouds and white roses on green, with green overlocked seams', coverage: { neck: 'crew', sleeves: 'short', midriff: 'covered' }, material: 'fine stretch rib jersey', warmth: 1, warmthBasis: 'inferred: thin fitted knit with short sleeves', weather: 'warm days, or a base layer under a jacket' },
+    authoring: { texture: 'vangogh-tee-atlas.js: the body unwrapped and the sleeves, projected from the user\'s front and back photos with studio shading partly divided out; the paintings are long out of copyright', runtimeGeneration: false, sourcePhotosBundled: 'processed crops only, as the texture atlas' },
+    // Construction for makePrintedTee() in src/doll/printed-tee.js, in outfit units. The seams sit on the panel edges of the
+    // atlas: raglan lines from the neckline (u .055 round from centre front) to the underarm (u .235, v .66), side seams at
+    // u .25 and .75, and the back band's seam at v .27 (v from hem to neck).
+    build: {
+      template: 'printed-raglan-tee',
+      colours: { overlock: '#3f564c', fallback: '#a9c0cf', printTone: '#bebebe' },
+      body: { neck: 1.91, hem: 1.19, lettuce: .0035, waves: 44, neckWaves: 30,
+        rows: [[1.91, .109, .099], [1.875, .17, .122], [1.83, .228, .152], [1.775, .265, .175], [1.65, .279, .183], [1.49, .277, .187], [1.34, .284, .196], [1.25, .29, .206], [1.19, .292, .213]] },
+      seams: { neckU: .055, armU: .235, armV: .66, band: .27 },
+      sleeve: { rows: [[.03, .108, .106], [-.04, .12, .117], [-.12, .119, .116], [-.17, .122, .119]], lettuce: .003, waves: 18 },
+    },
   },
   [BARREL_JEANS_ID]: {
     slot: 'bottom',
@@ -596,6 +627,45 @@ export const GARMENTS = Object.freeze({
       labelPatch: { name: 'leather-patch', size: [.072, .04, .005], colour: '#b08a5e', position: [-.08, 1.288, -(.17 + .004)], rotationY: Math.PI + .3 },
     },
   },
+  [NIKE_TRACK_ID]: {
+    slot: 'bottom',
+    id: NIKE_TRACK_ID, name: 'Nike woven track pants with piping', family: 'track-pants', version: 1,
+    status: 'reference-study-awaiting-visual-review', brandAsProvided: 'Nike (from the embroidered swoosh)',
+    source: { note: 'user supplied six phone screenshots of a product gallery: front on model full length and closer, side, pocket close-up, styled top half, back' },
+    referenceViews: ['front on model', 'front on model (closer)', 'side on model', 'pocket close-up', 'styled front (top half)', 'back on model'],
+    details: ['elastic gathered waistband with a tonal drawstring tied at the front', 'raspberry pink lightweight woven nylon with a fine crinkle and a soft sheen', 'wide straight legs, full length, pooling over the shoes', 'two white piping lines down each leg, one either side of the side seam, sweeping toward the front lower down', 'side seam pockets', 'small white embroidered swoosh on the wearer\'s left thigh', 'a small welt pocket on the back right'],
+    material: { construction: 'lightweight woven nylon', composition: 'not visible in the supplied screenshots', finish: 'raspberry pink with white piping' },
+    fit: { silhouette: 'wide straight track pant', rise: 'mid, elastic', length: 'full, pooling over the shoes', adjustment: 'fixed authored fit for review' },
+    styling: { silhouette: 'wide straight, full length, pooling over the shoes', palette: ['raspberry pink', 'white'], pattern: 'plain, with white piping curving down each leg and a small white swoosh', coverage: { waist: 'mid rise, elastic', legs: 'full length' }, material: 'lightweight woven nylon (from the photos), composition unknown', warmth: 1, warmthBasis: 'inferred: thin unlined woven shell', weather: 'mild days; light and breezy, not for the cold on its own; water resistance unknown' },
+    uncertainties: ['the piping paths are read from photos at different angles', 'the swoosh is a simple embroidered tick mark', 'folds and crinkle are procedural or from a small swatch'],
+    authoring: { texture: 'nike-track-fabric.js: flat-lit seamless swatch from the pocket close-up', runtimeGeneration: false, sourcePhotosBundled: 'fabric swatch only' },
+    build: {
+      template: 'jeans', legName: 'jeans-leg', fallback: [135, 42, 70],
+      // Light woven nylon: smooth, with a soft sheen and no twill.
+      surface: { roughness: .72, twill: 0, sheen: .2 },
+      crotch: { top: 1.18, y: .95 }, uvScale: [15, 7.5],
+      tiles: { small: [9, 4.5], legs: [1, 1], hips: [1, 1] },
+      hips: [[1.26, .257, .171], [1.16, .278, .191], [1.05, .295, .199], [.97, .306, .19], [.935, .25, .11]],
+      // Wide straight legs pooling over the shoes.
+      legs: [[1.03, .152, .182, .13], [.95, .16, .183, .153], [.75, .168, .186, .168], [.55, .174, .19, .175], [.35, .18, .193, .18], [.18, .185, .196, .185], [.06, .188, .199, .188]],
+      hem: 'rests-on-shoe', folds: { base: .006, low: .013, stack: .012 }, gradient: [.92, .12], whiskers: 0,
+      waistband: { y: 1.235, rx: .252, rz: .166, h: .055, gathers: { count: 60, depth: .025 } },
+      drawstring: { colour: '#c24a74', tip: '#c24a74', metal: false, knot: true, x: .012, length: .24 },
+      thread: '#b03c66',
+      centreFront: [[0, 1.207], [0, 1.1], [0, .975]],
+      // Side seam pockets, just in front of the side seam, edged by the front piping.
+      frontPocket: { type: 'slant', line: [[.228, 1.205], [.25, 1.13], [.262, 1.06]] },
+      // Two white piping lines on each leg, [height, angle from the side seam toward the front].
+      piping: { colour: '#f2eee8', radius: .0028, lines: [
+        [[1.205, .4], [1.05, .42], [.85, .55], [.65, .85], [.45, 1.1], [.25, 1.15], [.08, 1.1]],
+        [[1.205, -.3], [1.0, -.45], [.75, -.7], [.5, -.95], [.25, -1.08], [.08, -1.1]],
+      ] },
+      tick: { side: 1, x: .245, y: .9, size: .07, colour: '#f4f1ec' },
+      seamEnd: .1,
+      centreBack: [[0, 1.207], [0, 1.1], [0, .985]],
+      welt: [[-.19, 1.17], [-.15, 1.168], [-.11, 1.17]], weltColour: '#8e2a50',
+    },
+  },
   [TOPSHOP_BLACK_CROP_ID]: {
     slot: 'bottom',
     id: TOPSHOP_BLACK_CROP_ID, name: 'Topshop washed black wide crop jeans', family: 'wide-leg-cropped-jeans', version: 1,
@@ -820,5 +890,20 @@ export const GARMENTS = Object.freeze({
         cuff: [-.5, -.568], cuffRadius: [.121, .118], ruche: [-.28, -.49], rucheDepth: .02, rucheFreq: 70,
       },
     },
+  },
+  // Dresses: one piece worn instead of the top and the bottoms, with bare legs; shoes and outerwear go with it.
+  [ZIP_TRACK_DRESS_ID]: {
+    slot: 'dress',
+    id: ZIP_TRACK_DRESS_ID, name: 'Navy half-zip track mini dress', family: 'long-sleeve-mini-dress', version: 1,
+    status: 'reference-study-awaiting-visual-review', brandAsProvided: null,
+    source: { note: 'user supplied five phone screenshots of a listing (images 2, 3, 5, 7 and 9 of 9): arms crossed, full length front, back, a collar close-up and a hem close-up' },
+    referenceViews: ['front, arms crossed', 'full length front', 'back', 'collar and zip close-up', 'hem and cuff close-up'],
+    details: ['navy textured jersey with fine vertical cable ribs', 'tall stand-up funnel collar that can fold down like a polo', 'quarter zip from the collar to mid-chest: silver teeth and slider with a navy tab', 'raglan sleeves: navy, with a wide cream textured panel down the outside of each sleeve from the neckline to the wrist, split by a narrow navy stripe', 'navy fine-ribbed cuffs', 'short A-line skirt to the upper thigh', 'worn with bare legs, white socks and white sneakers in the photos'],
+    material: { construction: 'textured cable-rib jersey', composition: 'not visible in the supplied screenshots', finish: 'matte' },
+    fit: { silhouette: 'close at the chest, gently A-line', sleeve: 'long raglan, ribbed cuffs', hem: 'upper thigh', neckline: 'stand collar with quarter zip, worn zipped up', adjustment: 'fixed authored fit for review' },
+    layering: { replacesTop: true, replacesBottom: true, bareLegs: true },
+    styling: { silhouette: 'A-line mini, upper thigh', palette: ['navy', 'cream'], pattern: 'sporty colour-blocked raglan sleeves', coverage: { neck: 'high stand collar', sleeves: 'long', midriff: 'covered', legs: 'bare from the upper thigh' }, material: 'textured cable-rib jersey', warmth: 2, warmthBasis: 'inferred: long-sleeved jersey, but bare legs', weather: 'mild days; bare legs below the hem' },
+    uncertainties: ['the brand is not shown on the dress in the screenshots (only the sneakers carry a logo)', 'the rib texture is drawn, not copied', 'the sleeve panel layout is read from the front and back photos; the underarm is not shown', 'the collar is modelled standing, as in three of the photos'],
+    authoring: { texture: 'procedural zipDressData() in src/doll/model.js', runtimeGeneration: false, sourcePhotosBundled: false },
   },
 });

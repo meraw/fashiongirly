@@ -48,7 +48,7 @@ Recorded in the catalog (bottoms do not require them yet): wide cropped legs, mi
 
 ## Checks
 
-- `npm test`: 63 passing. The new test checks:
+- `npm test`: 67 passing after merging `main`. The new test checks:
   - the patch, button and yoke;
   - the frayed raw hem, with no hem stitching;
   - the hem height (above the loafers, near her ankle);
