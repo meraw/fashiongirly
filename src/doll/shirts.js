@@ -4,7 +4,8 @@
 import * as T from 'three';
 import { random, solid, oval, curve, shell, roundSleeveCap, surfaceProbe, easeOverHand, trimToEdge } from './model.js';
 import { grid } from './polo.js';
-import { MOTEL_TIE_DYE_SHIRT_ID, DESIGUAL_SPRAY_FLORAL_SHIRT_ID, PEPE_IKAT_SHIRT_ID } from '../wardrobe/catalog.js';
+import { MOTEL_TIE_DYE_SHIRT_ID, DESIGUAL_SPRAY_FLORAL_SHIRT_ID, DESIGUAL_SPLIT_FLORAL_SHIRT_ID, PEPE_IKAT_SHIRT_ID } from '../wardrobe/catalog.js';
+import { splitBodyData, splitCollarData, leftSleeveData, rightSleeveData } from './split-floral-print.js';
 import { ikatData } from './ikat-print.js';
 
 // Warm grey-mauve tie-dye, measured in the shirt's own photos (hanger front and back): the darkest patches about
@@ -136,6 +137,12 @@ const STYLES={
   // Worn with the top button open, as on the model: tonal stitching, the stand in the print, and pale peach buttons.
   [DESIGUAL_SPRAY_FLORAL_SHIRT_ID]:{print:sprayFloralData,around:2,high:1.04,collarAround:2,bump:[fineRibData,220,1,.003],sheen:['#ff9c9c',.12,.5],roughness:.72,
     stitch:'#d9817f',facing:null,button:['#f4c0b2',.3],buttons:[1.785,1.707,1.63,1.552,1.475,1.397,1.32],collarTopstitch:false,open:{bottom:1.8,half:.034}},
+  // A split print laid out once over each piece (src/doll/split-floral-print.js): small flowers on her right, large painted
+  // flowers on black on her left. Optional `collarPrint` and `sleevePrints` ({left, right}: [print, around, high]) give the
+  // collar and each sleeve their own canvas. Matte cotton poplin, tonal black stitching and buttons, worn with the top
+  // button open as on the model.
+  [DESIGUAL_SPLIT_FLORAL_SHIRT_ID]:{print:splitBodyData,around:1,high:1,collarPrint:splitCollarData,collarAround:1,sleevePrints:{left:[leftSleeveData,1,1],right:[rightSleeveData,1,1]},
+    bump:[fineRibData,300,1,.001],sheen:['#55525e',.15,.6],roughness:.8,stitch:'#1c1b1f',facing:null,button:['#0f0e11',.25],buttons:[1.785,1.707,1.63,1.552,1.475,1.397,1.32],collarTopstitch:false,open:{bottom:1.8,half:.034}},
   // Full length and worn loose over the waistband: a curved shirttail hem, a chest pocket on her left, buttoned cuffs and
   // a chambray collar stand; worn with the top button open, as in the flat lay. Light, slightly slubbed voile.
   [PEPE_IKAT_SHIRT_ID]:{print:ikatData,around:3,high:1.05,collarAround:3,bump:[fineRibData,300,1,.0012],sheen:['#ffffff',0,.6],roughness:.85,
@@ -150,10 +157,10 @@ function texture({data,w,h},srgb){
   const t=new T.DataTexture(data,w,h,T.RGBAFormat);if(srgb)t.colorSpace=T.SRGBColorSpace;t.wrapS=t.wrapT=T.RepeatWrapping;
   t.generateMipmaps=true;t.minFilter=T.LinearMipmapLinearFilter;t.magFilter=T.LinearFilter;t.needsUpdate=true;return t;
 }
-function printMaterial(style){
+function printMaterial(style,print=style.print){
   const [bumpData,bu,bv,bumpScale]=style.bump,bump=texture(bumpData(),false);bump.repeat.set(bu,bv);
   const [sheenColor,sheen,sheenRoughness]=style.sheen;
-  return new T.MeshPhysicalMaterial({map:texture(style.print(),true),roughness:style.roughness,sheen,sheenColor:new T.Color(sheenColor),sheenRoughness,bumpMap:bump,bumpScale,side:T.DoubleSide});
+  return new T.MeshPhysicalMaterial({map:texture(print(),true),roughness:style.roughness,sheen,sheenColor:new T.Color(sheenColor),sheenRoughness,bumpMap:bump,bumpScale,side:T.DoubleSide});
 }
 // Print coordinates: around the body and up it, in tiles sized to her, so the patches are the same size everywhere.
 function mapPrint(mesh,around,high,toOutfit=v=>v){
@@ -208,8 +215,10 @@ function makeShirt(id,style,overSkirt=false){
   for(const side of [-1,1]){
     const arm=new T.Group();arm.position.set(side*.242,1.815,0);arm.rotation.z=side*.22;arm.updateMatrix();
     // Long fitted sleeves to the wrist, as on the bronze mesh top, ending in a plain stitched hem that eases over her hand.
-    const sleeve=shell(arm,[[.025,.1,.102],[-.04,.113,.109],[-.16,.108,.102],[-.28,.105,.1],[-.40,.097,.092],[-.49,.08,.082],[-.53,.079,.081]],printMaterial(style),'mesh-shirt-sleeve',48);
-    roundSleeveCap(sleeve,side,.025);mapPrint(sleeve,1,style.high,v=>v.applyMatrix4(arm.matrix));easeOverHand(sleeve,side);
+    // Optional (`sleevePrints`): each sleeve its own print, laid out [around, high].
+    const SP=style.sleevePrints?.[side>0?'left':'right'];
+    const sleeve=shell(arm,[[.025,.1,.102],[-.04,.113,.109],[-.16,.108,.102],[-.28,.105,.1],[-.40,.097,.092],[-.49,.08,.082],[-.53,.079,.081]],printMaterial(style,SP?.[0]),'mesh-shirt-sleeve',48);
+    roundSleeveCap(sleeve,side,.025);mapPrint(sleeve,SP?SP[1]:1,SP?SP[2]:style.high,v=>v.applyMatrix4(arm.matrix));easeOverHand(sleeve,side);
     const p=sleeve.geometry.attributes.position,hem=[];for(let i=p.count-49;i<p.count;i++)hem.push([p.getX(i)*1.02,p.getY(i)+.008,p.getZ(i)*1.02]);
     // A buttoned cuff (style.cuff): a band in the print round the end of the sleeve, stitched along its top edge.
     if(style.cuff){const d=style.cuff.depth,cuff=shell(arm,[[-.53+d,.087,.089],[-.53,.087,.089],[-.535,.086,.088]],printMaterial(style),'shirt-cuff',48);
@@ -220,7 +229,7 @@ function makeShirt(id,style,overSkirt=false){
     curve(arm,hem,.0014,stitch,'sleeve-hem-stitch');
     top.add(arm);
   }
-  makeShirtCollar(top,printMaterial(style),facing,stitch,style);
+  makeShirtCollar(top,printMaterial(style,style.collarPrint),facing,stitch,style);
   top.updateMatrixWorld(true);
   const probe=surfaceProbe(top,['mesh-shirt-body']),onSurface=(x,y)=>{const key=id+':'+x+':'+y;
     if(!surfaceCache.has(key)){const hit=probe(x,y,true);surfaceCache.set(key,hit&&{point:hit.point.clone(),normal:hit.normal.clone()});}
