@@ -11,7 +11,7 @@ test('Pepe Jeans ikat shirt: full length and loose with a shirttail hem, chest p
   const g=GARMENTS[PEPE_IKAT_SHIRT_ID];assert.equal(g.slot,'top');assert.ok(g.layering.coversWaistband);
   assert.ok(OUTFITS.some(look=>look.recipe.topId===PEPE_IKAT_SHIRT_ID),'a study preset wears it');
   const outfit=makeOutfit({topId:PEPE_IKAT_SHIRT_ID});outfit.updateMatrixWorld(true);
-  for(const [name,count] of [['mesh-shirt-body',1],['shirt-collar-fall',1],['shirt-collar-stand',1],['mesh-shirt-sleeve',2],['shirt-cuff',2],['cuff-button',2],['cuff-stitch',2],['shirt-pocket',1],['pocket-stitch',2],['shirt-button',8],['hem-stitch',1]])
+  for(const [name,count] of [['mesh-shirt-body',1],['shirt-collar-fall',1],['shirt-collar-stand',1],['mesh-shirt-sleeve',2],['shirt-cuff',2],['cuff-button',2],['cuff-seam',2],['shirt-pocket',1],['pocket-stitch',2],['shirt-button',8],['hem-stitch',1]])
     assert.equal(named(outfit,name).length,count,name);
   // The stand is lined in blue chambray.
   const stand=named(outfit,'shirt-collar-stand')[0].material.color;assert.ok(stand.b>stand.r*1.2,'chambray stand');

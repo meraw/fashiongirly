@@ -1,6 +1,6 @@
 # Wardrobe item: Woolrich cream hooded bomber (vintage)
 
-Authored 9 October 2026. Status: first version, awaiting visual review. It is the fourth jacket on the zip-windbreaker template.
+Authored 9 October 2026. Status: first version, approved: the user merged it, and merging means approved (their rule). It is the fourth jacket on the zip-windbreaker template.
 
 ## Source and reference reading
 

@@ -33,11 +33,11 @@ Catalog ID `pepe-jeans-ikat-shirt-v1` (slot `top`). It is built by the existing 
   - `tail`: how far the hem rises toward the sides, for a shirttail. Each column of the body is cut shorter along its own surface, so the raised sides keep the body's shape at that height.
   The placket stitching and buttons run down to this hem, and the hem stitching follows its curve.
 - `pocket`: a patch pocket on her left chest, in the print a little out of step with the body, stitched round with a line across its top hem.
-- `cuff`: a buttoned cuff band at the end of each sleeve, in the print, stitched along its top, with a pale button.
+- Cuffs: it uses the `cuff` option added on `main` for the Desigual mountain shirt (a band from `from` to `to`, seamed at its top, with a button), as `{ from: -.48, to: -.535, button: true }`. This chat had built its own cuff option at the same time; the user chose to combine the two shirts' changes, so that one was dropped.
 
-`makeButtonShirt()` takes the skirt setting, and `makeOutfit()` passes it (its dispatch line for shirts). The two cropped shirts ignore it.
+`makeButtonShirt()` takes the skirt setting as its third argument (after the mountain shirt's atlas), and `makeOutfit()` passes it (its dispatch line for shirts). The other shirts ignore it. The template's own `hem` (the mountain shirt's high-hip hem) and this shirt's `body` sit side by side: a shirt with `body` takes its rows from it, the others from `bodyRows()`.
 
-The tie-dye, spray floral and Desigual split floral shirts (the last added on `main` meanwhile, with its own optional collar and sleeve prints) render pixel-identical to `main`, from the front and the side, with and without the skirt.
+The tie-dye, spray floral, Desigual split floral and Desigual mountain shirts (the last two added on `main` meanwhile, with their own template options) render pixel-identical to `main`, from the front and the side, with and without the skirt.
 
 **Print.** Drawn in code, not copied from the photos, in the new file `src/doll/ikat-print.js`:
 
@@ -72,13 +72,13 @@ Two fits came from the shared tests:
 ## Checks
 
 - New `tests/ikat-shirt.test.js` checks:
-  - its parts: collar and chambray stand, sleeves, cuffs with buttons and stitching, the pocket and its stitching, eight buttons, the hem stitching
+  - its parts: collar and chambray stand, sleeves, cuffs with buttons and seams, the pocket and its stitching, eight buttons, the hem stitching
   - that the hem is lowest at the centre front and rises toward the sides
   - that the pocket sits on her left chest
   - that the print holds navy, coral, the blues and white
   - that over the skirt no part of the skirt pokes through it. Building it with its usual rows over the skirt fails this check.
 - The shared tests also run on it, with the change to the waist coverage test above: every waist-covering top over every bottom, sleeves and hands, the styling facts, and outerwear over every top.
-- `npm test`: 91 passing after merging `main` (which added the Pull & Bear chenille jumper, the Woolrich bomber, the adidas cropped windbreaker and the Desigual split floral shirt); `npm run build` succeeds.
+- `npm test`: 94 passing after merging `main` (which added the Pull & Bear chenille jumper, the Woolrich bomber, the adidas cropped windbreaker, the Desigual split floral and mountain shirts and the ONLY Carmakoma coat); `npm run build` succeeds.
 - Rendered in headless Chromium from the front, a turn, the side and the back. Also over the skirt. The authoring chat checked these renders; the user has not seen them yet.
 
 ## Known differences
