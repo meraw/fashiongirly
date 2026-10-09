@@ -94,7 +94,7 @@ Fitted and cropped at the waist, in big soft pastel flowers knitted in on black.
 
 ## Checks
 
-- `npm test`: 121 passing, after merging main (which added the ONLY Onlerin jacket, the hashed garment index, the Mango Claudia jeans and the Levi's anorak).
+- `npm test`: 128 passing, after merging main (which added the ONLY Onlerin jacket, the hashed garment index, the Mango Claudia jeans, the Levi's anorak, the Desigual garden mesh tee and the teddy jackets).
 - The new `tests/painted-floral-jumper.test.js` checks:
   - the parts: rib neckband, hem band and cuffs instead of the turned hem and cuffs;
   - the print: a black ground with pink, cream, mint and royal blue flowers on the front and the back;
