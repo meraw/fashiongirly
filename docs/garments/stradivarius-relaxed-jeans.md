@@ -33,5 +33,5 @@ Catalog ID `stradivarius-relaxed-v1` (slot `bottom`), built by `makeJeans()` fro
 ## Known differences
 
 - The back pockets are subtle, as on the real pair; their tonal stitching is the main thing that shows them.
-- A faint line remains where the hips meet the legs.
+- Fixed 9 October 2026 for every pair: the line where the hips met the legs is gone (see [the pleated linen trousers](pleated-linen-wide-trousers.md#the-line-where-the-hips-meet-the-legs)).
 - The patch carries no lettering.
