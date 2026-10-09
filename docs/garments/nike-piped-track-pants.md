@@ -77,4 +77,4 @@ Plain fabric in the photos measures RGB 186, 65, 105 and 196, 61, 95 at the fron
 - The piping paths are an interpretation of photos taken at different angles.
 - The drawstring hangs straight from a simple knot, without the photo's loose loops.
 - The crinkle is a fine texture; the larger creases of the nylon are not modelled.
-- A faint line remains where the hips meet the legs.
+- Fixed 9 October 2026 for every pair: the line where the hips met the legs is gone (see [the pleated linen trousers](pleated-linen-wide-trousers.md#the-line-where-the-hips-meet-the-legs)).

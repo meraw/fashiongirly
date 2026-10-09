@@ -54,4 +54,4 @@ Plain denim in the photos measures about RGB 16, 15, 17 (side close-up) and 14, 
 - The badges and patches are colour blocks without lettering.
 - The fly's bar tacks are not modelled.
 - The back pockets have rounded bottoms rather than the photo's slight point.
-- A faint line remains where the hips meet the legs.
+- Fixed 9 October 2026 for every pair: the line where the hips met the legs is gone (see [the pleated linen trousers](pleated-linen-wide-trousers.md#the-line-where-the-hips-meet-the-legs)).

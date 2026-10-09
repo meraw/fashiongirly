@@ -41,5 +41,5 @@ Catalog ID `tommy-ultra-high-mom-v1` (slot `bottom`), built by `makeJeans()` fro
 ## Known differences
 
 - Badges and the flag patch are plain colour blocks.
-- A faint line remains where the hips meet the legs, at normal size barely visible.
+- Fixed 9 October 2026 for every pair: the line where the hips met the legs is gone (see [the pleated linen trousers](pleated-linen-wide-trousers.md#the-line-where-the-hips-meet-the-legs)).
 - The taper is limited by her round legs and socks; the mom-fit shape is gentler than on the model.
