@@ -1,6 +1,6 @@
 # Wardrobe item: Nike woven track pants with piping
 
-Authored 9 October 2026. Status: first interpretation awaiting the user's visual review. A piece from the user's wardrobe list, built on the shared jeans template.
+Authored 9 October 2026. Status: first interpretation; approved: the user merged it, and merging means approved (their rule). A piece from the user's wardrobe list, built on the shared jeans template.
 
 ## Source and reference reading
 

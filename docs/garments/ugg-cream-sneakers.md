@@ -1,6 +1,6 @@
 # Wardrobe item: UGG cream platform sneakers
 
-Authored 8 October 2026. Status: first interpretation awaiting the user's visual review. Third pair of shoes from the user's wardrobe list, added by the shoes lane.
+Authored 8 October 2026. Status: first interpretation; approved: the user merged it, and merging means approved (their rule). Third pair of shoes from the user's wardrobe list, added by the shoes lane.
 
 ## Source and reference reading
 

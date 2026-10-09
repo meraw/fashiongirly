@@ -1,6 +1,6 @@
 # Wardrobe item: Zara elastic-waist cargo trousers
 
-Authored 8 October 2026. Status: the user said they “look fine”. A piece from the user's wardrobe list and the first bottom that is not jeans; built on the shared jeans template, extended for it.
+Authored 8 October 2026. Status: the user said they “look fine”; approved: the user merged it, and merging means approved (their rule). A piece from the user's wardrobe list and the first bottom that is not jeans; built on the shared jeans template, extended for it.
 
 ## Source and reference reading
 

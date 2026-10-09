@@ -1,6 +1,6 @@
 # Wardrobe item: Desigual spray-paint floral mesh shirt
 
-Authored 9 October 2026. Status: first version, awaiting the user's visual review. The second button-down, and the first garment added to the shirt template.
+Authored 9 October 2026. Status: first version; approved: the user merged it, and merging means approved (their rule). The second button-down, and the first garment added to the shirt template.
 
 ## Source and reference reading
 

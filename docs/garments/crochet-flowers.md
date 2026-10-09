@@ -1,6 +1,6 @@
 # Reference test: Desigual blue crochet flower sweater
 
-Authored 8 October 2026. Status: first interpretation awaiting user visual feedback.
+Authored 8 October 2026. Status: first interpretation; approved: the user merged it, and merging means approved (their rule).
 
 ## Source and reference reading
 

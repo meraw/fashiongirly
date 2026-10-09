@@ -1,6 +1,6 @@
 # Wardrobe item: New Balance 550 cream leather sneakers
 
-Authored 9 October 2026. Status: second version awaiting the user's visual review. Fifth pair of shoes from the user's wardrobe list.
+Authored 9 October 2026. Status: second version; approved: the user merged it, and merging means approved (their rule). Fifth pair of shoes from the user's wardrobe list.
 
 ## Source and reference reading
 
