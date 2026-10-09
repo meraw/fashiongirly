@@ -51,7 +51,6 @@ Catalog ID `desigual-mountain-landscape-mesh-shirt-v1` (slot `top`), built by `m
 - `hem`: a longer hem. This shirt ends at 1.19 on the printed tees' lower rows, which clear every waistband, and the hem stitching follows it.
 - `ruche`: `{ from, to, reach, depth, folds }`. Gathers either side of the placket: folds fanning out from it, deepest at the placket and fading toward her sides and at the top and bottom of the gathered band. The body's rows are doubled so the folds have rows enough.
 - `cuff`: `{ from, to, button }`. A buttoned cuff over the sleeve's end, eased over her hand like the sleeve, with a seam at its top and a button on the outer side. It belongs to the sleeve's group, so it hides with the sleeve under a closed jacket.
-- `skin`: her shoulder skin piece, the one the fresco tee, stripe jumper and cardigan use, fills a deep open V. Her body under clothes is cream felt.
 
 **Print atlas, from the user's photos.** `src/wardrobe/mountain-shirt-atlas.js` is a 1536 × 768 WebP (about 155 KB). It was made during authoring, outside the app.
 
@@ -80,7 +79,7 @@ The two photos differ a little in warmth; averaged, the renders match them withi
 **Shape:**
 
 - The cropped shirts' slim body, continued to the high hip.
-- Open to the third button (a V to 1.69), as on the model; six buttons show.
+- Buttoned to the top, as in the flat lay: eight buttons from just under the collar to the hem, with the collar's points meeting at the top button.
 - Gathers from 1.42 to 1.64.
 - Long fitted sleeves to the wrist with buttoned cuffs.
 - No collar topstitching; tonal stitching on the placket, hem and cuffs.
@@ -92,21 +91,25 @@ The two photos differ a little in warmth; averaged, the renders match them withi
 
 - **Waistband:** it covers the waistband (`coversWaistband`), so the skirt's bow is hidden, and every waistband stays inside it.
 - **Closed jacket:** it hides the sleeves and cuffs, and the collar (`shirt-collar*`).
-- **Open leather jacket:** the print, the open V and the buttons show between the fronts.
+- **Open leather jacket:** the print, the placket and the buttons show between the fronts.
 - **Cardigan:** it is not offered as a top worn under another.
 
 ## Styling facts
 
 - Slim, high-hip length; peach, rust, ochre, dark brown and lilac; a painted mountain landscape at sunset.
-- Point collar with the top two buttons open, long sheer sleeves with buttoned cuffs, midriff covered.
+- Point collar buttoned to the top, long sheer sleeves with buttoned cuffs, midriff covered.
 - Fine stretch mesh, composition unknown.
 - Warmth 1 of 4, inferred: thin, sheer mesh, though long-sleeved. Mild days, or as a layer.
+
+## Revision after the user's first look
+
+The first version was worn open to the third button, as on the model, with her skin in the V. The user asked for the buttons to be closed, so it is now buttoned to the top as in the flat lay, and the shirt template's skin option, used by no other shirt, was removed.
 
 ## Checks
 
 - `npm test`: 85 passing. The new test checks:
-  - the parts, including a cuff, cuff seam and cuff button per sleeve, her skin in the V, and no collar topstitching;
-  - six black buttons, none above the V, and the V's point at 1.69;
+  - the parts, including a cuff, cuff seam and cuff button per sleeve, and no collar topstitching;
+  - eight black buttons, the top one just under the collar, and no V cut into the front;
   - the hem at 1.19, covering the waistband;
   - that the body and each sleeve print from their own part of the atlas;
   - that the front ripples in the gathered band and is smooth below it;
@@ -126,4 +129,4 @@ The two photos differ a little in warmth; averaged, the renders match them withi
 - The collar is a plain peach from the print; on the shirt it is mottled rust and mauve.
 - The front and back come from different photos, so the print does not join at her sides.
 - Not see-through, as for the other mesh shirts.
-- Worn with the bottom button done up; on the model it is open at the hem too.
+- On the model it is worn open at the top and the hem; here it is buttoned all the way, as the user asked.

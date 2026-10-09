@@ -341,20 +341,20 @@ test('spray floral mesh shirt: on the shirt template, worn open at the top, with
   disposeObject(outfit);
 });
 
-test('mountain mesh shirt: printed from its atlas, high-hip hem, gathers either side of the placket, buttoned cuffs, open to the third button',()=>{
+test('mountain mesh shirt: printed from its atlas, high-hip hem, gathers either side of the placket, buttoned cuffs, buttoned to the top',()=>{
   const id=DESIGUAL_MOUNTAIN_SHIRT_ID;
   assert.equal(cleanRecipe({topId:id,knit:true}).knit,false);assert.match(MOUNTAIN_SHIRT_ATLAS,/^data:image\/webp;base64,/);
   const atlas=new T.DataTexture(new Uint8Array([180,120,90,255]),1,1),outfit=makeOutfit({topId:id},{[id]:atlas});outfit.updateMatrixWorld(true);
   const all=name=>{const found=[];outfit.traverse(o=>{if(o.name===name)found.push(o);});return found;};
-  for(const [name,count] of [['mesh-shirt-body',1],['mesh-shirt-sleeve',2],['shirt-cuff',2],['cuff-button',2],['cuff-seam',2],['bare-shoulder-skin',1],['shirt-collar-fall',1],['shirt-collar-topstitch',0],['hem-stitch',1]])
+  for(const [name,count] of [['mesh-shirt-body',1],['mesh-shirt-sleeve',2],['shirt-cuff',2],['cuff-button',2],['cuff-seam',2],['bare-shoulder-skin',0],['shirt-collar-fall',1],['shirt-collar-topstitch',0],['hem-stitch',1]])
     assert.equal(all(name).length,count,name);
-  // Eight glossy black buttons in the flat lay; worn with the top two open, as on the model, six show, none above the V.
-  const buttons=all('shirt-button'),ys=buttons.map(b=>b.getWorldPosition(new T.Vector3()).y/.76);assert.equal(buttons.length,6);
-  const c=buttons[0].material.color;assert.ok(c.r<.05&&c.g<.05,'black buttons');assert.ok(Math.max(...ys)<1.7,'the top two are open');
+  // Eight glossy black buttons, worn buttoned to the top as in the flat lay: the top one just under the collar.
+  const buttons=all('shirt-button'),ys=buttons.map(b=>b.getWorldPosition(new T.Vector3()).y/.76);assert.equal(buttons.length,8);
+  const c=buttons[0].material.color;assert.ok(c.r<.05&&c.g<.05,'black buttons');assert.ok(Math.max(...ys)>1.85,'buttoned to the top');
   const body=all('mesh-shirt-body')[0],p=body.geometry.attributes.position,uv=body.geometry.attributes.uv;
-  // Open down to the third button: the V's point at 1.69.
+  // Closed: the front reaches the neck, with no V cut into it.
   let front=-Infinity,lowest=Infinity;for(let i=0;i<p.count;i++){if(p.getZ(i)>.09&&Math.abs(p.getX(i))<.004)front=Math.max(front,p.getY(i));lowest=Math.min(lowest,p.getY(i));}
-  assert.ok(front<1.7&&front>1.68,`V bottom at ${front}`);
+  assert.ok(front>1.89,`front reaches ${front}`);
   // Longer than the cropped shirts: it ends at the high hip and covers the waistband, so the skirt's bow is hidden.
   assert.ok(Math.abs(lowest-1.19)<.002,`hem at ${lowest}`);assert.equal(GARMENTS[id].layering.coversWaistband,true);
   // The print comes from the atlas: the body from its top three quarters, each sleeve from its own half of the bottom

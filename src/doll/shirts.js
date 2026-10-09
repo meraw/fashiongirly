@@ -2,10 +2,9 @@
 // Built in outfit units like the other tops (makeOutfit scales the whole outfit by 1.06 across and .76 high).
 // One template; each shirt's style (below) sets its print, fabric, stitching, buttons and whether the top button is open.
 // Optional, for shirts that need them (a shirt without them is built as before): a print from a texture atlas made from
-// the product photos (`atlas`), a longer hem (`hem`), gathers either side of the placket (`ruche`), buttoned cuffs (`cuff`)
-// and her skin showing in a deep open V (`skin`).
+// the product photos (`atlas`), a longer hem (`hem`), gathers either side of the placket (`ruche`) and buttoned cuffs (`cuff`).
 import * as T from 'three';
-import { random, cloth, solid, oval, curve, shell, roundSleeveCap, surfaceProbe, easeOverHand, trimToEdge, SHOULDER_ROWS } from './model.js';
+import { random, solid, oval, curve, shell, roundSleeveCap, surfaceProbe, easeOverHand, trimToEdge } from './model.js';
 import { grid } from './polo.js';
 import { MOTEL_TIE_DYE_SHIRT_ID, DESIGUAL_SPRAY_FLORAL_SHIRT_ID, DESIGUAL_MOUNTAIN_SHIRT_ID } from '../wardrobe/catalog.js';
 
@@ -146,10 +145,10 @@ const STYLES={
   // Worn with the top button open, as on the model: tonal stitching, the stand in the print, and pale peach buttons.
   [DESIGUAL_SPRAY_FLORAL_SHIRT_ID]:{print:sprayFloralData,around:2,high:1.04,collarAround:2,bump:[fineRibData,220,1,.003],sheen:['#ff9c9c',.12,.5],roughness:.72,
     stitch:'#d9817f',facing:null,button:['#f4c0b2',.3],buttons:[1.785,1.707,1.63,1.552,1.475,1.397,1.32],collarTopstitch:false,open:{bottom:1.8,half:.034}},
-  // Printed from an atlas of the product photos (a mountain landscape at sunset), worn with the top two buttons open as on
-  // the model, at the high hip, gathered either side of the placket and with buttoned cuffs. Glossy black buttons.
+  // Printed from an atlas of the product photos (a mountain landscape at sunset), worn buttoned to the top as in the flat
+  // lay (the user's way), at the high hip, gathered either side of the placket and with buttoned cuffs. Glossy black buttons.
   [DESIGUAL_MOUNTAIN_SHIRT_ID]:{atlas:{tone:'#b5ada4',fallback:'#bb7a5b'},hem:1.19,bump:[meshNetData,160,90,.0022],sheen:['#f0c0a8',.18,.55],roughness:.68,
-    stitch:'#b9876a',facing:null,button:['#0b0909',.16],buttons:[1.684,1.595,1.506,1.417,1.328,1.239],collarTopstitch:false,open:{bottom:1.692,half:.058},skin:true,
+    stitch:'#b9876a',facing:null,button:['#0b0909',.16],buttons:[1.862,1.773,1.684,1.595,1.506,1.417,1.328,1.239],collarTopstitch:false,open:null,
     ruche:{from:1.42,to:1.64,reach:.15,depth:.0065,folds:9},cuff:{from:-.455,to:-.535,button:true}},
 };
 function texture({data,w,h},srgb){
@@ -234,8 +233,6 @@ function makeShirt(id,style,atlas=null){
   // Worn open at the top: a narrow V cut down to the second button.
   const open=style.open;
   if(open)trimToEdge(body,128,v=>v,(x,z)=>z<=0?NECK+1:Math.min(NECK+1,open.bottom+(NECK-open.bottom)*Math.abs(x)/open.half));
-  // A deep V shows her chest: her body under clothes is cream felt, so the shoulder skin piece other open tops use fills it.
-  if(style.skin)shell(top,SHOULDER_ROWS,cloth('#dfb195'),'bare-shoulder-skin',48);
   if(style.ruche)gather(body,style.ruche);
   if(style.atlas)atlasBody(body,128,hem);else mapPrint(body,style.around,style.high);
   for(const side of [-1,1]){
