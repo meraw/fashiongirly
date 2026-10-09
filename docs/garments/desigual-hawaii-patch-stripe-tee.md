@@ -80,7 +80,7 @@ A boxy, hip-length long-sleeved tee in cream with fine black stripes, white blac
 
 ## Checks
 
-- `npm test`: 103 passing.
+- `npm test`: 105 passing, after merging main (which added the Desigual navy rugby shirt).
 - The new `tests/hawaii-patch-tee.test.js` checks:
   - the parts: body, neckband, turned hem, two sleeves and their cuffs;
   - the back: plain stripes, about a third black, with no lettering or colour, and about one stripe per period down it;
