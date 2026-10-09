@@ -1,6 +1,6 @@
 # Wardrobe item: Tommy Jeans ultra high rise mom jeans
 
-Authored 8 October 2026. Status: first interpretation awaiting the user's visual review. Fifth piece from the user's wardrobe list, built on the shared jeans template.
+Authored 8 October 2026. Status: first interpretation; approved: the user merged it, and merging means approved (their rule). Fifth piece from the user's wardrobe list, built on the shared jeans template.
 
 ## Source and reference reading
 

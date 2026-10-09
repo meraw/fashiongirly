@@ -1,6 +1,6 @@
 # Wardrobe item: Buffalo Aspha olive platform boots
 
-Authored 8 October 2026. Status: second version awaiting the user's visual review. The user found the first version “completely shapeless; they don't look like boots”. First pair of shoes from the user's wardrobe list, and the first item in the shoe slot, added by the shoes lane (see [AGENTS.md](../../AGENTS.md)).
+Authored 8 October 2026. Status: second version; approved: the user merged it, and merging means approved (their rule). The user found the first version “completely shapeless; they don't look like boots”. First pair of shoes from the user's wardrobe list, and the first item in the shoe slot, added by the shoes lane (see [AGENTS.md](../../AGENTS.md)).
 
 ## Source and reference reading
 

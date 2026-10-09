@@ -1,6 +1,6 @@
 # Wardrobe item: Emerald hooded parka (over-dyed)
 
-Authored 9 October 2026. Status: awaiting visual review. The first long coat. Built on the zip-windbreaker template, with the Red Bull windbreaker's covered zip.
+Authored 9 October 2026. Status: approved: the user merged it, and merging means approved (their rule). The first long coat. Built on the zip-windbreaker template, with the Red Bull windbreaker's covered zip.
 
 ## Source and reference reading
 

@@ -1,6 +1,6 @@
 # Wardrobe item: Mango brushed windowpane jumper
 
-Authored 8 October 2026. Status: revised after the user's first review; awaiting their second look. This is the first piece from the user's own wardrobe list.
+Authored 8 October 2026. Status: revised after the user's first review; approved: the user merged it, and merging means approved (their rule). This is the first piece from the user's own wardrobe list.
 
 ## Source and reference reading
 

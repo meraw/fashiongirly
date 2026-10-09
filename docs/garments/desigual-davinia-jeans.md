@@ -1,6 +1,6 @@
 # Wardrobe item: Desigual Davinia heart jeans
 
-Authored 8 October 2026. Status: crotch rebuilt after the user found it strange; the user said the fix “looks better”. Third piece from the user's wardrobe list and the first built on the shared jeans template.
+Authored 8 October 2026. Status: crotch rebuilt after the user found it strange; the user said the fix “looks better”; approved: the user merged it, and merging means approved (their rule). Third piece from the user's wardrobe list and the first built on the shared jeans template.
 
 ## Source and reference reading
 
