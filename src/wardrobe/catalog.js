@@ -242,7 +242,7 @@ export const GARMENTS = Object.freeze({
   [VANGOGH_TEE_ID]: {
     slot: 'top',
     id: VANGOGH_TEE_ID, name: 'Van Gogh patchwork print tee', family: 'printed-raglan-tee', version: 1,
-    status: 'reference-study-awaiting-visual-review', brandAsProvided: 'not stated',
+    status: 'user-approved', brandAsProvided: 'not stated',
     source: { note: 'user supplied six product photos without a written description: front (on a model, and closer), back (two), and close-ups of the back band and the front side' },
     referenceViews: ['front on model', 'front, closer', 'back on model', 'back, closer', 'back band close-up', 'front side close-up'],
     details: ['fitted short-sleeved raglan tee in a fine stretch rib knit', 'pieced from panels printed with sections of Van Gogh paintings: a swirling blue sky with white clouds, and white roses with dark leaves on pale green (his Roses, 1890)', 'front: sky panel on her right, roses panel on her left, joined by a centre seam', 'back: a large white cloud on a blue and teal sky, above a band of roses across the lower back', 'raglan sleeves: her right sleeve roses and leaves, her left sleeve sky', 'every seam exposed and overlocked in sage green, slightly wavy', 'lettuce-edge hem, sleeve hems and crew neckline in the same green'],
@@ -835,7 +835,7 @@ export const GARMENTS = Object.freeze({
   [SAM_ZIP_BOOT_ID]: {
     slot: 'shoes',
     id: SAM_ZIP_BOOT_ID, name: 'Black front-zip lug-sole ankle boots', family: 'front-zip-lug-sole-ankle-boot', version: 1,
-    status: 'reference-study-awaiting-visual-review', brandAsProvided: 'not stated (the double-E logo on the zip pull and the back hardware suggests Sam Edelman)',
+    status: 'user-approved', brandAsProvided: 'not stated (the double-E logo on the zip pull and the back hardware suggests Sam Edelman)',
     source: { note: 'user supplied three product photos without a description: the pair from the front three-quarter, a close-up of the zip and the back, and the outer side' },
     referenceViews: ['front three-quarter pair', 'zip and back close-up', 'outer side'],
     details: ['smooth black leather ankle boot with a round toe', 'centre-front zip in a raised leather placket, double-stitched either side, from the toe cap to the collar; the pull is leather with a small metal double-E logo', 'toe cap seam across the toe', 'a diagonal panel seam across each side and a curved heel counter seam', 'leather pull tab at the back of the collar, with a small metal logo bar beside it', 'thin stitched leather welt on a chunky black rubber lug sole with deep wedge lugs and a slightly raised heel'],
@@ -913,7 +913,7 @@ export const GARMENTS = Object.freeze({
   [DESIGUAL_LEATHER_JACKET_ID]: {
     slot: 'outerwear',
     id: DESIGUAL_LEATHER_JACKET_ID, name: 'Desigual black faux-leather jacket', family: 'cropped-zip-leather-jacket', version: 1,
-    status: 'reference-study-awaiting-visual-review', brandAsProvided: 'Desigual',
+    status: 'user-approved', brandAsProvided: 'Desigual',
     source: { note: 'user supplied five phone screenshots of an Amazon listing: front on a model, arms crossed, front flat lay, back on a model and full length' },
     referenceViews: ['front on model', 'front on model, arms crossed', 'front flat lay', 'back on model', 'full length'],
     details: ['glossy black faux leather with a fine crinkle', 'pointed shirt collar on a stand', 'silver metal centre zip to the collar', 'front yoke seam across the chest with a panel seam down from it to each pocket', 'a horizontal zip pocket on each side above a flap pocket with a box pleat and a silver snap', 'wide black rib-knit hem band', 'set-in sleeves, ruched above leather cuffs with a buttoned tab', 'centre back seam and two long curved back panel seams', 'printed logo lining (seen at the collar)'],
