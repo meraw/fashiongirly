@@ -3,7 +3,8 @@ import assert from 'node:assert/strict';
 import * as T from 'three';
 import { makeOutfit, disposeObject } from '../src/doll/model.js';
 import { OUTFITS, cleanRecipe } from '../src/doll/recipe.js';
-import { GARMENTS, REPLAY_ROSE_SWEATSHIRT_ID } from '../src/wardrobe/catalog.js';
+import { GARMENTS } from '../src/wardrobe/catalog.js';
+const REPLAY_ROSE_SWEATSHIRT_ID='replay-cream-rose-embroidered-sweatshirt-v1';
 const all=(root,name)=>{const found=[];root.traverse(o=>{if(o.name===name)found.push(o);});return found;};
 // Shares of a texture's pixels in a box (in pixels) that are rose red, and that are leaf green.
 const shares=(image,x0,x1,y0,y1)=>{const {data,width:w}=image;let n=0,red=0,green=0;

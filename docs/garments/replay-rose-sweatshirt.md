@@ -49,7 +49,7 @@ Recorded in the catalog entry's `styling` block:
 
 ## Implementation
 
-Catalog ID `replay-cream-rose-embroidered-sweatshirt-v1` (slot `top`), built by `makeEmbroideredSweatshirt()` in a new file, `src/doll/embroidered-sweatshirt.js`, from its `build` spec. `makeOutfit()` gains one dispatch line. No shared code changes. The Levi's sweatshirt's template is left as it is: this one differs in shape and in its details, so it gets its own template rather than new options on another chat's.
+Catalog ID `replay-cream-rose-embroidered-sweatshirt-v1` (slot `top`), built by `makeEmbroideredSweatshirt()` in a new file, `src/doll/embroidered-sweatshirt.js`, from its `build` spec. Following the one-garment-per-file layout (`AGENTS.md`), its catalog entry and study preset live in their own file, `src/wardrobe/garments/replay-cream-rose-embroidered-sweatshirt-v1.js`, with one line in that folder's `index.js`; the template registers in `src/doll/top-templates.js`. It edits no shared list. No shared code changes. The Levi's sweatshirt's template is left as it is: this one differs in shape and in its details, so it gets its own template rather than new options on another chat's.
 
 - **Body.** A boxy body from dropped shoulders, straight into a deep rib band at the waistband. The band dips about 0.045 lower at the back (outfit units), and the body above it follows. Over the skirt, the band sits out wider. The lower body has the Levi's sweatshirt's proven width: wider, it showed through the adidas cropped windbreaker's shirred band.
 - **Embroidery.** Drawn in code, not copied from the photos, at three times its final size and averaged down for soft edges:
