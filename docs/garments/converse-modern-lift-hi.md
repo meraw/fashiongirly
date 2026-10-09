@@ -56,7 +56,7 @@ The user then saw that it "only takes up half of the shoe instead of being a who
 
 ## Checks
 
-- `npm test`: 75 passing after merging `main`. The new test checks:
+- `npm test`: 76 passing after merging `main`. The new test checks:
   - the parts, including the toe cap, seven eyelets a side, two vent eyelets and an ankle patch per shoe, and two stitch lines per sole;
   - the grooves between the platform layers;
   - the patch and vents on the inner side of each foot;
