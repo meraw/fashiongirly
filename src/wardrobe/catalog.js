@@ -7,6 +7,7 @@ export const EMERALD_PARKA_ID = 'emerald-dyed-sherpa-hood-parka-v1';
 export const BOMBOOGIE_FUR_JACKET_ID = 'bomboogie-pink-faux-fur-jacket-v1';
 export const WOOLRICH_BOMBER_ID = 'woolrich-cream-fur-hood-bomber-v1';
 export const ADIDAS_CROPPED_WINDBREAKER_ID = 'adidas-cream-cropped-windbreaker-v1';
+export const ONLY_TAUPE_COAT_ID = 'only-carmakoma-taupe-wool-coat-v1';
 // Dresses: none by default ('none'); a catalog dress fills the 'dress' slot and is worn instead of the top and bottoms.
 export const ZIP_TRACK_DRESS_ID = 'navy-half-zip-track-dress-v1';
 // Shoes: built-in loafers are 'classic'; catalog shoes fill the 'shoes' slot.
@@ -1426,7 +1427,7 @@ export const GARMENTS = Object.freeze({
   [WOOLRICH_BOMBER_ID]: {
     slot: 'outerwear',
     id: WOOLRICH_BOMBER_ID, name: 'Woolrich cream hooded bomber', family: 'zip-windbreaker', version: 1,
-    status: 'reference-study-awaiting-visual-review', brandAsProvided: 'Woolrich (John Rich & Bros), vintage; size XS on the label',
+    status: 'user-approved', brandAsProvided: 'Woolrich (John Rich & Bros), vintage; size XS on the label',
     source: { note: 'user supplied eight resale-listing photos of their own vintage jacket (Vestiaire Collective): front laid out, front and back on a bed, the sleeve pocket and label, and the inside (lining, hood fur and label)' },
     referenceViews: ['front flat, open', 'front on bed, open', 'front on bed, hood up', 'back with hood', 'sleeve pocket and label', 'inside: quilted lining and hood fur', 'hood fur and label close-ups'],
     details: ['cream cotton canvas bomber, slightly yellowed with age, tonal topstitching', 'hood lined in grey-beige faux fur, with a darker dark-tipped faux-fur ruff round the opening; the hood zips on and closes with snaps', 'zip under a storm flap closing with metal snaps; snaps on the stand collar', 'raglan sleeves; centre-back seam', 'large flap pockets at the hip with snaps', 'zip pocket and a white Woolrich label on the upper left sleeve', 'rib-knit hem band and long rib-knit cuffs in cream', 'navy quilted lining (onion quilting)', 'snap tabs at the sides of the waist'],
@@ -1477,7 +1478,7 @@ export const GARMENTS = Object.freeze({
   [ADIDAS_CROPPED_WINDBREAKER_ID]: {
     slot: 'outerwear',
     id: ADIDAS_CROPPED_WINDBREAKER_ID, name: 'adidas cream cropped windbreaker', family: 'zip-windbreaker', version: 1,
-    status: 'reference-study-awaiting-visual-review', brandAsProvided: 'adidas Originals (tonal trefoil on the chest)',
+    status: 'user-approved', brandAsProvided: 'adidas Originals (tonal trefoil on the chest)',
     source: { note: 'user supplied two resale-listing photos of the jacket on a dress form: front zipped and back' },
     referenceViews: ['front on dress form, zipped', 'back on dress form'],
     details: ['cream (off-white) woven nylon shell, all tonal', 'tall stand collar folded over, tonal coil zip to the top', 'tonal embossed trefoil on the left chest', 'dropped shoulders and very full balloon sleeves', 'cropped body blousing over a wide shirred elastic waistband at the waist', 'long shirred elastic cuffs', 'two seams down the front from the chest to the band', 'back yoke seam and centre-back seam'],
@@ -1517,6 +1518,44 @@ export const GARMENTS = Object.freeze({
         cuff: [-.5, -.575], cuffRadius: [.124, .122], cuffPuckers: 40, cuffChannels: 3, gathers: 18, gatherDepth: .035, gatherHeight: .1,
       },
       zip: { width: .014, stitch: .016 },
+    },
+  },
+  [ONLY_TAUPE_COAT_ID]: {
+    slot: 'outerwear',
+    id: ONLY_TAUPE_COAT_ID, name: 'ONLY Carmakoma taupe coat', family: 'tailored-coat', version: 1,
+    status: 'reference-study-awaiting-visual-review', brandAsProvided: 'ONLY Carmakoma (from the product photos)',
+    source: { note: 'user supplied five product photos: front flat, front on a model (open), a close-up of the lapels and buttons, back, and full length on the model; the user said their coat has only one button' },
+    referenceViews: ['front flat, buttoned', 'front on model, open', 'lapel and button close-up', 'back on model', 'full length on model'],
+    details: ['taupe brown melange felted wool-look double-face fabric', 'notched lapel collar', 'single-breasted; the user\'s coat has one button, at the lapel break', 'clean raw edges throughout, as on double-face wool', 'slanted welt pockets at the hip', 'long plain sleeves', 'centre-back seam', 'slightly oversized, straight, to just above the knee'],
+    material: { construction: 'double-face felted knit or woven, wool-look', composition: 'not visible in the supplied photos', finish: 'matte melange with raw edges' },
+    fit: { silhouette: 'straight and slightly oversized', length: 'just above the knee', sleeve: 'long and plain', wear: 'buttoned closed in real life (the user wears outerwear closed unless it is designed to be worn open), with its one button; it can also be shown open on the doll', adjustment: 'fixed authored fit for review' },
+    layering: { closed: true, coversTopSleeves: true, coversWaistband: true, canOpen: true },
+    styling: {
+      observed: { palette: ['taupe melange'], pattern: 'plain melange', silhouette: 'straight single-breasted coat with notched lapels, above the knee', coverage: 'torso, hips and thighs to just above the knee; arms to the wrist; a V at the neck', material: 'felted wool-look double-face' },
+      user: { buttons: 'one button (the other is missing)', wear: 'buttoned, or not worn, in real life (their rule for outerwear); shown open on the doll only to see how it looks' },
+      inferred: { warmth: 'warm: a thick felted coat, unlined', weather: 'cool to cold dry days; not for rain', unknown: ['fibre composition', 'which button is left (assumed the top one, at the lapel break)', 'the exact length on the user'] },
+    },
+    uncertainties: ['the single button is placed at the lapel break', 'the lapels are drawn lying on the front, and the collar round the back of her neck is mostly hidden by her head', 'the melange is drawn procedurally'],
+    authoring: { texture: 'procedural melange, raw edges and seams drawn locally in src/doll/tailored-coat.js; colour measured from the photos', runtimeGeneration: false, sourcePhotosBundled: false },
+    // Built by makeTailoredCoat() (src/doll/tailored-coat.js) on the shared jacket body.
+    build: {
+      template: 'tailored-coat', roughness: 1,
+      colours: { shell: '#6b645e', edge: '#8e8479', stitch: '#5d5650', button: '#1d2226', shadow: '#403a35' },
+      tiles: { body: [14, 9], sleeve: [6, 6] },
+      open: { shift: .1 },
+      body: {
+        rows: [[1.92, .136, .129], [1.9, .146, .134], [1.875, .212, .169], [1.84, .287, .216], [1.8, .34, .253], [1.75, .366, .27], [1.65, .376, .282], [1.5, .379, .288], [1.35, .382, .291], [1.2, .388, .294], [1.05, .4, .298], [.9, .413, .302], [.78, .423, .305], [.74, .426, .305]],
+        overSkirt: [[1.92, .136, .129], [1.9, .146, .134], [1.875, .212, .169], [1.84, .287, .216], [1.8, .34, .253], [1.75, .366, .27], [1.65, .376, .282], [1.5, .379, .288], [1.35, .384, .292], [1.2, .395, .3], [1.05, .424, .316], [.9, .452, .331], [.78, .465, .338], [.74, .467, .337]],
+        hem: .74, collarBase: 1.9, drape: .016, folds: 6, drapeTop: 1.15,
+      },
+      lapel: { break: 1.47, neck: .1, top: 1.86, width: .1, notchAt: .82, narrow: .45, lift: .01 },
+      collar: { from: .62, depth: .06, lift: .016 },
+      buttons: [1.465],
+      pockets: { x: .215, slant: .05, top: 1.2, bottom: 1.02, width: .014 },
+      sleeve: {
+        rows: [[.05, .142, .132], [0, .16, .15], [-.1, .165, .155], [-.25, .163, .154], [-.4, .161, .153], [-.5, .16, .152], [-.575, .16, .152]],
+        cuff: [-.545, -.575], cuffRadius: [.161, .153],
+      },
     },
   },
   // Dresses: one piece worn instead of the top and the bottoms, with bare legs; shoes and outerwear go with it.

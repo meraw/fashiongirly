@@ -1,6 +1,6 @@
 # Wardrobe item: adidas cream cropped windbreaker
 
-Authored 9 October 2026. Status: first version, awaiting visual review. It is the fifth jacket on the zip-windbreaker template, and the first cropped one.
+Authored 9 October 2026. Status: first version, approved: the user merged it, and merging means approved (their rule). It is the fifth jacket on the zip-windbreaker template, and the first cropped one.
 
 ## Source and reference reading
 
