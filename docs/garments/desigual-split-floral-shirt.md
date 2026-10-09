@@ -44,7 +44,7 @@ Catalog ID `desigual-split-floral-shirt-v1` (slot `top`), on the button-down shi
 
 ## Checks
 
-- `npm test`: 87 passing. A new `tests/split-floral-shirt.test.js` checks, on the actual textures:
+- `npm test`: 90 passing. A new `tests/split-floral-shirt.test.js` checks, on the actual textures:
   - small flowers fill her right front and the back;
   - her left front stays mostly black, with large flowers;
   - the back yoke is plain black;
