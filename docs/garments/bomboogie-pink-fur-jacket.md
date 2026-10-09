@@ -1,6 +1,6 @@
 # Wardrobe item: Bomboogie pink faux-fur jacket
 
-Authored 9 October 2026. Status: third version awaiting the user's visual review. Added by the chat that has been doing shoes (any chat can add any category).
+Authored 9 October 2026. Status: third version; approved: the user merged it, and merging means approved (their rule). Added by the chat that has been doing shoes (any chat can add any category).
 
 ## Source and reference reading
 

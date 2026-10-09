@@ -35,12 +35,14 @@ export const TOMMY_STRIPE_POLO_ID = 'tommy-stripe-knit-polo-v1';
 export const MOTEL_TIE_DYE_SHIRT_ID = 'motel-tie-dye-mesh-shirt-v1';
 export const DESIGUAL_SPRAY_FLORAL_SHIRT_ID = 'desigual-spray-floral-mesh-shirt-v1';
 export const DESIGUAL_MOUNTAIN_SHIRT_ID = 'desigual-mountain-landscape-mesh-shirt-v1';
+export const ADIDAS_CROPPED_HOODIE_ID = 'adidas-originals-cropped-hoodie-black-v1';
 export const VANGOGH_TEE_ID = 'van-gogh-patchwork-tee-v1';
 export const DESIGUAL_FRESCO_TEE_ID = 'desigual-fresco-rib-vneck-tee-v1';
 export const MICKEY_LONG_TEE_ID = 'black-mickey-print-long-tee-v1';
 export const PB_CHENILLE_ID = 'pull-bear-grey-chenille-high-neck-v1';
 export const DESIGUAL_SPLIT_FLORAL_SHIRT_ID = 'desigual-split-floral-shirt-v1';
 export const MANGO_DOT_SHIRT_ID = 'mango-halftone-dot-shirt-v1';
+export const LEVIS_FLORAL_LOGO_SWEATSHIRT_ID = 'levis-floral-batwing-sweatshirt-v1';
 export const PAISLEY_SHIRT_ID = 'paisley-print-relaxed-shirt-v1';
 export const BARREL_JEANS_ID = 'topshop-barrel-jeans-v1';
 export const DAVINIA_JEANS_ID = 'desigual-davinia-jeans-v1';
@@ -377,7 +379,7 @@ export const GARMENTS = Object.freeze({
   [DESIGUAL_SPLIT_FLORAL_SHIRT_ID]: {
     slot: 'top',
     id: DESIGUAL_SPLIT_FLORAL_SHIRT_ID, name: 'Desigual split floral shirt', family: 'fitted-mesh-button-down-shirt', version: 1,
-    status: 'reference-study-awaiting-visual-review', brandAsProvided: 'Desigual (the neck label)',
+    status: 'user-approved', brandAsProvided: 'Desigual (the neck label)',
     source: { note: 'user supplied seven phone screenshots of an Amazon listing: three fronts on a model, a close front, a close-up worn with an arm raised, a front flat lay and the back on a model' },
     referenceViews: ['front on model (three)', 'front close', 'close-up, arm raised', 'front flat lay', 'back on model'],
     details: ['black cotton shirt with a split print', 'her right front, right sleeve and the back below the yoke: a dense scatter of small flowers (red daisies, cream and yellow blossoms, blue buds, green sprigs)', 'her left front, left sleeve and the back yoke: plain black with large painted flowers (a red lily, cream blooms, a blue flower, green leaves)', 'every motif edged in a light-blue outline', 'point collar in the print, split the same way', 'black buttons, tonal stitching', 'long sleeves with cuffs', 'curved shirttail hem'],
@@ -418,6 +420,73 @@ export const GARMENTS = Object.freeze({
     uncertainties: ['the print is redrawn in code as a regular halftone lattice in an uneven checker of blocks, not copied; the real blocks vary more in size', 'the dots are drawn a little larger than on the shirt (about 16 across her front instead of about 22), so they stay visible on a phone', 'worn with the top button open, as on the models; the flat lay is buttoned to the collar', 'the dropped shoulder seam is not modelled; the sleeves join where the shirt template\'s sleeves do', 'over the skirt it is tucked in rather than worn loose'],
     styling: { silhouette: 'relaxed and straight, hip length with a curved hem', palette: ['soft pink', 'cream'], pattern: 'pink and cream halftone dots in a patchwork checker', coverage: { neck: 'point collar, top button open', sleeves: 'long, cuffed', midriff: 'covered, to the hip' }, material: 'fine crepe, composition not stated', warmth: 1, warmthBasis: 'inferred: a light, thin crepe shirt, though long-sleeved', weather: 'mild to warm days, or as a light layer' },
     authoring: { template: 'makeButtonShirt() in src/doll/shirts.js', texture: 'procedural dotPatchData() and crepeData() in src/doll/shirts.js, drawn locally when first worn; colours measured in the collar close-up', runtimeGeneration: false, sourcePhotosBundled: false },
+  },
+  [LEVIS_FLORAL_LOGO_SWEATSHIRT_ID]: {
+    slot: 'top',
+    id: LEVIS_FLORAL_LOGO_SWEATSHIRT_ID, name: "Levi's floral batwing logo sweatshirt", family: 'crew-neck-sweatshirt', version: 1,
+    status: 'reference-study-awaiting-visual-review', brandAsProvided: "Levi's (the logo and the red side tab)",
+    source: { note: 'user supplied four product photos without a description: a close-up of the chest, a full-length front on a model, the back on a model and the front on a model' },
+    referenceViews: ['chest close-up', 'front full length on model', 'back on model', 'front on model'],
+    details: ['washed black cotton fleece sweatshirt, relaxed and slightly boxy', "chest logo: the Levi's batwing filled with white lilies, pink buds and green leaves on a sky-blue ground, some lilies spilling over its edges", "black lettering across it and a registered mark at its top right", 'ribbed crew neckband', 'dropped shoulders and full long sleeves gathered into rib cuffs', 'a deep rib hem band at the waistband of high-rise jeans, the body blousing a little over it', 'a small red tab in her left side seam just above the band', 'plain back'],
+    material: { construction: 'cotton fleece (sweatshirt jersey, brushed inside)', composition: 'not stated', finish: 'matte, slightly faded black' },
+    fit: { silhouette: 'relaxed, slightly boxy', sleeve: 'long, full, gathered into rib cuffs', hem: 'high hip, deep rib band at the waistband', neckline: 'crew', adjustment: 'fixed authored fit for review' },
+    exclusions: ['striped-shirt','knit-sweater'],
+    layering: { coversWaistband: true },
+    uncertainties: ["the logo is redrawn in code: the flowers are simplified lilies, buds and leaves, and the lettering is a heavy sans built from simple shapes, close to but not the brand's own lettering", 'the text on the red tab is not drawn', 'the composition and weight of the fleece are not stated'],
+    styling: { silhouette: 'relaxed, high-hip length on a rib band', palette: ['black', 'sky blue', 'white', 'pink', 'green'], pattern: 'plain, with a floral logo on the chest', coverage: { neck: 'crew', sleeves: 'long', midriff: 'covered' }, material: 'cotton fleece', warmth: 3, warmthBasis: 'inferred: a fleece sweatshirt with long sleeves and rib cuffs and hem', weather: 'cool days; on its own or under a light jacket', mood: 'casual, sporty' },
+    authoring: { template: 'makeSweatshirt() in src/doll/sweatshirt.js', texture: 'procedural, in src/doll/sweatshirt.js: faded fleece, the batwing logo with its flowers and lettering drawn in code; colours measured from the photos', runtimeGeneration: false, sourcePhotosBundled: false },
+    // Construction for makeSweatshirt() in src/doll/sweatshirt.js, in outfit units. The body falls from dropped shoulders
+    // like the windowpane jumper's, a little slimmer, and blouses over a rib band that clears every bottom and the skirt.
+    build: {
+      template: 'logo-sweatshirt',
+      colours: { fleece: '#18171d', sheen: '#4a4650', tab: '#b3202c' },
+      body: { neck: 1.885, hem: 1.15, band: .072, ribs: 64, neckRibs: 48, seed: 5,
+        rows: [[1.885, .114, .108], [1.85, .2, .15], [1.81, .268, .188], [1.76, .3, .208], [1.6, .308, .214], [1.4, .31, .22]],
+        blouse: [.316, .232], bandRadius: [.31, .231], bandOverSkirt: [.338, .252],
+        neckband: [[1.93, .112, .106], [1.905, .115, .108], [1.88, .121, .113]] },
+      sleeve: { cuffRibs: 32,
+        rows: [[.03, .125, .12], [-.06, .136, .131], [-.2, .138, .133], [-.33, .136, .131], [-.42, .13, .126], [-.47, .114, .11], [-.495, .1, .097]],
+        cuff: [[-.485, .096, .093], [-.52, .089, .087], [-.56, .088, .086]] },
+      // The tab: how far it reaches forward from the seam, its height, and how far above the band it sits.
+      tab: { out: .018, height: .03, above: .028 },
+      // The chest logo. Its width is in world units and its top in outfit units; everything else is in logo widths
+      // (x across, y down from its top edge). Lilies and buds are [x, y, size, angle, spills over the edge].
+      logo: { seed: 7, width: .3, top: 1.76, height: .47, arch: .08, margin: .1,
+        text: { x: .07, width: .81, baseline: .272 }, mark: [.925, .075, .042, .006],
+        leaves: 22, buds: 7, faint: 12,
+        lilies: [[.17, .02, .14, .3, true], [.67, .07, .15, 1.1, true], [.03, .37, .12, .7, true], [.3, .4, .11, .2, false], [.55, .38, .12, 1.4, false], [.86, .32, .1, .5, false]],
+        budsAt: [[.95, .27, .05, -.35, true], [.79, .41, .045, 1.3, false], [.4, .43, .04, 1.9, false], [.13, .2, .04, -2.4, false]],
+        inks: { sky: '#46699a', skyLight: '#5d80ad', lily: '#e4e3ea', shade: '#aaa3bd', blush: '#d68ea3', bud: '#d9798f', leaf: '#5f8a7a', leafLight: '#88ae9c', vein: '#46695c', stamen: '#b0606f', anther: '#7a3d33', throat: '#b7c27a', ink: '#16141c' } },
+    },
+  },
+  [ADIDAS_CROPPED_HOODIE_ID]: {
+    slot: 'top',
+    id: ADIDAS_CROPPED_HOODIE_ID, name: 'adidas Originals cropped hoodie', family: 'cropped-hoodie', version: 1,
+    status: 'authored-awaiting-user-review', brandAsProvided: 'adidas Originals (the logo and patch)',
+    source: { note: 'user supplied five product photos without a written description: a front flat lay, the front on a model, and close-ups of the hem and cuff, the chest logo and patch, and the hood' },
+    referenceViews: ['front flat lay', 'front on model', 'hem and cuff close-up', 'chest logo and patch close-up', 'hood close-up'],
+    details: ['black brushed French terry (fleece)', 'boxy and cropped at the waist, with dropped shoulders', 'ribbed hem band and long ribbed cuffs, each tipped in pale mint at the edge', 'hood lined in pale mint with fine dark pinstripes, its sides crossing at the front of the neck', 'thick black braided drawcords, knotted near their frayed ends', 'white embroidered trefoil and lowercase wordmark on her left chest', 'a white woven patch below it, with a green script name and small grey type'],
+    material: { construction: 'brushed French terry, rib trims', composition: 'not stated', finish: 'matte' },
+    fit: { silhouette: 'boxy and cropped', sleeve: 'long and relaxed, gathered into long ribbed cuffs', hem: 'cropped at the waist, ribbed band', neckline: 'hood, worn down', adjustment: 'fixed authored fit for review' },
+    exclusions: ['striped-shirt','knit-sweater'],
+    uncertainties: ['the logo and patch are drawn at her scale as a suggestion of the brand\'s marks, not copied', 'the hood is shown worn down; her large head hides most of its opening from the front', 'under a jacket the hood and cords are put away and a plain neckband is worn, as the hood would push through the jacket', 'the length on the body is read from the model photo; the flat lay looks a little longer'],
+    styling: { silhouette: 'boxy, cropped at the waist', palette: ['black', 'pale mint', 'white'], pattern: 'plain, with contrast tipping and a small chest logo', coverage: { neck: 'hood, worn down', sleeves: 'long', midriff: 'cropped' }, material: 'brushed French terry', warmth: 2, warmthBasis: 'inferred: a brushed fleece sweatshirt, cropped', weather: 'cool to mild days' },
+    authoring: { template: 'makeHoodie() in src/doll/hoodie.js', texture: 'procedural fleece, braid and pinstripe lining, and the logo and patch drawn in code; colours measured from the photos', runtimeGeneration: false, sourcePhotosBundled: false },
+    // Construction for makeHoodie() in src/doll/hoodie.js, in outfit units. The body and sleeves follow the chenille jumper,
+    // which is as boxy and cropped and clears every bottom and the skirt.
+    build: {
+      template: 'cropped-hoodie',
+      colours: { fleece: '#1c1d23', sheen: '#3a3b42', tipping: '#c8d6cf', lining: '#c9d8d1', stripe: '#3a3e46', cord: '#262529', embroidery: '#f3f3f1', patch: '#f3f4f6', patchInk: '#2c6e55', patchGrey: '#9a9ea3' },
+      body: { hem: 1.27, band: .085, tip: .016, ribs: 90, bandRadius: [.29, .205],
+        rows: [[1.905, .112, .104], [1.875, .176, .128], [1.83, .242, .163], [1.775, .286, .19], [1.65, .304, .204], [1.5, .308, .21], [1.4, .31, .216], [1.372, .306, .214], [1.36, .296, .209]] },
+      sleeve: { tip: .016, cuffRibs: 26,
+        rows: [[.03, .12, .117], [-.06, .132, .127], [-.2, .13, .124], [-.33, .122, .117], [-.41, .112, .107], [-.44, .104, .1]],
+        cuff: [[-.425, .097, .093], [-.49, .093, .09], [-.565, .092, .089]] },
+      hood: { top: 1.89, bottom: 1.6, round: .07, halfWidth: .2, lift: .08, edge: .011, opening: { from: 1.05, rise: .05, out: .03, radius: .014, band: .04, dip: 0 } },
+      cords: { x: .035, drift: .012, top: 1.875, knot: 1.56, radius: .0105, tassel: .03 },
+      logo: { at: [.1, 1.765], size: .07 },
+      patch: { at: [.1, 1.69], size: [.075, .04] },
+    },
   },
   [PAISLEY_SHIRT_ID]: {
     slot: 'top',
@@ -1453,7 +1522,7 @@ export const GARMENTS = Object.freeze({
   [BOMBOOGIE_FUR_JACKET_ID]: {
     slot: 'outerwear',
     id: BOMBOOGIE_FUR_JACKET_ID, name: 'Bomboogie pink faux-fur jacket', family: 'faux-fur-shirt-jacket', version: 1,
-    status: 'reference-study-awaiting-visual-review', brandAsProvided: 'Bomboogie (the neck label)',
+    status: 'user-approved', brandAsProvided: 'Bomboogie (the neck label)',
     source: { note: 'user supplied four product images on white: front flat, closed; a flat lay open showing the lining; back flat; side three-quarter' },
     referenceViews: ['front, closed', 'open flat lay', 'back', 'side three-quarter'],
     details: ['short, dense faux fur (mink-like) in dusty rose pink', 'big fur point collar', 'closed by hidden snaps under the fur at the centre front; one snap shows at the top', 'a fur flap on each side of the chest', 'slanted side pockets', 'boxy, cropped body with a straight hem', 'dropped shoulders and full sleeves gathered into fur cuff bands', 'pink satin lining with a black Bomboogie label on a chain hanger at the back of the neck'],
