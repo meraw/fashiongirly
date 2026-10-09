@@ -28,11 +28,12 @@ Catalog ID `paisley-print-relaxed-shirt-v1` (slot `top`), built by `makeButtonSh
 - `rows`: its own body rows, fuller than the fitted shirts below the chest, down to a hem at her high hip (1.19), as wide there as the Tommy sweater, which clears every jacket, bottom and the skirt;
 - `sleeve`: fuller sleeve rows, gathering toward her wrist;
 - `cuff`: buttoned cuffs, a band over the sleeve's end, seamed at its top, with a button on its outer side;
-- `backYoke`, which it adds: a seam across her upper back only, with a short box pleat at the centre below it.
+- `backYoke`: a seam across her upper back only;
+- `backPleat`, which it adds: a short box pleat at the centre back, from the back yoke's seam down.
 
 This shirt was first built with its own body and sleeve rows, longer hem, cuffs and crepe. Meanwhile the mountain landscape shirt (`hem`, `cuff`) and the Mango dot shirt (`rows`, `sleeve`, a crepe bump) added the same to the template. At each merge the user chose the template's, so there is one way to do each; the paisley shirt's shape is unchanged, and its fabric now uses the Mango shirt's crepe.
 
-It was first called `yoke`; the pink yoke shirt then added a `yoke` of its own (a seam all round, front and back, with gathers under it), and as the user chose, this one was renamed `backYoke`. No other shirt sets `backYoke`. Every outfit that `main` can build was built on `main` and on this branch and compared, with no difference in geometry, materials or textures.
+Its back yoke went through two merges: the pink yoke shirt added a `yoke` of its own (a seam all round, front and back, with gathers under it), so this shirt's was renamed `backYoke`; then the plaid flannel shirt added the same back-only `backYoke` seam, so this shirt uses that one and adds only the pleat (`backPleat`), as the user chose each time. No other shirt sets `backPleat`. Every outfit that `main` can build was built on `main` and on this branch and compared, with no difference in geometry, materials or textures.
 
 **Print atlas, from the user's photos.** `src/wardrobe/paisley-shirt-atlas.js` is a 1536 × 768 WebP (about 265 KB), made during authoring, outside the app, in the printed tees' layout (the body unwrapped in the top three quarters, the sleeves in the bottom quarter):
 
@@ -60,12 +61,12 @@ A relaxed shirt to the high hip; a large all-over paisley print in white, ochre,
 
 ## Checks
 
-- `npm test` passes (102), including a new `tests/paisley-shirt.test.js`, which checks:
+- `npm test` passes (104), including a new `tests/paisley-shirt.test.js`, which checks:
   - the parts: body, sleeves, cuffs with buttons and stitching, collar, eight buttons, the yoke seam and pleat, the hem stitching;
   - it is wider at the waist and longer than the fitted shirts;
   - the yoke and pleat are on her back;
   - the print comes from its atlas: the atlas is WebP, the body reads the top three quarters and each sleeve its own half of the bottom quarter, and the cuffs and collar take it too; without the atlas it is a flat cream;
-  - the other shirts keep their own construction: the fitted ones (tie-dye, spray floral, split floral) have no cuffs, back yoke or relaxed body and are still cropped at 1.26; the mountain, Mango and pink yoke shirts have no back yoke.
+  - the other shirts keep their own construction: the fitted ones (tie-dye, spray floral, split floral) have no cuffs, yoke or relaxed body and are still cropped at 1.26; the mountain, Mango, pink yoke and flannel shirts have no back pleat.
 
   The shared tests cover it too: every waist-covering top over every bottom, the outerwear coverage of every top, and the triangle budget.
 - `npm run build` succeeds.
