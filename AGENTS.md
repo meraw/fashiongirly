@@ -27,3 +27,4 @@ Several chats may add garments at the same time. Categories are not assigned to 
 - Before every push: fetch and merge `origin/main`, resolve conflicts by keeping both sides, then run `npm test` and `npm run build`.
 - In `docs/HANDOFF.md`, append to “Items added so far” and renumber on merge; edit only the lines about your own garments.
 - A merged pull request means the user approves how the garment looks (the user's rule, 9 October 2026): they don't merge anything that looks wrong. Mark your merged garments as approved rather than asking for a separate review.
+- Show the user the garment in the chat (the user's rule, 9 October 2026): when replying inside Claude Code, attach the final render of the garment to the reply itself as an image file, not only in the pull request. Do this for a new garment and again after every revision, so the user can judge it without opening the pull request.

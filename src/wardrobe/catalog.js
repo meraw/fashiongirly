@@ -4,6 +4,7 @@ export const MARIKOO_WINDBREAKER_ID = 'marikoo-two-tone-windbreaker-v1';
 export const DESIGUAL_LEATHER_JACKET_ID = 'desigual-black-faux-leather-jacket-v1';
 export const RED_BULL_WINDBREAKER_ID = 'red-bull-racing-stone-windbreaker-v1';
 export const EMERALD_PARKA_ID = 'emerald-dyed-sherpa-hood-parka-v1';
+export const BOMBOOGIE_FUR_JACKET_ID = 'bomboogie-pink-faux-fur-jacket-v1';
 export const WOOLRICH_BOMBER_ID = 'woolrich-cream-fur-hood-bomber-v1';
 // Dresses: none by default ('none'); a catalog dress fills the 'dress' slot and is worn instead of the top and bottoms.
 export const ZIP_TRACK_DRESS_ID = 'navy-half-zip-track-dress-v1';
@@ -33,6 +34,7 @@ export const MOTEL_TIE_DYE_SHIRT_ID = 'motel-tie-dye-mesh-shirt-v1';
 export const DESIGUAL_SPRAY_FLORAL_SHIRT_ID = 'desigual-spray-floral-mesh-shirt-v1';
 export const VANGOGH_TEE_ID = 'van-gogh-patchwork-tee-v1';
 export const DESIGUAL_FRESCO_TEE_ID = 'desigual-fresco-rib-vneck-tee-v1';
+export const MICKEY_LONG_TEE_ID = 'black-mickey-print-long-tee-v1';
 export const BARREL_JEANS_ID = 'topshop-barrel-jeans-v1';
 export const DAVINIA_JEANS_ID = 'desigual-davinia-jeans-v1';
 export const LEVIS_94_ID = 'levis-94-wide-leg-v1';
@@ -301,6 +303,37 @@ export const GARMENTS = Object.freeze({
       vneck: { bottom: 1.68, half: .173, round: 1.7, binding: .012 },
       seams: { neckU: .19, armTop: .95, armU: .235, armV: .66, centreTop: .68, sides: [] },
       sleeve: { rows: [[.03, .108, .106], [-.04, .12, .117], [-.13, .122, .119], [-.205, .127, .124]], lettuce: .003, waves: 20 },
+    },
+  },
+  [MICKEY_LONG_TEE_ID]: {
+    slot: 'top',
+    id: MICKEY_LONG_TEE_ID, name: 'Black Mickey Mouse print long-sleeve tee', family: 'printed-long-sleeve-tee', version: 1,
+    status: 'user-approved', brandAsProvided: 'not stated (a licensed Disney Mickey Mouse print)',
+    source: { note: 'user supplied four shop screenshots without a description: front on a model, a closer front on another model, a close-up of the front and shoulder, and the back' },
+    referenceViews: ['front on model', 'front, closer (second model)', 'front and shoulder close-up', 'back on model'],
+    details: ['fitted long-sleeved crew-neck tee in black jersey with a faint slub', 'all-over scattered print of distressed Mickey Mouse stamps: cream heads and gloves, red shorts with cream buttons, ochre shoes, some whole figures', 'the stamps are inked unevenly, crossed by scratchy crackle lines, with paint splatter between them', 'narrow black ribbed crew neckband', 'long fitted set-in sleeves to the wrist, printed all over', 'plain turned hem at the waistband of high-rise jeans'],
+    material: { construction: 'fine stretch jersey (read from the close-up: soft, drapey, slubbed)', composition: 'not stated', finish: 'matte, with a faint sheen' },
+    fit: { silhouette: 'fitted, close to the body', sleeve: 'long fitted sleeves to the wrist', hem: 'high hip, at the waistband of high-rise jeans', neckline: 'crew', adjustment: 'fixed authored fit for review' },
+    exclusions: ['striped-shirt','knit-sweater'],
+    layering: { coversWaistband: true },
+    uncertainties: ['the print is redrawn in code as simplified stamps (heads, shorts, gloves, shoes), not copied from the photos; the whole figures and faces are not drawn', 'the photos differ in ink colour (ochre in two, mustard yellow in one); the ochre is used', 'the layout of the motifs is random, not the real repeat'],
+    styling: { silhouette: 'fitted, high-hip length', palette: ['black', 'red', 'ochre', 'cream'], pattern: 'scattered distressed cartoon print (Mickey Mouse) with paint splatter', coverage: { neck: 'crew', sleeves: 'long', midriff: 'covered' }, material: 'fine stretch jersey', warmth: 2, warmthBasis: 'inferred: thin fitted jersey with long sleeves', weather: 'mild or cool days, or a base layer under a jacket' },
+    authoring: { texture: 'procedural, in src/doll/printed-long-tee.js: stamps drawn from ellipses, with crackle, ragged edges and splatter; colours measured from the photos', runtimeGeneration: false, sourcePhotosBundled: false },
+    // Construction for makePrintedLongTee() in src/doll/printed-long-tee.js, in outfit units: the bronze top's fitted
+    // body and sleeve rows, which clear every waistband and her hands.
+    build: {
+      template: 'printed-long-tee',
+      colours: { band: '#121010' },
+      body: { neck: 1.91, hem: 1.18,
+        rows: [[1.91, .109, .099], [1.875, .17, .122], [1.83, .228, .152], [1.775, .265, .175], [1.65, .279, .183], [1.49, .277, .187], [1.34, .284, .196], [1.25, .29, .206], [1.18, .292, .213]],
+        neckband: [[1.924, .109, .1], [1.9, .114, .105]] },
+      sleeve: { rows: [[.025, .098, .1], [-.04, .112, .108], [-.16, .107, .101], [-.28, .104, .099], [-.4, .096, .091], [-.49, .078, .08], [-.525, .077, .079]] },
+      // The print, in texture pixels (1300 to a world unit): stamp size, average spacing, splatter (pixels per dot). Messy:
+      // patchy ink (dropout), three sets of scratches, very ragged edges, each stamp fading out to one side and some
+      // printed faint, with a spray of dots round each.
+      print: { seed: 41, ground: '#121010', inks: { cream: '#d6cfc2', red: '#a8232e', ochre: '#c47f35' }, size: 36, spacing: 122, splatter: 1000, dropout: .23, scratches: 3, scratchWidth: .05, ragged: 1.3, fade: .75, faint: .25, spray: 14,
+        mix: { head: .3, shorts: .22, glove: .26, shoe: .22 },
+        inksFor: { head: ['cream', 'cream', 'cream', 'ochre', 'red'], shorts: ['red', 'red', 'red', 'ochre'], glove: ['cream', 'cream', 'ochre'], shoe: ['ochre', 'ochre', 'ochre', 'red', 'cream'] } },
     },
   },
   [BARREL_JEANS_ID]: {
@@ -1317,6 +1350,44 @@ export const GARMENTS = Object.freeze({
       cords: { x: .055, top: 1.885, end: 1.8, drift: .006, radius: .005 },
       hood: { top: 1.88, bottom: 1.55, round: .07, halfWidth: .23, lift: .085, edge: .012, label: false,
         opening: { from: .3, rise: .05, out: .035, radius: .018, lining: { radius: .028, inset: .022 } } },
+    },
+  },
+  [BOMBOOGIE_FUR_JACKET_ID]: {
+    slot: 'outerwear',
+    id: BOMBOOGIE_FUR_JACKET_ID, name: 'Bomboogie pink faux-fur jacket', family: 'faux-fur-shirt-jacket', version: 1,
+    status: 'reference-study-awaiting-visual-review', brandAsProvided: 'Bomboogie (the neck label)',
+    source: { note: 'user supplied four product images on white: front flat, closed; a flat lay open showing the lining; back flat; side three-quarter' },
+    referenceViews: ['front, closed', 'open flat lay', 'back', 'side three-quarter'],
+    details: ['short, dense faux fur (mink-like) in dusty rose pink', 'big fur point collar', 'closed by hidden snaps under the fur at the centre front; one snap shows at the top', 'a fur flap on each side of the chest', 'slanted side pockets', 'boxy, cropped body with a straight hem', 'dropped shoulders and full sleeves gathered into fur cuff bands', 'pink satin lining with a black Bomboogie label on a chain hanger at the back of the neck'],
+    material: { construction: 'faux fur shell with a satin lining', composition: 'not stated in the supplied images', finish: 'soft, short, dense pile with a velvety sheen' },
+    fit: { silhouette: 'boxy and cropped, dropped shoulders', length: 'high hip', sleeve: 'long and full, gathered into cuff bands', wear: 'closed with its snaps: the user wears outerwear closed unless it is designed to be worn open', adjustment: 'its own boxy size on her, easing out only where the layers under it need room' },
+    layering: { closed: true, coversTopSleeves: true, coversWaistband: true },
+    styling: {
+      observed: { palette: ['dusty rose pink', 'pink satin lining'], pattern: 'plain; texture from the fur pile', silhouette: 'boxy cropped shirt jacket with a big point collar', coverage: 'torso to the high hip and arms to the wrist; longer tops show below it', material: 'faux fur, satin lining' },
+      inferred: { warmth: 'warm: a dense pile over a lining, for cold days', weather: 'cold, dry days; faux fur does not suit heavy rain', mood: 'soft, cosy and playful', unknown: ['fibre composition', 'padding', 'water resistance'] },
+    },
+    uncertainties: ['the fur is a procedural texture, not copied; its length is read from the photos', 'the side pockets are read from the open flat lay and are drawn as slits with a welt', 'the label lettering is not reproduced', 'only one snap shows; the others are hidden'],
+    authoring: { texture: 'procedural fur (bump and colour) in src/doll/fur-jacket.js; colours measured from the photos', runtimeGeneration: false, sourcePhotosBundled: false },
+    // Construction for makeFurJacket() in src/doll/fur-jacket.js, in outfit units. The body is boxy and straight; its own
+    // size eases out by at least `fit.gap` over anything worn under it.
+    build: {
+      template: 'faux-fur-shirt-jacket',
+      colours: { fur: '#a06368', lining: '#bf8790', parting: '#653540', metal: '#6e6c70', label: '#141416' },
+      fur: { sheen: 1, sheenLight: .35, sheenRoughness: .45, bump: .012, tiles: { body: [10, 3], sleeve: [5, 3], trim: [4, 2] } },
+      fit: { gap: .012 },
+      body: {
+        rows: [[1.955, .14, .133], [1.93, .141, .134], [1.9, .148, .138], [1.875, .205, .163], [1.84, .272, .204], [1.8, .314, .226], [1.75, .332, .236], [1.65, .334, .238], [1.5, .334, .24], [1.4, .334, .24], [1.3, .334, .24], [1.2, .332, .238], [1.14, .33, .236], [1.12, .327, .233]],
+        hem: 1.12, roll: .011, edge: .008, ripple: .006,
+        collarBase: 1.875, collarTop: 1.955,
+      },
+      // One snap shows at the top of the front, on her right.
+      snaps: [[-.03, 1.83]],
+      collar: { gap: .09, spread: .3, foldFront: 1.93, foldBack: 1.975, dropFront: .145, dropBack: .11, lift: .02, roll: .014 },
+      pockets: { flap: { x0: .07, x1: .24, top: 1.77, height: .075, puff: .017, lift: .012, round: 4, lip: .008 }, side: { x: .245, slant: .2, top: 1.44, bottom: 1.25 } },
+      sleeve: {
+        rows: [[.045, .124, .118], [0, .138, .132], [-.1, .142, .136], [-.25, .14, .135], [-.38, .136, .132], [-.45, .132, .128], [-.495, .124, .12]],
+        cuff: [-.495, -.568], cuffRadius: [.128, .124], gathers: 9, gatherDepth: .035, gatherHeight: .08, cuffRoll: .009,
+      },
     },
   },
   [WOOLRICH_BOMBER_ID]: {
