@@ -28,6 +28,7 @@ export const BERSHKA_GREY_ID = 'bershka-grey-wide-leg-v1';
 export const TOMMY_CARPENTER_ID = 'tommy-remastered-carpenter-v1';
 export const ZARA_CARGO_ID = 'zara-cargo-joggers-v1';
 export const CRYSTAL_JEANS_ID = 'crystal-straight-jeans-v1';
+export const PLEATED_LINEN_ID = 'pleated-linen-wide-trousers-v1';
 export const GARMENTS = Object.freeze({
   [BRONZE_TOP_ID]: {
     slot: 'top',
@@ -578,6 +579,48 @@ export const GARMENTS = Object.freeze({
       backPocket: { x: .12, outline: [[-.07, 1.175], [.07, 1.175], [.066, 1.05], [0, 1.025], [-.066, 1.05]], stitchBelow: 1.12 },
       centreBack: [[.004, 1.185], [.004, 1.08], [0, .99]],
       labelPatch: { name: 'leather-patch', size: [.072, .04, .005], colour: '#b08a5e', position: [-.08, 1.288, -(.17 + .004)], rotationY: Math.PI + .3 },
+    },
+  },
+  [PLEATED_LINEN_ID]: {
+    slot: 'bottom',
+    id: PLEATED_LINEN_ID, name: 'Pleated linen-blend wide trousers', family: 'pleated-wide-trousers', version: 1,
+    status: 'reference-study-awaiting-visual-review', brandAsProvided: 'not visible in the screenshots',
+    source: { note: 'user supplied seven phone screenshots of a product gallery (images 2, 4, 7 and 11 to 14 of 16), with no text: front, three-quarter and back on a model, front and back flat lays, and close-ups of a front pocket and a back pocket' },
+    referenceViews: ['front on model', 'three-quarter on model', 'back on model', 'front flat lay', 'back flat lay', 'front pocket close-up', 'back pocket close-up'],
+    details: ['high rise at the natural waist', 'one deep front pleat on each side, folded toward the fly and releasing at the hip', 'wide legs falling straight from the hip and widening slightly to the hem, full length, resting on the shoes', 'pale stone (sand) plain weave with visible linen slubs', 'slanted front pockets', 'zip fly with a curved stitched edge and one tonal four-hole button', 'six belt loops, none at the centre back', 'jetted (welt) back pockets with stitched outlines, and short darts above them', 'centre-back seam', 'tonal stitching and a plain hem'],
+    material: { construction: 'plain-weave linen-look woven', composition: 'not visible in the supplied screenshots; the slubs read as a linen blend', finish: 'matte pale stone' },
+    fit: { silhouette: 'pleated wide leg', rise: 'high, at the natural waist', length: 'full, resting on the shoes', adjustment: 'fixed authored fit for review; how the user wears them is not yet known' },
+    // For later outfit selection. Warmth runs from 1 (light) to 4 (very warm), with what it is based on.
+    styling: {
+      silhouette: 'high-waisted pleated wide leg, full length', palette: ['pale stone', 'sand'], pattern: 'plain, with a subtle slub texture',
+      coverage: { legs: 'full length to the shoes', waist: 'high, at the natural waist' }, material: 'linen-look plain weave',
+      warmth: 1, warmthBasis: 'inferred from the light, open linen-look weave in the photos',
+      weather: 'suits warm, dry days (inferred from the fabric); wind and rain performance unknown; the pale colour will show rain spots and dirt at the hem',
+    },
+    uncertainties: ['composition and brand are not visible in the screenshots', 'the pleats\' depth and where they release are read from on-model photos', 'drape and wrinkles are procedural, from a small swatch', 'how the user wears them (rise, length) is not yet known'],
+    authoring: { texture: 'pleated-linen-fabric.js: flat-lit seamless swatch from the plain fabric below the back pocket in the close-up', runtimeGeneration: false, sourcePhotosBundled: 'fabric swatch only' },
+    build: {
+      template: 'jeans', legName: 'jeans-leg', fallback: [206, 199, 182],
+      // Not denim: a matte plain weave with no twill and only a faint sheen.
+      surface: { roughness: .93, twill: 0, sheen: .12 },
+      crotch: { top: 1.14, y: .95 }, uvScale: [6, 6],
+      tiles: { small: [4, 2], legs: [1, 1], hips: [1, 1] },
+      hips: [[1.31, .264, .17], [1.2, .278, .19], [1.1, .294, .2], [1.02, .302, .201], [.97, .304, .19], [.935, .244, .1]],
+      // Wide legs from the hip (meeting it at the crotch without a ledge), widening slightly to the hem, full length,
+      // resting on the shoes.
+      legs: [[1.03, .152, .184, .135], [.95, .154, .184, .152], [.75, .164, .19, .164], [.55, .171, .194, .171], [.35, .177, .198, .177], [.18, .182, .201, .181], [.06, .186, .204, .184]],
+      hem: 'rests-on-shoe', folds: { base: .005, low: .012, stack: .007 }, gradient: [.95, .07], whiskers: 0,
+      waistband: { y: 1.29, rx: .264, rz: .171, h: .055 },
+      loops: [-2.55, -1.55, -.6, .6, 1.55, 2.55],
+      button: { colour: '#c8bc9f', matte: true, holes: '#8f846b' }, thread: '#b9ad92', dartsStitched: true,
+      fly: [[.034, 1.262], [.036, 1.15], [.02, 1.1], [0, 1.09]],
+      frontPocket: { type: 'slant', line: [[.168, 1.262], [.212, 1.19], [.262, 1.112]] },
+      // One deep pleat on each front hip (x of its folded edge, which drifts toward the fly as it falls).
+      pleats: { x: .092, slant: .012, bottom: .99, depth: .014, width: .06, edge: .004, line: .9, shadow: '#8e8571' },
+      seamEnd: .1,
+      backDarts: [[.11, 1.262], [.112, 1.215]],
+      backWelt: { x: .11, y: 1.19, width: .11, height: .016, shadow: '#5f574a' },
+      centreBack: [[.004, 1.262], [.004, 1.1], [0, .99]],
     },
   },
   // Shoes.

@@ -22,7 +22,7 @@ Every chat should retain independently selectable garments and record known styl
 - Sweater and denim colours, sweater sleeve volume and hem, trouser volume, and layer toggles.
 - Bounded text parser, turn controls, draft persistence and a 24-look browser lookbook.
 - Earlier vector implementation retained at `illustration.html`.
-- Sixty tests were passing and the static build succeeded at this handoff. Geometry and UI checks do not establish visual quality; full device/WebGL appearance and performance still require review.
+- Sixty-one tests were passing and the static build succeeded at this handoff. Geometry and UI checks do not establish visual quality; full device/WebGL appearance and performance still require review.
 
 ## Code landmarks
 
@@ -145,6 +145,7 @@ Items added so far:
 22. [UGG cream platform sneakers](garments/ugg-cream-sneakers.md). Low chunky cream sneakers, suede over mesh, with big puffy patterned laces in a floppy bow, a heel pull loop and a rounded platform sole. The first low shoe: it brings her own slim ankle socks (her round doll socks would bulge over the collar). Built on the Buffalo boots' laced-shoe template. The user liked the soles but found the ankle too loose, so the collar now hugs the ankle and the sock is fuller. Awaiting their second look.
 23. [Crystal-embellished straight jeans](garments/crystal-straight-jeans.md). Light vintage wash, high rise, straight and full length, with a grid of crystals over the whole front (one instanced mesh); adds `crystals`. The shared layering test now checks instanced pieces too. The user found it very realistic but could not see the crystals at screen size: they are now fewer, larger and near-white, in dark settings, and read clearly at phone size. The user said the revision “looks great”.
 24. [Motel tie-dye mesh button-down shirt](garments/motel-tie-dye-mesh-shirt.md). The first button-down. Fitted, cropped stretch mesh in a grey-mauve tie-dye (drawn procedurally; its spread from dark to pale is measured from the photos), a point collar with black topstitching on a black-faced stand, a black-stitched placket with seven black buttons, long fitted sleeves and a black-stitched hem; built by `makeButtonShirt()` in `src/doll/shirts.js`. A zipped jacket now hides any `shirt-collar*` piece. Awaiting visual review.
+25. [Pleated linen-blend wide trousers](garments/pleated-linen-wide-trousers.md). High-waisted pale stone linen-look trousers with a deep pleat on each front hip, slanted pockets, a tonal four-hole button, jetted back pockets with darts, and wide full-length legs resting on the shoes; brand and composition not visible in the screenshots. Adds `pleats`, `backWelt` and `button.matte`/`button.holes` to the jeans template (off by default; every other pair's outfit is unchanged). Awaiting visual review.
 
 Fit follows the user, not the product photos: when the user says a garment fits them differently (length, rise, looseness), build it that way and note it in the garment record.
 

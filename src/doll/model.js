@@ -1274,8 +1274,12 @@ function makeJeans(id,spec,swatch=null,rest=LOAFER_REST){
     // Texture positions follow the hips' original rounded outline, so the denim folds in with the fabric at the
     // crotch instead of shearing where the outline pinches.
     const rings=[],restU=[];
+    // Front pleats (when the spec has them): a pressed fold on each front hip from the waistband down. Its folded edge
+    // stands proud toward the fly and steps down onto the fabric beside it, and the fold fades out as the pleat releases.
+    const pl=spec.pleats,plTop=spec.waistband.y-spec.waistband.h/2,pleat=(x,y,z)=>{if(!pl||z<=0)return 0;const t=(plTop-y)/(plTop-pl.bottom);if(t<0||t>1)return 0;
+      let b=0;for(const s of [-1,1]){const u=s*x-(pl.x-pl.slant*t);b=Math.max(b,u>=0?Math.max(0,1-u/pl.width):Math.max(0,1+u/pl.edge));}return pl.depth*(1-t*t*(3-2*t))*b;};
     for(let j=0,count=40;j<=count;j++){const q=profile.getPoint(j/count),y=j===count?crotchY:q.y,t=Math.min(1,Math.max(0,(top-y)/(top-crotchY))),w=t*t*(3-2*t),ring=[];let d=0,prev=null;
-      for(let i=0;i<N;i++){const a=Math.PI+i/(N-1)*Math.PI*2,dx=Math.sin(a),dz=Math.cos(a),hip=1/Math.sqrt(dx*dx/(q.x*q.x)+dz*dz/(q.z*q.z)),r=hip+(legReach(y,dx,dz)*.995-hip)*w;
+      for(let i=0;i<N;i++){const a=Math.PI+i/(N-1)*Math.PI*2,dx=Math.sin(a),dz=Math.cos(a),hip=1/Math.sqrt(dx*dx/(q.x*q.x)+dz*dz/(q.z*q.z)),base=hip+(legReach(y,dx,dz)*.995-hip)*w,r=base+pleat(dx*base,y,dz);
         if(prev)d+=Math.hypot(dx*hip-prev[0],dz*hip-prev[1]);prev=[dx*hip,dz*hip];restU.push(d);ring.push([dx*r,y,dz*r]);}
       rings.push(ring);}
     body=[ringShell(jeans,rings,hipDenim,'jeans-hips')];body[0].userData.restU=restU;
@@ -1305,7 +1309,9 @@ function makeJeans(id,spec,swatch=null,rest=LOAFER_REST){
   }
   for(const a of spec.loops||[]){
     const loop=put(jeans,new T.BoxGeometry(.016,.056,.007),denim,'belt-loop');loop.position.set(Math.sin(a)*(wb.rx+.004),wb.y,Math.cos(a)*(wb.rz+.005));loop.rotation.y=a;}
-  if(spec.button)oval(jeans,[0,wb.y,wb.rz+.003],[.015,.015,.005],metal,'shank-button',16);
+  // A metal shank button, or (when the spec says matte) a plastic one, with its holes when the spec gives their colour.
+  if(spec.button)oval(jeans,[0,wb.y,wb.rz+.003],[.015,.015,.005],spec.button.matte?solid(spec.button.colour,.55):metal,'shank-button',16);
+  if(spec.button?.holes)for(const [dx,dy] of [[-1,-1],[1,-1],[-1,1],[1,1]])oval(jeans,[dx*.0045,wb.y+dy*.0045,wb.rz+.0075],[.0016,.0016,.001],solid(spec.button.holes,.9),'button-hole',8);
   // Twisted legs (when the spec twists them): the outseam drifts toward the back on the way down, the inseam toward the front.
   const twist=y=>Math.min(1,Math.max(0,(.97-y)/.85))*(spec.twist||0),outAngle=(side,y)=>side*(Math.PI/2+twist(y)),inAngle=(side,y)=>-side*(Math.PI/2-twist(y));
   // Real denim reads through its shape: wear is paler on raised folds and darker in hollows, seams and the hem
@@ -1579,6 +1585,16 @@ function makeJeans(id,spec,swatch=null,rest=LOAFER_REST){
   if(spec.centreBack)curve(jeans,on(spec.centreBack,true),.0018,thread,'centre-back-seam');
   if(spec.centreFront)curve(jeans,on(spec.centreFront),.0018,thread,'centre-front-seam');
   if(spec.welt)curve(jeans,on(spec.welt,true,.005),.0028,fold,'welt-pocket');
+  // Jetted back pockets (when the spec has them): two narrow lips either side of the opening, stitched round.
+  if(spec.backWelt){const bw=spec.backWelt,dark=solid(bw.shadow||'#26303d',.95);
+    for(const side of [-1,1]){const px=side*bw.x,w=bw.width/2,h=bw.height/2,y=bw.y,e=.003;
+      patchOn([[px-w,y-h],[px+w,y-h],[px+w,y+h],[px-w,y+h]],'welt-pocket-lips',true,.0035);
+      curve(jeans,on(dense([[px-w+.005,y],[px+w-.005,y]],.008),true,.0048),.0017,dark,'welt-pocket-opening');
+      curve(jeans,on(dense([[px-w-e,y+h+e],[px+w+e,y+h+e],[px+w+e,y-h-e],[px-w-e,y-h-e],[px-w-e,y+h+e]],.008),true,.0045),.0014*sw,thread,'welt-pocket-stitch');}}
+  // The pleats' folded edges: a soft shadow along the step beside each one, as far down as the fold reads.
+  if(spec.pleats&&spec.crotch){const pl=spec.pleats,top=wb.y-wb.h/2-.003;
+    for(const side of [-1,1]){const pts=[];for(let k=0;k<=12;k++){const t=k/12*pl.line;pts.push([side*(pl.x-pl.slant*t-.003),top-(top-pl.bottom)*t]);}
+      curve(jeans,on(dense(pts,.01),false,.0012),.0022,solid(pl.shadow||'#26303d',.95),'pleat-fold');}}
   const lp=spec.labelPatch;if(lp){const leather=put(jeans,new T.BoxGeometry(...lp.size),solid(lp.colour,.95),lp.name);leather.position.set(...lp.position);leather.rotation.y=lp.rotationY;
   for(const [x0,y0,x1,y1,c] of lp.blocks||[]){
     // Coloured blocks on the patch's outer face (no lettering).
