@@ -43,7 +43,9 @@ export const MICKEY_LONG_TEE_ID = 'black-mickey-print-long-tee-v1';
 export const PB_CHENILLE_ID = 'pull-bear-grey-chenille-high-neck-v1';
 export const DESIGUAL_SPLIT_FLORAL_SHIRT_ID = 'desigual-split-floral-shirt-v1';
 export const MANGO_DOT_SHIRT_ID = 'mango-halftone-dot-shirt-v1';
+export const LEVIS_PLAID_FLANNEL_ID = 'levis-oversized-plaid-flannel-shirt-v1';
 export const LEVIS_FLORAL_LOGO_SWEATSHIRT_ID = 'levis-floral-batwing-sweatshirt-v1';
+export const DESIGUAL_LIFE_AWESOME_ID = 'desigual-life-is-awesome-jumper-v1';
 export const PINK_YOKE_SHIRT_ID = 'pink-ditsy-floral-yoke-shirt-v1';
 export const STRIPE_SNAP_JUMPER_ID = 'striped-waffle-snap-collar-jumper-v1';
 export const PEPE_IKAT_SHIRT_ID = 'pepe-jeans-ikat-shirt-v1';
@@ -543,6 +545,56 @@ export const GARMENTS = Object.freeze({
       // share of its length; how far across its front ends spread; the share of its depth over which it comes down from the
       // fold, how far off the body it lies and how much it rolls (less above `flatAbove`); the top of the lapels' roll lines; and where its snaps sit (along and across it).
       collar: { fold: [1.955, .12, .118], frontDrop: .03, stand: .05, outer: 1.85, outerDrop: .21, cornerDrop: .03, corner: .12, spread: .2, drape: .35, lift: .01, roll: .006, flatAbove: 1.9, rollTop: 1.86, snapU: .045, snapV: [.5, .8] },
+    },
+  },
+  [LEVIS_PLAID_FLANNEL_ID]: {
+    slot: 'top',
+    id: LEVIS_PLAID_FLANNEL_ID, name: "Levi's oversized plaid flannel shirt", family: 'relaxed-button-down-shirt', version: 1,
+    status: 'authored-awaiting-user-review', brandAsProvided: "Levi's (the neck label and the tonal embroidery)",
+    source: { note: 'user supplied five product photos without a written description: the front on a model, the back on a model, a closer front, a front flat lay, and the model seated' },
+    referenceViews: ['front on model', 'back on model', 'front, closer', 'front flat lay', 'seated on model'],
+    details: ['soft brushed cotton flannel in a large plaid: a navy-black ground crossed by grey, light grey and white stripes, with a coral red line in each band', 'the stripes woven in a twill, hatching where they cross the ground', 'oversized and relaxed, with dropped shoulders, hip length with a curved shirt tail', 'point collar in the plaid', 'eight pale grey buttons from the collar stand to the hem; worn buttoned to the top', 'patch chest pocket on her left', 'back yoke', 'long sleeves with buttoned cuffs', 'small tonal embroidered mark on the lower left front'],
+    material: { construction: 'brushed cotton flannel, twill weave', composition: 'not stated', finish: 'matte, brushed' },
+    fit: { silhouette: 'oversized and relaxed', sleeve: 'long and relaxed, with buttoned cuffs at the wrist', hem: 'hip length, curved shirt tail', neckline: 'point collar, buttoned to the top', adjustment: 'fixed authored fit for review' },
+    exclusions: ['striped-shirt','knit-sweater'],
+    // Hangs over every waistband; over the skirt it is tucked in, so the skirt's bow shows.
+    layering: { coversWaistband: true, tucksIntoSkirt: true },
+    uncertainties: ['the plaid is woven in code from the stripe widths and colours measured on the flat lay, not copied; the checks are a little squatter than on the shirt, to suit her proportions', 'the dropped shoulders and the tonal embroidered mark are not modelled', 'the plaid is not matched across the placket, pocket and seams as carefully as on the shirt'],
+    styling: { silhouette: 'oversized and relaxed, hip length with a curved hem', palette: ['navy-black', 'grey', 'white', 'coral red'], pattern: 'large plaid', coverage: { neck: 'point collar, buttoned to the top', sleeves: 'long, cuffed', midriff: 'covered' }, material: 'brushed cotton flannel', warmth: 2, warmthBasis: 'inferred: a brushed cotton flannel shirt, long-sleeved', weather: 'cool to mild days, or as a light layer' },
+    authoring: { template: 'makeButtonShirt() in src/doll/shirts.js', texture: 'procedural plaidData() and flannelData() in src/doll/shirts.js, woven locally when first worn; stripe widths and colours measured on the flat lay', runtimeGeneration: false, sourcePhotosBundled: false },
+  },
+  [DESIGUAL_LIFE_AWESOME_ID]: {
+    slot: 'top',
+    id: DESIGUAL_LIFE_AWESOME_ID, name: 'Desigual “Life is awesome” jumper', family: 'chunky-rib-slogan-jumper', version: 1,
+    status: 'reference-study-awaiting-visual-review', brandAsProvided: 'Desigual',
+    source: { note: 'user supplied four photos without a description: two fronts on models (one tucked loosely over cream jeans), the back on a model, and the front on a hanger' },
+    referenceViews: ['front on model, three-quarter', 'front on model', 'back on model', 'front on hanger'],
+    details: ['oversized chunky rib-knit jumper in a marled off-white and pale grey yarn flecked with dark green and lime-yellow neps', '“LIFE IS AWESOME” embroidered in hand-drawn capitals in olive-lime yarn, arching across the chest', 'ribbed crew neck', 'dropped shoulders and full sleeves blousing over long ribbed cuffs', 'narrow ribbed hem at the hip, the body blousing over it'],
+    material: { construction: 'chunky rib knit, embroidered', composition: 'not visible in the supplied photos', finish: 'soft, slightly fuzzy marled yarn' },
+    fit: { silhouette: 'oversized, boxy', sleeve: 'long, full, with long rib cuffs', hem: 'hip, blousing over a narrow rib band', neckline: 'ribbed crew', adjustment: 'fixed authored fit for review' },
+    exclusions: ['striped-shirt','knit-sweater'],
+    layering: { coversWaistband: true },
+    uncertainties: ['the knit and its flecks are drawn in code, stitch by stitch, at the measured shares; the real neps vary in size', 'the lettering is redrawn in code as single strokes filled with satin stitches, kept on the front; on the models the first and last letters run onto the sleeves', 'over the skirt it blouses out over the skirt as the Levi\'s sweatshirt does'],
+    styling: { silhouette: 'oversized, boxy, hip length', palette: ['off-white', 'pale grey', 'lime', 'dark green', 'olive'], pattern: 'marled knit with lime and green flecks, slogan embroidered across the chest', coverage: { neck: 'crew', sleeves: 'long, full, cuffed', midriff: 'covered, to the hip' }, material: 'chunky rib knit, composition not stated', warmth: 3, warmthBasis: 'inferred: a thick chunky knit', weather: 'cool days; autumn and winter' },
+    authoring: { template: 'makeSweatshirt() in src/doll/sweatshirt.js', texture: 'procedural knitPixels() and embroider() in src/doll/sweatshirt.js; colours measured in the photos', runtimeGeneration: false, sourcePhotosBundled: false },
+    // Construction for makeSweatshirt() (template logo-sweatshirt), in outfit units: the Levi's sweatshirt's fit, with a
+    // chunky knit instead of fleece, embroidered lettering instead of a printed logo, and no side tab.
+    build: {
+      template: 'logo-sweatshirt',
+      colours: { sheen: '#e9ecd8' },
+      body: { neck: 1.885, hem: 1.15, band: .05, ribs: 64, neckRibs: 48, seed: 13,
+        rows: [[1.885, .114, .108], [1.85, .2, .15], [1.81, .268, .188], [1.76, .3, .208], [1.6, .308, .214], [1.4, .31, .22]],
+        blouse: [.316, .232], bandRadius: [.31, .231], bandOverSkirt: [.338, .252],
+        neckband: [[1.935, .112, .106], [1.905, .115, .108], [1.88, .121, .113]] },
+      sleeve: { cuffRibs: 32,
+        rows: [[.03, .125, .12], [-.06, .138, .133], [-.2, .142, .137], [-.33, .14, .135], [-.41, .132, .128], [-.45, .114, .11], [-.47, .1, .097]],
+        cuff: [[-.46, .097, .094], [-.51, .09, .088], [-.56, .088, .086]] },
+      // The knit: yarn colours, stitch size in world units (a column across, a row down), the shares of lime neps and
+      // dark green flecks, whole stitches in a sleeve tile, and the rib's relief.
+      knit: { base: '#9da291', grey: '#565c50', lime: '#aab84c', dark: '#252e1b', column: .026, row: .017, limeShare: .38, darkShare: .5, tile: [14, 8], bump: .004 },
+      // The lettering: its cap height and the arch's rise in world units, the top of its middle in outfit units, and in ems
+      // the stroke weight, letter spacing, word space and satin stitch spacing.
+      embroidery: { text: 'LIFE IS AWESOME', top: 1.715, height: .056, arch: .03, weight: .25, spacing: .1, space: .3, stitch: .08, colour: '#857f1e', shade: '#585213' },
     },
   },
   [PEPE_IKAT_SHIRT_ID]: {

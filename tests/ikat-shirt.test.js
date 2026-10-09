@@ -11,7 +11,7 @@ test('Pepe Jeans ikat shirt: full length and loose with a shirttail hem, chest p
   const g=GARMENTS[PEPE_IKAT_SHIRT_ID];assert.equal(g.slot,'top');assert.ok(g.layering.coversWaistband);
   assert.ok(OUTFITS.some(look=>look.recipe.topId===PEPE_IKAT_SHIRT_ID),'a study preset wears it');
   const outfit=makeOutfit({topId:PEPE_IKAT_SHIRT_ID});outfit.updateMatrixWorld(true);
-  for(const [name,count] of [['mesh-shirt-body',1],['shirt-collar-fall',1],['shirt-collar-stand',1],['mesh-shirt-sleeve',2],['shirt-cuff',2],['cuff-button',2],['cuff-seam',2],['shirt-pocket',1],['pocket-stitch',2],['shirt-button',8],['hem-stitch',1]])
+  for(const [name,count] of [['mesh-shirt-body',1],['shirt-collar-fall',1],['shirt-collar-stand',1],['mesh-shirt-sleeve',2],['shirt-cuff',2],['cuff-button',2],['cuff-seam',2],['chest-pocket',1],['pocket-stitch',2],['shirt-button',8],['hem-stitch',1]])
     assert.equal(named(outfit,name).length,count,name);
   // The stand is lined in blue chambray.
   const stand=named(outfit,'shirt-collar-stand')[0].material.color;assert.ok(stand.b>stand.r*1.2,'chambray stand');
@@ -20,7 +20,7 @@ test('Pepe Jeans ikat shirt: full length and loose with a shirttail hem, chest p
   const front=Math.min(...bottom.filter(([x,,z])=>z>.2&&Math.abs(x)<.03).map(q=>q[1])),side=Math.max(...bottom.filter(([x])=>Math.abs(x)>.28).map(q=>q[1]));
   assert.ok(front<1.0,`front hem at ${front.toFixed(3)}`);assert.ok(side-front>.05,`shirttail rises ${(side-front).toFixed(3)} toward the sides`);
   // The pocket sits on her left chest, on the front.
-  const pocket=new T.Box3().setFromObject(named(outfit,'shirt-pocket')[0]).getCenter(new T.Vector3());assert.ok(pocket.x>.08&&pocket.z>.1&&pocket.y/.76>1.6,'pocket on her left chest');
+  const pocket=new T.Box3().setFromObject(named(outfit,'chest-pocket')[0]).getCenter(new T.Vector3());assert.ok(pocket.x>.08&&pocket.z>.1&&pocket.y/.76>1.6,'pocket on her left chest');
   // The print: periwinkle and lavender streaks over white, with navy and coral diamonds.
   const {data}=body.material.map.image;let navy=0,coral=0,blue=0,white=0;const n=data.length/4;
   for(let i=0;i<data.length;i+=4){const [r,gr,b]=[data[i],data[i+1],data[i+2]];if(r<60&&gr<60&&b<80)navy++;else if(r>180&&gr<120&&b<120)coral++;else if(b>r+30)blue++;else if(r>215&&gr>215&&b>215)white++;}
