@@ -1,5 +1,6 @@
 import * as T from 'three';
 import { cleanRecipe } from './recipe.js';
+import { makePrintedTee } from './printed-tee.js';
 import { makeOuterwear } from './outerwear.js';
 import { levelCaster } from './level-caster.js';
 import { BRONZE_TOP_ID, LILAC_TOP_ID, CROCHET_TOP_ID, PLAID_JUMPER_ID, STRIPE_JUMPER_ID, POINTELLE_FLOWER_ID, SILVER_CABLE_ID, LACROIX_FLOWER_ID, TOMMY_CABLE_ID, PETIT_BATEAU_CARDIGAN_ID, ZIP_TRACK_DRESS_ID, TOMMY_STRIPE_POLO_ID, GARMENTS } from '../wardrobe/catalog.js';
@@ -1654,7 +1655,7 @@ function makeJeans(id,spec,swatch=null,rest=LOAFER_REST){
   for(const [x,y,w] of spec.abrasions||[])patchOn([[x-w/2,y-.004],[x+w/2,y-.004],[x+w/2,y+.004],[x-w/2,y+.004]],'abrasion',false,.0015,solid('#b9c8d6',1));
   if(spec.centreBack)curve(jeans,on(spec.centreBack,true),.0018,thread,'centre-back-seam');
   if(spec.centreFront)curve(jeans,on(spec.centreFront),.0018,thread,'centre-front-seam');
-  if(spec.welt)curve(jeans,on(spec.welt,true,.005),.0028,fold,'welt-pocket');
+  if(spec.welt)curve(jeans,on(spec.welt,true,.005),.0028,spec.weltColour?solid(spec.weltColour,.9):fold,'welt-pocket');
   const lp=spec.labelPatch;if(lp){const leather=put(jeans,new T.BoxGeometry(...lp.size),solid(lp.colour,.95),lp.name);leather.position.set(...lp.position);leather.rotation.y=lp.rotationY;
   for(const [x0,y0,x1,y1,c] of lp.blocks||[]){
     // Coloured blocks on the patch's outer face (no lettering).
@@ -1667,12 +1668,29 @@ function makeJeans(id,spec,swatch=null,rest=LOAFER_REST){
   }}
   if(spec.drawstring){
     // A drawstring threaded out through two eyelets at the front of the waistband, its ends hanging flat against the
-    // trousers, finished with metal tips.
-    const ds=spec.drawstring,cord=solid(ds.colour,.8),tip=new T.MeshStandardMaterial({color:ds.tip,metalness:.85,roughness:.3});
+    // trousers, finished with metal tips (or tips in the cord's own fabric), and tied in a knot when the spec says so.
+    const ds=spec.drawstring,cord=solid(ds.colour,.8),tip=new T.MeshStandardMaterial({color:ds.tip,metalness:ds.metal===false?0:.85,roughness:ds.metal===false?.8:.3});
+    if(ds.knot){const ky=wb.y-wb.h*.15-.004;oval(jeans,[0,ky,depth(0,ky)+.007],[.009,.0065,.005],cord,'drawstring-knot',14);}
     for(const side of [-1,1]){const x0=side*ds.x,ends=[[x0,wb.y-wb.h*.15],[x0+side*.004,wb.y-wb.h/2-.02],[x0-side*.002,wb.y-wb.h/2-.06],[x0+side*.006,wb.y-wb.h/2-ds.length]];
       oval(jeans,[x0,wb.y-wb.h*.15,depth(x0,wb.y-wb.h*.15)+.004],[.0045,.0045,.0015],tip,'drawstring-eyelet',12);
       const pts=on(dense(ends,.012),false,.0035);curve(jeans,pts,.0022,cord,'drawstring');
       const [x,y,z]=pts[pts.length-1],aglet=put(jeans,new T.CylinderGeometry(.0028,.0028,.016,10),tip,'drawstring-tip');aglet.position.set(x,y-.007,z);}
+  }
+  if(spec.piping){
+    // Contrast piping sewn into seams that curve down each leg: each line runs from the waistband to the hem at angles
+    // measured from the side seam (positive toward the front), mirrored on both legs.
+    const pp=spec.piping,pipe=solid(pp.colour,.6);
+    for(const side of [-1,1])for(const line of pp.lines){const path=new T.CatmullRomCurve3(line.map(([y,t])=>V(y,t,0)));
+      // Where a long hem lifts over the shoe, a point near the hem can miss the near side of the leg and land on the far
+      // side; the line stops before that.
+      const pts=[];for(let k=0;k<=48;k++){const q=path.getPoint(k/48),a=outAngle(side,q.x)-side*q.y,pt=legPoint(side,q.x,a,pp.radius*.7),cx=lerpRows(legRows(side),q.x)[3];
+        if((pt[0]-cx)*Math.sin(a)+pt[2]*Math.cos(a)<=0)break;pts.push(pt);}
+      if(pts.length>1)curve(jeans,pts,pp.radius,pipe,'piping');}
+  }
+  if(spec.tick){
+    // A small embroidered tick on the front of one thigh: a curved tapering mark, its point toward the side seam.
+    const tk=spec.tick,mark=[[.02,.32],[0,.15],[.06,.03],[.18,-.01],[.35,.02],[.7,.18],[1,.34],[.62,.2],[.4,.13],[.22,.1],[.12,.12],[.07,.2]];
+    patchOn(mark.map(([x,y])=>[tk.x+tk.side*(x-.5)*tk.size,tk.y+(y-.16)*tk.size]),'embroidered-tick',false,.0035,solid(tk.colour,.7));
   }
   // A stitched hem: a ring of topstitching just above the hem edge of each leg.
   if(spec.hemStitch)for(const side of [-1,1]){const pts=[];for(let k=0;k<=64;k++)pts.push(legPoint(side,hemTop+spec.hemStitch,k/64*Math.PI*2,.002));curve(jeans,pts,.0018*sw,thread,'hem-stitch');}
@@ -1707,6 +1725,7 @@ export function makeOutfit(raw, atlas=null) {
     :id===POINTELLE_FLOWER_ID?makePointelleJumper(id,state.skirt):id===SILVER_CABLE_ID?makeSilverCableJumper():id===LACROIX_FLOWER_ID?makeLacroixSweater(id,state.skirt)
     :id===TOMMY_CABLE_ID?makeTommyCableSweater(id,state.skirt):id===PETIT_BATEAU_CARDIGAN_ID?makeStripedCardigan(id,state.skirt)
     :id===TOMMY_STRIPE_POLO_ID?makeKnitPolo(id):SHIRT_IDS.includes(id)?makeButtonShirt(id)
+    :GARMENTS[id]?.build?.template==='printed-raglan-tee'?makePrintedTee(id,GARMENTS[id].build,atlas?.isTexture?atlas:atlas?.[id])
     :makeReferenceTop(atlas?.isTexture?atlas:atlas?.[id],id);
   if(!dress&&state.topId!=='classic')root.add(makeTop(state.topId));
   if(dress)root.add(makeZipTrackDress(dress));
