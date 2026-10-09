@@ -10,7 +10,7 @@ Read [PRODUCT_BRIEF.md](PRODUCT_BRIEF.md) for the product's intent and agreed co
 
 Weather-aware daily self-dressing is a core goal: she checks the weather and creates her own playful, daring outfit from the user's imported wardrobe, with hair chosen as part of the look. Finish wardrobe import first, then build that experience. Manual selectors and preset studies are the current construction/review tools, not the final goal.
 
-Every chat should retain independently selectable garments and record known styling, coverage/warmth and layer-compatibility information needed by later outfit selection. Mark unknowns rather than inventing weather performance. The current no-API phase remains in force; the weather source and daily/background behaviour are not yet chosen. The product brief now records the sequence and boundaries.
+Every chat should retain independently selectable garments and record known styling, coverage/warmth and layer-compatibility information needed by later outfit selection. Mark unknowns rather than inventing weather performance. The current no-API phase remains in force for AI; on 9 October 2026 the user allowed weather from a free source (a keyless forecast, proposed: Open-Meteo). Daily/background behaviour is not yet chosen. The product brief records the sequence and boundaries, and [DAILY_STYLING_PLAN.md](DAILY_STYLING_PLAN.md) the proposed path from here to daily self-dressing.
 
 ## Current implementation
 

@@ -59,6 +59,8 @@ The user believes reference-based reconstruction is practical from previous game
 
 The user explicitly wants the initial app built without API calls. Do not add an AI provider, required account, API key, backend inference dependency, live weather request or cloud service by default. The built app currently bundles its rendering dependencies and uses browser storage.
 
+Update, 9 October 2026 (the user's decision): still no AI API calls for now, but the weather may come from a free source, so a keyless public forecast fetched by the browser is allowed for daily styling. It must not need an account or key, and must fall back to manually supplied weather. See the [daily styling plan](DAILY_STYLING_PLAN.md).
+
 Development-time assistance to author a garment is separate from the app's runtime. Finished assets should remain usable without requesting an AI service. A local JSON catalog and bundled model/material assets can serve as the initial “database”; the user has not required a database server or chosen a storage technology.
 
 The app should eventually support local outfit creation through authored styling rules and combinations of garment attributes, alongside direct controls, saved looks and preferences. Suggestions can use colour relationships, contrasting proportions and unusual layering. The user should be able to keep a liked piece while experimenting with others. These capabilities are planned; the current curated presets are not an autonomous stylist.
