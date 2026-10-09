@@ -566,7 +566,7 @@ export const GARMENTS = Object.freeze({
   [DESIGUAL_LIFE_AWESOME_ID]: {
     slot: 'top',
     id: DESIGUAL_LIFE_AWESOME_ID, name: 'Desigual “Life is awesome” jumper', family: 'chunky-rib-slogan-jumper', version: 1,
-    status: 'reference-study-awaiting-visual-review', brandAsProvided: 'Desigual',
+    status: 'user-approved', brandAsProvided: 'Desigual',
     source: { note: 'user supplied four photos without a description: two fronts on models (one tucked loosely over cream jeans), the back on a model, and the front on a hanger' },
     referenceViews: ['front on model, three-quarter', 'front on model', 'back on model', 'front on hanger'],
     details: ['oversized chunky rib-knit jumper in a marled off-white and pale grey yarn flecked with dark green and lime-yellow neps', '“LIFE IS AWESOME” embroidered in hand-drawn capitals in olive-lime yarn, arching across the chest', 'ribbed crew neck', 'dropped shoulders and full sleeves blousing over long ribbed cuffs', 'narrow ribbed hem at the hip, the body blousing over it'],

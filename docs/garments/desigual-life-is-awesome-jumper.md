@@ -1,6 +1,6 @@
 # Wardrobe item: Desigual “Life is awesome” jumper
 
-Authored 9 October 2026. Status: first version, awaiting the user's visual review. The first knit on the sweatshirt template, and the first with embroidered lettering.
+Authored 9 October 2026. Status: first version; approved: the user merged it, and merging means approved (their rule). The first knit on the sweatshirt template, and the first with embroidered lettering.
 
 ## Source and reference reading
 
@@ -67,7 +67,7 @@ Oversized and boxy to the hip, in a marled off-white knit flecked with lime and 
   - full sleeves with cuffs at the wrist;
   - that the Levi's sweatshirt keeps its tab.
 - `npm run build` succeeds.
-- Rendered in headless Chromium (software WebGL) from the front, a turn and the back, over the pleated trousers. Only the authoring chat has checked these renders; the user has not seen them yet. No device check.
+- Rendered in headless Chromium (software WebGL) from the front, a turn and the back, over the pleated trousers. The user saw them and merged the jumper. No device check.
 
 ## Known differences
 
