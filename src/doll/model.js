@@ -377,6 +377,11 @@ function makeLugBoot(id,spec,tape=null){
           for(let i=0;i<=nu;i++){const z=z0+(z1-z0)*i/nu,lo=P.bottom?edgeAt(P.bottom,z):ySole(z),hi=edgeAt(P.top,z);
             for(let j=0;j<=nv;j++){const y=lo+(hi-lo)*j/nv,yy=Math.max(yBase,Math.min(collarY(Math.PI/2)+.03,y)),p=surf(side,yy,angleAt(yy,z,k),.0035).setY(y);pos.push(p.x,p.y,p.z);uv.push(z*3,y*3);}}
           for(let i=0;i<nu;i++)for(let j=0;j<nv;j++){const a=i*(nv+1)+j,b=a+nv+1;idx.push(a,b,a+1,a+1,b,b+1);}
+          // A rubber panel is turned to face out of the shoe (on one side of the foot its grid comes out wound inside-out,
+          // which lit that half like the inside).
+          if(P.rubber){let out=0;for(let i=0;i<idx.length;i+=3){const a=V(pos[idx[i]*3],pos[idx[i]*3+1],pos[idx[i]*3+2]),b=V(pos[idx[i+1]*3],pos[idx[i+1]*3+1],pos[idx[i+1]*3+2]),c=V(pos[idx[i+2]*3],pos[idx[i+2]*3+1],pos[idx[i+2]*3+2]);
+            const n=new T.Vector3().crossVectors(b.clone().sub(a),c.clone().sub(a)),m=a.add(b).add(c).divideScalar(3);out+=n.x*(m.x-side*cx)+n.z*(m.z-centreZ(m.y));}
+            if(out<0)for(let i=0;i<idx.length;i+=3)[idx[i+1],idx[i+2]]=[idx[i+2],idx[i+1]];}
           const geo=new T.BufferGeometry();geo.setAttribute('position',new T.Float32BufferAttribute(pos,3));geo.setAttribute('uv',new T.Float32BufferAttribute(uv,2));geo.setIndex(idx);geo.computeVertexNormals();put(boots,geo,mat,P.name);
           if(P.rubber)curve(boots,alongSide(side,k,Array.from({length:13},(_,i)=>{const z=z0+(z1-z0)*i/12;return [z,edgeAt(P.top,z)];}),.0035,24)[0].map(p=>p.toArray()),.0022,rubber,P.name+'-edge');
           else curve(boots,alongSide(side,k,Array.from({length:13},(_,i)=>{const z=z0+(z1-z0)*i/12;return [z,edgeAt(P.top,z)-.006];}),.0045,24)[0].map(p=>p.toArray()),.0011,thread,'panel-stitch');}}

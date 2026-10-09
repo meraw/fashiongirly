@@ -27,7 +27,7 @@ Catalog ID `converse-modern-lift-hi-egret-v1` (slot `shoes`), template `sneaker`
 - `anklePatch`: `{ at: [z, y], r }`, a round patch on the inner side with an embossed ring and star. It is corrected for the outfit's vertical scale, so it stays round.
 - `vents`: `[[z, y], ...]`, small metal vent eyelets with dark holes on the inner side.
 - `coversSocks`: a shoe that covers her socks completely hides them, as the UGG pair's own ankle socks do.
-- `rubber` on a panel: made of the sole's rubber, with a rolled edge instead of stitching (for a toe cap). Panels without it are unchanged.
+- `rubber` on a panel: made of the sole's rubber, with a rolled edge instead of stitching (for a toe cap), and turned to face out of the shoe. Panels without it are unchanged.
 
 **Shape:**
 
@@ -51,6 +51,8 @@ A chunky high-top on a stacked platform, all cream, plain and tonal; closed, ove
 ## Revision after the user's first look
 
 The user pointed out the missing rubber toe cap, "that strip of material in front of the shoe that is the same color as the sole, typical of Converse shoes". It was added as a rubber panel; a first, lower cap hardly showed from the side, so it was made taller and longer.
+
+The user then saw that it "only takes up half of the shoe instead of being a whole rubber toe cap". On one side of each foot the panel's grid came out wound inside-out, so that half was lit like the inside of the shoe and read as canvas. Rubber panels are now turned to face outward, and the test checks every half. The cap is now one continuous rubber cap across the whole toe.
 
 ## Checks
 

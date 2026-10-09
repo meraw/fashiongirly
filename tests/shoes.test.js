@@ -185,7 +185,10 @@ test('Converse Modern Lift high-tops: stacked platform, seven eyelets, inner ank
   for(const name of ['lug-sole','sole-stitch','boot-upper','tongue','eyelet','lace','lace-bow','ankle-patch','vent-eyelet'])assert.ok(shoes.getObjectByName(name),name);
   // The rubber toe cap: the sole's material, over the front of each toe.
   const caps=named(shoes,'toe-cap');assert.equal(caps.length,4,'a cap half on each side of each toe');assert.equal(caps[0].material,named(shoes,'lug-sole')[0].material,'rubber, like the sole');
-  for(const c of caps){const b=new T.Box3().setFromObject(c);assert.ok(b.max.z>.4&&b.max.y/.76>.16,'over the front of the toe, up the toe box');}
+  // Every half faces out of the shoe (one half once came out inside-out and was lit like the inside, so the cap
+  // looked like half a cap).
+  for(const c of caps){const b=new T.Box3().setFromObject(c);assert.ok(b.max.z>.4&&b.max.y/.76>.16,'over the front of the toe, up the toe box');
+    const n=c.geometry.attributes.normal;let nz=0;for(let i=0;i<n.count;i++)nz+=n.getZ(i);assert.ok(nz/n.count>.2,`cap faces out (${(nz/n.count).toFixed(2)})`);}
   assert.equal(named(shoes,'eyelet').length,2*2*7);assert.equal(named(shoes,'vent-eyelet').length,4);assert.equal(named(shoes,'ankle-patch').length,2);
   assert.equal(named(shoes,'sole-stitch').length,4,'two stitch lines round each sole');
   // Not raised: the platform stays within her foot height.
