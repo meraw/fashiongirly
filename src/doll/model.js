@@ -482,9 +482,9 @@ function makeLugBoot(id,spec,tape=null){
       // Eyestays: suede strips beside the lacing, from the toe up to the collar.
       for(const k of [-1,1]){const pts=[],nrm=[];for(let i=0;i<=16;i++){const y=y0-.01+(yFront-.004-(y0-.01))*i/16,a=laceAngle(y,k*(L+.012));pts.push(surf(side,y,a,.004));nrm.push(normal(side,y,a));}ribbon(boots,pts,nrm,.032,leather||suede,'eyestay');}
     }
-    // Leather stripes (spec.leatherStripes): leather strips across both sides, each along a [z, y] centre line from the
+    // Edged stripes (spec.edgedStripes): leather strips across both sides, each along a [z, y] centre line from the
     // sole up to the lacing, with serrated metallic edges.
-    if(spec.leatherStripes){const ST=spec.leatherStripes,leather=new T.MeshPhysicalMaterial({color:ST.colour,roughness:.42,clearcoat:.3,clearcoatRoughness:.35,side:T.DoubleSide}),edgeMat=new T.MeshStandardMaterial({color:ST.edge,metalness:.6,roughness:.35});
+    if(spec.edgedStripes){const ST=spec.edgedStripes,leather=new T.MeshPhysicalMaterial({color:ST.colour,roughness:.42,clearcoat:.3,clearcoatRoughness:.35,side:T.DoubleSide}),edgeMat=new T.MeshStandardMaterial({color:ST.edge,metalness:.6,roughness:.35});
       for(const k of [-1,1])for(const [[z0,y0],[z1,y1]] of ST.lines){const len=Math.hypot(z1-z0,y1-y0),pz=(y1-y0)/len,py=-(z1-z0)/len,at=(t,o)=>[z0+(z1-z0)*t+pz*o,y0+(y1-y0)*t+py*o];
         const [pts,nrm]=alongSide(side,k,Array.from({length:9},(_,i)=>at(i/8,0)),.0042,24);outwardRibbon(ribbon(boots,pts,nrm,ST.width,leather,'stripe'),nrm[0]);
         for(const e of [-1,1])curve(boots,alongSide(side,k,Array.from({length:31},(_,i)=>at(i/30,e*(ST.width/2+(i%2?.0016:-.0004)))),.005,60)[0].map(p=>p.toArray()),.0011,edgeMat,'stripe-edge');}}

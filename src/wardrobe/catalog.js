@@ -1038,7 +1038,7 @@ export const GARMENTS = Object.freeze({
     uncertainties: ['the GAZELLE lettering is drawn as gold foil marks without letters', 'the sole branding and tread pattern are not modelled', 'the shaggy suede is suggested by its colour and a deeper nap, without loose fibres'],
     authoring: { texture: 'none: colours measured from the photos; procedural suede, leather and rubber materials', runtimeGeneration: false, sourcePhotosBundled: false },
     // Construction for makeLugBoot() (template 'sneaker') in src/doll/model.js, in outfit units, with the template's
-    // stacked sole (sole.tiers), leatherStripes, lettering and leather and shaggy panels. Upper rows are [y, front, back,
+    // stacked sole (sole.tiers), edgedStripes, lettering and leather and shaggy panels. Upper rows are [y, front, back,
     // halfWidth]; proportions measured from the side photo (the platform is about a sixth of the shoe's length).
     build: {
       template: 'sneaker', cx: .168,
@@ -1059,7 +1059,7 @@ export const GARMENTS = Object.freeze({
         { name: 'shaggy-toe-cap', z: [.33, .425], top: [[.33, .147], [.36, .138], [.39, .129], [.42, .116], [.425, .112]], colour: '#c9a77a', fuzz: .014, stitch: false, wrap: .005 },
       ],
       // Three stripes slanting forward from the sole to the eyestays, each a [z, y] centre line.
-      leatherStripes: { colour: '#25503f', edge: '#c9a24a', width: .028, lines: [[[.03, .104], [.11, .19]], [[.11, .104], [.185, .184]], [[.19, .104], [.258, .172]]] },
+      edgedStripes: { colour: '#25503f', edge: '#c9a24a', width: .028, lines: [[[.03, .104], [.11, .19]], [[.11, .104], [.185, .184]], [[.19, .104], [.258, .172]]] },
       // GAZELLE in gold foil on the outer side, parallel to the stripes.
       lettering: { line: [[-.015, .112], [.02, .152]], count: 7, height: .0065, colour: '#d4b35c' },
     },
