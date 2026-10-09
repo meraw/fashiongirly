@@ -32,12 +32,14 @@ Measured colours (sampled from plain areas of the flat lays): blue about RGB 88,
 
 The user is being intentional about outerwear. A jacket is either worn zipped closed or put away, and it is only worn open when it looks good open or is designed to be worn that way. This one is built **zipped closed**, hood down.
 
+On 9 October 2026 the user asked to see jackets open on the doll, though they still wear them zipped. It now has the “Wear it open” setting and still starts zipped. Open, the fronts part with a zip half on each edge, the grey jersey lining shows inside (its colour estimated), and the body eases out where the layers under it need room, as the leather jacket does. Zipped, it is unchanged (fingerprinted). Added by the Red Bull windbreaker's chat.
+
 ## For styling later
 
 Recorded in the catalog entry's `styling` block, so a future outfit chooser can use it:
 
 - Observed in the photos: slate blue and ecru, colour-blocked with a V yoke; a boxy, hip-length blouson with dropped shoulders. It covers her torso and arms to the wrist, and her neck when zipped. A woven shell with a grey jersey lining in the body.
-- From the user: worn zipped closed, or not at all.
+- From the user: worn zipped closed, or not at all, in real life. Shown open on the doll only to see how it looks.
 - Inferred, not stated: a light layer for mild, breezy or cool days. The hood suits light showers. Waterproofing and fibre composition are unknown.
 
 ## Implementation

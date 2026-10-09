@@ -6,7 +6,7 @@ import { GARMENTS } from '../wardrobe/catalog.js';
 
 export function makeOuterwear(id, overSkirt=false, {under=null,open=false}={}){
   const spec=GARMENTS[id]?.slot==='outerwear'?GARMENTS[id].build:null;
-  if(spec?.template==='zip-windbreaker')return makeZipWindbreaker(id,spec,overSkirt);
+  if(spec?.template==='zip-windbreaker')return makeZipWindbreaker(id,spec,overSkirt,open&&!!GARMENTS[id].layering?.canOpen,under);
   if(spec?.template==='leather-zip-jacket')return makeLeatherJacket(id,spec,overSkirt,under,open&&!!GARMENTS[id].layering?.canOpen);
   return null;
 }
@@ -34,7 +34,8 @@ function scriptPath(x0,y0,w,h){
 // height (v: y from 1 to 2 in outfit units).
 const shellCache={};
 function windbreakerBodyData(spec){
-  const key=JSON.stringify([spec.colours,spec.yoke]);if(shellCache[key])return shellCache[key];
+  const key=JSON.stringify([spec.colours,spec.yoke,spec.lines,spec.prints]);if(shellCache[key])return shellCache[key];
+  if(!spec.yoke)return plainBodyData(spec,key);
   const w=1024,h=512,data=new Uint8Array(w*h*4),C=spec.colours,Y=spec.yoke,blue=rgb(C.shell),ecru=rgb(C.yoke),rand=random(19);
   const yAt=v=>1+v/h,yokeY=a=>{const s=Math.abs(Math.sin(a)),c=Math.cos(a),front=Y.frontCentre+(Y.frontSide-Y.frontCentre)*s,t=Math.min(1,Math.max(0,(-c+.05)/.35));return front+(Y.back-front)*t;};
   const edges=Array.from({length:w},(_,i)=>yokeY(i/w*Math.PI*2)),backs=Array.from({length:w},(_,i)=>Math.cos(i/w*Math.PI*2)<-.35);
@@ -52,12 +53,48 @@ function windbreakerBodyData(spec){
   stroke(paint,scriptPath(u0,(yLine-1)*h,Y.script.width*w,Y.script.height*h),.8,thread);
   shellCache[key]={data,w,h};return shellCache[key];
 }
+// Optional, for a one-colour jacket (a spec without a yoke): the shell colour all over, with seams drawn as fine shaded
+// lines (`spec.lines`) and reflective prints (`spec.prints`). Lines and prints are given as seen straight on from the
+// front or the back, in outfit units (x across, y up), and mirrored to both sides when `mirror` is set.
+const rowRadius=(rows,y)=>{for(let k=0;k<rows.length-1;k++)if(y<=rows[k][0]&&y>=rows[k+1][0]){const t=(rows[k][0]-y)/(rows[k][0]-rows[k+1][0]);return rows[k][1]+(rows[k+1][1]-rows[k][1])*t;}return y>rows[0][0]?rows[0][1]:rows.at(-1)[1];};
+const segDist=(x,y,[ax,ay],[bx,by])=>{const vx=bx-ax,vy=by-ay,t=Math.max(0,Math.min(1,((x-ax)*vx+(y-ay)*vy)/(vx*vx+vy*vy||1)));return Math.hypot(x-ax-vx*t,y-ay-vy*t);};
+// Printed lettering at the doll's scale: plain block capitals on a 5 × 7 grid, one row per string, top row first.
+// A generic font, not the brand's own typeface. Characters without a pattern are left as spaces.
+const BLOCK_FONT={
+  A:['01110','10001','10001','11111','10001','10001','10001'],B:['11110','10001','10001','11110','10001','10001','11110'],
+  C:['01111','10000','10000','10000','10000','10000','01111'],D:['11110','10001','10001','10001','10001','10001','11110'],
+  E:['11111','10000','10000','11110','10000','10000','11111'],G:['01111','10000','10000','10011','10001','10001','01111'],
+  I:['01110','00100','00100','00100','00100','00100','01110'],L:['10000','10000','10000','10000','10000','10000','11111'],
+  N:['10001','11001','11001','10101','10011','10011','10001'],O:['01110','10001','10001','10001','10001','10001','01110'],
+  R:['11110','10001','10001','11110','10100','10010','10001'],U:['10001','10001','10001','10001','10001','10001','01110'],
+};
+// Whether the point (u along the text, 0–1; v across it, 0 at the letters' foot and 1 at their top) is inked.
+function letterInk(u,v,text){
+  const g=Math.floor(u*text.length);if(g<0||g>=text.length)return 0;const rows=BLOCK_FONT[text[g].toUpperCase()];if(!rows)return 0;
+  const f=(u*text.length-g-.12)/.76,t=1-v;if(f<0||f>=1||t<0||t>=1)return 0;
+  return rows[Math.floor(t*7)][Math.floor(f*5)]==='1'?1:0;
+}
+function plainBodyData(spec,key){
+  const w=1024,h=512,data=new Uint8Array(w*h*4),C=spec.colours,shellC=rgb(C.shell),ink=C.print?rgb(C.print):null,inkDark=C.printShade?rgb(C.printShade):ink,rand=random(19),rows=spec.body.rows;
+  for(let j=0;j<h;j++){const y=1+j/h,rx=rowRadius(rows,y);for(let i=0;i<w;i++){const a=i/w*Math.PI*2,front=Math.cos(a)>=0,x=Math.sin(a)*rx*(front?1:-1),k=(j*w+i)*4;
+    let c=shellC,shade=1;
+    for(const L of spec.lines||[]){if(!!L.back===front)continue;for(const sx of L.mirror?[1,-1]:[1]){const pts=L.points.map(([px,py])=>[px*sx,py]);
+      for(let n=0;n<pts.length-1;n++){const d=segDist(x,y,pts[n],pts[n+1]);if(d<L.width)shade=Math.min(shade,L.shade);
+        // A flap's soft shadow just below its edge.
+        else if(L.shadow&&d<L.shadow&&y<Math.min(pts[n][1],pts[n+1][1])+.0005)shade=Math.min(shade,1-(1-L.shade)*(1-d/L.shadow)*.6);}}}
+    for(const P of spec.prints||[]){if(!!P.back===front)continue;const lx=x-P.x,ly=y-P.y,inside=P.vertical?Math.abs(lx)<P.height/2&&ly<0&&ly>-P.length:Math.abs(lx)<P.length/2&&ly>0&&ly<P.height;
+      if(!inside)continue;const u=P.vertical?-ly/P.length:(lx+P.length/2)/P.length,v=P.vertical?(lx+P.height/2)/P.height:ly/P.height;
+      if(letterInk(u,v,P.text)){const t=P.vertical?v:1-v;c=ink.map((q,n)=>q+(inkDark[n]-q)*t*.8);shade=1;}}
+    const grain=1+(rand()-.5)*.025;for(let n=0;n<3;n++)data[k+n]=Math.max(0,Math.min(255,c[n]*shade*grain));data[k+3]=255;}}
+  shellCache[key]={data,w,h};return shellCache[key];
+}
 // The sleeves: the yoke colour runs over the shoulder onto the top of the sleeve and ends in a diagonal, higher on the
 // outside of the arm than underneath. u runs round the sleeve from the front (drawn for her left arm; her right mirrors it),
 // v is the height along the sleeve from -.6 to .1.
 function windbreakerSleeveData(spec){
   const key='sleeve'+JSON.stringify([spec.colours,spec.yoke]);if(shellCache[key])return shellCache[key];
-  const w=512,h=512,data=new Uint8Array(w*h*4),C=spec.colours,Y=spec.yoke,blue=rgb(C.shell),ecru=rgb(C.yoke),rand=random(23);
+  // Without a yoke the sleeve is the shell colour all over.
+  const w=512,h=512,data=new Uint8Array(w*h*4),C=spec.colours,Y=spec.yoke||{sleeveOuter:1,sleeveInner:1},blue=rgb(C.shell),ecru=rgb(C.yoke||C.shell),rand=random(23);
   for(let j=0;j<h;j++){const y=-.6+.7*j/h;for(let i=0;i<w;i++){const a=i/w*Math.PI*2,edge=(Y.sleeveOuter+Y.sleeveInner)/2+(Y.sleeveOuter-Y.sleeveInner)/2*Math.sin(a),k=(j*w+i)*4,d=y-edge;
     const c=d>0?ecru:blue,shade=(d<0&&d>-.006)?.9+.1*(-d/.006):(d>.009&&d<.0115)?.9:1,grain=1+(rand()-.5)*.025;
     for(let n=0;n<3;n++)data[k+n]=Math.max(0,Math.min(255,c[n]*shade*grain));data[k+3]=255;}}
@@ -132,6 +169,14 @@ function easeOver(under,{low,high,gap,radii,sleeve,openAt=null}){
   const eased=spread(spread(bins,4,Math.max),2,null).map(v=>Math.max(1,v));
   return y=>{const t=Math.max(0,Math.min(eased.length-1.001,(y-low)/step)),k=Math.floor(t),f=t-k;return eased[k]*(1-f)+eased[k+1]*f;};
 }
+// Spreads an easing (see easeOver) over a wider band of heights, `w` either side, never below what it was: a loose body
+// eases gradually over a collar or a jumper instead of in a sharp step.
+function broaden(fit,low,high,w){
+  const step=.005,n=Math.ceil((high-low)/step)+1,src=Array.from({length:n},(_,k)=>fit(low+k*step)),r=Math.round(w/step);
+  const wide=src.map((_,k)=>{let v=1;for(let d=-r;d<=r;d++)v=Math.max(v,src[Math.max(0,Math.min(n-1,k+d))]);return v;});
+  const soft=wide.map((_,k)=>{let v=0;for(let d=-r;d<=r;d++)v+=wide[Math.max(0,Math.min(n-1,k+d))];return v/(2*r+1);}).map((v,k)=>Math.max(v,src[k]));
+  return y=>{const t=Math.max(0,Math.min(n-1.001,(y-low)/step)),k=Math.floor(t),f=t-k;return soft[k]*(1-f)+soft[k+1]*f;};
+}
 // A centre-front zip strip from y0 to y1, lying on the body, with its teeth drawn by zipData().
 function centreZip(jacket,{at,normal},y0,y1,width,colour,name,span=y1-y0){
   const zy=[];for(let k=0;k<=60;k++)zy.push(y0+(y1-y0)*k/60);
@@ -141,28 +186,80 @@ function centreZip(jacket,{at,normal},y0,y1,width,colour,name,span=y1-y0){
   return zy;
 }
 
-function makeZipWindbreaker(id,spec,overSkirt){
-  const jacket=new T.Group();jacket.name='outerwear';jacket.userData.garmentId=id;
+// Optional: a zip covered by a storm placket. A raised strip of the shell from the hem band to the top of the collar,
+// edged with topstitching, lying slightly to her left of centre as it overlaps the zip; the collar's front edges carry
+// metal snaps.
+function coveredZip(jacket,{at,normal,radii},P,B,mat,thread,metal){
+  const ys=[];for(let k=0;k<=60;k++)ys.push(B.hem+B.band-.004+(B.collarTop-.004-(B.hem+B.band-.004))*k/60);
+  const a=y=>P.offset/radii(y)[0],pts=ys.map(y=>at(a(y),y,.005)),ns=ys.map(y=>normal(a(y),y));
+  outward(ribbon(jacket,pts,ns,P.width,mat,'zip-placket'),ns[0]).userData.covering=true;
+  for(const s of [-1,1])curve(jacket,ys.filter((_,k)=>k%3===0).map(y=>at(a(y)+s*(P.width/2-.005)/radii(y)[0],y,.0075).toArray()),.0012,thread,'placket-topstitch');
+  for(const [x,y] of P.snaps||[])for(const s of [-1,1]){const q=at(s*x/radii(y)[0],y,.006),n=normal(s*x/radii(y)[0],y);
+    const stud=put(jacket,new T.CylinderGeometry(.008,.008,.004,16),metal,'collar-snap');stud.position.copy(q);stud.quaternion.setFromUnitVectors(V(0,1,0),n);}
+}
+// An open zip: a half along each front edge (angle 0 for her left front, 2pi for her right), moving with its panel.
+function zipHalves(jacket,{at,normal},y0,y1,width,colour,name){
+  const zipMap=dataTexture(zipData().data,16,16,.5,(y1-y0)/.014);zipMap.colorSpace=T.NoColorSpace;
+  const mat=new T.MeshStandardMaterial({color:colour,map:zipMap,metalness:.55,roughness:.45,side:T.DoubleSide}),ys=Array.from({length:41},(_,k)=>y0+(y1-y0)*k/40);
+  for(const [edge,inward] of [[1e-4,.02],[Math.PI*2-1e-4,-.02]])outward(ribbon(jacket,ys.map(y=>at(edge+inward*.25,y,.003)),ys.map(y=>normal(edge,y)),width*.6,mat,name),normal(edge,y0));
+}
+// Parts a ring-shaped shell (the hem band, the collar) at the front with the body's open fronts.
+function partRing(mesh,seg,d){const p=mesh.geometry.attributes.position;for(let k=0;k<p.count;k++)p.setX(k,p.getX(k)+openShift((k%(seg+1))/seg*Math.PI*2,d));p.needsUpdate=true;mesh.geometry.computeVertexNormals();return mesh;}
+function cordToggle(jacket,{at,normal,angleFor},{x,y,drop=.03},dark,cordMat){
+  const a=angleFor(x,y),q=at(a,y,.008),n=normal(a,y);
+  curve(jacket,[q.toArray(),at(a,y-drop*.5,.014).toArray(),at(a,y-drop,.012).toArray()],.0028,cordMat,'toggle-cord');
+  const t=put(jacket,new T.CylinderGeometry(.007,.006,.02,12),dark,'cord-toggle');t.position.copy(at(a,y-drop,.013));t.lookAt(t.position.clone().add(n));t.rotateX(Math.PI/2);
+}
+// Optional: worn open (`open`, for jackets whose layering allows it). The fronts slide apart by `spec.open.shift` at their
+// edges, the zip parts into two halves, and a lining shows inside. Open, the layers under it are no longer hidden at the
+// neck (the shirt's collar points), so the body eases out where they need room, like the leather jacket. Zipped closed,
+// nothing here changes.
+function makeZipWindbreaker(id,spec,overSkirt,open=false,under=null){
+  const jacket=new T.Group();jacket.name='outerwear';jacket.userData.garmentId=id;jacket.userData.open=open;
   const C=spec.colours,B=spec.body,seg=128;
-  const bodyMap=windbreakerBodyData(spec),body=fabric(dataTexture(bodyMap.data,bodyMap.w,bodyMap.h),null,spec),plain=fabric(null,C.shell,spec),ecruPlain=fabric(null,C.yoke,spec);
+  const bodyMap=windbreakerBodyData(spec),body=fabric(dataTexture(bodyMap.data,bodyMap.w,bodyMap.h),null,spec),plain=fabric(null,C.shell,spec),ecruPlain=fabric(null,C.yoke||C.shell,spec);
   const thread=solid(C.stitch,.85),white=solid(C.snap,.45),cord=solid(C.cord,.9);
   const metal=new T.MeshStandardMaterial({color:C.zip,metalness:.55,roughness:.42});
   // Boxy body from the stand collar to a gathered elastic hem. Over the skirt the lower body and band sit out over its fullness.
   // Fabric: the body blouses into the elastic band in small gathers, and a few soft creases run across the sides.
   const bandTop=B.hem+B.band,gather=(a,y)=>{const t=Math.max(0,1-(y-bandTop)/B.gatherHeight);return 1+B.gatherDepth*t*t*Math.cos(a*B.gathers)+.004*Math.sin(3*a+17*y)*Math.sin(a)**2;};
-  const {surf,normal,at,angleFor,radii}=jacketBody(jacket,overSkirt?B.overSkirt:B.rows,body,B.collarBase,gather);
+  const OD=open?spec.open?.shift??.09:null;
+  const rows=overSkirt?B.overSkirt:B.rows,own=rowRadii(rows);
+  const fit=open&&under?broaden(easeOver(under,{low:B.hem-.01,high:B.collarTop,gap:spec.open?.gap??.012,radii:own,sleeve:spec.sleeve,openAt:y=>Math.atan2(OD,own(y)[1])}),B.hem-.01,B.collarTop,spec.open?.ease??.06):null;
+  const {mesh:bodyMesh,surf,normal,at,angleFor,radii}=jacketBody(jacket,rows,body,B.collarBase,gather,seg,{open:OD,fit});
+  // Open: the edge on each side, seen from her centre line (for what shows between the fronts), and the lining inside.
+  jacket.userData.opening=open?y=>Math.atan2(OD,radii(y)[1]*(fit?fit(y):1)):()=>0;
+  if(open){const g=bodyMesh.geometry.clone(),p=g.attributes.position;for(let k=0;k<p.count;k++){p.setX(k,p.getX(k)*.992);p.setZ(k,p.getZ(k)*.992);}
+    put(jacket,g,new T.MeshStandardMaterial({color:C.lining||C.shell,roughness:.95,side:T.BackSide}),'jacket-lining');}
   // Elastic hem band, gathered narrower than the body, which tucks just inside it.
   const band=overSkirt?B.bandOverSkirt:B.bandRadius;
-  ribbed(shell(jacket,[[bandTop+.004,band[0]-.004,band[1]-.004],[bandTop-.006,band[0],band[1]],[B.hem+.008,band[0],band[1]],[B.hem,band[0]-.006,band[1]-.006]],plain,'elastic-hem-band',seg),B.bandPuckers,.014).userData.covering=true;
+  const bandMesh=shell(jacket,[[bandTop+.004,band[0]-.004,band[1]-.004],[bandTop-.006,band[0],band[1]],[B.hem+.008,band[0],band[1]],[B.hem,band[0]-.006,band[1]-.006]],plain,'elastic-hem-band',seg);
+  if(open)partRing(bandMesh,seg,OD);
+  ribbed(bandMesh,B.bandPuckers,.014).userData.covering=true;
   // Stand collar lined in the hood's ecru, seen from above.
-  shell(jacket,[[B.collarTop-.002,B.collarRadius[0]-.004,B.collarRadius[1]-.004],[B.collarBase+.01,B.collarRadius[0]+.004,B.collarRadius[1]+.002]],ecruPlain,'collar-lining',64);
+  const collarLining=shell(jacket,[[B.collarTop-.002,B.collarRadius[0]-.004,B.collarRadius[1]-.004],[B.collarBase+.01,B.collarRadius[0]+.004,B.collarRadius[1]+.002]],ecruPlain,'collar-lining',64);
+  if(open)partRing(collarLining,64,OD);
   // Centre-front coil zip from the hem to the top of the collar, a slider and pull at the top and a stop at the hem.
+  // Open: the placket stays on her left front, along its edge, with the zip's halves on the two edges.
+  if(spec.placket){coveredZip(jacket,{at,normal,radii},open?{...spec.placket,offset:spec.placket.width/2+.004}:spec.placket,B,plain,thread,metal);
+    if(open)zipHalves(jacket,{at,normal},B.hem+.004,B.collarTop-.006,.014,C.zip,'zip-half');}
+  else if(open){
+    zipHalves(jacket,{at,normal},B.hem+.004,B.collarTop-.006,spec.zip.width,C.zip,'coil-zip-half');
+    const zy=Array.from({length:61},(_,k)=>B.hem+.004+(B.collarTop-B.hem-.01)*k/60);
+    for(const s of [-1,1])curve(jacket,zy.filter((_,k)=>k%3===0).map(y=>at(s*spec.zip.stitch/radii(y)[0],y,.0025).toArray()),.0014,thread,'zip-topstitch');
+    // The slider is left at the hem, on her right.
+    const ha=Math.PI*2-.03,slider=put(jacket,new T.BoxGeometry(.02,.026,.009),metal,'zip-slider');slider.position.copy(at(ha,B.hem+.02,.008));slider.lookAt(slider.position.clone().add(normal(ha,B.hem+.02)));
+  }
+  else{
   const zy=centreZip(jacket,{at,normal},B.hem+.004,B.collarTop-.006,spec.zip.width,C.zip,'coil-zip',B.collarTop-B.hem);
   for(const s of [-1,1])curve(jacket,zy.filter((_,k)=>k%3===0).map(y=>at(s*spec.zip.stitch/radii(y)[0],y,.0025).toArray()),.0014,thread,'zip-topstitch');
   const slider=put(jacket,new T.BoxGeometry(.022,.03,.01),metal,'zip-slider');slider.position.copy(at(0,B.collarTop-.03,.008));
   const pull=put(jacket,new T.BoxGeometry(.012,.034,.004),metal,'zip-pull');pull.position.copy(at(0,B.collarTop-.06,.014));
   curve(jacket,[at(-.01,B.collarTop-.075,.016),at(0,B.collarTop-.095,.018),at(.01,B.collarTop-.075,.016)].map(v=>v.toArray()),.004,cord,'zip-pull-cord');
   const stop=put(jacket,new T.BoxGeometry(.024,.016,.008),metal,'zip-stop');stop.position.copy(at(0,B.hem+.01,.006));
+  }
+  // Optional cord stoppers: a dark barrel toggle on a short cord loop, at the hem band and at the top of the collar.
+  for(const T0 of spec.toggles||[])cordToggle(jacket,{at,normal,angleFor},T0,solid(C.toggle||'#2b2b2d',.6),cord);
   // Welt pockets low on each front: a narrow raised welt edged in topstitching, its opening along the inner edge, closed
   // by two white snaps.
   const P=spec.pockets;
@@ -179,7 +276,7 @@ function makeZipWindbreaker(id,spec,overSkirt){
   // Drawcords from small eyelets either side of the zip below the collar, hanging down the yoke: ecru cord ending in a blue
   // tip with a white band.
   const D=spec.cords;
-  for(const s of [-1,1]){
+  if(D)for(const s of [-1,1]){
     const a0=angleFor(s*D.x,D.top),eye=put(jacket,new T.TorusGeometry(.009,.003,6,16),metal,'cord-eyelet');eye.position.copy(at(a0,D.top,.003));eye.lookAt(eye.position.clone().add(normal(a0,D.top)));
     const path=[];for(let k=0;k<=8;k++){const y=D.top-(D.top-D.end)*k/8,x=s*(D.x+D.drift*k/8);path.push(at(angleFor(x,y),y,.009+.006*Math.sin(k/8*Math.PI)).toArray());}
     curve(jacket,path,D.radius,cord,'drawcord');
@@ -188,7 +285,9 @@ function makeZipWindbreaker(id,spec,overSkirt){
   }
   // Hood, worn down: a rounded pouch lying over the back yoke below her hair, with a centre seam and a small label. Its
   // rolled opening edge comes forward round her neck to the zip, beside the stand collar.
+  // Optional: a jacket whose hood is stowed in its collar has no hood here.
   const H=spec.hood,grid=[],U=24,W=16;
+  if(H){
   const hoodPoint=(u,v)=>{const yb=H.bottom+H.round*u*u,y=H.top-(H.top-yb)*v,half=H.halfWidth*(1-.25*v*v),a=angleFor(u*half,y,true);
     // Fuller toward the bottom, where the folded hood gathers, with two soft folds running down it.
     const lift=H.lift*Math.max(0,1-u*u)**.7*Math.sin(Math.PI*(.12+.88*v))**.8*(.8+.25*v)*(1-.12*Math.cos(u*Math.PI*2.4)**2)+.005;return at(a,y,lift);};
@@ -200,12 +299,13 @@ function makeZipWindbreaker(id,spec,overSkirt){
   curve(jacket,Array.from({length:W+1},(_,j)=>hoodPoint(0,j/W).clone().addScaledVector(normal(Math.PI,H.top-(H.top-H.bottom)*j/W),.002).toArray()),.0016,thread,'hood-seam');
   const lp=hoodPoint(.12,.45),label=put(jacket,new T.BoxGeometry(.012,.045,.003),ecruPlain,'hood-label');label.position.copy(lp).addScaledVector(normal(Math.PI,lp.y),.004);label.lookAt(label.position.clone().add(normal(Math.PI,lp.y)));
   // The hood's opening: blue outside with the ecru lining rolled over its inner edge, from the zip round the back of the neck.
-  const opening=(off,lift)=>{const pts=[];for(let k=0;k<=24;k++){const a=H.opening.from+(Math.PI*2-2*H.opening.from)*k/24,[rx,rz]=B.collarRadius;
-    pts.push([Math.sin(a)*(rx+off),B.collarBase+H.opening.rise*(1-Math.cos(a))/2+lift,Math.cos(a)*(rz+off)]);}return pts;};
+  const opening=(off,lift)=>{const pts=[],g=fit?fit(B.collarBase):1;for(let k=0;k<=24;k++){const a=H.opening.from+(Math.PI*2-2*H.opening.from)*k/24,[rx,rz]=B.collarRadius.map(r=>r*g);
+    pts.push([Math.sin(a)*(rx+off)+(open?openShift(a,OD):0),B.collarBase+H.opening.rise*(1-Math.cos(a))/2+lift,Math.cos(a)*(rz+off)]);}return pts;};
   curve(jacket,opening(H.opening.out,0),H.opening.radius,plain,'hood-opening');
   curve(jacket,opening(H.opening.out-.01,H.opening.radius*.8),H.opening.radius*.55,ecruPlain,'hood-lining-edge');
+  }
   // Woven label low on the back, above the band on her right.
-  const ly=B.hem+B.band+.035,la=angleFor(-spec.backLabel.x,ly,true),bl=put(jacket,new T.BoxGeometry(.06,.016,.003),ecruPlain,'back-label');bl.position.copy(at(la,ly,.004));bl.lookAt(bl.position.clone().add(normal(la,ly)));
+  if(spec.backLabel){const ly=B.hem+B.band+.035,la=angleFor(-spec.backLabel.x,ly,true),bl=put(jacket,new T.BoxGeometry(.06,.016,.003),ecruPlain,'back-label');bl.position.copy(at(la,ly,.004));bl.lookAt(bl.position.clone().add(normal(la,ly)));}
   // Sleeves: dropped shoulders and long relaxed sleeves blousing into elastic cuffs.
   const S=spec.sleeve,sleeveMap=windbreakerSleeveData(spec);
   for(const side of [-1,1]){
@@ -220,8 +320,10 @@ function makeZipWindbreaker(id,spec,overSkirt){
     cuff.userData.covering=cuff.userData.cuff=true;
     // Round rubber badge on the upper left sleeve, just below the yoke colour.
     if(side>0){const r=S.badge.radius,y=S.badge.y;let rx=0;for(let k=0;k<S.rows.length-1;k++)if(y<=S.rows[k][0]&&y>=S.rows[k+1][0]){const t=(S.rows[k][0]-y)/(S.rows[k][0]-S.rows[k+1][0]);rx=S.rows[k][1]+(S.rows[k+1][1]-S.rows[k][1])*t;}
-      oval(arm,[rx+.004,y,0],[.004,r,r],white,'sleeve-badge',24);
-      const ring=put(arm,new T.TorusGeometry(r*.72,.0022,6,24),white,'sleeve-badge-rim');ring.position.set(rx+.008,y,0);ring.rotation.y=Math.PI/2;}
+      // A round badge with a rim, or (optional `shape: 'rect'`) a small rectangular rubber patch in the badge colour.
+      if(S.badge.shape==='rect'){const b=put(arm,new T.BoxGeometry(.005,S.badge.h,S.badge.w),solid(C.badge||C.snap,.55),'sleeve-badge');b.position.set(rx+.003,y,0);}
+      else{oval(arm,[rx+.004,y,0],[.004,r,r],white,'sleeve-badge',24);
+      const ring=put(arm,new T.TorusGeometry(r*.72,.0022,6,24),white,'sleeve-badge-rim');ring.position.set(rx+.008,y,0);ring.rotation.y=Math.PI/2;}}
     jacket.add(arm);
   }
   return jacket;
