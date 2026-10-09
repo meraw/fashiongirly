@@ -33,7 +33,7 @@ Catalog ID `pepe-jeans-ikat-shirt-v1` (slot `top`). It is built by the existing 
 
 - `pocket`: the Levi's flannel shirt's chest pocket, `{ x: [.084, .172], y: [1.6, 1.7] }`, on her left chest, in the print as on the body under it, stitched round with a line across its top hem. This chat had built its own pocket option at the same time; the user chose the flannel shirt's, and this chat's was dropped. The shirt adds no template code of its own.
 
-The tie-dye, spray floral, split floral, mountain, Mango, pink yoke and Levi's flannel shirts render pixel-identical to `main`, from the front and the side, with and without the skirt.
+The tie-dye, spray floral, split floral, mountain, Mango, pink yoke and Levi's flannel shirts (and, as the ikat shirt adds no template code, the rugby shirt) render pixel-identical to `main`, from the front and the side, with and without the skirt.
 
 **Print.** Drawn in code, not copied from the photos, in the new file `src/doll/ikat-print.js`:
 
@@ -75,7 +75,7 @@ Fits found by the shared tests:
   - that the print holds navy, coral, the blues and white
   - that over the skirt no part of the skirt pokes through it. Building it with its usual rows over the skirt failed this check, before the template change.
 - The shared tests also run on it: every waist-covering top over every bottom, sleeves and hands, the styling facts, and outerwear over every top.
-- `npm test`: 103 passing after merging `main` (which meanwhile added, among others, the Desigual split floral, mountain, Mango, pink yoke and Levi's flannel shirts); `npm run build` succeeds.
+- `npm test`: 105 passing after merging `main` (which meanwhile added, among others, the Desigual split floral, mountain, Mango, pink yoke, Levi's flannel and rugby shirts); `npm run build` succeeds.
 - Rendered in headless Chromium from the front, a turn, the side and the back. Also over the skirt. The authoring chat checked these renders; the user has not seen them yet.
 
 ## Known differences
