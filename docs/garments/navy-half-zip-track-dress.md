@@ -1,6 +1,6 @@
 # Wardrobe item: navy half-zip track mini dress
 
-Authored 9 October 2026. Status: first version, awaiting the user's visual review. This is the first dress, and it added the dress slot (see the handoff).
+Authored 9 October 2026. Status: first version, approved: the user merged it, and merging means approved (their rule). This is the first dress, and it added the dress slot (see the handoff).
 
 ## Source and reference reading
 

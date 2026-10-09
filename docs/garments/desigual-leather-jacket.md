@@ -1,6 +1,6 @@
 # Wardrobe item: Desigual black faux-leather jacket
 
-Authored 8 October 2026. Status: third version, awaiting the user's visual review. The user found the first version bloated on the doll, though the real jacket has a great fit, and said they often wear it open. On the second version, they preferred it zipped and found the open version warped at the middle. Second piece of outerwear, added by the outerwear chat.
+Authored 8 October 2026. Status: third version, approved: the user merged it, and merging means approved (their rule). The user found the first version bloated on the doll, though the real jacket has a great fit, and said they often wear it open. On the second version, they preferred it zipped and found the open version warped at the middle. Second piece of outerwear, added by the outerwear chat.
 
 ## Source and reference reading
 

@@ -1,6 +1,6 @@
 # Wardrobe item: Red Bull Racing stone windbreaker
 
-Authored 9 October 2026. Status: awaiting visual review. The second jacket on the zip-windbreaker template (after the [Marikoo windbreaker](marikoo-windbreaker.md)).
+Authored 9 October 2026. Status: approved: the user merged it, and merging means approved (their rule). The second jacket on the zip-windbreaker template (after the [Marikoo windbreaker](marikoo-windbreaker.md)).
 
 ## Source and reference reading
 
