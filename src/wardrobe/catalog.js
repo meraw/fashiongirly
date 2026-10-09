@@ -8,6 +8,7 @@ export const ZIP_TRACK_DRESS_ID = 'navy-half-zip-track-dress-v1';
 export const BUFFALO_ASPHA_ID = 'buffalo-aspha-mid-olive-v1';
 export const DM_COW_SLIDE_ID = 'dr-martens-cow-slide-v1';
 export const UGG_LOWMEL_ID = 'ugg-lowmel-cream-v1';
+export const ADIDAS_CAMPUS_ID = 'adidas-campus-00s-grey-v1';
 export const BRONZE_TOP_ID = 'desigual-bronze-mesh-v1';
 export const LILAC_TOP_ID = 'lilac-portrait-mockneck-v1';
 export const CROCHET_TOP_ID = 'desigual-crochet-flowers-v1';
@@ -758,6 +759,38 @@ export const GARMENTS = Object.freeze({
         { name: 'heel-counter', z: [-.17, .0], top: [[-.17, .17], [-.1, .155], [-.04, .128], [.0, .112]] },
         { name: 'side-quarter', z: [-.03, .3], top: [[-.03, .122], [.05, .162], [.11, .19], [.18, .192], [.24, .165], [.3, .118]] },
       ],
+    },
+  },
+  [ADIDAS_CAMPUS_ID]: {
+    slot: 'shoes',
+    id: ADIDAS_CAMPUS_ID, name: 'adidas Campus 00s grey suede trainers', family: 'skate-sneaker', version: 1,
+    status: 'reference-study-awaiting-visual-review', brandAsProvided: 'adidas (insole, trefoil and “CAMPUS” on the side)',
+    source: { note: 'user supplied four product images: front three-quarter pair, back pair, outer side, top pair; the user said their pair has black laces rather than the white ones shown' },
+    referenceViews: ['front three-quarter', 'back', 'outer side', 'top'],
+    details: ['chunky low skate-style trainer in pale grey suede', 'three black serrated leather stripes on each side, leaning forward toward the lacing', 'black leather heel tab with a white trefoil', 'thick padded suede tongue with a round white trefoil badge in a black ring', 'very wide, puffy flat laces, laced to the top: black on the user\'s pair (white in the photos)', 'padded collar with a white terry lining', 'cream cupsole with a gum rubber strip round the bottom', 'gold “CAMPUS” lettering on the outer side'],
+    material: { construction: 'suede upper with leather stripes and heel tab on a rubber cupsole', composition: 'not visible in the supplied images', finish: 'matte suede' },
+    fit: { silhouette: 'low chunky trainer', height: 'low, below the ankle bone, so her socks show', platform: 'sole within her normal foot height; she is not raised', adjustment: 'fixed authored fit for review' },
+    wear: { userNote: 'the user\'s pair has black laces rather than the white ones in the photos' },
+    styling: { silhouette: 'low, chunky, rounded', palette: ['pale grey', 'black', 'cream', 'gum brown'], pattern: 'three black side stripes and a black heel tab', coverage: { foot: 'closed, low cut below the ankle' }, material: 'suede and leather on a rubber cupsole', warmth: 2, warmthBasis: 'inferred: closed suede upper, low cut', weather: 'dry days; suede does not suit rain' },
+    uncertainties: ['the stripes\' serrated edges are drawn straight', 'the trefoil on the heel tab and the “CAMPUS” lettering are not reproduced; the tongue badge is a plain disc in a ring', 'the toe and quarter seams are not modelled'],
+    authoring: { texture: 'procedural mottle(), laceTexture() and colours in src/doll/model.js; colours measured from the photos', runtimeGeneration: false, sourcePhotosBundled: false },
+    // Construction for makeLugBoot() (template 'sneaker'), in outfit units; the upper shares the UGG pair's proportions,
+    // which match this side photo (length about 2.3 times the heel height).
+    build: {
+      template: 'sneaker', cx: .168,
+      colours: { upper: '#b2aca6', sole: '#d3ccb4', thread: '#b8b1a9', piping: '#b6aea6', lace: '#202022', laceLine: '#38383c', collar: '#e6e4e0', eyelet: '#c8c1ba', lining: '#e8e6e2', webbing: '#d6cfc8', sock: '#ebe9e3' },
+      sole: { top: .066, heelTop: .066, heelFrom: -.03, rand: .066, lugTop: .012, groove: null, bulge: .003, flare: .012, toeLift: .018, lugs: 56, lugDepth: 0, gum: { height: .012, colour: '#a96a40' } },
+      upper: [[.066, .41, -.155, .134], [.09, .425, -.158, .137], [.11, .425, -.16, .138], [.13, .415, -.16, .137], [.15, .39, -.158, .136], [.17, .345, -.155, .132], [.19, .28, -.15, .122], [.21, .215, -.138, .106], [.23, .17, -.122, .094], [.25, .15, -.112, .09]],
+      collar: { front: .25, side: .205, back: .225 },
+      nFront: 2.8, nBack: 2.1, heelNarrow: .1, toeNarrow: .2, restCap: .2, collarRoll: .007, drapeClear: .066, collarRest: .035,
+      eyelets: [.14, .16, .18, .2, .22], laceHalfWidth: .042, eyeletSize: [.008, .003],
+      puffyLace: { width: .036, thick: .009, lift: .016, loop: .09, tailTo: .1, bow: false },
+      sock: { cx: .16, z: .0, rows: [[.1, .074, .08], [.2, .075, .08], [.3, .074, .078], [.37, .074, .077], [.38, .079, .082], [.405, .079, .082], [.41, .074, .077]] },
+      // Three black stripes on each side, [z along the shoe, y] from the sole to the lacing, read from the side photo.
+      stripes: { colour: '#1e1e20', width: .026, paths: [[[.048, .068], [.12, .19]], [[.116, .068], [.188, .192]], [[.184, .068], [.25, .19]]] },
+      tongueBadge: { y: .243, r: .019, colour: '#f2f1ee', ring: '#1e1e20' },
+      // The black leather heel tab over the back of the collar.
+      panels: [{ name: 'heel-overlay', colour: '#1f1f21', z: [-.168, -.056], bottom: [[-.168, .147], [-.11, .152], [-.056, .162]], top: [[-.168, .224], [-.11, .219], [-.056, .206]] }],
     },
   },
   // Outerwear.

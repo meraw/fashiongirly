@@ -6,7 +6,7 @@ import { readFileSync } from 'node:fs';
 import { makeDoll, makeOutfit, disposeObject, fitDoll } from '../src/doll/model.js';
 import { OUTFITS, cleanRecipe } from '../src/doll/recipe.js';
 import { startStudio } from '../src/doll/app.js';
-import { GARMENTS, BUFFALO_ASPHA_ID, DM_COW_SLIDE_ID, UGG_LOWMEL_ID } from '../src/wardrobe/catalog.js';
+import { GARMENTS, BUFFALO_ASPHA_ID, DM_COW_SLIDE_ID, UGG_LOWMEL_ID, ADIDAS_CAMPUS_ID } from '../src/wardrobe/catalog.js';
 import { levelCaster } from '../src/doll/level-caster.js';
 const shoes=Object.keys(GARMENTS).filter(id=>GARMENTS[id].slot==='shoes');
 const named=(root,name)=>{const found=[];root.traverse(o=>{if(o.name===name)found.push(o);});return found;};
@@ -140,6 +140,23 @@ test('UGG sneakers: low cream sneaker with puffy laces and her own ankle socks, 
   const uppers=around(named(shoesGroup,'boot-upper'));let inside=0;
   for(const sk of named(shoesGroup,'ankle-sock'))eachVertex(sk,p=>{const y=p.y/.76;if(y<spec.sole.top+.03||y>spec.collar.side-.02)return;const c=cast(uppers,Math.sign(p.x)*spec.cx*1.06,p);if(!c)return;assert.ok(c.hit&&c.hit.distance>c.r,'sock shows through the shoe');inside++;});
   assert.ok(inside>20);
+  [outfit,doll].forEach(disposeObject);
+});
+
+test('adidas Campus trainers: grey suede with three black stripes a side, a heel tab, a tongue badge, a gum strip and black laces with no bow',()=>{
+  const spec=GARMENTS[ADIDAS_CAMPUS_ID].build,outfit=makeOutfit({shoesId:ADIDAS_CAMPUS_ID}),doll=makeDoll();fitDoll(doll,outfit);
+  const shoesGroup=outfit.getObjectByName('shoes');
+  for(const name of ['lug-sole','gum-strip','boot-upper','collar-roll','tongue','tongue-badge','tongue-badge-ring','heel-overlay','lace','ankle-sock'])assert.ok(shoesGroup.getObjectByName(name),name);
+  // Three stripes on each side of each shoe.
+  assert.equal(named(shoesGroup,'side-stripe').length,2*2*spec.stripes.paths.length);
+  // Black laces (the user's pair), laced to the top with no bow.
+  for(const name of ['lace-bow','lace-end','lace-knot','pull-loop'])assert.equal(named(shoesGroup,name).length,0,`no ${name}`);
+  for(const l of named(shoesGroup,'lace')){const c=l.material.map.image.data;assert.ok(c[0]<60&&c[1]<60&&c[2]<60,'black lace');}
+  assert.match(GARMENTS[ADIDAS_CAMPUS_ID].wear.userNote,/black laces/);
+  // The gum strip wraps the bottom of the cream sole, from the ground to well below its top edge (rising with the toe spring).
+  const gum=new T.Box3();named(shoesGroup,'gum-strip').forEach(m=>gum.expandByObject(m));assert.ok(gum.min.y<.005&&gum.max.y/.76<spec.sole.top*.6,`gum from ${gum.min.y} to ${gum.max.y/.76}`);
+  // Low and not raised; her own ankle socks replace her doll socks.
+  assert.equal(outfit.userData.lift,0);assert.equal(doll.position.y,0);doll.traverse(o=>{if(o.name==='sock')assert.equal(o.visible,false);});
   [outfit,doll].forEach(disposeObject);
 });
 
