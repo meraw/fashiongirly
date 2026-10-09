@@ -67,7 +67,7 @@ Relaxed and straight, hip length with a curved hem, in soft pink and cream halft
 
 ## Checks
 
-- `npm test`: 92 passing.
+- `npm test`: 94 passing.
   - The new test checks:
     - the parts: no buttons down the front, three placket stitch lines, buttoned cuffs reaching the wrist;
     - the shirt-tail hem, lower at the centre than at the sides;
