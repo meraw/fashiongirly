@@ -56,4 +56,4 @@ Plain fabric in the flat lay measures about RGB 49, 52, 57, and 56, 58, 61 in th
 - The cargo pockets' size and placement are read from flat lays, which flatten them.
 - The crinkle is a fine texture and the drape is procedural; there are no real wrinkles.
 - The drawstring hangs straight, without the knot or loose loops of the photo.
-- A faint line remains where the hips meet the legs.
+- Fixed 9 October 2026 for every pair: the line where the hips met the legs is gone (see [the pleated linen trousers](pleated-linen-wide-trousers.md#the-line-where-the-hips-meet-the-legs)).

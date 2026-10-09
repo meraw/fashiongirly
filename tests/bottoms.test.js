@@ -282,3 +282,55 @@ test('every waist-covering top hides every bottom between its hem and the waist'
     disposeObject(topOutfit);
   }
 });
+
+test('pleated linen trousers: a deep pleat on each front hip, slant pockets, jetted back pockets, a plastic button and full-length wide legs',()=>{
+  const id='pleated-linen-wide-trousers-v1';assert.equal(cleanRecipe({bottomId:id}).bottomId,id);
+  const doll=makeDoll(),outfit=makeOutfit({bottomId:id});doll.updateMatrixWorld(true);outfit.updateMatrixWorld(true);
+  const all=name=>{const found=[];outfit.traverse(o=>{if(o.name===name)found.push(o);});return found;},centre=o=>new T.Box3().setFromObject(o).getCenter(new T.Vector3());
+  for(const name of ['rivet','back-patch-pocket','coin-pocket-stitch','drawstring','back-yoke'])assert.equal(all(name).length,0,`no ${name}`);
+  assert.equal(all('belt-loop').length,6);assert.equal(all('slant-pocket-stitch').length,2);assert.equal(all('fly-stitch').length,1);assert.equal(all('back-dart').length,2);
+  // A tonal plastic button with four holes, not a metal shank button.
+  const button=all('shank-button');assert.equal(button.length,1);assert.equal(button[0].material.metalness,0);assert.equal(all('button-hole').length,4);
+  // Jetted back pockets: lips, a dark opening and a stitched outline on each side of the back.
+  for(const name of ['welt-pocket-lips','welt-pocket-opening','welt-pocket-stitch']){const parts=all(name);assert.equal(parts.length,2,name);
+    assert.deepEqual(parts.map(o=>Math.sign(centre(o).x)).sort(),[-1,1]);for(const o of parts)assert.ok(centre(o).z<0,`${name} on the back`);}
+  // The pleats are part of the hips' shape: each folded edge stands proud of the fabric just inside it, toward the fly,
+  // where an unpleated hip would curve away. A shadow line runs along each.
+  // (Points in the trousers' own units; the outfit is drawn 1.06 wide and .76 tall.)
+  const hips=levelCaster([outfit.getObjectByName('jeans-hips')]),z=(x,y)=>hips(new T.Vector3(x*1.06,y*.76,2),new T.Vector3(0,0,-1))?.point.z??0;
+  for(const side of [-1,1])assert.ok(z(side*.095,1.2)-z(side*.078,1.2)>.003,`pleat edge stands proud on side ${side}: ${(z(side*.095,1.2)-z(side*.078,1.2)).toFixed(4)}`);
+  assert.equal(all('pleat-fold').length,2);
+  // Full length: the hems come down over the shoes; wide legs, widening toward the hem without crossing; and her legs
+  // and socks are covered down to the shoes.
+  const legs=all('jeans-leg'),hem=Math.min(...legs.map(l=>new T.Box3().setFromObject(l).min.y));
+  let shoeTop=-Infinity;outfit.traverse(o=>{if(o.name==='loafer')shoeTop=Math.max(shoeTop,new T.Box3().setFromObject(o).max.y);});assert.ok(hem<shoeTop*.6,'hem reaches down over the shoes');
+  const width=(leg,y0,y1)=>{const b=new T.Box3(),q=new T.Vector3(),pos=leg.geometry.attributes.position;for(let i=0;i<pos.count;i++){q.fromBufferAttribute(pos,i);if(q.y>=y0&&q.y<=y1)b.expandByPoint(q);}return b;};
+  assert.ok(width(legs[0],.32,.36).getSize(new T.Vector3()).x>width(legs[0],.55,.6).getSize(new T.Vector3()).x,'widens toward the hem');
+  const [l,r]=legs.map(leg=>width(leg,.32,.4)).sort((a,b)=>a.min.x-b.min.x);assert.ok(l.max.x<=r.min.x+.012,'legs do not cross');
+  const p=new T.Vector3(),origin=new T.Vector3();let checked=0;
+  doll.traverse(o=>{if(o.name!=='leg'&&o.name!=='sock')return;const pos=o.geometry.attributes.position;
+    for(let i=0;i<pos.count;i++){p.fromBufferAttribute(pos,i).applyMatrix4(o.matrixWorld);if(p.y<shoeTop+.02||p.y>.95*.76)continue;
+      const leg=legs.find(l=>Math.sign(centre(l).x)===Math.sign(p.x)),c=centre(leg);origin.set(c.x,p.y,0);const r=p.distanceTo(origin);if(r<.005)continue;
+      const h=castFrom(leg,origin,p.clone().sub(origin).normalize().applyAxisAngle(new T.Vector3(0,1,0),1e-4));
+      assert.ok(h&&h.distance>r+.001,`${o.name} vertex ${i} shows through the linen leg`);checked++;}});
+  assert.ok(checked>200);disposeObject(doll);disposeObject(outfit);
+  // The new template options are off for every other pair: none of them gains pleats, jetted pockets or a plastic button.
+  for(const other of Object.keys(GARMENTS).filter(k=>GARMENTS[k].slot==='bottom'&&k!==id)){const o=makeOutfit({bottomId:other});
+    o.traverse(m=>{assert.ok(!['pleat-fold','welt-pocket-lips','welt-pocket-opening','welt-pocket-stitch','button-hole'].includes(m.name),`${other} has no ${m.name}`);
+      if(m.name==='shank-button')assert.ok(m.material.metalness>0,`${other} keeps its metal button`);});disposeObject(o);}
+});
+
+test('every pair joins hips and legs without a band or a crack: the shading turns gradually, and the hips reach inside the legs',()=>{
+  for(const id of Object.keys(GARMENTS).filter(k=>GARMENTS[k].slot==='bottom'&&GARMENTS[k].build?.crotch)){
+    const outfit=makeOutfit({bottomId:id}),cy=GARMENTS[id].build.crotch.y,hips=outfit.getObjectByName('jeans-hips');
+    const p=hips.geometry.attributes.position,nm=hips.geometry.attributes.normal,n=129;let low=Infinity,worst=0;
+    for(let k=0;k<p.count;k++)low=Math.min(low,p.getY(k));
+    // Down each column of the thighs (clear of the crotch point between the legs), the surface direction changes by only a
+    // few degrees from one row to the next as the hips come down to the legs, instead of switching at the last row.
+    for(let k=n;k<p.count;k++){const a=k-n;if(p.getY(a)>cy+.08||p.getY(k)<cy-.001||Math.abs(p.getX(a))<.08)continue;
+      const dot=nm.getX(a)*nm.getX(k)+nm.getY(a)*nm.getY(k)+nm.getZ(a)*nm.getZ(k);worst=Math.max(worst,Math.acos(Math.min(1,dot))*180/Math.PI);}
+    assert.ok(worst<6,`${id}: the shading turns by ${worst.toFixed(1)} degrees between rows at the join`);
+    assert.ok(low<cy-.01,`${id}: the hips carry on below the crotch, inside the legs`);
+    disposeObject(outfit);
+  }
+});
