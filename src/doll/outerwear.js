@@ -4,6 +4,7 @@ import * as T from 'three';
 import { V, random, weave, solid, put, oval, curve, shell, ringShell, ribbon, ribbed, roundSleeveCap } from './model.js';
 import { GARMENTS } from '../wardrobe/catalog.js';
 import { makeFurJacket } from './fur-jacket.js';
+import { makeTailoredCoat } from './tailored-coat.js';
 
 export function makeOuterwear(id, overSkirt=false, {under=null,open=false}={}){
   const spec=GARMENTS[id]?.slot==='outerwear'?GARMENTS[id].build:null;
@@ -13,6 +14,7 @@ export function makeOuterwear(id, overSkirt=false, {under=null,open=false}={}){
   if(spec?.template==='zip-windbreaker')return makeZipWindbreaker(id,spec,overSkirt,open&&!!GARMENTS[id].layering?.canOpen,under);
   if(spec?.template==='leather-zip-jacket')return makeLeatherJacket(id,spec,overSkirt,under,open&&!!GARMENTS[id].layering?.canOpen);
   if(spec?.template==='faux-fur-shirt-jacket')return makeFurJacket(id,spec,overSkirt,under);
+  if(spec?.template==='tailored-coat')return makeTailoredCoat(id,spec,overSkirt,under,open&&!!GARMENTS[id].layering?.canOpen);
   return null;
 }
 
@@ -163,12 +165,14 @@ function jacketBody(jacket,rows,mat,collarBase,deform=()=>1,seg=128,{fit=null,op
   const prof=[];for(let j=0;j<n;j++)prof.push([p.getY(j*(seg+1)),p.getX(j*(seg+1)+seg/4),p.getZ(j*(seg+1))]);
   const radii=y=>{let j=0;while(j<prof.length-2&&prof[j+1][0]>y)j++;const [y0,x0,z0]=prof[j],[y1,x1,z1]=prof[j+1],t=Math.max(0,Math.min(1,(y0-y)/(y0-y1)));return [x0+(x1-x0)*t,z0+(z1-z0)*t];};
   const scale=y=>fit?fit(y):1;
+  // `open` may also vary with height (a function of y), as for a coat whose fronts part only above its top button.
+  const od=y=>typeof open==='function'?open(y):open;
   for(let j=0;j<n;j++)for(let i=0;i<=seg;i++){const k=j*(seg+1)+i,y=p.getY(k);
     if(!fit&&!open){const a=i/seg*Math.PI*2,g=y<collarBase?deform(a,y):1;p.setX(k,p.getX(k)*g);p.setZ(k,p.getZ(k)*g);}
-    else{const [rx,rz]=prof[j].slice(1),a=i/seg*Math.PI*2,g=(y<collarBase?deform(a,y):1)*scale(y);p.setX(k,Math.sin(a)*rx*g+(open?openShift(a,open):0));p.setZ(k,Math.cos(a)*rz*g);}
+    else{const [rx,rz]=prof[j].slice(1),a=i/seg*Math.PI*2,g=(y<collarBase?deform(a,y):1)*scale(y);p.setX(k,Math.sin(a)*rx*g+(open?openShift(a,od(y)):0));p.setZ(k,Math.cos(a)*rz*g);}
     uv.setXY(k,i/seg,y-1);}
   p.needsUpdate=true;uv.needsUpdate=true;mesh.geometry.computeVertexNormals();
-  const surf=(a,y)=>{const [rx,rz]=radii(y),g=(y<collarBase?deform(a,y):1)*scale(y);return V(Math.sin(a)*rx*g+(open?openShift(a,open):0),y,Math.cos(a)*rz*g);};
+  const surf=(a,y)=>{const [rx,rz]=radii(y),g=(y<collarBase?deform(a,y):1)*scale(y);return V(Math.sin(a)*rx*g+(open?openShift(a,od(y)):0),y,Math.cos(a)*rz*g);};
   const normal=(a,y)=>{const ta=surf(a+1e-3,y).sub(surf(a-1e-3,y)),ty=surf(a,y+1e-3).sub(surf(a,y-1e-3));return new T.Vector3().crossVectors(ta,ty).normalize();};
   const at=(a,y,off)=>surf(a,y).addScaledVector(normal(a,y),off);
   const angleFor=(x,y,back=false)=>{const a=Math.asin(Math.max(-1,Math.min(1,x/radii(y)[0])));return back?Math.PI-a:a;};
@@ -574,4 +578,4 @@ function makeLeatherJacket(id,spec,overSkirt,under=null,open=false){
   return jacket;
 }
 // Shared with the outerwear templates in their own files.
-export { jacketBody, easeOver, outward, dataTexture, rowRadii };
+export { jacketBody, easeOver, outward, dataTexture, rowRadii, openShift };

@@ -187,6 +187,8 @@ test('dress under outerwear: a closed jacket covers it from the jacket hem up, a
       const jacket=outfit.getObjectByName('outerwear'),cover=[];jacket.traverse(o=>{if(o.isMesh&&/jacket-body|hem-band/.test(o.name))cover.push(o);});
       const dress=outfit.getObjectByName('dress-body'),pos=dress.geometry.attributes.position,ray=new T.Raycaster(),p=new T.Vector3();let checked=0;
       for(let i=0;i<pos.count;i+=3){p.fromBufferAttribute(pos,i).applyMatrix4(dress.matrixWorld);const y=p.y/.76;if(y<spec.hem+.012||y>spec.collarBase)continue;
+        // A coat with a V neckline shows the dress between its lapels, above its top button.
+        if(jacket.userData.neckline&&Math.abs(Math.atan2(p.x/1.06,p.z))<jacket.userData.opening(y)+.05)continue;
         const r=Math.hypot(p.x,p.z);ray.set(new T.Vector3(0,p.y,0),new T.Vector3(p.x,0,p.z).normalize().applyAxisAngle(new T.Vector3(0,1,0),1e-4));
         const hits=ray.intersectObjects(cover,false);assert.ok(hits.some(h=>h.distance>r),`${outerwearId}: dress shows through at y ${y.toFixed(3)}`);checked++;}
       assert.ok(checked>100,`${outerwearId} checked ${checked}`);
