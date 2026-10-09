@@ -2010,7 +2010,7 @@ export function makeOutfit(raw, atlas=null) {
     :id===TOMMY_CABLE_ID?makeTommyCableSweater(id,state.skirt):id===PETIT_BATEAU_CARDIGAN_ID?makeStripedCardigan(id,state.skirt)
     :id===TOMMY_STRIPE_POLO_ID?makeKnitPolo(id):SHIRT_IDS.includes(id)?makeButtonShirt(id,atlas?.isTexture?atlas:atlas?.[id],state.skirt)
     :GARMENTS[id]?.build?.template==='printed-raglan-tee'?makePrintedTee(id,GARMENTS[id].build,atlas?.isTexture?atlas:atlas?.[id])
-    :GARMENTS[id]?.build?.template==='printed-long-tee'?makePrintedLongTee(id,GARMENTS[id].build)
+    :GARMENTS[id]?.build?.template==='printed-long-tee'?makePrintedLongTee(id,GARMENTS[id].build,state.skirt)
     :GARMENTS[id]?.build?.template==='chenille-high-neck'?makeChenilleJumper(id,GARMENTS[id].build)
     :GARMENTS[id]?.build?.template==='logo-sweatshirt'?makeSweatshirt(id,GARMENTS[id].build,state.skirt)
     :GARMENTS[id]?.build?.template==='cropped-hoodie'?makeHoodie(id,GARMENTS[id].build)
