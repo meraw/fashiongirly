@@ -50,6 +50,8 @@ The revision:
 
 While revising, a straight-across ladder lacing was tried by mistake; the user pointed out that their laces cross in Xs, and it was removed.
 
+The user then pointed out an empty part with no laces at the front of the shoe. The lacing has six rows now instead of five, from just behind a plain suede toe right up under the tongue badge, which moved to the top of the tongue. The bare stretch of tongue above the top lace is gone. Starting the laces lower still made them hang over the toe.
+
 ## Colour
 
 Measured from the side photo:
