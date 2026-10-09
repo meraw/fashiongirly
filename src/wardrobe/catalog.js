@@ -1,5 +1,6 @@
 // Authored wardrobe entries. These describe assets, not runtime AI requests.
 // Outerwear: none by default ('none'); catalog coats and jackets fill the 'outerwear' slot.
+import * as FILED from './garments/index.js';
 export const MARIKOO_WINDBREAKER_ID = 'marikoo-two-tone-windbreaker-v1';
 export const DESIGUAL_LEATHER_JACKET_ID = 'desigual-black-faux-leather-jacket-v1';
 export const RED_BULL_WINDBREAKER_ID = 'red-bull-racing-stone-windbreaker-v1';
@@ -47,7 +48,6 @@ export const LEVIS_PLAID_FLANNEL_ID = 'levis-oversized-plaid-flannel-shirt-v1';
 export const DESIGUAL_RUGBY_ID = 'desigual-navy-rugby-tiger-patches-v1';
 export const LEVIS_FLORAL_LOGO_SWEATSHIRT_ID = 'levis-floral-batwing-sweatshirt-v1';
 export const DESIGUAL_LIFE_AWESOME_ID = 'desigual-life-is-awesome-jumper-v1';
-export const DESIGUAL_HAWAII_TEE_ID = 'desigual-hawaii-patch-stripe-tee-v1';
 export const PINK_YOKE_SHIRT_ID = 'pink-ditsy-floral-yoke-shirt-v1';
 export const STRIPE_SNAP_JUMPER_ID = 'striped-waffle-snap-collar-jumper-v1';
 export const TOMMY_VARSITY_JUMPER_ID = 'tommy-jeans-red-varsity-crest-jumper-v1';
@@ -64,7 +64,7 @@ export const CRYSTAL_JEANS_ID = 'crystal-straight-jeans-v1';
 export const NIKE_TRACK_ID = 'nike-piped-track-pants-v1';
 export const TOPSHOP_BLACK_CROP_ID = 'topshop-washed-black-wide-crop-v1';
 export const PLEATED_LINEN_ID = 'pleated-linen-wide-trousers-v1';
-export const GARMENTS = Object.freeze({
+const BUILT_IN = {
   [BRONZE_TOP_ID]: {
     slot: 'top',
     id: BRONZE_TOP_ID,
@@ -599,47 +599,6 @@ export const GARMENTS = Object.freeze({
       embroidery: { text: 'LIFE IS AWESOME', top: 1.715, height: .056, arch: .03, weight: .25, spacing: .1, space: .3, stitch: .08, colour: '#857f1e', shade: '#585213' },
     },
   },
-  [DESIGUAL_HAWAII_TEE_ID]: {
-    slot: 'top',
-    id: DESIGUAL_HAWAII_TEE_ID, name: 'Desigual Hawaii patch striped tee', family: 'printed-long-sleeve-tee', version: 1,
-    // Approved by merging (the user's rule: a merged pull request means approved), so it is marked so in its own pull request.
-    status: 'user-approved', brandAsProvided: 'Desigual (neck label and “DSG” on the patch)',
-    source: { note: 'user supplied three product photos without a description: the front on a model with light blue ripped jeans, the back on a model, and the front laid flat' },
-    referenceViews: ['front on model', 'back on model', 'front flat lay'],
-    details: ['boxy long-sleeved tee in cream jersey with fine black horizontal stripes', 'lines of “desigualite” in white blackletter, cracked and worn, repeated down the front', 'a sewn-on patch on her left front: a photo print of woody wagons under palm trees with a maroon “DSG HAWAII” sign, framed by sequinned bands (orange and red fish scales on navy at the left and top, black bands with red embroidered flowers and red and gold diagonal stripes at the right and bottom)', 'an embroidered pink rose with red buds and green leaves over the patch\'s top corner', 'dropped shoulders: the stripes run down the arm above the seam and round it below', 'narrow self-striped crew neckband', 'long relaxed sleeves to the wrist, plain hemmed', 'straight hem at the hip, worn untucked; the back is plain stripes'],
-    material: { construction: 'soft slub jersey, with a sequinned and embroidered patch', composition: 'not visible in the supplied photos', finish: 'matte; sequins on the patch' },
-    fit: { silhouette: 'boxy, relaxed', sleeve: 'long, relaxed, from dropped shoulders', hem: 'hip, straight', neckline: 'crew', adjustment: 'fixed authored fit for review' },
-    exclusions: ['striped-shirt','knit-sweater'],
-    layering: { coversWaistband: true, tucksIntoSkirt: true },
-    uncertainties: ['the lettering, the patch\'s picture, its bands and the rose are redrawn in code, simplified, not copied from the photos', 'the word is read as “desigualite”; an accent on its last letter is not drawn', 'her torso is wider and shorter than the models\', so the lettering is larger and repeats along each line, and the patch is wider than tall', 'over the skirt it is tucked in, as the relaxed shirts are'],
-    styling: { silhouette: 'boxy, hip length', palette: ['cream', 'black', 'white', 'sky blue', 'maroon', 'wood brown', 'red', 'pink'], pattern: 'fine black stripes on cream, white blackletter lettering, a sequinned picture patch with an embroidered rose', coverage: { neck: 'crew', sleeves: 'long', midriff: 'covered, to the hip' }, material: 'slub jersey, composition not stated', warmth: 2, warmthBasis: 'inferred: a light jersey with long sleeves', weather: 'mild days, or a layer under a jacket' },
-    authoring: { template: 'makePrintedLongTee() in src/doll/printed-long-tee.js', texture: 'procedural, in src/doll/stripe-patch-print.js: stripes, blackletter, patch and rose drawn in code; colours measured from the photos', runtimeGeneration: false, sourcePhotosBundled: false },
-    // Construction for makePrintedLongTee() (template printed-long-tee), in outfit units: a boxy body on the jumpers'
-    // shoulders, as relaxed as the shirts below them, to the hip; tucked into the skirt; relaxed sleeves to the wrist.
-    build: {
-      template: 'printed-long-tee',
-      colours: { band: '#0d0a09', neckband: '#aaa396', sheen: '#d9d4c8' },
-      body: { neck: 1.885, hem: 1.11,
-        rows: [[1.885, .114, .108], [1.85, .2, .15], [1.81, .266, .187], [1.76, .298, .206], [1.6, .304, .211], [1.4, .308, .217], [1.3, .312, .222], [1.2, .317, .229], [1.11, .322, .235]],
-        tucked: [[1.885, .114, .108], [1.85, .2, .15], [1.81, .266, .187], [1.76, .298, .206], [1.6, .304, .211], [1.4, .3, .21], [1.33, .292, .205], [1.26, .29, .205]],
-        neckband: [[1.905, .114, .108], [1.883, .118, .112]] },
-      // `drop`: how far down the outside of the sleeve the dropped shoulder seam falls.
-      sleeve: { drop: .11,
-        rows: [[.03, .125, .12], [-.06, .134, .129], [-.2, .134, .129], [-.33, .127, .122], [-.45, .112, .108], [-.52, .1, .097], [-.545, .097, .094]] },
-      // The print (stripe-patch-print.js), lengths in world units: the stripes' period and dark share; the lettering's
-      // x-height, pen nib (in ems, and its angle), spacing (in ems) and lines (baseline down from the neck, start in ems);
-      // the patch's edges (across from the centre front, toward her left, and down from the neck) and band width; the rose.
-      print: { draw: 'stripe-patch', seed: 61, ground: '#aaa396', stripe: '#0d0a09', period: .0165, share: .38,
-        letters: { word: 'desigualite', size: .056, nib: .27, nibAngle: 40, tracking: .06, space: .45, gap: .7, wear: .1, alpha: 1,
-          lines: [[.085, -.4], [.18, -.1], [.275, -.6], [.37, -.2], [.465, -.5], [.56, -.15]] },
-        patch: { left: -.1, right: .27, top: .1, bottom: .44, band: .03, sequins: 260 },
-        rose: { x: .24, y: .1, size: .04 },
-        inks: { letter: '#f6f5f1', sky: '#7fa5cc', skyLight: '#a9c3dc', maroon: '#6e1f26', cream: '#d9c9a8', wood: '#7a4524', woodDark: '#4e2a14', woodLight: '#b98450', sand: '#b9ab8c', tyre: '#141414',
-          glass: '#1d2538', glassLight: '#5d7390', red: '#b8302c', blue: '#5b8fc0', chrome: '#9a9a9a', orange: '#c8682a', board: '#d6c08f', palm: '#1f4a2c',
-          navy: '#1c2a44', black: '#1a1618', gold: '#b8913f', pink: '#d98aa0', pinkLight: '#eab4bf', pinkDeep: '#b8506e', redDeep: '#7c1420',
-          leaf: '#3f7a3a', leafLight: '#7fae5a', leafDark: '#244d25', edging: '#c9879f', sparkle: '#f0e6e6' } },
-    },
-  },
   [DESIGUAL_RUGBY_ID]: {
     slot: 'top',
     id: DESIGUAL_RUGBY_ID, name: 'Desigual navy rugby shirt with tiger patches', family: 'rugby-shirt', version: 1,
@@ -655,44 +614,6 @@ export const GARMENTS = Object.freeze({
     uncertainties: ['worn tucked in as the user does, so the dress length and side slits are not shown', 'the tigers are drawn in code at her scale as a suggestion of the patches, not copied', 'the dropped shoulders are not modelled'],
     styling: { silhouette: 'oversized, tucked in and bloused at the waist', palette: ['navy', 'cream', 'blue', 'pink', 'yellow'], pattern: 'plain, with a contrast collar and placket and three small appliqué tigers', coverage: { neck: 'rugby collar, buttoned', sleeves: 'long, ribbed cuffs', midriff: 'covered' }, material: 'smooth heavy jersey', warmth: 2, warmthBasis: 'inferred: a long-sleeved heavy jersey', weather: 'cool to mild days' },
     authoring: { template: 'makeButtonShirt() in src/doll/shirts.js', texture: 'procedural jerseyData() and tigerPatchData() in src/doll/shirts.js; colours measured on the flat lay', runtimeGeneration: false, sourcePhotosBundled: false },
-  },
-  [TOMMY_VARSITY_JUMPER_ID]: {
-    slot: 'top',
-    id: TOMMY_VARSITY_JUMPER_ID, name: 'Tommy Jeans red varsity crest jumper', family: 'cropped-knit-jumper', version: 1,
-    status: 'reference-study-awaiting-visual-review', brandAsProvided: 'Tommy Jeans (the knitted-in lettering and crest)',
-    source: { note: 'user supplied two product photos without a description: the front and the back on a model, over light jeans' },
-    referenceViews: ['front on model', 'back on model'],
-    details: ['boxy, cropped jumper in a heathered red knit flecked with lighter yarn', 'knitted in off-white across the front: TOMMY JEANS in worn varsity capitals, arched over an oval crest', 'the crest: a ring lettered TOMMY JEANS, MANHATTAN and NEW YORK round a shield with a big T and a crown, small TOMMY and JEANS banners, 1985, and a VARSITY CHAMPS ribbon across its foot', 'a ribbed mock neck', 'dropped shoulders, full sleeves gathered into long rib cuffs', 'a deep rib hem band ending at the waistband of high-rise jeans', 'plain back'],
-    material: { construction: 'fine-gauge jacquard knit with rib trims', composition: 'not stated', finish: 'soft, slightly fuzzy heathered red' },
-    fit: { silhouette: 'boxy and cropped', sleeve: 'long and full, dropped shoulders, long rib cuffs', hem: 'cropped at the waist, deep rib band', neckline: 'ribbed mock neck', adjustment: 'fixed authored fit for review' },
-    exclusions: ['striped-shirt','knit-sweater'],
-    uncertainties: ['the lettering and crest are redrawn in code in a simple stroke lettering with slab serifs, not the brand\'s typeface or artwork; the crest\'s details are simplified', 'the motif is fitted to her wider, shorter torso: it is a little squatter than on the model', 'her big head hides most of the mock neck, as with the other high necks'],
-    styling: { silhouette: 'boxy, cropped at the waist', palette: ['red', 'off-white'], pattern: 'varsity lettering and crest on the front', coverage: { neck: 'mock neck', sleeves: 'long', midriff: 'cropped at the waist' }, material: 'knit, composition unknown', warmth: 3, warmthBasis: 'inferred: a knit jumper with a mock neck and long sleeves, though cropped', weather: 'cool, dry days', mood: 'sporty, collegiate, bold' },
-    authoring: { template: 'makeSweatshirt() in src/doll/sweatshirt.js (the logo-sweatshirt template)', texture: 'procedural heathered knit; the lettering and crest drawn in code in src/doll/varsity-crest.js; colours measured from the photos', runtimeGeneration: false, sourcePhotosBundled: false },
-    // Construction for makeSweatshirt() in src/doll/sweatshirt.js, in outfit units: the chenille jumper's boxy cropped body
-    // and sleeves, which clear every bottom; a mock neck; and the crest in place of the batwing logo.
-    build: {
-      template: 'logo-sweatshirt',
-      colours: { fleece: '#a00610', fleck: ['#c84a50', .03], sheen: '#a8202a' },
-      body: { neck: 1.905, hem: 1.27, band: .09, ribs: 64, neckRibs: 48, seed: 11, neckName: 'ribbed-mock-neck', neckRoll: true,
-        rows: [[1.905, .112, .104], [1.875, .176, .128], [1.83, .242, .163], [1.775, .286, .19], [1.65, .304, .204], [1.5, .308, .21], [1.4, .31, .216]],
-        blouse: [.306, .214], bandRadius: [.29, .205], bandOverSkirt: [.29, .205],
-        neckband: [[1.975, .11, .104], [1.945, .112, .105], [1.915, .116, .109], [1.885, .121, .113]] },
-      sleeve: { cuffRibs: 26,
-        rows: [[.03, .12, .117], [-.06, .132, .127], [-.2, .13, .124], [-.33, .122, .117], [-.41, .112, .107], [-.44, .104, .1]],
-        cuff: [[-.425, .097, .093], [-.49, .093, .09], [-.565, .092, .089]] },
-      // The print, drawn by drawVarsityCrest() in src/doll/varsity-crest.js. Its width is in world units and its top in
-      // outfit units; everything else is in print widths (x across, y down from its top). The lettering arches from a
-      // straight top down to a bottom that rises `lift` toward the middle, worn by broken red streaks; the crest's ring
-      // texts run clockwise between angles (degrees from the top).
-      logo: { kind: 'varsity-crest', seed: 3, width: .44, top: 1.85, height: .8, margin: .04, ink: '#ddd3c7', inkFlecks: .05,
-        arch: { text: 'TOMMY JEANS', left: .01, right: .99, top: 0, topArch: 0, bottom: .28, lift: .1, stroke: .015, streaks: 420, streakShare: .16, streakRuns: 6 },
-        crest: { centre: [.5, .48], radii: [.2, .235], band: .055, line: .005, textSize: .032, textStroke: .0042,
-          ringText: [['TOMMY JEANS', -50, 50], ['·', 56, 56], ['MANHATTAN', 62, 132], ['NEW YORK', -128, -62], ['·', -56, -56]],
-          shield: { centre: [.5, .42], size: [.15, .16], t: [.75, .62, .12] }, crown: [.07, .04],
-          scrolls: [['TOMMY', .39, .47], ['JEANS', .53, .61]], scrollY: .56, scrollDip: .012, smallSize: .02, year: { text: '1985', at: [.5, .605], width: .06 },
-          ribbon: { y: .695, sag: .025, half: .2, height: .05, text: 'VARSITY CHAMPS', textSize: .03, tail: .05, tailDrop: .03 } } },
-    },
   },
   [BARREL_JEANS_ID]: {
     slot: 'bottom',
@@ -1927,4 +1848,7 @@ export const GARMENTS = Object.freeze({
       },
     },
   },
-});
+};
+// Garments added since 9 October 2026 each live in their own file in ./garments (one line each in ./garments/index.js),
+// so adding one touches no line another chat is editing. They join the built-in entries above.
+export const GARMENTS = Object.freeze({ ...BUILT_IN, ...Object.fromEntries(Object.values(FILED).map(g => [g.id, g])) });

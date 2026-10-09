@@ -3,7 +3,9 @@ import assert from 'node:assert/strict';
 import * as T from 'three';
 import { makeOutfit, disposeObject } from '../src/doll/model.js';
 import { OUTFITS } from '../src/doll/recipe.js';
-import { GARMENTS, DESIGUAL_HAWAII_TEE_ID } from '../src/wardrobe/catalog.js';
+import { GARMENTS } from '../src/wardrobe/catalog.js';
+import TEE from '../src/wardrobe/garments/desigual-hawaii-patch-stripe-tee-v1.js';
+const DESIGUAL_HAWAII_TEE_ID=TEE.id;
 const named=(root,name)=>{const found=[];root.traverse(o=>{if(o.name===name)found.push(o);});return found;};
 // Shares of a texture's pixels in a box (in pixels; row 0 is the hem) that are black stripe, white lettering, sky blue,
 // the sign's maroon, or the cars' red.

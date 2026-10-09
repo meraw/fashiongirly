@@ -37,7 +37,7 @@ The stripes are fine: about 42 from the neck to the hem.
 
 ## Implementation
 
-Catalog ID `desigual-hawaii-patch-stripe-tee-v1`, built by `makePrintedLongTee()` in `src/doll/printed-long-tee.js` from the `build` spec in its catalog entry.
+Catalog ID `desigual-hawaii-patch-stripe-tee-v1`, in its own file, `src/wardrobe/garments/desigual-hawaii-patch-stripe-tee-v1.js` (the one-garment-per-file layout; its study preset is in the same file). It is built by `makePrintedLongTee()` in `src/doll/printed-long-tee.js` from the entry's `build` spec.
 
 **New template options.** All are optional and the Mickey tee uses none of them. A fingerprint of every vertex and texture of every other top, with and without the skirt, is identical before and after the change.
 
@@ -64,7 +64,7 @@ Catalog ID `desigual-hawaii-patch-stripe-tee-v1`, built by `makePrintedLongTee()
   It is framed by the bands described above, with sequin glints scattered over them. It sits from just right of her centre front (viewer's left) to well onto her left front, and is wider than tall to suit her torso.
 - **Rose:** pink petals in three rings with satin stitch lines, two red buds on stems, and leaves, over the patch's top corner.
 - **Colours:** calibrated in studio renders. Rendered on the back: cream (216, 208, 196), black (60, 53, 46) with fine-stripe blur, a dark share of 0.31, and an average of (166, 158, 147) against the photo's (164, 157, 149). The lettering renders near white.
-- **Preset:** “Hawaii patch tee study”, over the light blue Tommy mom jeans with the Campus trainers, as the photos pair it with light blue jeans.
+- **Preset:** “Hawaii patch tee study” (the garment file's `study`), over the light blue Tommy mom jeans with the Campus trainers, as the photos pair it with light blue jeans.
 - **Build time:** the print takes about 1.3 seconds the first time it is worn, then is shared.
 
 ## Layering
@@ -80,7 +80,7 @@ A boxy, hip-length long-sleeved tee in cream with fine black stripes, white blac
 
 ## Checks
 
-- `npm test`: 106 passing, after merging main (which added the Desigual navy rugby shirt and the Tommy Jeans varsity crest jumper).
+- `npm test`: 108 passing, after merging main (which added the Desigual navy rugby shirt, the Tommy Jeans varsity crest jumper and the one-garment-per-file layout).
 - The new `tests/hawaii-patch-tee.test.js` checks:
   - the parts: body, neckband, turned hem, two sleeves and their cuffs;
   - the back: plain stripes, about a third black, with no lettering or colour, and about one stripe per period down it;
