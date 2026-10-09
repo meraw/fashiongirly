@@ -44,6 +44,7 @@ export const PB_CHENILLE_ID = 'pull-bear-grey-chenille-high-neck-v1';
 export const DESIGUAL_SPLIT_FLORAL_SHIRT_ID = 'desigual-split-floral-shirt-v1';
 export const MANGO_DOT_SHIRT_ID = 'mango-halftone-dot-shirt-v1';
 export const LEVIS_FLORAL_LOGO_SWEATSHIRT_ID = 'levis-floral-batwing-sweatshirt-v1';
+export const DESIGUAL_LIFE_AWESOME_ID = 'desigual-life-is-awesome-jumper-v1';
 export const PINK_YOKE_SHIRT_ID = 'pink-ditsy-floral-yoke-shirt-v1';
 export const BARREL_JEANS_ID = 'topshop-barrel-jeans-v1';
 export const DAVINIA_JEANS_ID = 'desigual-davinia-jeans-v1';
@@ -504,6 +505,40 @@ export const GARMENTS = Object.freeze({
     uncertainties: ['the print is redrawn in code as scattered daisies, rust flowers, leaves and sprigs, not copied from the photos', 'the flowers are drawn a little larger than on the shirt, so they stay visible on a phone', 'the dropped shoulder seam and the gathers at the sleeve head are not modelled; the sleeves are full and gather into the cuffs', 'over the skirt it is tucked in rather than worn loose', 'brand not stated'],
     styling: { silhouette: 'boxy, gathered below a yoke, to the top of the thigh', palette: ['soft pink', 'cream', 'rust'], pattern: 'small scattered florals (ditsy)', coverage: { neck: 'big point collar, top button open', sleeves: 'long, full, cuffed', midriff: 'covered, to the top of the thigh' }, material: 'soft woven fabric, composition not stated', warmth: 1, warmthBasis: 'inferred: a light, fluid shirt fabric, though long-sleeved', weather: 'mild to warm days, or as a light layer' },
     authoring: { template: 'makeButtonShirt() in src/doll/shirts.js', texture: 'procedural ditsyFloralData() and crepeData() in src/doll/shirts.js, drawn locally when first worn; colours measured in the close-up', runtimeGeneration: false, sourcePhotosBundled: false },
+  },
+  [DESIGUAL_LIFE_AWESOME_ID]: {
+    slot: 'top',
+    id: DESIGUAL_LIFE_AWESOME_ID, name: 'Desigual “Life is awesome” jumper', family: 'chunky-rib-slogan-jumper', version: 1,
+    status: 'reference-study-awaiting-visual-review', brandAsProvided: 'Desigual',
+    source: { note: 'user supplied four photos without a description: two fronts on models (one tucked loosely over cream jeans), the back on a model, and the front on a hanger' },
+    referenceViews: ['front on model, three-quarter', 'front on model', 'back on model', 'front on hanger'],
+    details: ['oversized chunky rib-knit jumper in a marled off-white and pale grey yarn flecked with dark green and lime-yellow neps', '“LIFE IS AWESOME” embroidered in hand-drawn capitals in olive-lime yarn, arching across the chest', 'ribbed crew neck', 'dropped shoulders and full sleeves blousing over long ribbed cuffs', 'narrow ribbed hem at the hip, the body blousing over it'],
+    material: { construction: 'chunky rib knit, embroidered', composition: 'not visible in the supplied photos', finish: 'soft, slightly fuzzy marled yarn' },
+    fit: { silhouette: 'oversized, boxy', sleeve: 'long, full, with long rib cuffs', hem: 'hip, blousing over a narrow rib band', neckline: 'ribbed crew', adjustment: 'fixed authored fit for review' },
+    exclusions: ['striped-shirt','knit-sweater'],
+    layering: { coversWaistband: true },
+    uncertainties: ['the knit and its flecks are drawn in code, stitch by stitch, at the measured shares; the real neps vary in size', 'the lettering is redrawn in code as single strokes filled with satin stitches, kept on the front; on the models the first and last letters run onto the sleeves', 'over the skirt it blouses out over the skirt as the Levi\'s sweatshirt does'],
+    styling: { silhouette: 'oversized, boxy, hip length', palette: ['off-white', 'pale grey', 'lime', 'dark green', 'olive'], pattern: 'marled knit with lime and green flecks, slogan embroidered across the chest', coverage: { neck: 'crew', sleeves: 'long, full, cuffed', midriff: 'covered, to the hip' }, material: 'chunky rib knit, composition not stated', warmth: 3, warmthBasis: 'inferred: a thick chunky knit', weather: 'cool days; autumn and winter' },
+    authoring: { template: 'makeSweatshirt() in src/doll/sweatshirt.js', texture: 'procedural knitPixels() and embroider() in src/doll/sweatshirt.js; colours measured in the photos', runtimeGeneration: false, sourcePhotosBundled: false },
+    // Construction for makeSweatshirt() (template logo-sweatshirt), in outfit units: the Levi's sweatshirt's fit, with a
+    // chunky knit instead of fleece, embroidered lettering instead of a printed logo, and no side tab.
+    build: {
+      template: 'logo-sweatshirt',
+      colours: { sheen: '#e9ecd8' },
+      body: { neck: 1.885, hem: 1.15, band: .05, ribs: 64, neckRibs: 48, seed: 13,
+        rows: [[1.885, .114, .108], [1.85, .2, .15], [1.81, .268, .188], [1.76, .3, .208], [1.6, .308, .214], [1.4, .31, .22]],
+        blouse: [.316, .232], bandRadius: [.31, .231], bandOverSkirt: [.338, .252],
+        neckband: [[1.935, .112, .106], [1.905, .115, .108], [1.88, .121, .113]] },
+      sleeve: { cuffRibs: 32,
+        rows: [[.03, .125, .12], [-.06, .138, .133], [-.2, .142, .137], [-.33, .14, .135], [-.41, .132, .128], [-.45, .114, .11], [-.47, .1, .097]],
+        cuff: [[-.46, .097, .094], [-.51, .09, .088], [-.56, .088, .086]] },
+      // The knit: yarn colours, stitch size in world units (a column across, a row down), the shares of lime neps and
+      // dark green flecks, whole stitches in a sleeve tile, and the rib's relief.
+      knit: { base: '#9da291', grey: '#565c50', lime: '#aab84c', dark: '#252e1b', column: .026, row: .017, limeShare: .38, darkShare: .5, tile: [14, 8], bump: .004 },
+      // The lettering: its cap height and the arch's rise in world units, the top of its middle in outfit units, and in ems
+      // the stroke weight, letter spacing, word space and satin stitch spacing.
+      embroidery: { text: 'LIFE IS AWESOME', top: 1.715, height: .056, arch: .03, weight: .25, spacing: .1, space: .3, stitch: .08, colour: '#857f1e', shade: '#585213' },
+    },
   },
   [BARREL_JEANS_ID]: {
     slot: 'bottom',
