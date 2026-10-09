@@ -6,7 +6,7 @@ import { readFileSync } from 'node:fs';
 import { makeDoll, makeOutfit, disposeObject, fitDoll } from '../src/doll/model.js';
 import { OUTFITS, cleanRecipe } from '../src/doll/recipe.js';
 import { startStudio } from '../src/doll/app.js';
-import { GARMENTS, BUFFALO_ASPHA_ID, DM_COW_SLIDE_ID, UGG_LOWMEL_ID, DM_BLAIRE_CHAIN_ID, CONVERSE_LIFT_HI_ID, NB_550_ID, ADIDAS_CAMPUS_ID } from '../src/wardrobe/catalog.js';
+import { GARMENTS, BUFFALO_ASPHA_ID, DM_COW_SLIDE_ID, UGG_LOWMEL_ID, DM_BLAIRE_CHAIN_ID, CONVERSE_LIFT_HI_ID, NB_550_ID, GAZELLE_BOLD_ID, ADIDAS_CAMPUS_ID } from '../src/wardrobe/catalog.js';
 import { levelCaster } from '../src/doll/level-caster.js';
 const shoes=Object.keys(GARMENTS).filter(id=>GARMENTS[id].slot==='shoes');
 const named=(root,name)=>{const found=[];root.traverse(o=>{if(o.name===name)found.push(o);});return found;};
@@ -254,4 +254,39 @@ test('Converse Modern Lift high-tops: stacked platform, seven eyelets, inner ank
   [doll,outfit].forEach(disposeObject);
   // The existing laced shoes do not carry the new parts.
   for(const id of [BUFFALO_ASPHA_ID,UGG_LOWMEL_ID]){const o=makeOutfit({shoesId:id});for(const name of ['sole-stitch','ankle-patch','vent-eyelet'])assert.equal(named(o,name).length,0,`${id} has no ${name}`);disposeObject(o);}
+});
+
+test('Gazelle Bold sneakers: three-tier gum platform, green stripes with gold edges, heel tab, shaggy toe, her own ankle socks, not raised',()=>{
+  const spec=GARMENTS[GAZELLE_BOLD_ID].build,outfit=makeOutfit({shoesId:GAZELLE_BOLD_ID}),doll=makeDoll();fitDoll(doll,outfit);
+  doll.updateMatrixWorld(true);outfit.updateMatrixWorld(true);const shoesGroup=outfit.getObjectByName('shoes');
+  for(const name of ['sole-tier','sole-rim','boot-upper','collar-roll','tongue','tongue-label','eyelet','lace','lace-bow','eyestay','leather-heel-tab','shaggy-toe-cap','stripe','stripe-edge','lettering','ankle-sock'])assert.ok(shoesGroup.getObjectByName(name),name);
+  for(const name of ['lug-sole','quilt-stitch','heel-tab','webbing-loop','side-piping','pull-loop'])assert.equal(shoesGroup.getObjectByName(name),undefined,`no ${name}`);
+  assert.equal(named(shoesGroup,'eyelet').length,2*2*spec.eyelets.length);
+  // The platform: three tiers per shoe, stacked from the floor to the sole's top.
+  const centre=o=>new T.Box3().setFromObject(o).getCenter(new T.Vector3());
+  for(const s of [-1,1]){const tiers=named(shoesGroup,'sole-tier').filter(o=>Math.sign(centre(o).x)===s).map(o=>new T.Box3().setFromObject(o)).sort((a,b)=>a.min.y-b.min.y);
+    assert.equal(tiers.length,3);assert.ok(tiers[0].min.y<.002,'on the floor');
+    for(let i=1;i<3;i++)assert.ok(Math.abs(tiers[i].min.y/.76-spec.sole.tiers[i-1].to)<.008,`tier ${i} sits on tier ${i-1}`);
+    assert.ok(Math.abs(tiers[2].max.y/.76-spec.sole.top)<.006,'the top tier reaches the sole top');
+    // Three stripes on each side of each shoe; the gold lettering only on its outer side.
+    const stripes=named(shoesGroup,'stripe').filter(o=>Math.sign(centre(o).x)===s);assert.equal(stripes.length,6);
+    for(const k of [-1,1])assert.equal(stripes.filter(o=>Math.sign(centre(o).x/1.06-s*spec.cx)===k).length,3);
+    const letters=named(shoesGroup,'lettering').filter(o=>Math.sign(centre(o).x)===s);assert.equal(letters.length,spec.lettering.count);
+    for(const o of letters)assert.equal(Math.sign(centre(o).x/1.06-s*spec.cx),s,'lettering on the outer side');}
+  // The stripes and heel tab are smooth leather, the toe cap is shaggy suede.
+  assert.ok(named(shoesGroup,'stripe')[0].material.roughness<.6);assert.ok(named(shoesGroup,'leather-heel-tab')[0].material.roughness<.6);
+  assert.ok(named(shoesGroup,'shaggy-toe-cap')[0].material.bumpScale>named(shoesGroup,'eyestay')[0].material.bumpScale);
+  // Low, and not raised: the platform's top is her normal foot height.
+  assert.ok(spec.sole.top<=.11);assert.ok(Math.max(...Object.values(spec.collar))<spec.sock.rows.at(-1)[0]-.08);assert.equal(outfit.userData.lift,0);assert.equal(doll.position.y,0);
+  // Her round doll socks are replaced by the shoe's slim ankle socks, which hold the bottom of her legs.
+  doll.traverse(o=>{if(o.name==='sock')assert.equal(o.visible,false);});
+  const socks=around(named(shoesGroup,'ankle-sock')),top=spec.sock.rows.at(-1)[0];let checked=0;
+  doll.traverse(o=>{if(o.name!=='leg')return;eachVertex(o,p=>{const y=p.y/.76;if(y>top-.008)return;const c=cast(socks,Math.sign(p.x)*(spec.sock.cx??spec.cx)*1.06,p.clone().setZ(p.z-spec.sock.z));if(!c)return;
+    assert.ok(c.hit&&c.hit.distance>c.r,`leg shows through the ankle sock at y ${y.toFixed(3)}`);checked++;});});
+  assert.ok(checked>20,`checked ${checked}`);
+  // The ankle socks sit inside the shoe below its collar.
+  const uppers=around(named(shoesGroup,'boot-upper'));let inside=0;
+  for(const sk of named(shoesGroup,'ankle-sock'))eachVertex(sk,p=>{const y=p.y/.76;if(y<spec.sole.top+.03||y>spec.collar.side-.02)return;const c=cast(uppers,Math.sign(p.x)*spec.cx*1.06,p);if(!c)return;assert.ok(c.hit&&c.hit.distance>c.r,'sock shows through the shoe');inside++;});
+  assert.ok(inside>20);
+  [outfit,doll].forEach(disposeObject);
 });

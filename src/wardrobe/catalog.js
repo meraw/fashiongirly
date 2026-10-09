@@ -15,6 +15,7 @@ export const DM_BLAIRE_CHAIN_ID = 'dr-martens-blaire-quad-chain-v1';
 export const ADIDAS_SUPERSTAR_PINK_ID = 'adidas-superstar-pink-suede-v1';
 export const CONVERSE_LIFT_HI_ID = 'converse-modern-lift-hi-egret-v1';
 export const NB_550_ID = 'new-balance-550-cream-v1';
+export const GAZELLE_BOLD_ID = 'adidas-gazelle-bold-cream-green-v1';
 export const ADIDAS_CAMPUS_ID = 'adidas-campus-00s-grey-v1';
 export const BRONZE_TOP_ID = 'desigual-bronze-mesh-v1';
 export const LILAC_TOP_ID = 'lilac-portrait-mockneck-v1';
@@ -1022,6 +1023,46 @@ export const GARMENTS = Object.freeze({
       // White leather piping: the sweep from the heel down and forward, then up to the lacing.
       trims: [[[-.165, .219], [-.113, .195], [-.07, .165], [-.044, .144], [.002, .12], [.04, .111], [.079, .118], [.119, .147], [.155, .183], [.177, .207]]],
       logo: { z: .067, y: .17, w: .07, h: .092, slant: .24, colour: '#a29487' },
+    },
+  },
+  [GAZELLE_BOLD_ID]: {
+    slot: 'shoes',
+    id: GAZELLE_BOLD_ID, name: 'adidas Gazelle Bold cream and green platform sneakers', family: 'platform-sneaker', version: 1,
+    status: 'reference-study-awaiting-visual-review', brandAsProvided: 'adidas (the GAZELLE lettering and the sole branding)',
+    source: { note: 'user supplied five product photos without a description: outer side, front three-quarter, top, sole and back three-quarter' },
+    referenceViews: ['outer side', 'front three-quarter', 'top', 'sole', 'back three-quarter'],
+    details: ['low suede sneaker, cream (off-white) suede upper', 'three green leather stripes on each side, slanting forward, with serrated gold-stitched edges', 'green leather heel tab with a gold-stitched edge', 'shaggy (hairy) beige suede toe cap and tongue', 'gold foil GAZELLE lettering on the outer side, parallel to the stripes', 'cream eyestays with punched eyelets and beige flat laces', 'cream leather collar lining; a green insole and a yellow tongue label under the laces', 'tall three-tier gum platform: two honey tiers over a darker brown one, each rounded, with grooves between them'],
+    material: { construction: 'suede and leather upper on a stacked rubber platform', composition: 'not stated in the photos', finish: 'matte suede, smooth leather stripes and tab, shaggy suede toe and tongue' },
+    fit: { silhouette: 'low platform sneaker', height: 'low, below the ankle bone, so her socks show', platform: 'tall, but its top is at her normal foot height, so she is not raised', adjustment: 'fixed authored fit for review; how the user wears them is not yet known' },
+    // For later outfit selection. Warmth runs from 1 (light) to 4 (very warm), with what it is based on.
+    styling: { silhouette: 'low sneaker on a tall stacked platform', palette: ['cream', 'forest green', 'gold', 'gum'], pattern: 'three green stripes with gold edges', coverage: { ankle: 'below the ankle bone' }, material: 'suede and leather, gum rubber platform', warmth: 2, warmthBasis: 'inferred from a closed suede sneaker', weather: 'dry days; suede and the pale upper will mark in rain or mud (inferred)' },
+    uncertainties: ['the GAZELLE lettering is drawn as gold foil marks without letters', 'the sole branding and tread pattern are not modelled', 'the shaggy suede is suggested by its colour and a deeper nap, without loose fibres'],
+    authoring: { texture: 'none: colours measured from the photos; procedural suede, leather and rubber materials', runtimeGeneration: false, sourcePhotosBundled: false },
+    // Construction for makeLugBoot() (template 'sneaker') in src/doll/model.js, in outfit units, with the template's
+    // stacked sole (sole.tiers), edgedStripes, lettering and leather and shaggy panels. Upper rows are [y, front, back,
+    // halfWidth]; proportions measured from the side photo (the platform is about a sixth of the shoe's length).
+    build: {
+      template: 'sneaker', cx: .168,
+      colours: { upper: '#efe9d9', sole: '#c39a60', thread: '#d6ccb4', piping: '#d6ccb4', lace: '#cdb48e', collar: '#efece0', eyelet: '#8a7f6a', lining: '#efece0', webbing: '#cdb48e', sock: '#ecdcac', shaggyTongue: '#c9a77a', label: '#d9b43c' },
+      sole: { top: .101, heelTop: .101, heelFrom: -.03, rand: .101, lugTop: .006, groove: null, bulge: .003, flare: .012, toeLift: .02, lugs: 60, lugDepth: .003,
+        // Three tiers: a darker brown gum at the bottom under two honey tiers.
+        tiers: [{ to: .049, colour: '#8f6a50' }, { to: .076, colour: '#b8915c' }, { to: .101, colour: '#c39a60' }] },
+      upper: [[.101, .425, -.168, .13], [.115, .425, -.17, .133], [.13, .39, -.17, .134], [.145, .34, -.168, .133], [.16, .29, -.165, .13], [.18, .235, -.16, .125], [.2, .19, -.15, .115], [.22, .165, -.135, .1], [.24, .15, -.12, .092], [.26, .145, -.11, .09]],
+      collar: { front: .235, side: .19, back: .255 },
+      nFront: 2.6, nBack: 2.1, heelNarrow: .1, toeNarrow: .3, restCap: .2, collarRoll: .006, drapeClear: .066, collarRest: .035,
+      eyelets: [.15, .165, .18, .195, .21, .222], laceHalfWidth: .038, eyeletSize: [.006, .0018],
+      // Her own ankle socks for a low shoe, as with the UGG sneakers, starting just above the platform.
+      sock: { cx: .16, z: .0, rows: [[.12, .074, .08], [.16, .075, .08], [.23, .075, .08], [.33, .074, .078], [.4, .074, .077], [.41, .079, .082], [.435, .079, .082], [.44, .074, .077]] },
+      tongueLabel: .215,
+      // The green leather heel tab with a gold-stitched lower edge, and the shaggy suede toe cap ([z, y] edges).
+      panels: [
+        { name: 'leather-heel-tab', z: [-.172, -.057], bottom: [[-.172, .16], [-.1, .16], [-.07, .166], [-.057, .18]], top: [[-.172, .25], [-.13, .235], [-.09, .21], [-.057, .186]], colour: '#25503f', leather: true, stitch: 'bottom', thread: '#c9a24a' },
+        { name: 'shaggy-toe-cap', z: [.33, .425], top: [[.33, .147], [.36, .138], [.39, .129], [.42, .116], [.425, .112]], colour: '#c9a77a', fuzz: .014, stitch: false, wrap: .005 },
+      ],
+      // Three stripes slanting forward from the sole to the eyestays, each a [z, y] centre line.
+      edgedStripes: { colour: '#25503f', edge: '#c9a24a', width: .028, lines: [[[.03, .104], [.11, .19]], [[.11, .104], [.185, .184]], [[.19, .104], [.258, .172]]] },
+      // GAZELLE in gold foil on the outer side, parallel to the stripes.
+      lettering: { line: [[-.015, .112], [.02, .152]], count: 7, height: .0065, colour: '#d4b35c' },
     },
   },
   [ADIDAS_CAMPUS_ID]: {
