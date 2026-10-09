@@ -45,6 +45,8 @@ export const DESIGUAL_SPLIT_FLORAL_SHIRT_ID = 'desigual-split-floral-shirt-v1';
 export const MANGO_DOT_SHIRT_ID = 'mango-halftone-dot-shirt-v1';
 export const LEVIS_PLAID_FLANNEL_ID = 'levis-oversized-plaid-flannel-shirt-v1';
 export const DESIGUAL_RUGBY_ID = 'desigual-navy-rugby-tiger-patches-v1';
+export const WHITE_LINEN_SHIRT_ID = 'white-linen-button-down-shirt-v1';
+export const LAPIS_LINEN_SHIRT_ID = 'lapis-blue-linen-button-down-shirt-v1';
 export const LEVIS_FLORAL_LOGO_SWEATSHIRT_ID = 'levis-floral-batwing-sweatshirt-v1';
 export const DESIGUAL_LIFE_AWESOME_ID = 'desigual-life-is-awesome-jumper-v1';
 export const PINK_YOKE_SHIRT_ID = 'pink-ditsy-floral-yoke-shirt-v1';
@@ -613,6 +615,38 @@ export const GARMENTS = Object.freeze({
     uncertainties: ['worn tucked in as the user does, so the dress length and side slits are not shown', 'the tigers are drawn in code at her scale as a suggestion of the patches, not copied', 'the dropped shoulders are not modelled'],
     styling: { silhouette: 'oversized, tucked in and bloused at the waist', palette: ['navy', 'cream', 'blue', 'pink', 'yellow'], pattern: 'plain, with a contrast collar and placket and three small appliqué tigers', coverage: { neck: 'rugby collar, buttoned', sleeves: 'long, ribbed cuffs', midriff: 'covered' }, material: 'smooth heavy jersey', warmth: 2, warmthBasis: 'inferred: a long-sleeved heavy jersey', weather: 'cool to mild days' },
     authoring: { template: 'makeButtonShirt() in src/doll/shirts.js', texture: 'procedural jerseyData() and tigerPatchData() in src/doll/shirts.js; colours measured on the flat lay', runtimeGeneration: false, sourcePhotosBundled: false },
+  },
+  [WHITE_LINEN_SHIRT_ID]: {
+    slot: 'top',
+    id: WHITE_LINEN_SHIRT_ID, name: 'White linen button-down shirt', family: 'relaxed-button-down-shirt', version: 1,
+    status: 'authored-awaiting-user-review', brandAsProvided: 'none given',
+    source: { note: 'the user asked for two linen button-down shirts, one white and one lapis blue, without photos or further description; built as a classic relaxed linen shirt' },
+    referenceViews: [],
+    details: ['white linen in a slubby plain weave, softly creased', 'relaxed, hip length with a curved shirt tail', 'point collar on a stand, topstitched', 'eight pearly white buttons from the collar stand to the hem; worn buttoned to the top', 'patch chest pocket on her left', 'back yoke', 'long sleeves with buttoned cuffs', 'tonal stitching'],
+    material: { construction: 'plain-weave linen', composition: 'linen, as the user described it', finish: 'matte, slubby, softly creased' },
+    fit: { silhouette: 'relaxed', sleeve: 'long and relaxed, with buttoned cuffs at the wrist', hem: 'hip length, curved shirt tail', neckline: 'point collar, buttoned to the top', adjustment: 'fixed authored fit for review' },
+    exclusions: ['striped-shirt','knit-sweater'],
+    // Hangs over every waistband; over the skirt it is tucked in, so the skirt's bow shows.
+    layering: { coversWaistband: true, tucksIntoSkirt: true },
+    uncertainties: ['no photos: the cut, collar, pocket, buttons and exact shade are a classic linen shirt chosen for the description, not read from the user\'s shirt', 'the linen and its slubs are woven in code; the creases are a soft, fixed pattern'],
+    styling: { silhouette: 'relaxed, hip length with a curved hem', palette: ['white'], pattern: 'plain, with linen slubs', coverage: { neck: 'point collar, buttoned to the top', sleeves: 'long, cuffed', midriff: 'covered' }, material: 'linen', warmth: 1, warmthBasis: 'inferred: a light, breathable linen shirt, long-sleeved', weather: 'warm to mild days' },
+    authoring: { template: 'makeButtonShirt() in src/doll/shirts.js', texture: 'procedural linenWeave() in src/doll/shirts.js, woven locally when first worn', runtimeGeneration: false, sourcePhotosBundled: false },
+  },
+  [LAPIS_LINEN_SHIRT_ID]: {
+    slot: 'top',
+    id: LAPIS_LINEN_SHIRT_ID, name: 'Lapis blue linen button-down shirt', family: 'relaxed-button-down-shirt', version: 1,
+    status: 'authored-awaiting-user-review', brandAsProvided: 'none given',
+    source: { note: 'the user asked for two linen button-down shirts, one white and one lapis blue, without photos or further description; built as a classic relaxed linen shirt' },
+    referenceViews: [],
+    details: ['lapis blue linen in a slubby plain weave, softly creased', 'relaxed, hip length with a curved shirt tail', 'point collar on a stand, topstitched', 'eight tonal blue buttons from the collar stand to the hem; worn buttoned to the top', 'patch chest pocket on her left', 'back yoke', 'long sleeves with buttoned cuffs', 'tonal stitching'],
+    material: { construction: 'plain-weave linen', composition: 'linen, as the user described it', finish: 'matte, slubby, softly creased' },
+    fit: { silhouette: 'relaxed', sleeve: 'long and relaxed, with buttoned cuffs at the wrist', hem: 'hip length, curved shirt tail', neckline: 'point collar, buttoned to the top', adjustment: 'fixed authored fit for review' },
+    exclusions: ['striped-shirt','knit-sweater'],
+    // Hangs over every waistband; over the skirt it is tucked in, so the skirt's bow shows.
+    layering: { coversWaistband: true, tucksIntoSkirt: true },
+    uncertainties: ['no photos: the cut, collar, pocket, buttons and exact shade are a classic linen shirt chosen for the description, not read from the user\'s shirt', 'the linen and its slubs are woven in code; the creases are a soft, fixed pattern'],
+    styling: { silhouette: 'relaxed, hip length with a curved hem', palette: ['lapis blue'], pattern: 'plain, with linen slubs', coverage: { neck: 'point collar, buttoned to the top', sleeves: 'long, cuffed', midriff: 'covered' }, material: 'linen', warmth: 1, warmthBasis: 'inferred: a light, breathable linen shirt, long-sleeved', weather: 'warm to mild days' },
+    authoring: { template: 'makeButtonShirt() in src/doll/shirts.js', texture: 'procedural linenWeave() in src/doll/shirts.js, woven locally when first worn', runtimeGeneration: false, sourcePhotosBundled: false },
   },
   [TOMMY_VARSITY_JUMPER_ID]: {
     slot: 'top',

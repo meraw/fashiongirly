@@ -5,12 +5,12 @@
 // the product photos (`atlas`), a longer hem (`hem`), gathers either side of the placket (`ruche`) and buttoned cuffs (`cuff`).
 // Also optional: print repeats round a sleeve (`sleeveAround`), a chest pocket (`pocket`) and a back yoke seam (`backYoke`);
 // a short contrast placket (`placket`), appliqué patches (`patches`), ribbed cuffs (`cuff.rib`) and a shirt tucked into
-// whatever bottom she wears (`tuckIn`).
+// whatever bottom she wears (`tuckIn`); and soft creases pressed into the fabric (`creases`), as linen creases in wear.
 import * as T from 'three';
 import { random, solid, oval, curve, shell, roundSleeveCap, surfaceProbe, easeOverHand, trimToEdge } from './model.js';
 import { levelCaster } from './level-caster.js';
 import { grid } from './polo.js';
-import { MOTEL_TIE_DYE_SHIRT_ID, DESIGUAL_SPRAY_FLORAL_SHIRT_ID, DESIGUAL_SPLIT_FLORAL_SHIRT_ID, DESIGUAL_MOUNTAIN_SHIRT_ID, MANGO_DOT_SHIRT_ID, PINK_YOKE_SHIRT_ID, LEVIS_PLAID_FLANNEL_ID, DESIGUAL_RUGBY_ID } from '../wardrobe/catalog.js';
+import { MOTEL_TIE_DYE_SHIRT_ID, DESIGUAL_SPRAY_FLORAL_SHIRT_ID, DESIGUAL_SPLIT_FLORAL_SHIRT_ID, DESIGUAL_MOUNTAIN_SHIRT_ID, MANGO_DOT_SHIRT_ID, PINK_YOKE_SHIRT_ID, LEVIS_PLAID_FLANNEL_ID, DESIGUAL_RUGBY_ID, WHITE_LINEN_SHIRT_ID, LAPIS_LINEN_SHIRT_ID } from '../wardrobe/catalog.js';
 import { splitBodyData, splitCollarData, leftSleeveData, rightSleeveData } from './split-floral-print.js';
 
 // Warm grey-mauve tie-dye, measured in the shirt's own photos (hanger front and back): the darkest patches about
@@ -282,6 +282,42 @@ function tuckInto(mesh,trousers){
     const s=y>top?(y-top)/blend:0,target=r+(inside-r)*(1-s)**2,k=target/r;p.setXYZ(i,x*k,y,z*k);}
   p.needsUpdate=true;mesh.geometry.computeVertexNormals();return top;
 }
+// Linen, woven: a plain weave of slubby yarn. Each thread is a little thicker or thinner, a little lighter or darker, than
+// its neighbours, and here and there a slub (a thick, uneven run of the yarn) stands out along it, lighter in a dyed linen,
+// which takes the dye less evenly, and a touch greyer in a white one (`lift`, positive toward white, negative toward grey).
+// Returns the colour and a matching height map, the slubs standing proud, so the two can lie on the same tile.
+function linenWeave(colour,seed,lift){
+  return cached('linen'+colour+seed+lift,()=>{
+  const size=256,c=[1,3,5].map(i=>parseInt(colour.slice(i,i+2),16)),rand=random(seed);
+  // Threads two pixels wide; a slub is a few threads' length to a fifth of the tile, swelling and thinning along it.
+  const tone=()=>Float32Array.from({length:size/2},()=>(rand()-.5)*.07),warpTone=tone(),weftTone=tone();
+  const warpSlub=new Float32Array(size*size),weftSlub=new Float32Array(size*size);
+  for(const [map,across] of [[warpSlub,true],[weftSlub,false]])for(let k=0;k<45;k++){
+    const thread=Math.floor(rand()*size/2),start=rand()*size,len=10+rand()**2*48,strength=.35+rand()*.65,wide=rand()<.3?2:1;
+    for(let t=0;t<len;t++){const along=Math.floor(start+t)%size,f=strength*Math.sin(Math.PI*t/len)**.7;
+      for(let w=0;w<wide;w++)for(let q=0;q<2;q++){const th=((thread+w)%(size/2))*2+q,i=across?along*size+th:th*size+along;map[i]=Math.max(map[i],f);}}}
+  const data=new Uint8Array(size*size*4),bump=new Uint8Array(size*size*4);
+  for(let y=0;y<size;y++)for(let x=0;x<size;x++){
+    // Plain weave: warp and weft alternate thread by thread.
+    const i=y*size+x,up=((x>>1)+(y>>1))%2===0,slub=up?warpSlub[i]:weftSlub[i],shade=(up?warpTone[x>>1]:weftTone[y>>1])+(rand()-.5)*.03;
+    for(let k=0;k<3;k++){let v=c[k]*(1+shade);v+=(lift>0?255-v:v)*Math.abs(lift)*slub*(lift>0?1:-1);data[i*4+k]=Math.max(0,Math.min(255,Math.round(v)));}
+    data[i*4+3]=255;
+    const h=Math.round(120+(up?40:-40)*.5+90*slub+(rand()-.5)*20);bump[i*4]=bump[i*4+1]=bump[i*4+2]=Math.max(0,Math.min(255,h));bump[i*4+3]=255;
+  }
+  return {colour:{data,w:size,h:size},height:{data:bump,w:size,h:size}};
+  });
+}
+// Creases (optional `creases`: { depth, seed }): soft wrinkles pressed into the fabric, running mostly across it, as linen
+// creases in wear. Ridges rise and fall by up to half `depth` either side of the surface, weighted by `weight(y)` (where
+// on the piece they fall). The noise wraps round the piece, so its back seam stays closed.
+function crease(mesh,{depth,seed},weight){
+  const p=mesh.geometry.attributes.position,a=periodicNoise(seed,12),b=periodicNoise(seed+1,7);
+  for(let i=0;i<p.count;i++){const x=p.getX(i),y=p.getY(i),z=p.getZ(i),w=weight(y);if(w<=0)continue;
+    const u=((Math.atan2(x,z)/(Math.PI*2))%1+1)%1,t=.6*a(u*12,y*36)+.4*b(u*7,y*23+.37),ridge=1-Math.abs(2*t-1);
+    const r=Math.hypot(x,z)||1,k=1+depth*w*(ridge-.5)/r;p.setX(i,x*k);p.setZ(i,z*k);}
+  p.needsUpdate=true;mesh.geometry.computeVertexNormals();
+}
+const smoothstep=(a,b,t)=>{const f=Math.max(0,Math.min(1,(t-a)/(b-a)));return f*f*(3-2*f);};
 function meshNetData(){
   // Power-mesh netting: a fine lattice of tiny holes, used as a bump so the fabric reads as mesh up close.
   return cached('mesh-net',()=>{
@@ -300,6 +336,16 @@ function fineRibData(){
   });
 }
 // Each shirt's style. Heights are in outfit units; tile sizes say how many print tiles go round her and how tall one is.
+// The linen shirts: a classic relaxed linen button-down made to the user's description (no photos), in one colour each.
+// The Mango shirt's relaxed hip-length rows and shirt tail (tucked into the skirt), buttoned to the top as the user wears
+// her shirts, with a chest pocket on her left, a back yoke and buttoned cuffs, as on the plaid flannel; tonal stitching,
+// the collar topstitched. The linen is woven in code (linenWeave), its slubs raised in the bump, with soft creases.
+const linenShirt=({colour,lift,seed,stitch,button,sheen})=>{const weave=()=>linenWeave(colour,seed,lift);return {
+  print:()=>weave().colour,around:4,high:.3,collarAround:2,sleeveAround:2,bump:[()=>weave().height,1,1,.0012],sheen:[sheen,.2,.8],roughness:.88,
+  stitch,facing:null,button,buttons:[1.862,1.775,1.669,1.564,1.458,1.352,1.246,1.14],collarTopstitch:true,open:null,
+  rows:RELAXED_ROWS,tucked:TUCKED_ROWS,depth:.7,shirttail:{from:1.24,centre:1.03,side:1.1},
+  sleeve:[[.025,.11,.112],[-.04,.124,.122],[-.16,.126,.12],[-.28,.122,.116],[-.38,.113,.108],[-.45,.098,.096],[-.49,.088,.088],[-.53,.084,.085]],cuff:{from:-.44,to:-.535,button:true},
+  pocket:{x:[.07,.2],y:[1.47,1.63]},backYoke:1.79,creases:{depth:.009,seed}};};
 const STYLES={
   // Worn buttoned to the top, as on the hanger: black topstitching, a black-faced stand and glossy black buttons.
   [MOTEL_TIE_DYE_SHIRT_ID]:{print:tieDyeData,around:3,high:.71,collarAround:3,bump:[meshNetData,160,90,.0025],sheen:['#d8cbc8',.35,.55],roughness:.62,
@@ -350,6 +396,10 @@ const STYLES={
     sleeve:[[.025,.11,.112],[-.04,.124,.122],[-.16,.126,.12],[-.28,.122,.116],[-.38,.113,.108],[-.45,.098,.096],[-.49,.088,.088],[-.53,.084,.085]],cuff:{from:-.42,to:-.535,button:false,rib:40},
     placket:{bottom:1.67,half:.02,colour:'#e9e4d6',stitch:'#d8d2c2'},
     patches:[{at:[.17,1.665],size:[.075,.047],colour:'#3f64ba',seed:1},{at:[.16,1.607],size:[.075,.047],colour:'#d9637f',seed:2},{at:[.15,1.549],size:[.075,.047],colour:'#d8d860',seed:3}]},
+  // White linen, its slubs a touch greyer, with pearly white buttons.
+  [WHITE_LINEN_SHIRT_ID]:linenShirt({colour:'#e4e1da',lift:-.18,seed:5,stitch:'#dcd8d0',button:['#f4f1ea',.22],sheen:'#ffffff'}),
+  // Lapis blue linen, its slubs a little lighter where the yarn took less dye, with tonal blue buttons.
+  [LAPIS_LINEN_SHIRT_ID]:linenShirt({colour:'#033068',lift:.09,seed:9,stitch:'#0a2f63',button:['#11315f',.25],sheen:'#7f9fd6'}),
 };
 function texture({data,w,h},srgb){
   const t=new T.DataTexture(data,w,h,T.RGBAFormat);if(srgb)t.colorSpace=T.SRGBColorSpace;t.wrapS=t.wrapT=T.RepeatWrapping;
@@ -463,6 +513,9 @@ function makeShirt(id,style,atlas=null,skirt=false,trousers=null){
   if(open)trimToEdge(body,128,v=>v,(x,z)=>z<=0?NECK+1:Math.min(NECK+1,open.bottom+(NECK-open.bottom)*Math.abs(x)/open.half));
   if(style.ruche)gather(body,style.ruche);
   if(style.yoke)yokeGathers(body,style.yoke,hem);
+  // Optional (`creases`): linen creases, fading out toward the shoulders and collar, deepest round her waist.
+  // They fade out toward the hem too, so it hangs as cut.
+  if(style.creases)crease(body,style.creases,y=>smoothstep(1.8,1.68,y)*smoothstep(1.14,1.26,y)*(.6+.4*Math.exp(-(((y-1.4)/.12)**2))));
   // Optional (`tuckIn`): tucked into her trousers (over the skirt, the tucked rows tuck it into the skirt instead).
   const tuckedIn=style.tuckIn&&!skirt&&trousers?tuckInto(body,trousers):null;
   if(style.atlas)atlasBody(body,128,hem);else mapPrint(body,style.around,style.high,undefined,style.depth);
@@ -476,6 +529,8 @@ function makeShirt(id,style,atlas=null,skirt=false,trousers=null){
     if(style.sleeveFolds){const F=style.sleeveFolds,q=sleeve.geometry.attributes.position;
       for(let i=0;i<q.count;i++){const x=q.getX(i),y=q.getY(i),z=q.getZ(i);if(y>F.from)continue;const r=Math.hypot(x,z),t=Math.min(1,(F.from-y)/(F.from+.53)),k=1+F.depth*t*Math.cos(Math.atan2(x,z)*F.count)/r;q.setX(i,x*k);q.setZ(i,z*k);}
       q.needsUpdate=true;sleeve.geometry.computeVertexNormals();}
+    // Creased (optional `creases`): below the shoulder and above the cuff, deepest at the inside of the elbow.
+    if(style.creases)crease(sleeve,style.creases,y=>smoothstep(-.04,-.12,y)*smoothstep(-.42,-.36,y)*(.6+.4*Math.exp(-(((y+.26)/.07)**2))));
     roundSleeveCap(sleeve,side,.025);if(style.atlas)atlasSleeve(sleeve,48,side,.025,-.53);else mapPrint(sleeve,SP?SP[1]:style.sleeveAround??1,SP?SP[2]:style.high,v=>v.applyMatrix4(arm.matrix));easeOverHand(sleeve,side);
     const p=sleeve.geometry.attributes.position,hem=[];for(let i=p.count-49;i<p.count;i++)hem.push([p.getX(i)*1.02,p.getY(i)+.008,p.getZ(i)*1.02]);
     curve(arm,hem,.0014,stitch,'sleeve-hem-stitch');
@@ -530,7 +585,8 @@ function makeShirt(id,style,atlas=null,skirt=false,trousers=null){
   // Optional (`pocket`): a patch pocket on her left chest, in the print laid as on the body under it, with its top edge
   // hemmed and stitched round its sides and bottom.
   if(style.pocket){const [x0,x1]=style.pocket.x,[y0,y1]=style.pocket.y;
-    const pocket=grid(top,12,12,(u,v)=>{const hit=onSurface(x0+(x1-x0)*u,y0+(y1-y0)*v);return hit?hit.point.addScaledVector(hit.normal,.0035).toArray():[0,y0,.3];},printMaterial(style,style.print,atlas),'chest-pocket');
+    // Laid from her left edge toward the placket, so its faces (and normals) look out from her.
+    const pocket=grid(top,12,12,(u,v)=>{const hit=onSurface(x1+(x0-x1)*u,y0+(y1-y0)*v);return hit?hit.point.addScaledVector(hit.normal,.0035).toArray():[0,y0,.3];},printMaterial(style,style.print,atlas),'chest-pocket');
     const pp=pocket.geometry.attributes.position,puv=pocket.geometry.attributes.uv;
     for(let i=0;i<pp.count;i++){const [rx,rz]=bodyRadii(pp.getY(i),rows);puv.setX(i,((Math.atan2(pp.getX(i)/rx,pp.getZ(i)/rz)/(Math.PI*2))%1+1)%1);}
     mapPrint(pocket,style.around,style.high,undefined,style.depth);

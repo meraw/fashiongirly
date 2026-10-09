@@ -123,3 +123,7 @@ The ground stays a little lighter than measured: the studio's ambient light lift
 - The plaid is not matched across the placket, pocket and seams as carefully as on the shirt.
 - The dropped shoulders and the tonal embroidered mark are not modelled.
 - Her hair hides the back yoke seam from behind.
+
+## Later change
+
+The linen shirts turned the chest pocket to face out from her. It had been laid facing inward, so it was lit darker than the body and its plaid looked mirrored. Now it is lit as the body is, and its plaid lines up with the body's. See [the linen shirts](linen-button-down-shirts.md).
