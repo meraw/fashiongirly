@@ -20,7 +20,7 @@ import { VANGOGH_TEE_ATLAS } from '../wardrobe/vangogh-tee-atlas.js';
 import { FRESCO_TEE_ATLAS } from '../wardrobe/fresco-tee-atlas.js';
 import { MOUNTAIN_SHIRT_ATLAS } from '../wardrobe/mountain-shirt-atlas.js';
 import { VANGOGH_TEE_ID, DESIGUAL_FRESCO_TEE_ID, DESIGUAL_MOUNTAIN_SHIRT_ID } from '../wardrobe/catalog.js';
-import { BUFFALO_ASPHA_ID } from '../wardrobe/catalog.js';
+import { BUFFALO_ASPHA_ID, GARMENTS } from '../wardrobe/catalog.js';
 import { BUFFALO_TAPE } from '../wardrobe/buffalo-tape.js';
 import { makeDoll, makeOutfit, disposeObject, fitDoll } from './model.js';
 export async function createDollView(host, recipe) {
@@ -29,6 +29,10 @@ export async function createDollView(host, recipe) {
   catch(error){Object.values(atlas).forEach(t=>t.dispose());throw error;}
   // Shoe textures.
   try { for(const [id,data] of [[BUFFALO_ASPHA_ID,BUFFALO_TAPE]]){atlas[id]=await new T.TextureLoader().loadAsync(data);atlas[id].colorSpace=T.SRGBColorSpace;} }
+  catch(error){Object.values(atlas).forEach(t=>t.dispose());throw error;}
+  // Garments kept in their own files (src/wardrobe/garments) name their texture module: `atlas: [path from this file,
+  // export name]`, loaded here, so a new one needs no line in this file.
+  try { for(const g of Object.values(GARMENTS))if(g.atlas&&!atlas[g.id]){const data=(await import(g.atlas[0]))[g.atlas[1]];atlas[g.id]=await new T.TextureLoader().loadAsync(data);atlas[g.id].colorSpace=T.SRGBColorSpace;} }
   catch(error){Object.values(atlas).forEach(t=>t.dispose());throw error;}
   let renderer;
   try { renderer=new T.WebGLRenderer({antialias:true,alpha:true}); }
