@@ -4,9 +4,9 @@ import { BUFFALO_ASPHA_ID, DM_COW_SLIDE_ID, UGG_LOWMEL_ID, DM_BLAIRE_CHAIN_ID, C
 import { ZIP_TRACK_DRESS_ID, LACE_SHIFT_DRESS_ID } from '../wardrobe/catalog.js';
 import { MARIKOO_WINDBREAKER_ID, DESIGUAL_LEATHER_JACKET_ID, RED_BULL_WINDBREAKER_ID, EMERALD_PARKA_ID, BOMBOOGIE_FUR_JACKET_ID, WOOLRICH_BOMBER_ID, ADIDAS_CROPPED_WINDBREAKER_ID, ONLY_TAUPE_COAT_ID, VANGOGH_TEE_ID, DESIGUAL_FRESCO_TEE_ID, SAM_ZIP_BOOT_ID } from '../wardrobe/catalog.js';
 import { ADIDAS_SUPERSTAR_PINK_ID } from '../wardrobe/catalog.js';
-import { MICKEY_LONG_TEE_ID, DESIGUAL_SPLIT_FLORAL_SHIRT_ID, MANGO_DOT_SHIRT_ID, LEVIS_FLORAL_LOGO_SWEATSHIRT_ID, PINK_YOKE_SHIRT_ID, STRIPE_SNAP_JUMPER_ID, DESIGUAL_LIFE_AWESOME_ID, TOMMY_VARSITY_JUMPER_ID } from '../wardrobe/catalog.js';
+import { MICKEY_LONG_TEE_ID, DESIGUAL_SPLIT_FLORAL_SHIRT_ID, MANGO_DOT_SHIRT_ID, LEVIS_FLORAL_LOGO_SWEATSHIRT_ID, PINK_YOKE_SHIRT_ID, STRIPE_SNAP_JUMPER_ID, DESIGUAL_LIFE_AWESOME_ID } from '../wardrobe/catalog.js';
 import { PB_CHENILLE_ID } from '../wardrobe/catalog.js';
-import { DESIGUAL_MOUNTAIN_SHIRT_ID, ADIDAS_CROPPED_HOODIE_ID, LEVIS_PLAID_FLANNEL_ID, DESIGUAL_RUGBY_ID, WHITE_LINEN_SHIRT_ID, LAPIS_LINEN_SHIRT_ID } from '../wardrobe/catalog.js';
+import { DESIGUAL_MOUNTAIN_SHIRT_ID, ADIDAS_CROPPED_HOODIE_ID, LEVIS_PLAID_FLANNEL_ID, DESIGUAL_RUGBY_ID } from '../wardrobe/catalog.js';
 export const DEFAULT = Object.freeze({ sweater: '#bf303e', trousers: '#283c59', sleeve: .74, hem: .3, barrel: .78, knit: true, shirt: true, skirt: false, skirtColour: '#bd9bc8', topId: 'classic', bottomId: 'classic', shoesId: 'classic', underTopId: 'none', dressId: 'none', outerwearId: 'none', outerwearOpen: false, hairId: DEFAULT_HAIR_ID });
 export const SWATCHES = [['Tomato', '#bf303e'], ['Butter', '#ead391'], ['Lilac', '#bd9bc8'], ['Cobalt', '#315cb3'], ['Moss', '#74804b'], ['Cream', '#f0e3cb']];
 export function cleanRecipe(value = {}) {
@@ -48,7 +48,7 @@ export function editRecipe(current, sentence) {
   return { recipe: next, changes };
 }
 
-export const OUTFITS = [
+const BUILT_IN_OUTFITS = [
   { name: 'Urban Classics pleated trousers study', note: 'Reference study: high-waisted pale stone Urban Classics linen-look trousers with a deep pleat on each front hip, slanted pockets, jetted back pockets and wide full-length legs resting on the shoes. The fabric is taken from the product close-up; the pleats are part of the shape.', recipe: { ...DEFAULT, topId: TOMMY_STRIPE_POLO_ID, bottomId: PLEATED_LINEN_ID, shoesId: DM_COW_SLIDE_ID, knit: false, shirt: false } },
   { name: 'Black wide crop study', note: 'Reference study: washed black wide-leg jeans flaring to a raw-cut hem almost at her ankle, with tan double stitching, copper rivets and a black leather back patch. The denim is taken from the product photo.', recipe: { ...DEFAULT, topId: TOMMY_STRIPE_POLO_ID, bottomId: TOPSHOP_BLACK_CROP_ID, knit: false, shirt: false } },
   { name: 'Nike track pants study', note: 'Reference study: raspberry woven track pants with white piping curving down each leg, an elastic drawstring waist and a small white swoosh. The fabric is taken from the product photo.', recipe: { ...DEFAULT, topId: CROCHET_TOP_ID, bottomId: NIKE_TRACK_ID, knit: false, shirt: false } },
@@ -85,9 +85,6 @@ export const OUTFITS = [
   { name: 'Striped snap-collar jumper study', note: 'Reference study: a relaxed cream waffle-knit jumper with slate-grey stripes, raglan sleeves, a big rib collar and a snap placket worn with the top snaps open, as the user wears it, with light jeans. The knit is drawn in code, not copied.', recipe: { ...DEFAULT, topId: STRIPE_SNAP_JUMPER_ID, bottomId: STRADIVARIUS_RELAXED_ID, shoesId: NB_550_ID, knit: false, shirt: false } },
   { name: 'Plaid flannel study', note: 'Reference study: an oversized Levi’s flannel shirt in a large navy-black plaid with grey, white and coral stripes, buttoned to the top, with a chest pocket, a curved shirt tail and buttoned cuffs. The plaid is woven in code from the photos, not copied.', recipe: { ...DEFAULT, topId: LEVIS_PLAID_FLANNEL_ID, bottomId: TOMMY_MOM_ID, knit: false, shirt: false } },
   { name: 'Rugby shirt study', note: 'Reference study: an oversized navy Desigual rugby shirt with a cream collar and placket and three appliqué tigers, worn tucked in with the buttons closed, as the user wears it. The tigers are drawn at her scale, not copied.', recipe: { ...DEFAULT, topId: DESIGUAL_RUGBY_ID, bottomId: CRYSTAL_JEANS_ID, knit: false, shirt: false } },
-  { name: 'Varsity crest jumper study', note: 'Reference study: a boxy, cropped Tommy Jeans jumper in heathered red with TOMMY JEANS arched in off-white over a varsity crest, a mock neck, long rib cuffs and a deep rib hem, worn with the Tommy mom jeans and the cream Converse high-tops. The lettering and crest are drawn in code, not copied.', recipe: { ...DEFAULT, topId: TOMMY_VARSITY_JUMPER_ID, bottomId: TOMMY_MOM_ID, shoesId: CONVERSE_LIFT_HI_ID, knit: false, shirt: false } },
-  { name: 'White linen shirt study', note: 'A relaxed white linen button-down made to the user\'s description (no photos): buttoned to the top, with a chest pocket, a back yoke, buttoned cuffs and a curved shirt tail. The slubby linen and its soft creases are drawn in code.', recipe: { ...DEFAULT, topId: WHITE_LINEN_SHIRT_ID, bottomId: PLEATED_LINEN_ID, shoesId: DM_COW_SLIDE_ID, knit: false, shirt: false } },
-  { name: 'Lapis linen shirt study', note: 'The same relaxed linen button-down in lapis blue, made to the user\'s description (no photos), with tonal blue buttons. The slubby linen and its soft creases are drawn in code.', recipe: { ...DEFAULT, topId: LAPIS_LINEN_SHIRT_ID, bottomId: CRYSTAL_JEANS_ID, knit: false, shirt: false } },
   { name: 'Windowpane jumper study', note: 'Reference study: brushed oversized jumper with a knitted-in rust, taupe and pale-blue check and deep ribbing. The check is drawn from the photos, not copied.', recipe: { ...DEFAULT, topId: PLAID_JUMPER_ID, knit: false, shirt: false, trousers: '#283c59', barrel: .35 } },
   { name: 'Crochet flower study', note: 'Reference study: joined crochet flowers, open lace, a filet neckband and scalloped edges. The motif repeat is drawn from the photos, not copied.', recipe: { ...DEFAULT, topId: CROCHET_TOP_ID, knit: false, shirt: false, trousers: '#d9cbb2', barrel: .3 } },
   { name: 'Lilac portrait study', note: 'Portrait and floral front, silvery back, navy patterned sleeves and a raised collar. Artwork is an interpretation of the references.', recipe: { ...DEFAULT, topId: LILAC_TOP_ID, knit: false, shirt: false, trousers: '#39363b', barrel: .12 } },
@@ -116,4 +113,15 @@ export const OUTFITS = [
   { name: 'Butter club', note: 'Butter yellow, washed denim and a peeking striped shirt. Big sleeves, a neat little crop.', recipe: { ...DEFAULT, sweater: '#ead391', trousers: '#71899b', sleeve: 1, hem: .08, barrel: .5 } },
   { name: 'Garden party crasher', note: 'Cobalt knit, moss skirt and ecru jeans. Two strong colours, grounded by a pale trouser.', recipe: { ...DEFAULT, sweater: '#315cb3', trousers: '#d9cbb2', skirtColour: '#74804b', skirt: true, shirt: false, hem: .18, barrel: .25 } },
 ];
+// Garments kept in their own files (src/wardrobe/garments) carry their own study (`study`: a name, a note and the rest
+// of its recipe). Each joins the studies of its slot, in the order of the files: bottoms after the bottom studies, tops
+// above the windowpane jumper's, dresses above the outerwear studies, outerwear above the shoe studies and shoes above
+// the authored outfits.
+const SLOT_KEY = { top: 'topId', bottom: 'bottomId', shoes: 'shoesId', outerwear: 'outerwearId', dress: 'dressId' };
+const STUDIES_BEFORE = { bottom: 'Striped cardigan study', top: 'Windowpane jumper study', dress: 'Marikoo windbreaker study', outerwear: 'Buffalo boots study', shoes: 'Tomato mischief' };
+export const OUTFITS = BUILT_IN_OUTFITS.flatMap(look => [
+  ...Object.values(GARMENTS).filter(g => g.study && STUDIES_BEFORE[g.slot] === look.name)
+    .map(g => ({ name: g.study.name, note: g.study.note, recipe: { ...DEFAULT, knit: false, shirt: false, [SLOT_KEY[g.slot]]: g.id, ...g.study.recipe } })),
+  look,
+]);
 

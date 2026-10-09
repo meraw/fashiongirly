@@ -10,7 +10,7 @@ import * as T from 'three';
 import { random, solid, oval, curve, shell, roundSleeveCap, surfaceProbe, easeOverHand, trimToEdge } from './model.js';
 import { levelCaster } from './level-caster.js';
 import { grid } from './polo.js';
-import { MOTEL_TIE_DYE_SHIRT_ID, DESIGUAL_SPRAY_FLORAL_SHIRT_ID, DESIGUAL_SPLIT_FLORAL_SHIRT_ID, DESIGUAL_MOUNTAIN_SHIRT_ID, MANGO_DOT_SHIRT_ID, PINK_YOKE_SHIRT_ID, LEVIS_PLAID_FLANNEL_ID, DESIGUAL_RUGBY_ID, WHITE_LINEN_SHIRT_ID, LAPIS_LINEN_SHIRT_ID } from '../wardrobe/catalog.js';
+import { MOTEL_TIE_DYE_SHIRT_ID, DESIGUAL_SPRAY_FLORAL_SHIRT_ID, DESIGUAL_SPLIT_FLORAL_SHIRT_ID, DESIGUAL_MOUNTAIN_SHIRT_ID, MANGO_DOT_SHIRT_ID, PINK_YOKE_SHIRT_ID, LEVIS_PLAID_FLANNEL_ID, DESIGUAL_RUGBY_ID } from '../wardrobe/catalog.js';
 import { splitBodyData, splitCollarData, leftSleeveData, rightSleeveData } from './split-floral-print.js';
 
 // Warm grey-mauve tie-dye, measured in the shirt's own photos (hanger front and back): the darkest patches about
@@ -336,7 +336,8 @@ function fineRibData(){
   });
 }
 // Each shirt's style. Heights are in outfit units; tile sizes say how many print tiles go round her and how tall one is.
-// The linen shirts: a classic relaxed linen button-down made to the user's description (no photos), in one colour each.
+// The linen shirts (template `linen-shirt`, registered in top-templates.js; each shirt's colours are its catalog `build`):
+// a classic relaxed linen button-down made to the user's description (no photos), in one colour each.
 // The Mango shirt's relaxed hip-length rows and shirt tail (tucked into the skirt), buttoned to the top as the user wears
 // her shirts, with a chest pocket on her left, a back yoke and buttoned cuffs, as on the plaid flannel; tonal stitching,
 // the collar topstitched. The linen is woven in code (linenWeave), its slubs raised in the bump, with soft creases.
@@ -396,10 +397,6 @@ const STYLES={
     sleeve:[[.025,.11,.112],[-.04,.124,.122],[-.16,.126,.12],[-.28,.122,.116],[-.38,.113,.108],[-.45,.098,.096],[-.49,.088,.088],[-.53,.084,.085]],cuff:{from:-.42,to:-.535,button:false,rib:40},
     placket:{bottom:1.67,half:.02,colour:'#e9e4d6',stitch:'#d8d2c2'},
     patches:[{at:[.17,1.665],size:[.075,.047],colour:'#3f64ba',seed:1},{at:[.16,1.607],size:[.075,.047],colour:'#d9637f',seed:2},{at:[.15,1.549],size:[.075,.047],colour:'#d8d860',seed:3}]},
-  // White linen, its slubs a touch greyer, with pearly white buttons.
-  [WHITE_LINEN_SHIRT_ID]:linenShirt({colour:'#e4e1da',lift:-.18,seed:5,stitch:'#dcd8d0',button:['#f4f1ea',.22],sheen:'#ffffff'}),
-  // Lapis blue linen, its slubs a little lighter where the yarn took less dye, with tonal blue buttons.
-  [LAPIS_LINEN_SHIRT_ID]:linenShirt({colour:'#033068',lift:.09,seed:9,stitch:'#0a2f63',button:['#11315f',.25],sheen:'#7f9fd6'}),
 };
 function texture({data,w,h},srgb){
   const t=new T.DataTexture(data,w,h,T.RGBAFormat);if(srgb)t.colorSpace=T.SRGBColorSpace;t.wrapS=t.wrapT=T.RepeatWrapping;
@@ -618,3 +615,5 @@ export const SHIRT_IDS=Object.keys(STYLES);
 // The cropped shirts end above the skirt's waistband and the longer one covers it, so they are the same with or without
 // the skirt; a hip-length shirt with tucked rows is tucked into the skirt when she wears one.
 export function makeButtonShirt(id=MOTEL_TIE_DYE_SHIRT_ID,atlas=null,skirt=false,trousers=null){return makeShirt(id,STYLES[id]||STYLES[MOTEL_TIE_DYE_SHIRT_ID],atlas,skirt,trousers);}
+// A linen shirt from its catalog `build` ({ colour, lift, seed, stitch, button, sheen }; see linenShirt above).
+export function makeLinenShirt(id,build,skirt=false){return makeShirt(id,linenShirt(build),null,skirt);}

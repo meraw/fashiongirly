@@ -10,12 +10,17 @@ The cut is a classic relaxed linen shirt. The user asked for the buttons to be c
 
 ## Implementation
 
-Two catalog entries, both slot `top`, built by `makeButtonShirt()` in `src/doll/shirts.js`:
+Two garments, both slot `top`, each in its own file in `src/wardrobe/garments/`, the layout `main` adopted on 9 October 2026:
 
-- `white-linen-button-down-shirt-v1`
-- `lapis-blue-linen-button-down-shirt-v1`
+- `white-linen-button-down-shirt-v1.js`
+- `lapis-blue-linen-button-down-shirt-v1.js`
 
-Both shirts share one style function, `linenShirt()`, which takes the colour, the slubs' tone, a seed, and the stitching and button colours.
+Each file holds the catalog entry, its study preset and its `build`: the linen's colour, the slubs' tone, the weave's seed, and the stitching, button and sheen colours.
+
+**Template.** Both use a new top template, `linen-shirt`, registered in `src/doll/top-templates.js`.
+
+- `makeLinenShirt()` in `src/doll/shirts.js` turns the `build` into a shirt style (`linenShirt()`) and builds it on the button-down shirt template.
+- The shirt template's `STYLES` and `SHIRT_IDS` are unchanged.
 
 **Shape.** It uses the template settings the Mango and plaid shirts added:
 
@@ -61,7 +66,7 @@ Both shirts share one style function, `linenShirt()`, which takes the colour, th
 - The lapis is set much darker than it renders, because the studio lifts it.
 - **Buttons:** pearly white on the white shirt, tonal blue on the lapis.
 
-**Presets:**
+**Presets,** in each garment file:
 
 - "White linen shirt study": with the Urban Classics pleated linen trousers and the cow print slides.
 - "Lapis linen shirt study": with the crystal straight jeans.
