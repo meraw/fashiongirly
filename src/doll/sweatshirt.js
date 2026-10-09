@@ -2,6 +2,9 @@
 // into rib cuffs, a deep rib hem band the body blouses over, a chest logo and a small woven tab in the side seam.
 // The logo is drawn here in code from the reference reading (not copied from the product photos): a batwing shape filled
 // with flowers on a sky-blue ground, with lettering in a heavy sans built from simple shapes.
+// Optional, for a knitted jumper on the same fit (a sweatshirt without them is built as before): a chunky rib knit in a
+// marled, flecked yarn instead of fleece (`knit`), embroidered lettering on the chest instead of the logo (`embroidery`),
+// and no side tab (leave out `tab`).
 // Built in outfit units like the other tops (makeOutfit scales the whole outfit by 1.06 across and .76 high).
 //
 // The body takes a front panel and a back panel side by side in one texture, each projected flat from the front and
@@ -24,6 +27,72 @@ function fleecePixels(w,h,colour,seed){
   for(let y=0;y<h;y++)for(let x=0;x<w;x++){const i=(y*w+x)*4,k=1+.16*(fade(x*cells/w,y/140)-.5)+.1*(grain(x*Math.round(w/4)/w,y/4)-.5);
     for(let c=0;c<3;c++)data[i+c]=clamp(bg[c]*k,0,255);data[i+3]=255;}
   return data;
+}
+
+// ---- Chunky rib knit in a marled yarn (optional `knit`) ----------------------------------------------------------------
+// Stitch by stitch: each column a rib of V-shaped stitches, grooved between columns. The yarn is a marl of the base and a
+// grey ply twisted together, with lime neps (single stitches) and dark green flecks (two stitches along a row) knitted
+// in at the measured shares. `cols` and `rows` are whole stitches across and down, so a tile repeats seamlessly.
+const hash=(c,r,s)=>{let h=(c*374761393+r*668265263+s*982451653)|0;h=Math.imul(h^(h>>>13),1274126177);return ((h^(h>>>16))>>>0)/4294967296;};
+function knitPixels(w,h,K,seed,cols,rows){
+  const data=new Uint8Array(w*h*4),base=hex(K.base),grey=hex(K.grey),lime=hex(K.lime),dark=hex(K.dark),sw=w/cols,sh=h/rows,unit=Math.min(sw,sh);
+  const heather=valueNoise(seed,Math.max(1,Math.round(cols/6)),Math.max(1,Math.round(rows/6))),fibre=valueNoise(seed+3,cols*4,rows*4);
+  const wrap=(c,r)=>[((c%cols)+cols)%cols,((r%rows)+rows)%rows];
+  // A soft, slightly lumpy blob of yarn in a stitch: how much of it covers a point (0 to 1).
+  const blob=(fx,fy,cc,rr,s,size)=>{const ox=.25+.5*hash(cc,rr,s),oy=.25+.5*hash(cc,rr,s+1),rad=size*(.75+.5*hash(cc,rr,s+2))*unit,dx=(fx-ox)*sw,dy=(fy-oy)*sh,
+    a=Math.atan2(dy,dx),lump=1+.25*Math.sin(3*a+6*hash(cc,rr,s+3))+.15*Math.sin(5*a);return clamp((rad*lump-Math.hypot(dx,dy))/(unit*.12)+.5);};
+  for(let y=0;y<h;y++)for(let x=0;x<w;x++){
+    const c=Math.floor(x/sw),r=Math.floor(y/sh),fx=x/sw-c,fy=y/sh-r,[cc,rr]=wrap(c,r);
+    // The marl: the base, greyer in soft patches, with the grey ply showing through in a fine, fuzzy fibre pattern.
+    const patch=heather(c*Math.round(cols/6)/cols,r*Math.round(rows/6)/rows),f=fibre(x*cols*4/w,y*rows*4/h);
+    let col=mix(base,grey,clamp(.2+.8*(patch-.5)+1.1*(f-.5)+.25*(hash(cc,rr,seed+5)-.5)));
+    // Lime neps (round nubs of yarn) and dark green flecks (smaller, flatter specks), each in its own stitch.
+    if(hash(cc,rr,seed)<K.limeShare)col=mix(col,lime,blob(fx,fy,cc,rr,seed+7,.36));
+    if(hash(cc,rr,seed+1)<K.darkShare){const k=blob(fx,(fy-.5)*.6+.5,cc,rr,seed+13,.28);col=mix(col,dark,k*.9);}
+    // Light on the stitch's round face, shade in the V's crease and the groove between the columns.
+    const leg=Math.abs(Math.abs(fx-.5)*2-fy*.8-.1),shade=(.88+.12*Math.sin(Math.PI*fx))*(1-.1*clamp(1-leg*5))*(.86+.14*clamp(Math.min(fx,1-fx)/.14));
+    const i=(y*w+x)*4;for(let q=0;q<3;q++)data[i+q]=clamp(col[q]*shade,0,255);data[i+3]=255;}
+  return data;
+}
+// The rib's relief, as a bump: raised columns of stitches with a groove between them (one column, one row per tile).
+function ribBump(){const n=16,data=new Uint8Array(n*n*4);
+  for(let y=0;y<n;y++)for(let x=0;x<n;x++){const fx=(x+.5)/n,fy=(y+.5)/n,v=Math.round(255*clamp(Math.sin(Math.PI*fx)*(.85+.15*Math.sin(Math.PI*fy))));const i=(y*n+x)*4;data[i]=data[i+1]=data[i+2]=v;data[i+3]=255;}
+  const t=new T.DataTexture(data,n,n,T.RGBAFormat);t.wrapS=t.wrapT=T.RepeatWrapping;t.needsUpdate=true;return t;}
+
+// ---- Embroidered lettering (optional `embroidery`) ---------------------------------------------------------------------
+// Hand-drawn capitals as single strokes, in ems (cap height 1, y up): each glyph its strokes and its advance.
+const GLYPHS={
+  L:{w:.55,s:[[[0,1],[0,0],[.55,0]]]},
+  I:{w:.2,s:[[[.1,1],[.1,0]]]},
+  F:{w:.55,s:[[[0,0],[0,1],[.55,1]],[[0,.52],[.42,.52]]]},
+  E:{w:.55,s:[[[.55,1],[0,1],[0,0],[.55,0]],[[0,.52],[.42,.52]]]},
+  S:{w:.58,s:[[[.56,.86],[.42,1],[.14,1],[.01,.84],[.06,.62],[.3,.5],[.53,.38],[.57,.15],[.43,0],[.13,0],[0,.14]]]},
+  A:{w:.7,s:[[[0,0],[.35,1],[.7,0]],[[.16,.4],[.54,.4]]]},
+  W:{w:.95,s:[[[0,1],[.2,0],[.47,.78],[.74,0],[.95,1]]]},
+  O:{w:.72,s:[Array.from({length:25},(_,k)=>{const a=k/24*Math.PI*2;return [.36+.36*Math.sin(a),.5+.5*Math.cos(a)];})]},
+  M:{w:.82,s:[[[0,0],[.04,1],[.41,.38],[.78,1],[.82,0]]]},
+};
+// Satin-stitched letters laid along an arch, drawn into the front panel's pixels. Each stroke is filled with stitches
+// lying across it, shaded darker at its edges so it reads as raised yarn.
+function embroider(data,w,h,E,cx,topPx,ppw){
+  const em=E.height*ppw,gap=E.spacing*em,word=E.space*em,ink=hex(E.colour),edge=hex(E.shade);
+  const chars=[...E.text],advance=chars.map(ch=>ch===' '?word:GLYPHS[ch].w*em+gap),total=advance.reduce((a,b)=>a+b,0)-gap;
+  // The arch: a circle through the text's two ends and its middle, the middle `arch` higher than the ends.
+  const sag=E.arch*ppw,R=(total*total/4+sag*sag)/(2*sag),cy=topPx+em+R;
+  let along=-total/2;
+  for(let k=0;k<chars.length;k++){const ch=chars[k];if(ch===' '){along+=advance[k];continue;}
+    const g=GLYPHS[ch],mid=along+g.w*em/2,ang=mid/R,bx=cx+Math.sin(ang)*R,by=cy-Math.cos(ang)*R,ca=Math.cos(ang),sa=Math.sin(ang);
+    // Glyph point (in ems, centred on its middle at the baseline) to pixels, turned to follow the arch.
+    const toPx=([gx,gy])=>{const lx=(gx-g.w/2)*em,ly=-gy*em;return [bx+lx*ca-ly*sa,by+lx*sa+ly*ca];};
+    for(const stroke of g.s){const pts=stroke.map(toPx),hw=E.weight*em/2;
+      const xs=pts.map(p=>p[0]),ys=pts.map(p=>p[1]),x0=Math.max(0,Math.floor(Math.min(...xs)-hw-1)),x1=Math.min(w-1,Math.ceil(Math.max(...xs)+hw+1)),y0=Math.max(0,Math.floor(Math.min(...ys)-hw-1)),y1=Math.min(h-1,Math.ceil(Math.max(...ys)+hw+1));
+      for(let y=y0;y<=y1;y++)for(let x=x0;x<=x1;x++){let best=Infinity,t=0;
+        for(let q=0;q<pts.length-1;q++){const [ax,ay]=pts[q],[bx2,by2]=pts[q+1],dx=bx2-ax,dy=by2-ay,l2=dx*dx+dy*dy||1,u=clamp(((x-ax)*dx+(y-ay)*dy)/l2),d=Math.hypot(x-ax-u*dx,y-ay-u*dy);
+          if(d<best){best=d;t=u*Math.sqrt(l2);}}
+        if(best>hw+.5)continue;const a=clamp(hw+.5-best),e=best/hw,stitch=(t/(E.stitch*em))%1;
+        const col=mix(mix(ink,edge,.55*e*e),edge,stitch<.18?.35:0),i=(y*w+x)*4;
+        for(let q=0;q<3;q++)data[i+q]=data[i+q]*(1-a)+col[q]*a;}}
+    along+=advance[k];}
 }
 
 // ---- The logo, in units of its width (x across, y down from its top edge) -------------------------------------------
@@ -141,7 +210,10 @@ function drawLogo(L,ppu){
 const bodyCache=new Map();
 function bodyPixels(key,panelW,h,spec){
   if(bodyCache.has(key))return bodyCache.get(key);
-  const B=spec.body,L=spec.logo,w=panelW*2,data=fleecePixels(w,h,spec.colours.fleece,B.seed??5);
+  const B=spec.body,L=spec.logo,w=panelW*2,K=spec.knit;
+  const data=K?knitPixels(w,h,K,B.seed??5,Math.round(w/(K.column*PX)),Math.round(h/(K.row*PX))):fleecePixels(w,h,spec.colours.fleece,B.seed??5);
+  if(spec.embroidery)embroider(data,w,h,spec.embroidery,panelW/2,(B.neck-spec.embroidery.top)*.76*PX,PX);
+  if(!L){const out={data,w,h};bodyCache.set(key,out);return out;}
   const logo=drawLogo(L,Math.round(L.width*PX)),x0=Math.round(panelW/2-(.5+L.margin)*L.width*PX),y0=Math.round((B.neck-L.top)*.76*PX-L.margin*L.width*PX);
   for(let y=0;y<logo.h;y++)for(let x=0;x<logo.w;x++){const s=(y*logo.w+x)*4,a=logo.data[s+3]/255;if(!a)continue;const tx=x0+x,ty=y0+y;if(tx<0||ty<0||tx>=panelW||ty>=h)continue;
     const d=(ty*w+tx)*4;for(let c=0;c<3;c++)data[d+c]=data[d+c]*(1-a)+logo.data[s+c]*a;}
@@ -156,11 +228,19 @@ function fleece(spec,map){
   return new T.MeshPhysicalMaterial({map,roughness:.9,sheen:.35,sheenColor:new T.Color(spec.colours.sheen),sheenRoughness:.7,bumpMap:knit,bumpScale:.002,side:T.DoubleSide});
 }
 function plainFleece(spec,u,v){
-  const c=spec.colours.fleece;if(!tiles.has(c))tiles.set(c,fleecePixels(256,256,c,9));
-  const map=texture(tiles.get(c),256,256,true);map.repeat.set(u,v);return fleece(spec,map);
+  // A knit's tile holds whole stitches (`tile`: columns and rows), so it repeats seamlessly round the sleeves and bands.
+  const K=spec.knit,c=K?JSON.stringify(K):spec.colours.fleece;
+  if(!tiles.has(c))tiles.set(c,K?knitPixels(256,256,K,9,K.tile[0],K.tile[1]):fleecePixels(256,256,c,9));
+  const map=texture(tiles.get(c),256,256,true);map.repeat.set(u,v);return K?knitted(spec,map,u*K.tile[0],v*K.tile[1]):fleece(spec,map);
+}
+// A chunky knit: matte and soft, its rib columns raised in the bump (`u` and `v`: stitches across and down).
+function knitted(spec,map,u,v){
+  const bump=ribBump();bump.repeat.set(u,v);
+  return new T.MeshPhysicalMaterial({map,roughness:.95,sheen:.5,sheenColor:new T.Color(spec.colours.sheen),sheenRoughness:.8,bumpMap:bump,bumpScale:spec.knit.bump,side:T.DoubleSide});
 }
 function rib(spec,u,v){
-  const m=plainFleece(spec,u,v),bump=weave('knit');bump.repeat.set(u*6,1);m.bumpMap=bump;m.bumpScale=.006;m.roughness=.93;return m;
+  const m=plainFleece(spec,u,v);if(spec.knit)return m;
+  const bump=weave('knit');bump.repeat.set(u*6,1);m.bumpMap=bump;m.bumpScale=.006;m.roughness=.93;return m;
 }
 
 export function makeSweatshirt(id,spec,overSkirt=false){
@@ -168,7 +248,8 @@ export function makeSweatshirt(id,spec,overSkirt=false){
   const B=spec.body,S=spec.sleeve,C=spec.colours,hem=B.hem,band=B.band,flare=overSkirt?B.bandOverSkirt:B.bandRadius,rows=[...B.rows,[hem+band+.012,...(overSkirt?B.bandOverSkirt:B.blouse)],[hem+band,...flare]];
   // Body: front and back panels side by side, each the width of the widest row (scaled across by the outfit).
   const half=Math.max(...rows.map(r=>r[1])),panelW=Math.ceil(half*2*1.06*PX),bodyH=Math.ceil((B.neck-hem-band)*.76*PX)+8;
-  const px=bodyPixels(id+':body',panelW,bodyH,spec),body=shell(top,rows,fleece(spec,texture(px.data,px.w,px.h,false)),'sweatshirt-body',128);
+  const px=bodyPixels(id+':body',panelW,bodyH,spec),K=spec.knit;
+  const body=shell(top,rows,K?knitted(spec,texture(px.data,px.w,px.h,false),px.w/(K.column*PX),px.h/(K.row*PX)):fleece(spec,texture(px.data,px.w,px.h,false)),'sweatshirt-body',128);
   const p=body.geometry.attributes.position,uv=body.geometry.attributes.uv;
   for(let i=0;i<uv.count;i++){const x=p.getX(i),z=p.getZ(i),u=.5+(z>=0?x:-x)/(half*2);
     uv.setXY(i,(z>=0?0:.5)+.5*clamp(u,.002,.998),clamp((B.neck-p.getY(i))*.76*PX/bodyH));}
@@ -177,10 +258,12 @@ export function makeSweatshirt(id,spec,overSkirt=false){
   ribbed(shell(top,[[hem+band+.01,...flare],[hem+band/2,flare[0]-.002,flare[1]-.001],[hem,flare[0]-.004,flare[1]-.002]],rib(spec,12,1),'ribbed-hem-band',512),B.ribs,.01);
   ribbed(shell(top,B.neckband,rib(spec,10,1),'ribbed-crew-neck',384),B.neckRibs,.016);
   // The woven tab sewn into the left side seam just above the band, folded flat against the side and pointing forward.
-  const tab=spec.tab,ty=hem+band+tab.above;let sx=0;
+  // (Optional: a knit jumper has none.)
+  const tab=spec.tab;
+  if(tab){const ty=hem+band+tab.above;let sx=0;
   for(let i=0;i<p.count;i++)if(Math.abs(p.getY(i)-ty)<.02&&Math.abs(p.getZ(i))<.03)sx=Math.max(sx,p.getX(i));
   const tabMesh=new T.Mesh(new T.BoxGeometry(.004,tab.height,tab.out),new T.MeshStandardMaterial({color:C.tab,roughness:.75}));
-  tabMesh.name='side-seam-tab';tabMesh.position.set(sx+.002,ty,tab.out/2);tabMesh.castShadow=true;top.add(tabMesh);
+  tabMesh.name='side-seam-tab';tabMesh.position.set(sx+.002,ty,tab.out/2);tabMesh.castShadow=true;top.add(tabMesh);}
   // Full sleeves from dropped shoulders, blousing over rib cuffs that gather at her wrist.
   for(const side of [-1,1]){
     const arm=new T.Group();arm.position.set(side*.242,1.815,0);arm.rotation.z=side*.22;
