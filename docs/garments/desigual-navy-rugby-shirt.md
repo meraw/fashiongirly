@@ -1,6 +1,6 @@
 # Wardrobe item: Desigual navy rugby shirt with tiger patches
 
-Authored 9 October 2026. Status: first version, awaiting the user's visual review. The first rugby shirt, and the first top tucked into trousers.
+Authored 9 October 2026. Status: approved: the user merged it, and merging means approved (their rule). The first rugby shirt, and the first top tucked into trousers.
 
 ## Source and reference reading
 
@@ -91,7 +91,7 @@ Catalog ID `desigual-navy-rugby-tiger-patches-v1` (slot `top`), built by `makeBu
   - into the skirt;
   - into the low-rise barrel jeans under the open leather jacket.
   
-  Only the authoring chat has checked these renders; the user has not seen them yet. No device check.
+  The user saw them and merged it. No device check.
 
 ## Known differences
 

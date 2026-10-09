@@ -35,6 +35,8 @@ export async function startStudio(doc=document, makeView) {
     // Only a top that can be worn over another (a cardigan) takes a top under it.
     $('under-select').value=recipe.underTopId;$('under-select').disabled=!GARMENTS[recipe.topId]?.layering?.overTop;
     $('outerwear-open').checked=recipe.outerwearOpen;$('outerwear-open').disabled=!GARMENTS[recipe.outerwearId]?.layering?.canOpen;
+    // Outerwear with a detachable part (a zip-in hood and bib) can be worn with it or without; the label names the part.
+    const detachable=GARMENTS[recipe.outerwearId]?.layering?.detachable;$('outerwear-insert').checked=recipe.outerwearInsert;$('outerwear-insert').disabled=!detachable;$('outerwear-insert-label').textContent=detachable?.label??'Wear its detachable part';
     for(const key of ['knit','shirt'])$(key).disabled=dress||recipe.topId!=='classic';$('skirt').disabled=dress;$('under-select').disabled||=dress;
     const selected=OUTFITS.find(look=>Object.keys(DEFAULT).filter(key=>key!=='hairId').every(key=>look.recipe[key]===recipe[key]));
     $('outfit-title').textContent=selected?.name||'Her own little experiment.';
@@ -56,7 +58,8 @@ export async function startStudio(doc=document, makeView) {
   $('dress-select').onchange=()=>{recipe=cleanRecipe({...recipe,dressId:$('dress-select').value});sync();apply();message(recipe.dressId==='none'?'Dress off: her top and bottoms are back.':'Dress on, worn instead of the top and bottoms. Shoes and outerwear still go with it.');};
   $('shoes-select').onchange=()=>{recipe=cleanRecipe({...recipe,shoesId:$('shoes-select').value});sync();apply();message(recipe.shoesId==='classic'?'Classic loafers restored.':'Reference shoes selected. Their fit and colour are fixed for this first review.');};
   // Each piece of outerwear starts the way it is usually worn: open only if it is designed to be worn open.
-  $('outerwear-select').onchange=()=>{const id=$('outerwear-select').value;recipe=cleanRecipe({...recipe,outerwearId:id,outerwearOpen:!!GARMENTS[id]?.layering?.openByDefault});sync();apply();message(recipe.outerwearId==='none'?'Outerwear taken off.':recipe.outerwearOpen?'Outerwear selected, worn open. Its fit is fixed for this first review.':'Outerwear selected. She wears it zipped closed; its fit is fixed for this first review.');};
+  $('outerwear-select').onchange=()=>{const id=$('outerwear-select').value;recipe=cleanRecipe({...recipe,outerwearId:id,outerwearOpen:!!GARMENTS[id]?.layering?.openByDefault,outerwearInsert:true});sync();apply();message(recipe.outerwearId==='none'?'Outerwear taken off.':recipe.outerwearOpen?'Outerwear selected, worn open. Its fit is fixed for this first review.':'Outerwear selected. She wears it zipped closed; its fit is fixed for this first review.');};
+  $('outerwear-insert').onchange=()=>{recipe=cleanRecipe({...recipe,outerwearInsert:$('outerwear-insert').checked});sync();apply();message(recipe.outerwearInsert?'Worn with its detachable part.':'Detachable part taken out.');};
   $('outerwear-open').onchange=()=>{recipe=cleanRecipe({...recipe,outerwearOpen:$('outerwear-open').checked});sync();apply();message(recipe.outerwearOpen?'Worn open.':'Zipped closed.');};
   $('edit-form').onsubmit=e=>{e.preventDefault();const result=editRecipe(recipe,$('request').value);recipe=result.recipe;sync();apply();message(result.changes.length?`Changed: ${result.changes.join(', ')}. Only these supported details were interpreted.`:(recipe.topId==='classic'?'I could not interpret that yet. Try “butter sweater, enormous sleeves, cropped”.':'This reference top has a fixed fit and print for now. Try “straight jeans” or “add a skirt”.'));};
   $('reset').onclick=()=>{recipe=cleanRecipe(DEFAULT);sync();apply();message('Back to the original outfit.');};

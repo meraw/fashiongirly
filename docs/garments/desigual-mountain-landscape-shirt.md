@@ -1,6 +1,6 @@
 # Wardrobe item: Desigual mountain landscape mesh shirt
 
-Authored 9 October 2026. Status: first version, awaiting the user's visual review. The third button-down on the shirt template, and the first printed from the photos rather than drawn.
+Authored 9 October 2026. Status: approved: the user merged it, and merging means approved (their rule). The third button-down on the shirt template, and the first printed from the photos rather than drawn.
 
 ## Source and reference reading
 
@@ -119,7 +119,7 @@ The first version was worn open to the third button, as on the model, with her s
 
   The shared tests also run on it: sleeves over her arms, cuffs and sleeve ends over her hands, every waist-covering top over every bottom, the styling facts, and every jacket over every top.
 - `npm run build` succeeds.
-- Rendered in headless Chromium (software WebGL) from the front, a turn and the back, with the linen trousers, and over the skirt under the open leather jacket. Only the authoring chat has checked these renders; the user has not seen them yet. No device check.
+- Rendered in headless Chromium (software WebGL) from the front, a turn and the back, with the linen trousers, and over the skirt under the open leather jacket. The user saw them and merged it. No device check.
 
 ## Known differences
 
