@@ -83,7 +83,7 @@ Recorded in the catalog entry:
 
 ## Checks
 
-- `npm test`: 75 passing after merging the other chats' chain sandals, black wide crop jeans, zip boots, pleated trousers and Red Bull windbreaker. A new shoe test checks:
+- `npm test`: 76 passing after merging the other chats' chain sandals, black wide crop jeans, zip boots, pleated trousers, Red Bull windbreaker and pink Superstars. A new shoe test checks:
   - the sole, gum strip, upper, collar, tongue and badge, heel tab and laces
   - three stripes a side on both shoes
   - black laces with no bow
