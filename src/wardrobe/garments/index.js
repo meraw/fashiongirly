@@ -3,6 +3,7 @@
 // Each line sits under the slot its id hashes to (scripts/garment-index.mjs writes this file: run it after adding a
 // garment), so two chats adding garments edit lines far apart and their pull requests do not conflict.
 // slot 00
+export { default as desigualGardenPrintMeshTeeV1 } from './desigual-garden-print-mesh-tee-v1.js';
 // slot 01
 // slot 02
 export { default as whiteLinenButtonDownShirtV1 } from './white-linen-button-down-shirt-v1.js';
