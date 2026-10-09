@@ -1,6 +1,6 @@
 # Wardrobe item: ivory lace shift dress
 
-Authored 9 October 2026. Status: first version, awaiting visual review. The second dress. It adds the `lace-shift-dress` template (`src/doll/lace-dress.js`).
+Authored 9 October 2026. Status: approved: the user merged it, and merging means approved (their rule). The second dress. It adds the `lace-shift-dress` template (`src/doll/lace-dress.js`).
 
 ## Source and reference reading
 
