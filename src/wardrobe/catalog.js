@@ -34,6 +34,7 @@ export const TOMMY_CARPENTER_ID = 'tommy-remastered-carpenter-v1';
 export const ZARA_CARGO_ID = 'zara-cargo-joggers-v1';
 export const CRYSTAL_JEANS_ID = 'crystal-straight-jeans-v1';
 export const NIKE_TRACK_ID = 'nike-piped-track-pants-v1';
+export const TOPSHOP_BLACK_CROP_ID = 'topshop-washed-black-wide-crop-v1';
 export const GARMENTS = Object.freeze({
   [BRONZE_TOP_ID]: {
     slot: 'top',
@@ -664,6 +665,44 @@ export const GARMENTS = Object.freeze({
       seamEnd: .1,
       centreBack: [[0, 1.207], [0, 1.1], [0, .985]],
       welt: [[-.19, 1.17], [-.15, 1.168], [-.11, 1.17]], weltColour: '#8e2a50',
+    },
+  },
+  [TOPSHOP_BLACK_CROP_ID]: {
+    slot: 'bottom',
+    id: TOPSHOP_BLACK_CROP_ID, name: 'Topshop washed black wide crop jeans', family: 'wide-leg-cropped-jeans', version: 1,
+    status: 'reference-study-awaiting-visual-review', brandAsProvided: 'Topshop',
+    source: { note: 'user supplied five product photos: back and front on a model, a back-pocket close-up, a front waist close-up and the side on a model; the user said they are short, so on them the jeans fall longer, almost to the ankle' },
+    referenceViews: ['back on model', 'front on model', 'back pocket close-up', 'front waist close-up', 'side on model'],
+    details: ['mid rise', 'wide legs flaring from the knee to a broad raw-cut hem', 'cropped, almost to her ankle (the user\'s fit; mid-calf on the taller model)', 'raw frayed hem with loose threads', 'washed black twill fading to charcoal', 'five-pocket front with copper rivets and a silver shank button', 'back yoke and pointed patch pockets', 'black leather patch embossed TOPSHOP on the back waistband', 'tan double topstitching'],
+    material: { construction: 'rigid cotton twill denim', composition: 'not visible in the supplied photos', finish: 'washed black' },
+    fit: { silhouette: 'wide, flared from the knee', rise: 'mid', length: 'almost ankle (the user)', adjustment: 'fixed authored fit for review' },
+    uncertainties: ['folds are procedural', 'the patch carries no lettering', 'the flare is fitted to her short legs; the photos show a taller wearer'],
+    styling: { silhouette: 'wide cropped culotte-style legs, mid rise', palette: ['washed black', 'tan stitching'], pattern: 'plain twill, faded slightly at the thighs', coverage: { legs: 'to just above the ankle' }, material: 'rigid cotton denim', warmth: 2, warmthBasis: 'inferred: denim, wide open cropped legs', weather: 'mild days; the open hem lets the cold in' },
+    authoring: { texture: 'topshop-black-crop-denim.js: flat-lit seamless swatch from the back-pocket close-up (brightness variation only, coloured to the measured charcoal)', runtimeGeneration: false, sourcePhotosBundled: 'fabric swatch only' },
+    build: {
+      template: 'jeans', legName: 'jeans-leg', fallback: [35, 37, 43], frayColour: '#56565c',
+      // One repeat of the swatch covers about 5 cm of the close-up, so about ten go round her leg.
+      crotch: { top: 1.17, y: .95 }, uvScale: [10, 7.6],
+      tiles: { small: [7.5, 3.5], legs: [1, 1], hips: [1, 1] },
+      hips: [[1.265, .258, .17], [1.16, .276, .192], [1.05, .294, .198], [.97, .306, .19], [.935, .25, .11]],
+      // Wide legs, close at the hip and flaring below the thigh to a broad hem, cropped almost to her ankle (the user is short, so they fall longer
+      // on them than on the model). The hem is centred over her foot and deep enough front to back to hold a boot shaft
+      // without being pushed into the other leg; the hems just meet between her feet, as in the front photo.
+      legs: [[1.03, .15, .18, .13], [.95, .156, .18, .152], [.75, .163, .183, .164], [.58, .175, .19, .182], [.42, .185, .205, .193], [.3, .19, .232, .19]],
+      hem: 'raw-crop', folds: { base: .005, low: .011 }, gradient: [.94, .1], whiskers: .2, thighFade: .1,
+      waistband: { y: 1.24, rx: .262, rz: .172, h: .05 },
+      loops: [-2.6, -1.5, -.62, .62, 1.5, 2.6, Math.PI],
+      // Tan topstitching on the pockets, fly, yoke and waistband; the side seams and inseams are tonal, as in the side photo.
+      button: { colour: '#c9ccd0' }, thread: '#b0763a', seamThread: '#38383d', doubleSeams: true, rivetColour: '#8e4630',
+      fly: [[.036, 1.215], [.038, 1.1], [.022, 1.06], [0, 1.05]],
+      frontPocket: { type: 'scoop', line: [[.15, 1.215], [.165, 1.17], [.2, 1.142], [.262, 1.13]] },
+      coinPocket: { outline: [[-.236, 1.21], [-.19, 1.21], [-.194, 1.158], [-.233, 1.158], [-.236, 1.21]] },
+      rivets: [[.152, 1.21], [.262, 1.135]],
+      seamEnd: .3,
+      backYoke: [[.268, 1.212], [.14, 1.192], [.004, 1.172]],
+      backPocket: { x: .122, outline: [[-.074, 1.158], [.074, 1.158], [.07, 1.03], [0, 1.0], [-.07, 1.03]], stitchBelow: 1.1 },
+      centreBack: [[.004, 1.172], [.004, 1.08], [0, 1.0]],
+      labelPatch: { name: 'leather-patch', size: [.08, .042, .005], colour: '#151415', position: [-.075, 1.24, -(.172 + .004)], rotationY: Math.PI + .28 },
     },
   },
   // Shoes.
