@@ -23,13 +23,13 @@ Catalog ID `adidas-campus-00s-grey-v1` (slot `shoes`). The upper has the UGG sne
 
 New laced-shoe template options, all off by default:
 
-- `stripes`: leather stripes across both sides of each shoe, each a straight path from the sole to the lacing along the shoe. They were first interpolated by angle round the foot and bent into arcs; they are now laid out along the shoe's length.
+- `leatherStripes`: leather stripes across both sides of each shoe, each a straight path from the sole to the lacing along the shoe. They were first interpolated by angle round the foot and bent into arcs; they are now laid out along the shoe's length. Named `leatherStripes` because the Superstar pair from another chat added its own, different `stripes` option (suede bands with stitching and holes) to the same template at the same time; at the user's choice both are kept.
 - `tongueBadge`: a round badge on the tongue, a disc in a ring.
 - `sole.gum`: a gum rubber strip round the bottom of the sole, rising slightly with the toe spring.
 - `puffyLace.bow: false`: laced to the top with the ends tucked in, so there is no knot, bow or tails.
 - `puffyLace.lift`: how far the lace crossings stand off the tongue. A lower lift makes flat laces instead of the UGG pair's puffy arches; with the high default, these thin black laces stacked into lumps.
 - `puffyLace.matte`: fully matte laces.
-- `stripes` tops given as `'lace'` end just below the lacing (`gap` from its edge), and `stripes.roughness` sets their finish.
+- `leatherStripes` tops given as `'lace'` end just below the lacing (`gap` from its edge), and `leatherStripes.roughness` sets their finish.
 - `panels[].matte`: a panel without the suede sheen, for dark leather.
 
 A fingerprint of every vertex of the Buffalo boots, the UGG sneakers and the loafers is identical before and after these changes.

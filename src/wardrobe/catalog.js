@@ -933,7 +933,7 @@ export const GARMENTS = Object.freeze({
       puffyLace: { width: .036, thick: .009, lift: .016, loop: .09, tailTo: .1, bow: false, matte: true },
       sock: { cx: .16, z: .0, rows: [[.1, .074, .08], [.2, .075, .08], [.3, .074, .078], [.37, .074, .077], [.38, .079, .082], [.405, .079, .082], [.41, .074, .077]] },
       // Three wide black stripes on each side, matte, from the sole ([z along the shoe, y]) up to just below the lacing.
-      stripes: { colour: '#1e1e20', width: .034, roughness: .95, gap: .026, paths: [[[.048, .068], [.12, 'lace']], [[.116, .068], [.188, 'lace']], [[.184, .068], [.256, 'lace']]] },
+      leatherStripes: { colour: '#1e1e20', width: .034, roughness: .95, gap: .026, paths: [[[.048, .068], [.12, 'lace']], [[.116, .068], [.188, 'lace']], [[.184, .068], [.256, 'lace']]] },
       tongueBadge: { y: .257, r: .019, colour: '#f2f1ee', ring: '#1e1e20' },
       // The black leather heel tab over the back of the collar.
       panels: [{ name: 'heel-overlay', colour: '#1f1f21', matte: true, z: [-.168, -.056], bottom: [[-.168, .147], [-.11, .152], [-.056, .162]], top: [[-.168, .224], [-.11, .219], [-.056, .206]] }],

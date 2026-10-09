@@ -171,7 +171,7 @@ test('adidas Campus trainers: grey suede with three black stripes a side, a heel
   const shoesGroup=outfit.getObjectByName('shoes');
   for(const name of ['lug-sole','gum-strip','boot-upper','collar-roll','tongue','tongue-badge','tongue-badge-ring','heel-overlay','lace','ankle-sock'])assert.ok(shoesGroup.getObjectByName(name),name);
   // Three stripes on each side of each shoe.
-  assert.equal(named(shoesGroup,'side-stripe').length,2*2*spec.stripes.paths.length);
+  assert.equal(named(shoesGroup,'side-stripe').length,2*2*spec.leatherStripes.paths.length);
   // Black laces (the user's pair), laced to the top with no bow.
   for(const name of ['lace-bow','lace-end','lace-knot','pull-loop'])assert.equal(named(shoesGroup,name).length,0,`no ${name}`);
   for(const l of named(shoesGroup,'lace')){const c=l.material.map.image.data;assert.ok(c[0]<60&&c[1]<60&&c[2]<60,'black lace');}

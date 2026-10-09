@@ -375,7 +375,7 @@ function makeLugBoot(id,spec,tape=null){
     }
     // Leather stripes across both sides of the shoe, each a strip from the sole up to the lacing ([z, y] paths).
     // A top given as 'lace' ends just below the lacing (the eyestay's outer edge) at that length along the shoe.
-    if(spec.stripes){const st=spec.stripes,mat=new T.MeshStandardMaterial({color:st.colour,roughness:st.roughness??.5,side:T.DoubleSide});
+    if(spec.leatherStripes){const st=spec.leatherStripes,mat=new T.MeshStandardMaterial({color:st.colour,roughness:st.roughness??.5,side:T.DoubleSide});
       const laceEdgeY=(z,k)=>{let lo=yBase,hi=collarY(0);for(let i=0;i<24;i++){const m=(lo+hi)/2;if(surf(side,m,laceAngle(m,k*(L+st.gap))).z>z)lo=m;else hi=m;}return lo;};
       for(const k of [-1,1])for(const [[za,ya],[zb,yb0]] of st.paths){const yb=yb0==='lace'?laceEdgeY(zb,k):yb0;
         ribbon(boots,...alongSide(side,k,Array.from({length:13},(_,i)=>[za+(zb-za)*i/12,ya+(yb-ya)*i/12]),.006,24),st.width,mat,'side-stripe');}}
