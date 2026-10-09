@@ -1,6 +1,6 @@
 # Wardrobe item: Desigual painted floral fine-knit jumper
 
-Authored 9 October 2026. Status: first version; approved: the user approves a garment by merging it (their rule), so its own pull request marks it approved. A knit on the `printed-long-tee` template, which gains rib bands for it.
+Authored 9 October 2026. Status: second version, with flowers made of petals after the user's first look (“they look like sprays instead of flowers”); approved: the user approves a garment by merging it (their rule), so its own pull request marks it approved. A knit on the `printed-long-tee` template, which gains rib bands for it.
 
 ## Source and reference reading
 
@@ -51,10 +51,15 @@ Catalog ID `desigual-painted-floral-knit-jumper-v1`, in its own file, `src/wardr
 **The print** (`painted-floral-print.js`):
 
 - Each flower is placed as on the photos, by its centre, radius, colours and shape, listed in the garment file for the front, the back and each sleeve.
-- A flower is a soft blob with lobed petals and a ragged, spiky rim, pushed about by a gentle warp.
-- Its colour fades from its ink to an edge colour, with paler patches. The cream flowers have a band of black stitches across their top, the dark fringe in the photos.
-- **Knitted:** the colours are worked out stitch by stitch (0.0035 world units, about 4.5 pixels), each stitch one colour, shaded a little darker at its sides. Toward a flower's rim, stitches drop out at random and others scatter beyond it as spray, and black stitches fleck in.
-- The ochre is thinned to speckles.
+- **A flower is built of petals** in rings, the outer ring first and each ring over it smaller, with one petal fewer:
+  - each petal is a broad fan from the centre with a rounded tip, a little wider than its share of the ring, so the petals overlap;
+  - it is shaded from a deep base to its colour and then to a light tip, with a fine vein or two;
+  - a dark crease runs round its edge where it lies over the next petal, which parts the petals as in the photos;
+  - the pink rose has three rings with gently waved tips round a small deep-pink centre;
+  - the cream and mint flowers have a centre of black and ochre stamens; the white flowers have a light blue centre.
+- **Knitted:** the colours are worked out stitch by stitch (0.0035 world units, about 4.5 pixels), each stitch one colour, shaded a little darker at its sides. The knit only roughens the rims by a stitch, with a few stray stitches beyond them.
+- The ochre is a loose scatter of single stitches.
+- **Revision after the user's first look:** the first version drew each flower as a soft blob whose rim broke up into scattered stitches and spray. The user said they looked like sprays, not flowers. The flowers are now built of petals, a fifth larger, and the rose is a deeper pink.
 
 **Shape:**
 
@@ -65,14 +70,14 @@ Catalog ID `desigual-painted-floral-knit-jumper-v1`, in its own file, `src/wardr
 
 **Colours:** calibrated in studio renders. Rendered on the front:
 
-- black (27, 26, 31);
-- pink (217, 180, 202);
-- cream (211, 203, 187);
-- lilac white (216, 208, 215);
-- mint (183, 212, 213);
-- light blue (95, 125, 188);
-- royal blue (41, 67, 130);
-- average (129, 129, 135) against the photo's (131, 131, 138).
+- black (26, 26, 31), about a third (photo about a third);
+- pink (221, 190, 207);
+- cream (212, 204, 189);
+- lilac white (216, 209, 214);
+- mint (185, 211, 213);
+- light blue (94, 124, 183);
+- royal blue (43, 73, 142);
+- average (129, 126, 133) against the photo's (131, 131, 138).
 
 **Preset:** “Painted floral jumper study”, over the light Stradivarius relaxed jeans with the cream 550s, as the photos pair it with light blue wide jeans.
 
@@ -104,6 +109,6 @@ Fitted and cropped at the waist, in big soft pastel flowers knitted in on black.
 
 ## Known differences
 
-- The print is redrawn in code as soft blobs at the photos' places; the real print is a photographic flower image knitted in, with petals and more detail.
-- The flowers' shapes are rounder and their edges more even than the real ones.
+- The print is redrawn in code as stylised petal flowers at the photos' places; the real print is a photographic flower image knitted in, softer and more varied, with feathered edges.
+- The flowers are tidier and more regular than the real ones, each a round flower in rings of petals.
 - The rendered mint is a little paler and the royal blue lighter than in the photos.
