@@ -95,8 +95,8 @@ test('Desigual leather jacket: crinkled gloss, point collar, zip and flap pocket
   const t0=performance.now();disposeObject(makeOutfit({outerwearId:DESIGUAL_LEATHER_JACKET_ID}));assert.ok(performance.now()-t0<600,'outfit build time');
 });
 
-test('worn open: only outerwear designed for it opens; the leather jacket hangs open with a zip half on each front and fits what is under it',()=>{
-  assert.equal(cleanRecipe({outerwearId:MARIKOO_WINDBREAKER_ID,outerwearOpen:true}).outerwearOpen,false,'the windbreaker is only worn closed');
+test('worn open: outerwear that allows it opens; the leather jacket hangs open with a zip half on each front and fits what is under it',()=>{
+  assert.equal(cleanRecipe({outerwearId:MARIKOO_WINDBREAKER_ID,outerwearOpen:true}).outerwearOpen,true,'the windbreaker can be shown open (user, 9 October 2026)');
   assert.equal(cleanRecipe({outerwearId:DESIGUAL_LEATHER_JACKET_ID,outerwearOpen:true}).outerwearOpen,true);
   assert.equal(cleanRecipe({outerwearId:DESIGUAL_LEATHER_JACKET_ID,outerwearOpen:'yes'}).outerwearOpen,false);
   const open=makeOutfit({outerwearId:DESIGUAL_LEATHER_JACKET_ID,outerwearOpen:true}),jacket=open.getObjectByName('outerwear');
@@ -122,7 +122,7 @@ test('UI: choosing outerwear is saved with the look, and its study wears it',asy
   select.value=MARIKOO_WINDBREAKER_ID;select.dispatchEvent(new dom.window.Event('change'));
   assert.equal(app.getRecipe().outerwearId,MARIKOO_WINDBREAKER_ID);assert.equal(last.outerwearId,MARIKOO_WINDBREAKER_ID);
   d.getElementById('save').click();assert.equal(JSON.parse(dom.window.localStorage.getItem('fashiongirly.plush-looks.v1'))[0].outerwearId,MARIKOO_WINDBREAKER_ID);
-  const openBox=d.getElementById('outerwear-open');assert.equal(openBox.disabled,true,'the windbreaker is worn closed');assert.equal(openBox.checked,false);
+  const openBox=d.getElementById('outerwear-open');assert.equal(openBox.disabled,false,'the windbreaker can be shown open');assert.equal(openBox.checked,false,'it starts zipped, as the user wears it');
   // The leather jacket starts open, as the user wears it, and can be zipped.
   select.value=DESIGUAL_LEATHER_JACKET_ID;select.dispatchEvent(new dom.window.Event('change'));
   assert.equal(app.getRecipe().outerwearOpen,true);assert.equal(openBox.disabled,false);assert.equal(openBox.checked,true);

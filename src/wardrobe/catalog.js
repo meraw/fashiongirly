@@ -2,6 +2,7 @@
 // Outerwear: none by default ('none'); catalog coats and jackets fill the 'outerwear' slot.
 export const MARIKOO_WINDBREAKER_ID = 'marikoo-two-tone-windbreaker-v1';
 export const DESIGUAL_LEATHER_JACKET_ID = 'desigual-black-faux-leather-jacket-v1';
+export const RED_BULL_WINDBREAKER_ID = 'red-bull-racing-stone-windbreaker-v1';
 // Dresses: none by default ('none'); a catalog dress fills the 'dress' slot and is worn instead of the top and bottoms.
 export const ZIP_TRACK_DRESS_ID = 'navy-half-zip-track-dress-v1';
 // Shoes: built-in loafers are 'classic'; catalog shoes fill the 'shoes' slot.
@@ -10,6 +11,8 @@ export const DM_COW_SLIDE_ID = 'dr-martens-cow-slide-v1';
 export const UGG_LOWMEL_ID = 'ugg-lowmel-cream-v1';
 export const SAM_ZIP_BOOT_ID = 'sam-edelman-front-zip-lug-boot-v1';
 export const DM_BLAIRE_CHAIN_ID = 'dr-martens-blaire-quad-chain-v1';
+export const ADIDAS_SUPERSTAR_PINK_ID = 'adidas-superstar-pink-suede-v1';
+export const CONVERSE_LIFT_HI_ID = 'converse-modern-lift-hi-egret-v1';
 export const GAZELLE_BOLD_ID = 'adidas-gazelle-bold-cream-green-v1';
 export const BRONZE_TOP_ID = 'desigual-bronze-mesh-v1';
 export const LILAC_TOP_ID = 'lilac-portrait-mockneck-v1';
@@ -244,7 +247,7 @@ export const GARMENTS = Object.freeze({
   [VANGOGH_TEE_ID]: {
     slot: 'top',
     id: VANGOGH_TEE_ID, name: 'Van Gogh patchwork print tee', family: 'printed-raglan-tee', version: 1,
-    status: 'reference-study-awaiting-visual-review', brandAsProvided: 'not stated',
+    status: 'user-approved', brandAsProvided: 'not stated',
     source: { note: 'user supplied six product photos without a written description: front (on a model, and closer), back (two), and close-ups of the back band and the front side' },
     referenceViews: ['front on model', 'front, closer', 'back on model', 'back, closer', 'back band close-up', 'front side close-up'],
     details: ['fitted short-sleeved raglan tee in a fine stretch rib knit', 'pieced from panels printed with sections of Van Gogh paintings: a swirling blue sky with white clouds, and white roses with dark leaves on pale green (his Roses, 1890)', 'front: sky panel on her right, roses panel on her left, joined by a centre seam', 'back: a large white cloud on a blue and teal sky, above a band of roses across the lower back', 'raglan sleeves: her right sleeve roses and leaves, her left sleeve sky', 'every seam exposed and overlocked in sage green, slightly wavy', 'lettuce-edge hem, sleeve hems and crew neckline in the same green'],
@@ -879,7 +882,7 @@ export const GARMENTS = Object.freeze({
   [SAM_ZIP_BOOT_ID]: {
     slot: 'shoes',
     id: SAM_ZIP_BOOT_ID, name: 'Black front-zip lug-sole ankle boots', family: 'front-zip-lug-sole-ankle-boot', version: 1,
-    status: 'reference-study-awaiting-visual-review', brandAsProvided: 'not stated (the double-E logo on the zip pull and the back hardware suggests Sam Edelman)',
+    status: 'user-approved', brandAsProvided: 'not stated (the double-E logo on the zip pull and the back hardware suggests Sam Edelman)',
     source: { note: 'user supplied three product photos without a description: the pair from the front three-quarter, a close-up of the zip and the back, and the outer side' },
     referenceViews: ['front three-quarter pair', 'zip and back close-up', 'outer side'],
     details: ['smooth black leather ankle boot with a round toe', 'centre-front zip in a raised leather placket, double-stitched either side, from the toe cap to the collar; the pull is leather with a small metal double-E logo', 'toe cap seam across the toe', 'a diagonal panel seam across each side and a curved heel counter seam', 'leather pull tab at the back of the collar, with a small metal logo bar beside it', 'thin stitched leather welt on a chunky black rubber lug sole with deep wedge lugs and a slightly raised heel'],
@@ -906,6 +909,77 @@ export const GARMENTS = Object.freeze({
       backHardware: { y: .4, angle: .42 },
     },
   },
+  [ADIDAS_SUPERSTAR_PINK_ID]: {
+    slot: 'shoes',
+    id: ADIDAS_SUPERSTAR_PINK_ID, name: 'adidas Superstar pink suede sneakers', family: 'shell-toe-sneaker', version: 1,
+    status: 'user-approved', brandAsProvided: 'adidas (the insole reads adidas; the shell toe and three stripes are the Superstar)',
+    source: { note: 'user supplied four product photos without a description: front three-quarter, outer side, back three-quarter and top' },
+    referenceViews: ['front three-quarter', 'outer side', 'back three-quarter', 'top'],
+    details: ['low-top adidas Superstar, all one pink', 'pink suede upper', 'ridged rubber shell toe in the same pink, with a soft sheen', 'three slanted suede stripes on each side, edged with stitching and pierced with small holes', 'stitched eyestays, a heel counter overlay and a panel seam on each side', 'wide flat pink laces through punched eyelets', 'padded collar lined in a deeper, smooth pink; the suede tongue stands above the lacing', 'pink rubber cupsole with a pebbled sidewall and moulded lines, higher at the heel'],
+    material: { construction: 'suede upper with a rubber shell toe on a rubber cupsole', composition: 'not visible in the supplied photos', finish: 'matte suede, a satiny rubber toe' },
+    fit: { silhouette: 'low-top shell-toe sneaker', height: 'low, below the ankle bone, so her socks show', platform: 'sole within her normal foot height; she is not raised', adjustment: 'fixed authored fit for review' },
+    styling: { silhouette: 'low, slim classic sneaker', palette: ['pink'], pattern: 'plain, monochrome: tonal three stripes and shell toe', coverage: { ankle: 'bare above a low collar; she wears ankle socks' }, material: 'suede, rubber shell toe and cupsole', warmth: 2, warmthBasis: 'inferred: a closed low-top suede sneaker', weather: 'dry days; suede marks in rain and puddles' },
+    uncertainties: ['wider than the real shoe, as her legs are thick', 'the collar is a little lower and the lacing shorter (five eyelet rows, not seven) than in the photos, so the built-in trousers clear them', 'the logo on the tongue, the insole and the heel carries no lettering', 'the inner side is not shown in the photos; it is built like the outer side', 'the laces are tied in a bow; the product photos show them without one'],
+    authoring: { texture: 'none: suede and rubber materials, colours measured from the outer side photo', runtimeGeneration: false, sourcePhotosBundled: false },
+    // Construction for makeLugBoot() (template 'sneaker') in src/doll/model.js, in outfit units, using the template's
+    // optional shellToe, stripes, soleLines, seams, punched eyelets and tongueAbove. Upper rows are [y, front, back,
+    // halfWidth], measured from the side photo: a long, low toe with a flat top, the lacing sloping up to a collar that
+    // dips over the ankle bones (the collar a little lower than the photo's).
+    // The lace colours are written pre-encoded: the template's lace texture reads its colours as linear values.
+    build: {
+      template: 'sneaker', cx: .168, punched: true, tongueAbove: .012,
+      colours: { upper: '#d08294', sole: '#c97c8e', shell: '#e39fb0', thread: '#94556a', piping: '#d08294', lace: '#ebc2cd', laceLine: '#e2bac5', collar: '#e3909e', eyelet: '#8f4e60', lining: '#d98b99', webbing: '#d08294', sock: '#ecdcac', hole: '#5e2a38', soleLine: '#b87383' },
+      sole: { top: .068, heelTop: .093, heelFrom: .25, heelRamp: .4, rand: .05, lugTop: .006, groove: null, bulge: .002, flare: .01, toeLift: .012, lugs: 120, lugDepth: .002 },
+      upper: [[.05, .44, -.137, .116], [.07, .442, -.145, .118], [.09, .44, -.149, .119], [.11, .435, -.15, .119], [.13, .425, -.151, .118], [.15, .402, -.151, .116], [.158, .38, -.15, .115], [.166, .345, -.149, .113], [.19, .305, -.144, .11], [.215, .265, -.138, .107], [.24, .224, -.13, .105], [.26, .195, -.121, .103], [.28, .165, -.108, .101]],
+      collar: { front: .275, side: .235, back: .28 },
+      nFront: 2.4, nBack: 2.1, heelNarrow: .1, toeNarrow: .26, restCap: .2, collarRoll: .008, drapeClear: .06, collarRest: .035,
+      eyelets: [.183, .2, .217, .234, .251], laceHalfWidth: .046, eyeletSize: [.006, .002],
+      puffyLace: { width: .028, thick: .009, loop: .055, tailTo: .19 },
+      // Her own ankle socks for a low shoe, as for the UGG sneakers.
+      sock: { cx: .16, z: .0, rows: [[.1, .074, .08], [.2, .075, .08], [.3, .074, .078], [.37, .074, .077], [.38, .079, .082], [.405, .079, .082], [.41, .074, .077]] },
+      tongueLabel: .268,
+      // The shell toe's back edge crosses the top of the toe and runs forward down each side ([y, z] from the top).
+      shellToe: { top: .166, edge: [[.166, .348], [.11, .364], [.05, .382]], pivot: .2, ridges: 10 },
+      // Three stripes leaning toward the toe: the first's back edge `from` along the shoe, width and gap measured along the
+      // shoe, slant in length per height.
+      stripes: { count: 3, from: .047, width: .03, gap: .021, slant: .426, inset: .012, endGap: .03, holes: [.4, .55, .7] },
+      soleLines: [{ down: .022 }, { at: .016 }],
+      // The heel counter's top edge, and the panel seam from the sole up to the eyestay, as [z, y] paths.
+      seams: [[[-.155, .195], [-.129, .21], [-.103, .205], [-.078, .19], [-.055, .184], [-.045, .1935], [-.025, .215], [-.007, .231]], [[.015, .087], [.0025, .128], [-.006, .158], [.019, .176], [.044, .1935], [.075, .217], [.1, .237]]],
+    },
+  },
+  [CONVERSE_LIFT_HI_ID]: {
+    slot: 'shoes',
+    id: CONVERSE_LIFT_HI_ID, name: 'Converse Chuck Taylor Modern Lift high-top', family: 'canvas-platform-high-top-sneaker', version: 1,
+    status: 'reference-study-awaiting-visual-review', brandAsProvided: 'Converse',
+    source: { note: 'user supplied five phone screenshots of a decathlon.it product gallery: outer side, inner side, a pair seen from the front, and a top view (twice)' },
+    referenceViews: ['outer side', 'inner side', 'front pair', 'top view'],
+    details: ['monochrome cream (egret) canvas high-top', 'stacked platform sole in cream with grooves between its layers and tonal stitch lines', 'seven silver eyelets a side up the lacing, cream flat laces', 'rubber toe cap in the sole\'s cream wrapping the front of the toe', 'round tonal ankle patch with an embossed star on the inner side', 'two small vent eyelets low on the inner side', 'rounded toe, padded collar'],
+    material: { construction: 'cotton canvas upper on a rubber platform', composition: 'not visible in the supplied screenshots', finish: 'matte canvas' },
+    fit: { silhouette: 'high-top platform sneaker', height: 'over the ankle', adjustment: 'fixed authored fit for review' },
+    uncertainties: ['the patch carries no lettering', 'the heel label and insole logo are not modelled', 'the platform stays within her foot height, so she is not raised; the real platform may be a little taller'],
+    styling: { silhouette: 'chunky high-top on a stacked platform', palette: ['cream'], pattern: 'plain, tonal', coverage: { feet: 'closed, over the ankle' }, material: 'canvas on rubber', warmth: 2, warmthBasis: 'inferred: closed canvas high-top', weather: 'dry mild days; canvas is not waterproof' },
+    authoring: { texture: 'procedural materials from the shoe template; colours measured in the screenshots', runtimeGeneration: false, sourcePhotosBundled: false },
+    build: {
+      template: 'sneaker', cx: .168,
+      colours: { upper: '#e4dfcf', sole: '#ddd5bb', thread: '#cbc1a5', piping: '#d6cfb9', lace: '#ece7da', eyelet: '#c6c8cb', lining: '#e2dbc7', webbing: '#ddd6c2', patch: '#e9e5d8' },
+      // A flat stacked platform about a quarter of the shoe's height, in three layers with grooves between them and
+      // stitch lines round it; the toe bumper rises a little higher. It stays within her foot height (she is not raised).
+      sole: { top: .105, heelTop: .105, heelFrom: -.03, rand: .118, lugTop: .012, groove: null, bulge: .003, flare: .012, toeLift: .015, lugs: 60, lugDepth: 0, ribs: [.04, .072], stitches: [.056, .088] },
+      // Side photo proportions: a rounded toe, the lacing rising diagonally to a straight ankle shaft about two thirds of
+      // the shoe's length high. The shaft narrows to hug her leg above the ankle, as a laced high-top does, so her leg
+      // does not come out of a loose opening; from .265 up it stays inside the classic jeans' cuff, which falls over it. It
+      // covers her socks completely, so they are hidden (coversSocks).
+      upper: [[.105, .42, -.158, .13], [.125, .425, -.16, .132], [.145, .415, -.162, .132], [.16, .385, -.162, .13], [.175, .34, -.16, .128], [.195, .29, -.158, .126], [.22, .22, -.15, .12], [.245, .125, -.124, .106], [.265, .085, -.104, .097], [.29, .08, -.1, .095], [.32, .08, -.099, .094], [.35, .08, -.097, .092], [.38, .079, -.095, .089], [.42, .078, -.094, .087]],
+      collar: { front: .38, side: .395, back: .41 },
+      nFront: 2.1, nBack: 2, heelNarrow: .12, toeNarrow: .25, restCap: .18, collarRoll: .009, drapeClear: .05,
+      eyelets: [.175, .2, .225, .25, .275, .3, .325], laceHalfWidth: .03, eyeletSize: [.0095, .0032],
+      // The rubber toe cap in the sole's colour, wrapping the front of the toe from the sole up to about half the toe
+      // box's height, as on every Chuck Taylor.
+      panels: [{ name: 'toe-cap', rubber: true, z: [.26, .44], top: [[.26, .107], [.3, .13], [.34, .152], [.38, .166], [.44, .174]] }],
+      coversSocks: true, anklePatch: { at: [-.042, .236], r: .034 }, vents: [[.096, .125], [.042, .125]],
+    },
+  },
   [GAZELLE_BOLD_ID]: {
     slot: 'shoes',
     id: GAZELLE_BOLD_ID, name: 'adidas Gazelle Bold cream and green platform sneakers', family: 'platform-sneaker', version: 1,
@@ -920,7 +994,7 @@ export const GARMENTS = Object.freeze({
     uncertainties: ['the GAZELLE lettering is drawn as gold foil marks without letters', 'the sole branding and tread pattern are not modelled', 'the shaggy suede is suggested by its colour and a deeper nap, without loose fibres'],
     authoring: { texture: 'none: colours measured from the photos; procedural suede, leather and rubber materials', runtimeGeneration: false, sourcePhotosBundled: false },
     // Construction for makeLugBoot() (template 'sneaker') in src/doll/model.js, in outfit units, with the template's
-    // stacked sole (sole.tiers), stripes, lettering and leather and shaggy panels. Upper rows are [y, front, back,
+    // stacked sole (sole.tiers), leatherStripes, lettering and leather and shaggy panels. Upper rows are [y, front, back,
     // halfWidth]; proportions measured from the side photo (the platform is about a sixth of the shoe's length).
     build: {
       template: 'sneaker', cx: .168,
@@ -941,7 +1015,7 @@ export const GARMENTS = Object.freeze({
         { name: 'shaggy-toe-cap', z: [.33, .425], top: [[.33, .147], [.36, .138], [.39, .129], [.42, .116], [.425, .112]], colour: '#c9a77a', fuzz: .014, stitch: 'none', wrap: .005 },
       ],
       // Three stripes slanting forward from the sole to the eyestays, each a [z, y] centre line.
-      stripes: { colour: '#25503f', edge: '#c9a24a', width: .028, lines: [[[.03, .104], [.11, .19]], [[.11, .104], [.185, .184]], [[.19, .104], [.258, .172]]] },
+      leatherStripes: { colour: '#25503f', edge: '#c9a24a', width: .028, lines: [[[.03, .104], [.11, .19]], [[.11, .104], [.185, .184]], [[.19, .104], [.258, .172]]] },
       // GAZELLE in gold foil on the outer side, parallel to the stripes.
       lettering: { line: [[-.015, .112], [.02, .152]], count: 7, height: .0065, colour: '#d4b35c' },
     },
@@ -955,14 +1029,14 @@ export const GARMENTS = Object.freeze({
     referenceViews: ['front on model', 'back on model', 'side on model, open', 'front flat lay', 'back flat lay', 'front flat lay, collar close', 'inside'],
     details: ['slate-blue shell with an ecru yoke over the shoulders and upper sleeves', 'front yoke ends in a shallow V pointing down to the zip; across the back it ends straight, as a stitched flap', 'yoke colour ends diagonally on the sleeves, higher outside than underneath', 'gunmetal coil zip from hem to the top of the stand collar', 'hood worn down, blue outside with ecru lining, ecru drawcords with blue-and-white tips', 'vertical welt pockets low on each front, each closed by two white snaps', 'elastic gathered hem band and cuffs; the body and sleeves blouse into them', 'embroidered blue script on the yoke at her left chest', 'round white rubber badge on the upper left sleeve', 'small woven labels on the hood and low on the back'],
     material: { construction: 'woven windbreaker shell, jersey-lined body', composition: 'not visible in the supplied screenshots', finish: 'matte with a soft sheen' },
-    fit: { silhouette: 'boxy and relaxed, dropped shoulders', length: 'hip, just below the waistband', sleeve: 'long and relaxed, gathered at the wrist', wear: 'zipped closed: the user wears outerwear closed unless it is designed to be worn open', adjustment: 'fixed authored fit for review' },
+    fit: { silhouette: 'boxy and relaxed, dropped shoulders', length: 'hip, just below the waistband', sleeve: 'long and relaxed, gathered at the wrist', wear: 'zipped closed in real life (the user wears outerwear closed unless it is designed to be worn open); on the doll it can also be shown open, to see how it looks (user, 9 October 2026)', adjustment: 'fixed authored fit for review' },
     // A closed jacket covers the top's sleeves and the skirt's bow.
-    layering: { closed: true, coversTopSleeves: true, coversWaistband: true },
+    layering: { closed: true, coversTopSleeves: true, coversWaistband: true, canOpen: true },
     // For choosing outfits later. Observed: seen in the photos; user: the user's own words; inferred: read from the
     // construction, not stated anywhere.
     styling: {
       observed: { palette: ['slate blue', 'ecru'], pattern: 'colour-blocked: ecru yoke ending in a V at the front', silhouette: 'boxy hip-length blouson, dropped shoulders', coverage: 'torso and arms to the wrist; neck when zipped; hood (modelled down)', material: 'woven windbreaker shell with a grey jersey lining in the body' },
-      user: { wear: 'zipped closed, or not worn' },
+      user: { wear: 'zipped closed, or not worn, in real life; shown open on the doll only to see how it looks' },
       inferred: { warmth: 'light layer: unpadded shell and a thin lining', weather: 'mild, breezy or cool days; the hood suits light showers', unknown: ['waterproofing', 'fibre composition'] },
     },
     uncertainties: ['the embroidered script is suggested by small joined loops, not the brand lettering', 'the hood lies down on her back; her large head and hair hide its upper part and the collar', 'badge and labels carry no lettering', 'lining is not modelled beyond the collar and the hood edge'],
@@ -971,7 +1045,9 @@ export const GARMENTS = Object.freeze({
     // collar down; sleeve rows are along the arm from the shoulder.
     build: {
       template: 'zip-windbreaker', roughness: .78,
-      colours: { shell: '#31425a', yoke: '#c3c5b9', embroidery: '#5f82b4', stitch: '#3b4b61', snap: '#ecebe6', cord: '#e2e0d8', zip: '#5b5850', opening: '#222a35' },
+      colours: { shell: '#31425a', yoke: '#c3c5b9', embroidery: '#5f82b4', stitch: '#3b4b61', snap: '#ecebe6', cord: '#e2e0d8', zip: '#5b5850', opening: '#222a35', lining: '#a09f9b' },
+      // Shown open: how far each front edge slides out. The lining colour is the grey jersey in the inside view, estimated.
+      open: { shift: .09 },
       body: {
         rows: [[1.975, .13, .124], [1.935, .131, .125], [1.9, .14, .13], [1.875, .2, .16], [1.84, .268, .205], [1.8, .318, .24], [1.75, .345, .258], [1.65, .357, .27], [1.5, .36, .276], [1.35, .362, .28], [1.22, .362, .282], [1.16, .356, .277], [1.135, .346, .266], [1.118, .338, .258]],
         overSkirt: [[1.975, .13, .124], [1.935, .131, .125], [1.9, .14, .13], [1.875, .2, .16], [1.84, .268, .205], [1.8, .318, .24], [1.75, .345, .258], [1.65, .357, .27], [1.5, .36, .276], [1.35, .365, .282], [1.22, .374, .288], [1.16, .376, .288], [1.135, .374, .282], [1.118, .37, .276]],
@@ -997,7 +1073,7 @@ export const GARMENTS = Object.freeze({
   [DESIGUAL_LEATHER_JACKET_ID]: {
     slot: 'outerwear',
     id: DESIGUAL_LEATHER_JACKET_ID, name: 'Desigual black faux-leather jacket', family: 'cropped-zip-leather-jacket', version: 1,
-    status: 'reference-study-awaiting-visual-review', brandAsProvided: 'Desigual',
+    status: 'user-approved', brandAsProvided: 'Desigual',
     source: { note: 'user supplied five phone screenshots of an Amazon listing: front on a model, arms crossed, front flat lay, back on a model and full length' },
     referenceViews: ['front on model', 'front on model, arms crossed', 'front flat lay', 'back on model', 'full length'],
     details: ['glossy black faux leather with a fine crinkle', 'pointed shirt collar on a stand', 'silver metal centre zip to the collar', 'front yoke seam across the chest with a panel seam down from it to each pocket', 'a horizontal zip pocket on each side above a flap pocket with a box pleat and a silver snap', 'wide black rib-knit hem band', 'set-in sleeves, ruched above leather cuffs with a buttoned tab', 'centre back seam and two long curved back panel seams', 'printed logo lining (seen at the collar)'],
@@ -1036,6 +1112,60 @@ export const GARMENTS = Object.freeze({
         rows: [[.045, .114, .108], [0, .126, .12], [-.1, .128, .122], [-.25, .125, .12], [-.38, .122, .118], [-.46, .121, .117], [-.505, .12, .117]],
         cuff: [-.5, -.568], cuffRadius: [.121, .118], ruche: [-.28, -.49], rucheDepth: .02, rucheFreq: 70,
       },
+    },
+  },
+  [RED_BULL_WINDBREAKER_ID]: {
+    slot: 'outerwear',
+    id: RED_BULL_WINDBREAKER_ID, name: 'Red Bull Racing stone windbreaker', family: 'zip-windbreaker', version: 1,
+    status: 'reference-study-awaiting-visual-review', brandAsProvided: 'Red Bull Racing (printed on the jacket)',
+    source: { note: 'user supplied five phone screenshots of a product gallery (images 1, 3, 4, 5 and 6 of 6): front on a model worn open, back on a model, a collar close-up, and front and back flat lays, zipped' },
+    referenceViews: ['front on model, open', 'back on model', 'collar close-up', 'front flat lay', 'back flat lay'],
+    details: ['one-colour stone (light greige) woven shell', 'tall stand collar with the hood stowed inside it, a zip seam across its back, metal snaps and a small cord toggle', 'zip covered by a storm placket from the hem to the top of the collar', 'raglan sleeves', 'curved front panel seams sweeping from the sides down to pocket openings low on each front', 'a horizontal flap seam across the middle of the back', 'reflective prints: RED BULL RACING running down beside the placket, Red Bull across the back above the flap', 'elastic gathered hem band with a cord toggle, elastic cuffs', 'small rectangular rubber patch on the upper left sleeve', 'boxy, hip length'],
+    material: { construction: 'woven windbreaker shell', composition: 'not visible in the supplied screenshots', finish: 'matte, slightly technical; reflective prints' },
+    fit: { silhouette: 'boxy and relaxed, raglan shoulders', length: 'hip', sleeve: 'long and relaxed, gathered at the wrist', wear: 'zipped closed in real life (the user wears outerwear closed unless it is designed to be worn open; the model wears it open); on the doll it can also be shown open, to see how it looks (user, 9 October 2026)', adjustment: 'fixed authored fit for review' },
+    layering: { closed: true, coversTopSleeves: true, coversWaistband: true, canOpen: true },
+    styling: {
+      observed: { palette: ['stone', 'silver-white reflective print'], pattern: 'plain, with tonal reflective lettering', silhouette: 'boxy hip-length blouson, raglan sleeves', coverage: 'torso and arms to the wrist; neck when zipped (tall collar)', material: 'woven windbreaker shell' },
+      user: { wear: 'zipped closed, or not worn, in real life; shown open on the doll only to see how it looks' },
+      inferred: { warmth: 'light layer: unpadded shell', weather: 'mild, breezy or cool days; the stowed hood suits light showers', unknown: ['waterproofing', 'lining', 'fibre composition'] },
+    },
+    uncertainties: ['the reflective prints are spelled in a plain block font, not the brand typeface or logo', 'the hood stays stowed in the collar and is not modelled', 'the sleeve patch carries no lettering', 'pocket openings are drawn as narrow welts along the curved seams'],
+    authoring: { texture: 'procedural colour, seams and prints drawn locally in src/doll/outerwear.js (plainBodyData); colours measured from the photos', runtimeGeneration: false, sourcePhotosBundled: false },
+    // On the zip-windbreaker template (same body and sleeve rows as the Marikoo jacket), with the template's optional
+    // one-colour layout: no yoke, hood or drawcords; a covered zip, drawn seams, prints, toggles and a rectangular patch.
+    build: {
+      template: 'zip-windbreaker', roughness: .8,
+      colours: { shell: '#97938a', stitch: '#817d74', snap: '#c9c5bc', cord: '#a9a59c', zip: '#8d8a86', opening: '#6c6861', print: '#f4f1eb', printShade: '#8c8880', badge: '#a29d94', toggle: '#2b2b2d' },
+      // Shown open: how far each front edge slides out. The lining is not visible in the photos, so it stays the shell colour.
+      open: { shift: .09 },
+      body: {
+        rows: [[1.975, .13, .124], [1.935, .131, .125], [1.9, .14, .13], [1.875, .2, .16], [1.84, .268, .205], [1.8, .318, .24], [1.75, .345, .258], [1.65, .357, .27], [1.5, .36, .276], [1.35, .362, .28], [1.22, .362, .282], [1.16, .356, .277], [1.135, .346, .266], [1.118, .338, .258]],
+        overSkirt: [[1.975, .13, .124], [1.935, .131, .125], [1.9, .14, .13], [1.875, .2, .16], [1.84, .268, .205], [1.8, .318, .24], [1.75, .345, .258], [1.65, .357, .27], [1.5, .36, .276], [1.35, .365, .282], [1.22, .374, .288], [1.16, .376, .288], [1.135, .374, .282], [1.118, .37, .276]],
+        hem: 1.06, band: .06, bandRadius: [.336, .255], bandOverSkirt: [.372, .274], bandPuckers: 72,
+        gathers: 34, gatherDepth: .012, gatherHeight: .09,
+        collarBase: 1.89, collarTop: 1.975, collarRadius: [.13, .124],
+      },
+      // Seams and prints, as seen straight on from the front or the back.
+      lines: [
+        { points: [[.125, 1.885], [.2, 1.77], [.335, 1.62]], mirror: true, width: .0022, shade: .86 },
+        { points: [[.125, 1.885], [.2, 1.77], [.335, 1.62]], mirror: true, back: true, width: .0022, shade: .86 },
+        { points: [[.36, 1.48], [.3, 1.4], [.235, 1.345], [.21, 1.33]], mirror: true, width: .0022, shade: .86 },
+        { points: [[-.34, 1.425], [.34, 1.425]], back: true, width: .0025, shade: .8, shadow: .03 },
+        { points: [[-.34, 1.434], [.34, 1.434]], back: true, width: .0012, shade: .88 },
+      ],
+      prints: [
+        { x: -.064, y: 1.835, vertical: true, length: .32, height: .028, text: 'RED BULL RACING' },
+        { x: 0, y: 1.445, back: true, length: .5, height: .07, text: 'RED BULL' },
+      ],
+      sleeve: {
+        rows: [[.05, .135, .126], [0, .152, .143], [-.1, .158, .15], [-.25, .156, .148], [-.38, .152, .145], [-.47, .146, .14], [-.51, .132, .127], [-.53, .121, .116]],
+        cuff: [-.522, -.575], cuffRadius: [.12, .118], cuffPuckers: 36, gathers: 14, gatherDepth: .02, gatherHeight: .08,
+        badge: { y: -.12, radius: .02, shape: 'rect', w: .046, h: .026 },
+      },
+      zip: { width: .016, stitch: .02 },
+      placket: { offset: .012, width: .05, snaps: [[.075, 1.952]] },
+      toggles: [{ x: .055, y: 1.075, drop: .035 }, { x: .1, y: 1.962, drop: .016 }],
+      pockets: { x: .208, slant: .08, top: 1.33, bottom: 1.16, width: .02, snaps: [], snap: .0125 },
     },
   },
   // Dresses: one piece worn instead of the top and the bottoms, with bare legs; shoes and outerwear go with it.
