@@ -16,7 +16,11 @@ Three things decide her outfit, in this order:
    - shoes that finish the shape: boots under cropped legs, chunky soles with a mini;
    - sporty with soft: a track piece with lace or flowers;
    - layers that show: a top peeking out from under a cardigan.
-   She judges what shows: a closed jacket hides the top under it. A **daring** setting (0 to 1, default 0.5, "not extreme, not boring") shifts the weights, and "Bolder" and "Easier" move it. She does not wear the single top-scoring look every time: she picks among the best few, avoids tops and dresses worn in the past week, and "Another idea" moves on from what she has already shown.
+   She judges what shows: a closed jacket hides the top under it. She does not wear the single top-scoring look every time: she picks among the best few, avoids tops and dresses worn in the past week, and "Another idea" moves on from what she has already shown.
+
+   **How bold** is measured on the outfit itself (`boldness()` in `taste.js`): how much strong colour shows, weighted by how much of her each piece covers, how much print or pattern, and opposite or many colours together. Black, grey and denim are quiet; head-to-toe pink is bold; so are prints. The **daring** setting (0 to 1, default 0.5, "not extreme, not boring") picks a point among the outfits that suit the weather: 0 aims for the quietest, 1 for the boldest. This replaced weighting her principles by daring, after the user found the "easiest" look all pink and the "boldest" one black jumper and black jeans (9 October 2026).
+
+   **The buttons change as little as possible** (the user's feedback, 9 October 2026: they kept getting whole new outfits). Bolder and Easier swap one piece, or two if one is not enough, for the best-scoring change that is bolder or quieter by a clear step; × replaces only that piece; kept pieces and her hair stay. Only "Another idea" starts a new look (around the kept pieces), and "Her first pick" goes back to the morning's look.
 3. **The user's reactions**, remembered in this browser: the heart (save) makes a look's pieces and pairings more likely; × (not today) sets a piece aside for the day and counts a little against it.
 
 So her style is told to her in words, in `taste.js`. To change it, tell Claude in words ("she should love colour clashes more", "never two prints", "more dresses"), and the principles or weights change. The styling facts come from each garment's own record.

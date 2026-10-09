@@ -1,12 +1,13 @@
 // The Today panel: each morning (from 5:00) she checks the weather and dresses herself, and the user can refine it.
 // The weather comes from the phone's location by default, or a typed town, through Open-Meteo; without a forecast
 // the user chooses the weather. Everything she remembers stays in this browser's storage.
-import { composeOutfit } from '../style/stylist.js';
+import { composeOutfit, adjustOutfit, replacePiece } from '../style/stylist.js';
 import { DEFAULT_DARING, LEARNED_KEY, cleanLearned, learn } from '../style/taste.js';
 import { dayKey, describe, cleanConditions, presetConditions, PRESETS } from '../weather/conditions.js';
 import { fetchConditions, findPlace } from '../weather/open-meteo.js';
 import { cleanRecipe } from '../doll/recipe.js';
 import { hairName } from '../hair/catalog.js';
+import { paintSky } from './sky.js';
 
 export const TODAY_KEY = 'fashiongirly.today.v1', HISTORY_KEY = 'fashiongirly.days.v1', PLACE_KEY = 'fashiongirly.place.v1', WEATHER_KEY = 'fashiongirly.weather.v1';
 const SLOT_NAMES = { dress: 'Dress', top: 'Top', under: 'Under it', bottom: 'Bottoms', shoes: 'Shoes', outerwear: 'Outerwear', hair: 'Hair' };
@@ -26,7 +27,7 @@ export function mountToday(doc, { storage = null, getRecipe, wear, fetch: fetchI
   // The page can go away while the weather is on its way; then there is nothing left to update.
   const gone = () => disposed || !$('today');
   function status(text) { if (!gone()) $('today-status').textContent = text || ''; }
-  function setBusy(value) { busy = value; if (gone()) return; for (const id of ['today-another', 'today-bolder', 'today-easier', 'today-undo']) $(id).disabled = busy || !state?.result || (id === 'today-undo' && !undo.length); }
+  function setBusy(value) { busy = value; if (gone()) return; for (const id of ['today-another', 'today-bolder', 'today-easier', 'today-undo', 'today-first']) $(id).disabled = busy || !state?.result || (id === 'today-undo' && !undo.length) || (id === 'today-first' && (!state.first || JSON.stringify(state.first.recipe) === JSON.stringify(state.result.recipe))); }
   function place() { const p = read(PLACE_KEY, null); return p?.mode === 'typed' && Number.isFinite(p.lat) && Number.isFinite(p.lon) ? p : { mode: 'device' }; }
 
   function render() {
@@ -36,6 +37,7 @@ export function mountToday(doc, { storage = null, getRecipe, wear, fetch: fetchI
     const p = place();
     $('today-place').textContent = p.mode === 'typed' ? p.name : 'your location';
     $('today-weather').textContent = state?.conditions ? describe(state.conditions) : '';
+    paintSky($('sky'), state?.conditions);
     const list = $('today-pieces'); list.replaceChildren();
     const result = state?.result, keep = state?.keep || {};
     if (result) {
@@ -69,19 +71,39 @@ export function mountToday(doc, { storage = null, getRecipe, wear, fetch: fetchI
     write(HISTORY_KEY, [{ day: state.day, recipe }, ...history]);
   }
 
-  // Dress her with the current conditions, locks and set-aside pieces.
+  const options = () => ({
+    seed: state.seed, daring: state.daring ?? DEFAULT_DARING, keep: state.keep || {}, avoid: state.avoid || [],
+    recent: read(HISTORY_KEY, []).filter(h => h?.day && h.day < state.day).map(h => h.recipe).slice(0, 7),
+    shownToday: state.shown || [], learned: read(LEARNED_KEY, null), current: getRecipe(),
+  });
+  // Wear a new result, keeping the one before for Undo; the day's first pick is kept so she can go back to it.
+  function show(result) {
+    if (state.result) undo = [...undo, structuredCloneSafe(state)].slice(-10);
+    state.result = result; state.first ??= result; save(); remember(result.recipe); wear(result.recipe); render();
+  }
+  // What she is wearing now: edits made on the Dress her page count, unless they use the built-in study pieces.
+  function wearing() {
+    const r = cleanRecipe(getRecipe());
+    return (r.dressId !== 'none' || (r.topId !== 'classic' && r.bottomId !== 'classic')) && r.shoesId !== 'classic' ? r : state.result.recipe;
+  }
+  // A whole new look with the current conditions, locks and set-aside pieces.
   function compose({ newIdea = false } = {}) {
     if (!state?.conditions) return false;
     if (newIdea && state.result) { state.shown = [...(state.shown || []), state.result.recipe].slice(-12); state.seed = (state.seed + 1) >>> 0; }
-    const history = read(HISTORY_KEY, []).filter(h => h?.day && h.day < state.day).map(h => h.recipe).slice(0, 7);
-    const result = composeOutfit(state.conditions, {
-      seed: state.seed, daring: state.daring ?? DEFAULT_DARING, keep: state.keep || {}, avoid: state.avoid || [],
-      recent: history, shownToday: state.shown || [], learned: read(LEARNED_KEY, null), current: getRecipe(),
-    });
+    const result = composeOutfit(state.conditions, options());
     if (!result) { status('Nothing in the wardrobe fits those choices. Try keeping fewer pieces.'); return false; }
-    if (state.result) undo = [...undo, structuredCloneSafe(state)].slice(-10);
-    state.result = result; save(); remember(result.recipe); wear(result.recipe); render();
+    show(result);
     return true;
+  }
+  const changes = result => result.changed.map(c => c.slot === 'outerwear' && c.to === 'no jacket' ? `no ${c.from}` : `the ${c.to} instead of the ${c.from}`).join(', and ');
+  // Bolder or easier: the smallest change to the look she is wearing, never a whole new outfit.
+  function adjust(direction) {
+    if (!state?.result) return;
+    const result = adjustOutfit(state.conditions, wearing(), direction, options());
+    if (!result) { status(direction > 0 ? 'That is as bold as she goes today, with what you kept and the weather.' : 'That is as easy as she goes today, with what you kept and the weather.'); return; }
+    state.daring = Math.max(0, Math.min(1, (state.daring ?? DEFAULT_DARING) + .2 * direction));
+    show(result);
+    status(`${direction > 0 ? 'Bolder' : 'Easier'}: ${changes(result)}.`);
   }
   function locate() {
     return new Promise((resolve, reject) => {
@@ -128,12 +150,16 @@ export function mountToday(doc, { storage = null, getRecipe, wear, fetch: fetchI
     state.avoid = [...new Set([...(state.avoid || []), row.id])];
     if (state.keep?.[row.slot] === row.id) { state.keep = { ...state.keep }; delete state.keep[row.slot]; }
     write(LEARNED_KEY, learn(read(LEARNED_KEY, null), 'set-aside', [row.id]));
-    if (compose()) status(`Not the ${row.name} today.`);
+    const result = replacePiece(state.conditions, wearing(), row.slot, options());
+    if (!result) { status(`Nothing else suits that today, so the ${row.name} stays.`); return; }
+    show(result);
+    status(`Not the ${row.name} today: ${changes(result)}.`);
   }
 
   $('today-another').onclick = () => { if (compose({ newIdea: true })) status('Another idea.'); };
-  $('today-bolder').onclick = () => { state.daring = Math.min(1, (state.daring ?? DEFAULT_DARING) + .2); if (compose({ newIdea: true })) status(`A bit bolder: ${daringName(state.daring)}.`); };
-  $('today-easier').onclick = () => { state.daring = Math.max(0, (state.daring ?? DEFAULT_DARING) - .2); if (compose({ newIdea: true })) status(`A bit easier: ${daringName(state.daring)}.`); };
+  $('today-bolder').onclick = () => adjust(1);
+  $('today-easier').onclick = () => adjust(-1);
+  $('today-first').onclick = () => { if (!state?.first) return; show(state.first); status('Back to her first pick of the day.'); };
   $('today-undo').onclick = () => { const prev = undo.pop(); if (!prev) return; state = prev; save(); remember(state.result.recipe); wear(state.result.recipe); render(); status('Back to the look before.'); };
   $('today-presets').replaceChildren(...PRESETS.map(p => {
     const b = doc.createElement('button'); b.type = 'button'; b.textContent = p.label;

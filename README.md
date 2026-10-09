@@ -2,7 +2,7 @@
 
 A tiny living fashion doll with a playful wardrobe. The current homepage is a **reusable 3D doll study** with separate, editable clothing geometry.
 
-The intended product is a girl who **checks the weather and dresses herself each morning**, choosing playful, daring combinations from the user's wardrobe. A first version of that now runs: each morning (from 5:00) the **Today** panel checks the forecast for the phone's location, or a typed town, and she dresses herself from the wardrobe, with hair, and says why. You can keep pieces, ask for another idea, make her bolder or easier, set a piece aside, undo, and save the look. Her choices follow written styling rules ([src/style/taste.js](src/style/taste.js)), not AI. See the [daily styling plan](docs/DAILY_STYLING_PLAN.md).
+The intended product is a girl who **checks the weather and dresses herself each morning**, choosing playful, daring combinations from the user's wardrobe. A first version of that now runs: each morning (from 5:00) the **Today** panel checks the forecast for the phone's location, or a typed town, and she dresses herself from the wardrobe, with hair, and says why. You can keep pieces, ask for another idea, make her bolder or easier (one piece at a time), set a piece aside, go back to her first pick, undo, and save the look. The sky behind her follows the weather. The app has three pages: **Today**, **Dress her** (choose each piece yourself) and **Wardrobe** (every garment, by kind). Her choices follow written styling rules ([src/style/taste.js](src/style/taste.js)), not AI. See the [daily styling plan](docs/DAILY_STYLING_PLAN.md).
 
 ## Start here in a new chat
 
@@ -50,7 +50,8 @@ For GitHub Pages: select **Settings → Pages → Source → GitHub Actions**, t
 - `src/doll/recipe.js`: clothing recipe validation and bounded description editing.
 - `src/doll/view.js`: Three.js camera, lighting, touch rotation, and rendering lifecycle.
 - `src/doll/app.js`: controls, draft storage, and lookbook.
-- `src/today/today.js`: the Today panel: the daily look, refinements, location and weather choice.
+- `src/today/today.js`: the Today panel: the daily look, refinements, location and weather choice. `src/today/sky.js`: the weather sky behind her.
+- `src/doll/pages.js`, `src/doll/wardrobe-page.js`: the page tabs and the Wardrobe page.
 - `src/style/`: the stylist. `facts.js` reads each garment's styling facts, `taste.js` is her taste written down, `stylist.js` dresses her for the weather.
 - `src/weather/`: the day's conditions (`conditions.js`) and the Open-Meteo forecast and place search (`open-meteo.js`), the app's only network request.
 - `illustration.html`: the earlier vector study, retained for comparison.

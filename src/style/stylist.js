@@ -5,7 +5,8 @@
 import { DEFAULT, cleanRecipe } from '../doll/recipe.js';
 import { HAIRSTYLES } from '../hair/catalog.js';
 import { wardrobe } from './facts.js';
-import { DEFAULT_DARING, scoreTaste, learnedBonus, cleanLearned } from './taste.js';
+import { DEFAULT_DARING, scoreTaste, learnedBonus, cleanLearned, boldness } from './taste.js';
+import { stylingFacts } from './facts.js';
 
 const clamp = (v, lo, hi) => Math.max(lo, Math.min(hi, v));
 // A small seeded random generator, so "another idea" varies and tests repeat exactly.
@@ -81,20 +82,9 @@ function novelty(o, recent, shownToday) {
   return penalty;
 }
 
-/**
- * Dress her for the day.
- * conditions: weather (see src/weather/conditions.js); options:
- *   seed       varies the choice among the best outfits
- *   daring     0 (easy to wear) to 1 (inspiring); DEFAULT_DARING by default
- *   keep       { top, bottom, shoes, outerwear, dress, hair }: ids she must wear ('none' for outerwear: no jacket)
- *   avoid      ids she must not wear today
- *   recent     recipes of the last few days, newest first
- *   shownToday recipes already suggested today
- *   learned    what the user's reactions taught her (taste.js)
- *   current    the recipe she is wearing (keeps its top and bottoms under a dress)
- */
-export function composeOutfit(conditions, options = {}) {
-  const { seed = 1, daring = DEFAULT_DARING, keep = {}, avoid = [], recent = [], shownToday = [], current = DEFAULT } = options;
+// Everything the stylist works from for one request: what the weather asks, which pieces suit it, and how she scores.
+function context(conditions, options) {
+  const { seed = 1, daring = DEFAULT_DARING, keep = {}, avoid = [], recent = [], shownToday = [] } = options;
   const learned = cleanLearned(options.learned), rng = random(seed), needs = needsFor(conditions), w = options.wardrobe || wardrobe();
   const banned = new Set(avoid), byId = id => Object.values(w).flat().find(p => p.id === id);
   const pick = (slot, list, test) => {
@@ -106,14 +96,9 @@ export function composeOutfit(conditions, options = {}) {
   const outerOptions = keep.outerwear ? pick('outerwear', w.outerwear) : needs.outer === 'none' ? [null]
     : [...(needs.outer === 'optional' ? [null] : []), ...pick('outerwear', w.outerwear, o => (!needs.rainy || o.rain !== 'avoid') && (needs.feels >= 5 || warmthOf(o) >= 3) && (needs.feels < 16 || warmthOf(o) <= 2))];
   const tops = pick('top', w.top, () => true), bottoms = pick('bottom', w.bottom, b => !needs.rainy || b.rain !== 'avoid');
+  const dresses = keep.top || keep.bottom ? [] : pick('dress', w.dress, d => !d.bareLegs || needs.bareLegs).filter(d => keep.dress || !d.bareLegs || needs.bareLegs);
   const underTops = w.top.filter(p => p.layering.underTop && !banned.has(p.id));
-  const bases = [];
-  if (!keep.top && !keep.bottom) for (const d of pick('dress', w.dress, d => !d.bareLegs || needs.bareLegs)) if (keep.dress || !d.bareLegs || needs.bareLegs) bases.push({ dress: d });
-  if (!keep.dress) for (const top of tops) for (const under of top.layering.overTop ? [null, ...underTops.filter(u => u.id !== top.id)] : [null]) for (const bottom of bottoms) bases.push({ top, under, bottom });
-
   const openFor = outer => !!outer?.layering.openByDefault && needs.feels >= 12 && !needs.windy && !needs.rainy;
-  const extras = new Set();
-  for (const o of outerOptions) for (const s of shoes) extras.add((o ? warmthOf(o) - (openFor(o) ? .5 : 0) : 0) + (s ? (warmthOf(s) - 2) * .5 : 0));
   const recentRecipes = recent.map(r => ({ ...r })), shown = shownToday.map(r => ({ ...r }));
   const score = (o, final) => {
     const taste = scoreTaste(o, daring);
@@ -121,41 +106,125 @@ export function composeOutfit(conditions, options = {}) {
     if (final) total -= .5 * Math.abs(outfitWarmth(o) - needs.target);
     return { total, reasons: taste.reasons };
   };
-  const beam = (list, size) => {
-    list.sort((a, b) => b.s.total - a.s.total);
-    const best = list.slice(0, size), rest = list.slice(size);
-    for (let i = 0; i < size / 4 && rest.length; i++) best.push(rest.splice(Math.floor(rng() * rest.length), 1)[0]);
-    return best;
-  };
-  let chosen = null;
-  for (const tolerance of [1.5, 2.5, Infinity]) {
-    const feasible = o => { const base = outfitWarmth({ ...o, outer: null, shoes: null }); return [...extras].some(x => Math.abs(base + x - needs.target) <= tolerance); };
-    let stage = bases.filter(feasible).map(o => ({ o, s: score(o) }));
-    stage = beam(stage, 60).flatMap(({ o }) => shoes.map(s => ({ ...o, shoes: s }))).map(o => ({ o, s: score(o) }));
-    stage = beam(stage, 60).flatMap(({ o }) => outerOptions.map(outer => ({ ...o, outer, open: openFor(outer) })))
-      .filter(o => Math.abs(outfitWarmth(o) - needs.target) <= tolerance).map(o => ({ o, s: score(o, true) }));
-    if (!stage.length) continue;
-    stage.sort((a, b) => b.s.total - a.s.total);
-    // Choose among the best few, favouring the higher scores, so she is not the same every morning. Only the best
-    // outfit for each top or dress competes, so the choice varies in the piece that shows most.
-    const lead = new Set(), top = stage.filter(c => { const id = (c.o.dress || c.o.top).id; return !lead.has(id) && lead.add(id); }).slice(0, 8), heat = .35 + .3 * daring, weights = top.map(c => Math.exp((c.s.total - top[0].s.total) / heat));
-    let r = rng() * weights.reduce((a, b) => a + b, 0);
-    chosen = top.find((c, i) => (r -= weights[i]) <= 0) || top[0];
-    break;
-  }
-  if (!chosen) return null;
-  const o = chosen.o;
-  const hair = chooseHair(o, needs, rng, { keep: keep.hair, recentHair: recent.map(r => r.hairId) });
+  return { seed, daring, keep, recent, needs, rng, shoes, outerOptions, tops, bottoms, dresses, underTops, openFor, score, w };
+}
+
+// Daring sets how bold she goes, measured on the outfits themselves: among the outfits that suit the weather, an easy
+// day aims for the quieter end and a daring one for the boldest. Each candidate is pulled towards that point.
+const target = daring => .1 + .8 * daring;
+function pullToDaring(list, daring) {
+  const ranked = list.map(c => [c, boldness(c.o)]).sort((a, b) => a[1] - b[1]);
+  ranked.forEach(([c, b], i) => { c.bold = b; c.s = { ...c.s, total: c.s.total - 4 * Math.abs((ranked.length > 1 ? i / (ranked.length - 1) : .5) - target(daring)) }; });
+  return list;
+}
+
+function finish(o, needs, s, rng, { keep = {}, recent = [], current = DEFAULT, hairId = null } = {}) {
+  const hair = hairId ? { id: hairId, reason: null } : chooseHair(o, needs, rng, { keep: keep.hair, recentHair: recent.map(r => r.hairId) });
   const recipe = cleanRecipe({
     ...current, knit: false, shirt: false, skirt: false,
     topId: o.top?.id ?? current.topId, underTopId: o.under?.id ?? 'none', bottomId: o.bottom?.id ?? current.bottomId,
     dressId: o.dress?.id ?? 'none', shoesId: o.shoes?.id ?? 'classic', outerwearId: o.outer?.id ?? 'none',
     outerwearOpen: o.open, outerwearInsert: !o.outer?.layering.detachable || needs.feels < 10 || needs.rainy, hairId: hair.id,
   });
-  const reasons = [...weatherReasons(o, needs), ...chosen.s.reasons.sort((a, b) => b[0] - a[0]).slice(0, 2).map(([, r]) => r), ...(hair.reason ? [hair.reason] : [])];
+  const reasons = [...weatherReasons(o, needs), ...s.reasons.sort((a, b) => b[0] - a[0]).slice(0, 2).map(([, r]) => r), ...(hair.reason ? [hair.reason] : [])];
   return {
     recipe, reasons,
     pieces: [['dress', o.dress], ['top', o.top], ['under', o.under], ['bottom', o.bottom], ['shoes', o.shoes], ['outerwear', o.outer]].filter(([, p]) => p).map(([slot, p]) => ({ slot, id: p.id, name: p.name })),
-    warmth: { total: outfitWarmth(o), target: needs.target }, score: chosen.s.total,
+    warmth: { total: outfitWarmth(o), target: needs.target }, score: s.total, boldness: boldness(o),
   };
+}
+
+/**
+ * Dress her for the day.
+ * conditions: weather (see src/weather/conditions.js); options:
+ *   seed       varies the choice among the best outfits
+ *   daring     0 (easy to wear) to 1 (bold); DEFAULT_DARING by default
+ *   keep       { top, bottom, shoes, outerwear, dress, hair }: ids she must wear ('none' for outerwear: no jacket)
+ *   avoid      ids she must not wear today
+ *   recent     recipes of the last few days, newest first
+ *   shownToday recipes already suggested today
+ *   learned    what the user's reactions taught her (taste.js)
+ *   current    the recipe she is wearing (keeps its top and bottoms under a dress)
+ */
+export function composeOutfit(conditions, options = {}) {
+  const c = context(conditions, options), { needs, rng, daring } = c;
+  const bases = [];
+  for (const d of c.dresses) bases.push({ dress: d });
+  if (!c.keep.dress) for (const top of c.tops) for (const under of top.layering.overTop ? [null, ...c.underTops.filter(u => u.id !== top.id)] : [null]) for (const bottom of c.bottoms) bases.push({ top, under, bottom });
+  const extras = new Set();
+  for (const o of c.outerOptions) for (const s of c.shoes) extras.add((o ? warmthOf(o) - (c.openFor(o) ? .5 : 0) : 0) + (s ? (warmthOf(s) - 2) * .5 : 0));
+  const beam = (list, size) => {
+    pullToDaring(list, daring).sort((a, b) => b.s.total - a.s.total);
+    const best = list.slice(0, size), rest = list.slice(size);
+    for (let i = 0; i < size / 4 && rest.length; i++) best.push(rest.splice(Math.floor(rng() * rest.length), 1)[0]);
+    return best;
+  };
+  for (const tolerance of [1.5, 2.5, Infinity]) {
+    const feasible = o => { const base = outfitWarmth({ ...o, outer: null, shoes: null }); return [...extras].some(x => Math.abs(base + x - needs.target) <= tolerance); };
+    let stage = bases.filter(feasible).map(o => ({ o, s: c.score(o) }));
+    stage = beam(stage, 60).flatMap(({ o }) => c.shoes.map(s => ({ ...o, shoes: s }))).map(o => ({ o, s: c.score(o) }));
+    stage = beam(stage, 60).flatMap(({ o }) => c.outerOptions.map(outer => ({ ...o, outer, open: c.openFor(outer) })))
+      .filter(o => Math.abs(outfitWarmth(o) - needs.target) <= tolerance).map(o => ({ o, s: c.score(o, true) }));
+    if (!stage.length) continue;
+    pullToDaring(stage, daring).sort((a, b) => b.s.total - a.s.total);
+    // Choose among the best few, favouring the higher scores, so she is not the same every morning. Only the best
+    // outfit for each top or dress competes, so the choice varies in the piece that shows most.
+    const lead = new Set(), top = stage.filter(x => { const id = (x.o.dress || x.o.top).id; return !lead.has(id) && lead.add(id); }).slice(0, 8);
+    const weights = top.map(x => Math.exp((x.s.total - top[0].s.total) / .45));
+    let r = rng() * weights.reduce((a, b) => a + b, 0);
+    const chosen = top.find((x, i) => (r -= weights[i]) <= 0) || top[0];
+    return finish(chosen.o, needs, chosen.s, rng, options);
+  }
+  return null;
+}
+
+// The outfit a recipe describes, as styling facts.
+export function outfitOf(recipe) {
+  const f = id => (id && id !== 'none' && id !== 'classic' ? stylingFacts(id) : null);
+  const o = recipe.dressId !== 'none'
+    ? { dress: f(recipe.dressId) }
+    : { top: f(recipe.topId), under: f(recipe.underTopId), bottom: f(recipe.bottomId) };
+  return { ...o, shoes: f(recipe.shoesId), outer: f(recipe.outerwearId), open: !!recipe.outerwearOpen };
+}
+
+// The smallest change to the look she is wearing: swap one piece, or two if one is not enough. Kept pieces stay.
+// `want(candidate)` says whether a change is acceptable; the best-scoring acceptable change wins.
+function smallestChange(conditions, recipe, options, slots, want) {
+  const c = context(conditions, options), { needs } = c, now = outfitOf(recipe);
+  const swaps = slot => {
+    if (c.keep[slot === 'outer' ? 'outerwear' : slot]) return [];
+    const list = { top: now.dress ? [] : c.tops, under: now.top?.layering.overTop ? [null, ...c.underTops.filter(u => u.id !== now.top.id)] : [], bottom: now.dress ? [] : c.bottoms, dress: now.dress ? c.dresses : [], shoes: c.shoes, outer: c.outerOptions }[slot] || [];
+    return list.filter(p => (p?.id ?? null) !== (now[slot]?.id ?? null)).map(p => {
+      const o = { ...now, [slot]: p };
+      if (slot === 'top' && !p.layering.overTop) o.under = null;
+      if (slot === 'outer') o.open = c.openFor(p);
+      return o;
+    });
+  };
+  const fits = o => Math.abs(outfitWarmth(o) - needs.target) <= Math.max(1.5, Math.abs(outfitWarmth(now) - needs.target));
+  let found = [];
+  const one = slots.flatMap(swaps).filter(fits);
+  found = one.filter(want);
+  if (!found.length) {
+    for (const o of one) for (const slot of slots) for (const o2 of swaps(slot).map(x => ({ ...o, [slot]: x[slot], ...(slot === 'outer' ? { open: x.open } : {}) }))) if (fits(o2) && want(o2)) found.push(o2);
+  }
+  if (!found.length) return null;
+  const scored = found.map(o => ({ o, s: c.score(o, true) })).sort((a, b) => b.s.total - a.s.total);
+  const best = scored[0];
+  const changed = ['dress', 'top', 'under', 'bottom', 'shoes', 'outer'].filter(k => (best.o[k]?.id ?? null) !== (now[k]?.id ?? null));
+  const result = finish(best.o, needs, best.s, c.rng, { ...options, current: recipe, hairId: recipe.hairId });
+  const name = p => p?.name ?? 'no jacket';
+  result.changed = changed.map(k => ({ slot: k === 'outer' ? 'outerwear' : k, from: name(now[k]), to: name(best.o[k]) }));
+  return result;
+}
+
+const SLOTS = ['top', 'under', 'bottom', 'dress', 'shoes', 'outer'];
+// Bolder (direction 1) or easier (-1) than the look she is wearing, changing as little as possible.
+export function adjustOutfit(conditions, recipe, direction, options = {}) {
+  const now = boldness(outfitOf(recipe)), step = .12;
+  return smallestChange(conditions, recipe, options, SLOTS, o => (boldness(o) - now) * direction >= step);
+}
+// Another piece in one slot only, everything else unchanged ("not this one today").
+export function replacePiece(conditions, recipe, slot, options = {}) {
+  return smallestChange(conditions, recipe, options, [slot === 'outerwear' ? 'outer' : slot], () => true);
 }
