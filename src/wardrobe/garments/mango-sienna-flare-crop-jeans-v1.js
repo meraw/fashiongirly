@@ -25,7 +25,8 @@ export default {
       tiles: { small: [6, 2.8], legs: [1, 1], hips: [1, 1] },
       hips: [[1.31, .262, .168], [1.2, .27, .184], [1.1, .28, .19], [1.02, .276, .178], [.97, .262, .162], [.935, .2, .085]],
       // Slim through the hips and thighs, narrowest at the knee, then a gentle kick flare to a raw hem just above her ankle.
-      legs: [[1.12, .13, .165, .128], [1.03, .132, .162, .13], [.95, .128, .155, .137], [.8, .12, .142, .148], [.64, .111, .129, .155], [.53, .11, .127, .157], [.43, .119, .134, .158], [.31, .145, .156, .158]],
+      // The hems sit a little out over her feet, so over chunky boots they rest on the collar rather than crowding each other.
+      legs: [[1.12, .13, .165, .128], [1.03, .132, .162, .13], [.95, .128, .155, .137], [.8, .12, .142, .148], [.64, .111, .129, .155], [.53, .11, .127, .157], [.43, .119, .134, .162], [.31, .145, .156, .165]],
       hem: 'raw-crop', folds: { base: .003, low: .005 }, gradient: [.95, .07], whiskers: .05, thighFade: 0,
       waistband: { y: 1.285, rx: .266, rz: .17, h: .05 },
       loops: [-2.6, -1.5, -.62, .62, 1.5, 2.6, Math.PI],

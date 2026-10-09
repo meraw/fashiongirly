@@ -37,7 +37,7 @@ The screenshot is small and the fabric smooth, so its grain is faint (it is rais
 **Shape.** The hips and slim thighs are the Davinia jeans', raised to the Mango black jeans' high waistband (1.285). The legs:
 
 - narrow to the knee (0.11 across at 0.53)
-- then flare to the hem at 0.31: about 0.145 by 0.156, about a third wider than at the knee
+- then flare to the hem at 0.31: about 0.145 by 0.156, about a third wider than at the knee, with each hem's centre a little out over her foot (0.165)
 - end in a raw frayed edge just above her ankle; the template's `raw-crop` hem with pale threads
 
 Folds are shallow, as the photos show smooth, close-fitting denim. There is no thigh fade, and almost no whiskers.
@@ -57,6 +57,8 @@ The stitching is a shade deeper than the denim, so the seams read on white.
 
 They are a bottom like the other jeans: tops that cover the waistband hang over them, and the cropped hem sits above every shoe, or on a boot's collar, as for the other cropped pairs (`tests/shoes.test.js` checks every bottom with every shoe).
 
+Fit found by the shared tests: with the hems centred straight under the knees, the flare was too wide to sit on the Buffalo boots' collar, so it draped over the boot shafts and the two hems crowded into each other. The hems now sit a little further out over her feet (centre 0.165 rather than 0.158), and rest on the collar of both pairs of boots.
+
 ## Styling facts
 
 - High-rise slim kick flare, cropped at the ankle.
@@ -73,7 +75,8 @@ They are a bottom like the other jeans: tops that cover the waistband hang over 
   - that the hem sits above her ankle
   - that the stand-in colour (without the swatch) is white
 - The shared tests also run on it: every waist-covering top over every bottom, every shoe under every bottom, outerwear over every bottom, the garment-file layout.
-- Rendered in headless Chromium from the front, a turn, the side and the back, with the black hoodie and with the crochet top.
+- `npm test`: 118 passing after merging `main` (which added the ONLY Onlerin jacket and the hashed garment index); `npm run build` succeeds.
+- Rendered in headless Chromium from the front, a turn, the side and the back, with the black hoodie and with the crochet top, and over the Buffalo boots.
 
 ## Known differences
 
