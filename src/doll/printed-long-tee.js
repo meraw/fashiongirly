@@ -7,8 +7,9 @@
 // and back, so the print stays upright and the side seams fall at the panel edges. Each sleeve wraps round a print of its
 // own that repeats seamlessly round the arm. Both textures keep the same scale, in pixels per world unit.
 import * as T from 'three';
-import { random, weave, shell, roundSleeveCap, easeOverHand } from './model.js';
+import { random, weave, shell, ribbed, roundSleeveCap, easeOverHand } from './model.js';
 import { stripePatchBody, stripeSleeve } from './stripe-patch-print.js';
+import { paintedFloralBody, paintedFloralSleeve } from './painted-floral-print.js';
 
 const PX=1300;// texture pixels per world unit
 const hex=h=>[1,3,5].map(i=>parseInt(h.slice(i,i+2),16));
@@ -88,37 +89,50 @@ function jersey(map,sheen='#57524d'){
 // Optional (the Hawaii patch tee): `print.draw: 'stripe-patch'` draws its stripes, lettering and patch
 // (stripe-patch-print.js) instead of the scattered stamps; `body.tucked` rows tuck it into the skirt; `sleeve.drop` sets
 // the dropped shoulder seam's depth on the sleeve; `colours.neckband` and `colours.sheen` set those apart from the band.
+// Optional (the painted floral jumper): `print.draw: 'painted-floral'` knits big soft flowers in (painted-floral-print.js);
+// `body.ribNeck` (a rib count) knits the neckband in the print; `body.band` ({ rows, ribs }) and `sleeve.cuff` ({ rows,
+// ribs }) add rib bands at the hem and cuffs in place of the turned hem and cuffs. The print runs on into every rib,
+// drawn out down its ribs as a knitted print is.
 export function makePrintedLongTee(id,spec,overSkirt=false){
   const top=new T.Group();top.name=id;
-  const B=spec.body,S=spec.sleeve,P=spec.print,C=spec.colours,stripes=P.draw==='stripe-patch';
+  const B=spec.body,S=spec.sleeve,P=spec.print,C=spec.colours,stripes=P.draw==='stripe-patch',painted=P.draw==='painted-floral';
   const rows=overSkirt&&B.tucked?B.tucked:B.rows,hem=B.hem;
   // Body: front and back panels side by side, each the width of the widest row (scaled across by the outfit).
   const half=Math.max(...B.rows.map(r=>r[1])),panelW=Math.ceil(half*2*1.06*PX),bodyH=Math.ceil((B.neck-B.hem)*.76*PX)+8;
-  const bodyMap=printTexture(stripes?stripePatchBody(id+':body',panelW,bodyH,B,P,half):drawPrint(id+':body',panelW*2,bodyH,P.seed,false,P),false);
-  const body=shell(top,rows,jersey(bodyMap,C.sheen),'printed-tee-body',96);
-  const p=body.geometry.attributes.position,uv=body.geometry.attributes.uv;
-  for(let i=0;i<uv.count;i++){const x=p.getX(i),z=p.getZ(i),u=.5+(z>=0?x:-x)/(half*2);
-    uv.setXY(i,(z>=0?0:.5)+.5*Math.max(.002,Math.min(.998,u)),1-Math.max(0,Math.min(1,(B.neck-p.getY(i))*.76*PX/bodyH)));}
-  uv.needsUpdate=true;
+  const bodyMap=printTexture(stripes?stripePatchBody(id+':body',panelW,bodyH,B,P,half):painted?paintedFloralBody(id+':body',panelW,bodyH,P):drawPrint(id+':body',panelW*2,bodyH,P.seed,false,P),false);
+  const bodyMaterial=jersey(bodyMap,C.sheen),body=shell(top,rows,bodyMaterial,'printed-tee-body',96);
+  // Front and back panels, each projected flat; above the neck and below the hem the print's edge rows run on.
+  const project=mesh=>{const p=mesh.geometry.attributes.position,uv=mesh.geometry.attributes.uv;
+    for(let i=0;i<uv.count;i++){const x=p.getX(i),z=p.getZ(i),u=.5+(z>=0?x:-x)/(half*2);
+      uv.setXY(i,(z>=0?0:.5)+.5*Math.max(.002,Math.min(.998,u)),1-Math.max(0,Math.min(1,(B.neck-p.getY(i))*.76*PX/bodyH)));}
+    uv.needsUpdate=true;return mesh;};
+  project(body);
   // Narrow ribbed crew neckband, and a fine turned hem.
   const band=new T.MeshPhysicalMaterial({color:C.band,roughness:.85,sheen:.3,sheenColor:new T.Color('#2c2928'),bumpMap:weave('knit'),bumpScale:.006,side:T.DoubleSide});
   band.bumpMap.repeat.set(60,1);
   let neckband=band;if(C.neckband){neckband=band.clone();neckband.color.set(C.neckband);}
-  shell(top,B.neckband,neckband,'crew-neckband',96);
+  if(B.ribNeck)project(ribbed(shell(top,B.neckband,bodyMaterial,'crew-neckband',B.ribNeck*8),B.ribNeck,.012));
+  else shell(top,B.neckband,neckband,'crew-neckband',96);
+  if(B.band)project(ribbed(shell(top,B.band.rows,bodyMaterial,'rib-hem-band',B.band.ribs*8),B.band.ribs,.008));
   // Tucked into the skirt, its hem is out of sight inside the waistband.
-  if(rows===B.rows)shell(top,[[hem+.014,rows.at(-1)[1]+.002,rows.at(-1)[2]+.002],[hem-.001,rows.at(-1)[1]+.003,rows.at(-1)[2]+.003]],band,'turned-hem',96);
+  else if(rows===B.rows)shell(top,[[hem+.014,rows.at(-1)[1]+.002,rows.at(-1)[2]+.002],[hem-.001,rows.at(-1)[1]+.003,rows.at(-1)[2]+.003]],band,'turned-hem',96);
   // Long fitted sleeves, set in at the shoulder, ending at her wrist and easing over her hand.
   for(const side of [-1,1]){
     const arm=new T.Group();arm.position.set(side*.242,1.815,0);arm.rotation.z=side*.22;
     const yt=S.rows[0][0],yb=S.rows.at(-1)[0],around=Math.ceil(2*Math.PI*Math.sqrt((S.rows[2][1]**2+S.rows[2][2]**2)/2)*PX),len=Math.ceil((yt-yb)*.76*PX)+8;
-    const map=printTexture(stripes?stripeSleeve(id+':sleeve'+side,around,len,P,S,side>0?.25:.75):drawPrint(id+':sleeve'+side,around,len,P.seed+(side<0?11:23),true,P),true);
-    const sleeve=shell(arm,S.rows,jersey(map,C.sheen),'reference-fitted-sleeve',64);
+    const map=printTexture(stripes?stripeSleeve(id+':sleeve'+side,around,len,P,S,side>0?.25:.75)
+      :painted?paintedFloralSleeve(id+':sleeve'+side,around,len,P,P.sleeves[side<0?'right':'left'],side>0?.25:.75,-side,P.seed+(side<0?11:23))
+      :drawPrint(id+':sleeve'+side,around,len,P.seed+(side<0?11:23),true,P),true);
+    const sleeveMaterial=jersey(map,C.sheen),sleeve=shell(arm,S.rows,sleeveMaterial,'reference-fitted-sleeve',64);
     const sp=sleeve.geometry.attributes.position,su=sleeve.geometry.attributes.uv;
     for(let k=0;k<su.count;k++)su.setXY(k,(k%65)/64,1-Math.max(0,Math.min(1,(yt-sp.getY(k))*.76*PX/len)));
     su.needsUpdate=true;
     roundSleeveCap(sleeve,side,yt);
     easeOverHand(sleeve,side);
-    easeOverHand(shell(arm,[[yb+.012,S.rows.at(-1)[1]+.002,S.rows.at(-1)[2]+.002],[yb-.001,S.rows.at(-1)[1]+.003,S.rows.at(-1)[2]+.003]],band,'turned-cuff',48),side,.01);
+    // A rib cuff, the sleeve's print running on down its ribs; or a fine turned cuff.
+    if(S.cuff){const cuff=ribbed(shell(arm,S.cuff.rows,sleeveMaterial,'rib-cuff',S.cuff.ribs*8),S.cuff.ribs,.02),n=S.cuff.ribs*8+1,cu=cuff.geometry.attributes.uv;
+      for(let k=0;k<cu.count;k++)cu.setXY(k,(k%n)/(n-1),0);cu.needsUpdate=true;easeOverHand(cuff,side);}
+    else easeOverHand(shell(arm,[[yb+.012,S.rows.at(-1)[1]+.002,S.rows.at(-1)[2]+.002],[yb-.001,S.rows.at(-1)[1]+.003,S.rows.at(-1)[2]+.003]],band,'turned-cuff',48),side,.01);
     top.add(arm);
   }
   return top;
