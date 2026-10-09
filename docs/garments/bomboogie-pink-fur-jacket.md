@@ -1,6 +1,6 @@
 # Wardrobe item: Bomboogie pink faux-fur jacket
 
-Authored 9 October 2026. Status: second version awaiting the user's visual review. Added by the chat that has been doing shoes (any chat can add any category).
+Authored 9 October 2026. Status: third version awaiting the user's visual review. Added by the chat that has been doing shoes (any chat can add any category).
 
 ## Source and reference reading
 
@@ -31,7 +31,7 @@ Catalog ID `bomboogie-pink-faux-fur-jacket-v1` (slot `outerwear`), template `fau
 - **Body:** boxy and straight to a high-hip hem, at its own size on her. It eases out only where the layers under it need room, as the leather jacket does, so it covers chunky jumpers and the skirt. The pile lies in soft, uneven waves.
 - **Fur edges:** fur pieces have thick, rolled edges: the hem, the two front edges meeting in a soft parting at the centre, the collar, the chest flaps and the cuffs.
 - **Collar:** a big point collar folded over the stand, lying on her shoulders, with rounded points.
-- **Pockets:** a fur flap on each side of the chest, standing a little off the body at its lower edge. A slanted slit with a fur welt low on each side.
+- **Pockets:** a plush fur flap on each side of the chest: a domed, rounded pad whose thick lower edge stands a little off the body. A slanted slit with a fur welt low on each side.
 - **Neck:** pink satin lining inside the neck, with the black label and its chain hanger.
 - **Sleeves:** dropped-shoulder, full sleeves gathered into plump fur cuff bands, rolled under at the wrist.
 - **Wear:** worn closed. The snaps make it a closed jacket, and the user wears outerwear closed unless it is designed to be worn open. It has no open state.
@@ -41,6 +41,10 @@ Catalog ID `bomboogie-pink-faux-fur-jacket-v1` (slot `outerwear`), template `fau
 ## Revision after the user's first review
 
 The user found it very strange: the collar was far too big and covered the chest pockets. I had enlarged the collar to match how big it looks in the flat photo, but on her it swept down over her chest and the flaps. The collar is now smaller and narrower (`dropFront` .24 to .145, `spread` .42 to .3), and its points end just above the chest flaps, which sit fully in view below them, as in the photos. A test now checks that the collar's points stay above the flaps.
+
+## Revision after the user's second review
+
+The user said the chest pockets didn't look right: they should look like the jacket's fur flaps, not strange rectangles. They had been thin panels with a tube round the outline, which read as framed rectangles. Each is now a plush fur pad, larger and wider than tall like the photo's. Its shape is a rounded rectangle, domed and fullest toward its hanging lower edge, sinking into the body all round. The thick lower edge stands a little off the jacket, and its fur lies downward like the body's. It is laid out on an even grid, so the dome has no creases.
 
 ## Checks
 

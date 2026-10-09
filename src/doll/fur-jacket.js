@@ -45,16 +45,21 @@ export function makeFurJacket(id,spec,overSkirt,under=null){
   line(fy.map(y=>[0,y]),-.001,.0035,parting,'front-parting');
   for(const s of [-1,1])line(fy.map(y=>[s*B.edge/radii(y)[0],y]),-B.edge*.35,B.edge*.9,fur,'front-edge');
   for(const [x,y] of spec.snaps){const a=angleFor(x,y),q=at(a,y,.006),snap=oval(jacket,q.toArray(),[.008,.008,.003],metal,'front-snap',16);snap.lookAt(q.clone().add(normal(a,y)));}
-  // A patch lying on the body (a pocket flap) between x0 and x1 on side s, from its top y0 down to y1, lifted more at its
-  // lower edge as a fur flap stands off the body, and edged with a thick roll.
-  const patch=(s,x0,x1,y0,y1,off,lift,mat,name)=>{const U=14,W=8,rows=[];
-    for(let j=0;j<=W;j++){const r=[];for(let i=0;i<=U;i++){const u=i/U,y=y0+(y1-y0)*j/W,x=s*(x0+(x1-x0)*u);r.push(at(angleFor(x,y),y,off+lift*j/W).toArray());}rows.push(r);}
-    const m=outward(ringShell(jacket,rows,mat,name),normal(angleFor(s*(x0+x1)/2,y0),y0));
-    const edge=[];for(let i=0;i<=U;i++)edge.push(rows[0][i]);for(let j=1;j<=W;j++)edge.push(rows[j][U]);for(let i=U-1;i>=0;i--)edge.push(rows[W][i]);for(let j=W-1;j>=0;j--)edge.push(rows[j][0]);
-    curve(jacket,edge,spec.pockets.roll,mat,name+'-edge');return m;};
+  // A puffy fur flap on the chest: a rounded-rectangle pad, domed (fuller toward its hanging lower edge) and sinking into
+  // the body all round its edge, its lower edge standing a little off the body as a thick lip. Its hairs lie downward like the body's.
+  const flap=(s,F)=>{const U=28,W=12,hw=(F.x1-F.x0)/2,hh=F.height/2,cx=s*(F.x0+F.x1)/2,cy=F.top-hh,n=F.round,rows=[],uv=[];
+    // Laid out on an even grid over the flap's rectangle; the rounded-rectangle shape comes from how far each point lies
+    // inside it (f < 1), so the dome has no creases. Outside it the grid lies just on the body, hidden in the fur.
+    for(let j=0;j<=W;j++){const v=1-2*j/W,r=[];for(let i=0;i<=U;i++){const u=-1+2*i/U,x=cx+hw*u,y=cy+hh*v,f=Math.abs(u)**n+Math.abs(v)**n;
+      const off=f<1?.003+F.puff*Math.sqrt(1-f**3)*(.8-.2*v)+F.lift*Math.max(0,-v)**1.5*f**2:.0015;r.push(at(angleFor(x,y),y,off).toArray());uv.push(x*4,y*4);}rows.push(r);}
+    const m=ringShell(jacket,rows,trim,'chest-flap');m.geometry.setAttribute('uv',new T.Float32BufferAttribute(uv,2));outward(m,normal(angleFor(cx,cy),cy));
+    // Its thick lower edge, along the bottom of the rounded rectangle.
+    const edge=t=>{const c=Math.cos(t),si=Math.sin(t);return [cx+hw*Math.sign(c)*Math.abs(c)**(2/n),cy+hh*Math.sign(si)*Math.abs(si)**(2/n),.003+F.lift*Math.max(0,-si)**1.5];};
+    curve(jacket,Array.from({length:25},(_,k)=>{const [x,y,off]=edge(Math.PI+Math.PI*k/24);return at(angleFor(x,y),y,off-F.lip*.4).toArray();}),F.lip,trim,'chest-flap-edge');
+    return m;};
   const P=spec.pockets;
   for(const s of [-1,1]){
-    patch(s,P.flap.x0,P.flap.x1,P.flap.top,P.flap.top-P.flap.height,.008,P.flap.lift,trim,'chest-flap');
+    flap(s,P.flap);
     // Slanted side pocket: a dark slit with a fur welt beside it.
     const sl=P.side,slit=Array.from({length:11},(_,k)=>{const y=sl.top-(sl.top-sl.bottom)*k/10,x=s*(sl.x+sl.slant*(sl.top-y));return [angleFor(x,y),y];});
     line(slit,.001,.0028,parting,'side-pocket-slit');
