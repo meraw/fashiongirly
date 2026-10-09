@@ -40,7 +40,7 @@ Catalog ID `new-balance-550-cream-v1` (slot `shoes`), template `sneaker`. It is 
 
 ## Checks
 
-- `npm test`: 68 passing. A new test checks:
+- `npm test`: 75 passing. A new test checks:
   - the sneaker's parts, and that the boot-only parts are absent;
   - the eyelet count, and an N on both sides of each shoe;
   - that she is not raised and the sole is on the floor;
