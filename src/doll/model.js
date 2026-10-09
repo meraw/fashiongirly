@@ -2083,4 +2083,4 @@ export function makeOutfit(raw, atlas=null) {
 }
 export function disposeObject(root) { const geometries=new Set(),materials=new Set(),textures=new Set();root.traverse(o=>{if(o.geometry)geometries.add(o.geometry);if(o.material)for(const m of Array.isArray(o.material)?o.material:[o.material])materials.add(m);});for(const m of materials)for(const value of Object.values(m))if(value?.isTexture)textures.add(value);geometries.forEach(g=>g.dispose());textures.forEach(t=>t.dispose());materials.forEach(m=>m.dispose()); }
 // Shared builders for garments made in their own modules (outerwear.js).
-export { V, random, weave, solid, put, oval, curve, shell, ringShell, ribbon, ribbed, roundSleeveCap, surfaceProbe, trimToEdge, easeOverHand };
+export { V, random, weave, cloth, solid, put, oval, curve, shell, ringShell, ribbon, ribbed, roundSleeveCap, surfaceProbe, trimToEdge, easeOverHand, SHOULDER_ROWS };

@@ -1,6 +1,6 @@
 # Wardrobe item: crystal-embellished straight jeans
 
-Authored 8 October 2026. Status: crystals made larger and clearer after the user's first review; the user said the revision “looks great”. A piece from the user's wardrobe list, built on the shared jeans template. The user asked to “notice the embellishments”.
+Authored 8 October 2026. Status: crystals made larger and clearer after the user's first review; the user said the revision “looks great”; approved: the user merged it, and merging means approved (their rule). A piece from the user's wardrobe list, built on the shared jeans template. The user asked to “notice the embellishments”.
 
 ## Source and reference reading
 

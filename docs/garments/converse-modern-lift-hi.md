@@ -1,6 +1,6 @@
 # Wardrobe item: Converse Chuck Taylor Modern Lift high-tops (cream)
 
-Authored 9 October 2026. Status: first version, awaiting the user's visual review. The first high-top sneaker.
+Authored 9 October 2026. Status: first version; approved: the user merged it, and merging means approved (their rule). The first high-top sneaker.
 
 ## Source and reference reading
 

@@ -1,6 +1,6 @@
 # Wardrobe item: Motel tie-dye mesh button-down shirt
 
-Authored 8 October 2026. Status: first version, awaiting the user's visual review. The first button-down shirt.
+Authored 8 October 2026. Status: first version; approved: the user merged it, and merging means approved (their rule). The first button-down shirt.
 
 ## Source and reference reading
 
