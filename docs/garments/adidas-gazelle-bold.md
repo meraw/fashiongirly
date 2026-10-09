@@ -26,10 +26,10 @@ Catalog ID `adidas-gazelle-bold-cream-green-v1` (slot `shoes`), template `sneake
 **New template options.** All are optional and off by default. The other shoes are unchanged: every outfit that `main` can build was built on `main` and on this branch and compared, with no difference in geometry, materials or textures.
 
 - `sole.tiers`: a stacked platform of separate rounded tiers, each `{ to, colour }` from the floor up, in place of the lug sole. Each tier bulges a little at its middle, so grooves show between them, and follows the sole's toe lift.
-- `leatherStripes`: leather strips across both sides, each along a `[z, y]` centre line from the sole to the lacing, with serrated metallic edges. This is separate from the Superstar's suede `stripes`, which have a different construction.
+- `leatherStripes`: leather strips across both sides, each along a `[z, y]` centre line from the sole to the lacing, with serrated metallic edges. This is separate from the Superstar's suede `stripes`, which have a different construction; the user agreed to the separate name.
 - `lettering`: a row of small foil marks along a `[z, y]` line on the outer side only.
-- `colours.tongue`: a tongue in its own colour, in shaggy suede with a deeper nap. `colours.label` colours the tongue label.
-- Panels can now be smooth leather (`finish: 'leather'`) or shaggy suede (`fuzz`, the nap depth); they can have their own thread colour (`thread`). They can be stitched along their bottom edge or not at all (`stitch: 'bottom'` or `'none'`). A panel that wraps over the top of the toe (`wrap`) stands off along the surface's own normal.
+- `colours.shaggyTongue`: a tongue in shaggy suede with a deeper nap, in that colour. It is separate from the New Balance 550's `colours.tongue` (a plain tongue). `colours.label` colours the tongue label.
+- Panels: the New Balance 550's `leather: true` panels now also work on a suede shoe, where they are smooth leather. Panels can be shaggy suede (`fuzz`, the nap depth) and have their own thread colour (`thread`). Besides the 550's `stitch: false` (no stitching), they can be stitched along their bottom edge (`stitch: 'bottom'`). A panel that wraps over the top of the toe (`wrap`) stands off along the surface's own normal. Like the 550's leather panels, the heel tab is turned to face out of the shoe on both halves.
 
 **Shape:**
 
@@ -50,7 +50,7 @@ A low sneaker on a tall stacked platform; cream, forest green and gold on a gum 
 
 ## Checks
 
-- `npm test`: 77 passing after merging `main`. A new test in `tests/shoes.test.js` checks:
+- `npm test`: 78 passing after merging `main`. A new test in `tests/shoes.test.js` checks:
   - the parts, and that the lug sole, plain heel tab and pull loop are absent;
   - three tiers per shoe stacked from the floor to the sole's top;
   - three stripes on each side of each shoe;
