@@ -62,7 +62,7 @@ Recorded in the catalog (bottoms do not require them yet): wide cropped legs, mi
 
 ## Known differences
 
-- A faint change of shade where the hips meet the legs, which shows on every pair from this template in these renders.
+- Fixed 9 October 2026 for every pair: the line where the hips met the legs is gone (see [the pleated linen trousers](pleated-linen-wide-trousers.md#the-line-where-the-hips-meet-the-legs)).
 - Folds are procedural.
 - The leather patch has no lettering.
 - The flare is fitted to her short legs; the photos show a taller wearer.
