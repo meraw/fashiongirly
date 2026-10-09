@@ -40,7 +40,7 @@ Catalog ID `bomboogie-pink-faux-fur-jacket-v1` (slot `outerwear`), template `fau
 
 ## Checks
 
-- `npm test`: 83 passing. A new `tests/fur-jacket.test.js` checks:
+- `npm test`: 84 passing. A new `tests/fur-jacket.test.js` checks:
   - the parts, and that zips, bands and the hood are absent;
   - the fur material, with hairs lying downward on the body and sleeves;
   - that the jacket stays closed;

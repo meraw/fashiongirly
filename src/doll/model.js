@@ -1,6 +1,7 @@
 import * as T from 'three';
 import { cleanRecipe } from './recipe.js';
 import { makePrintedTee } from './printed-tee.js';
+import { makePrintedLongTee } from './printed-long-tee.js';
 import { makeOuterwear } from './outerwear.js';
 import { levelCaster } from './level-caster.js';
 import { BRONZE_TOP_ID, LILAC_TOP_ID, CROCHET_TOP_ID, PLAID_JUMPER_ID, STRIPE_JUMPER_ID, POINTELLE_FLOWER_ID, SILVER_CABLE_ID, LACROIX_FLOWER_ID, TOMMY_CABLE_ID, PETIT_BATEAU_CARDIGAN_ID, ZIP_TRACK_DRESS_ID, TOMMY_STRIPE_POLO_ID, GARMENTS } from '../wardrobe/catalog.js';
@@ -2004,6 +2005,7 @@ export function makeOutfit(raw, atlas=null) {
     :id===TOMMY_CABLE_ID?makeTommyCableSweater(id,state.skirt):id===PETIT_BATEAU_CARDIGAN_ID?makeStripedCardigan(id,state.skirt)
     :id===TOMMY_STRIPE_POLO_ID?makeKnitPolo(id):SHIRT_IDS.includes(id)?makeButtonShirt(id)
     :GARMENTS[id]?.build?.template==='printed-raglan-tee'?makePrintedTee(id,GARMENTS[id].build,atlas?.isTexture?atlas:atlas?.[id])
+    :GARMENTS[id]?.build?.template==='printed-long-tee'?makePrintedLongTee(id,GARMENTS[id].build)
     :makeReferenceTop(atlas?.isTexture?atlas:atlas?.[id],id);
   if(!dress&&state.topId!=='classic')root.add(makeTop(state.topId));
   if(dress)root.add(makeZipTrackDress(dress));
