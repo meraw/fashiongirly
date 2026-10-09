@@ -61,7 +61,7 @@ A relaxed shirt to the high hip; a large all-over paisley print in white, ochre,
 
 ## Checks
 
-- `npm test` passes (109), including a new `tests/paisley-shirt.test.js`, which checks:
+- `npm test` passes (110), including a new `tests/paisley-shirt.test.js`, which checks:
   - the parts: body, sleeves, cuffs with buttons and stitching, collar, eight buttons, the yoke seam and pleat, the hem stitching;
   - it is wider at the waist and longer than the fitted shirts;
   - the yoke and pleat are on her back;
