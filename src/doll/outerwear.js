@@ -7,6 +7,9 @@ import { makeFurJacket } from './fur-jacket.js';
 
 export function makeOuterwear(id, overSkirt=false, {under=null,open=false}={}){
   const spec=GARMENTS[id]?.slot==='outerwear'?GARMENTS[id].build:null;
+  // A top may carry two collars (userData.underJacket): one standing out to show under her chin, and a narrow one that
+  // fits inside a jacket's collar. Under a jacket, the narrow one is worn.
+  if(spec&&under)under.traverse(o=>{if(typeof o.userData.underJacket==='boolean')o.visible=o.userData.underJacket;});
   if(spec?.template==='zip-windbreaker')return makeZipWindbreaker(id,spec,overSkirt,open&&!!GARMENTS[id].layering?.canOpen,under);
   if(spec?.template==='leather-zip-jacket')return makeLeatherJacket(id,spec,overSkirt,under,open&&!!GARMENTS[id].layering?.canOpen);
   if(spec?.template==='faux-fur-shirt-jacket')return makeFurJacket(id,spec,overSkirt,under);
