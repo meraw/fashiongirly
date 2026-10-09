@@ -1,6 +1,6 @@
 # Wardrobe item: Bomboogie pink faux-fur jacket
 
-Authored 9 October 2026. Status: first interpretation awaiting the user's visual review. Added by the chat that has been doing shoes (any chat can add any category).
+Authored 9 October 2026. Status: second version awaiting the user's visual review. Added by the chat that has been doing shoes (any chat can add any category).
 
 ## Source and reference reading
 
@@ -38,13 +38,17 @@ Catalog ID `bomboogie-pink-faux-fur-jacket-v1` (slot `outerwear`), template `fau
 - **Colours:** measured in the photos and adjusted after comparing renders. The scene's warm lights pushed the measured pink toward peach, so the fur is set slightly cooler and darker (`#a06368`) to read as dusty rose in the app.
 - **Study preset:** “Pink fur jacket study”, over the silver cable jumper, the black wide crop jeans and the cream UGG sneakers. The pointelle jumper with the 550s went over the outfit's triangle budget.
 
+## Revision after the user's first review
+
+The user found it very strange: the collar was far too big and covered the chest pockets. I had enlarged the collar to match how big it looks in the flat photo, but on her it swept down over her chest and the flaps. The collar is now smaller and narrower (`dropFront` .24 to .145, `spread` .42 to .3), and its points end just above the chest flaps, which sit fully in view below them, as in the photos. A test now checks that the collar's points stay above the flaps.
+
 ## Checks
 
 - `npm test`: 84 passing. A new `tests/fur-jacket.test.js` checks:
   - the parts, and that zips, bands and the hood are absent;
   - the fur material, with hairs lying downward on the body and sleeves;
   - that the jacket stays closed;
-  - the cropped hem, and the collar points reaching her chest;
+  - the cropped hem, and the collar points ending above the chest flaps;
   - the chest flaps on each side;
   - that it eases out over a chunky jumper and is boxier than the leather jacket;
   - the build time.

@@ -19,9 +19,11 @@ test('Bomboogie fur jacket: faux fur, big point collar, hidden snap front, chest
   assert.ok(body.map.repeat.y<0&&sleeve.map.repeat.y>0,'hairs lie downward on the body (v up) and the sleeves (v down)');
   // Closed with its snaps: it has no open state.
   assert.equal(cleanRecipe({outerwearId:BOMBOOGIE_FUR_JACKET_ID,outerwearOpen:true}).outerwearOpen,false);assert.equal(jacket.userData.open,false);
-  // Cropped at the high hip, and the collar's points come down onto her chest.
+  // Cropped at the high hip. The collar's points come down onto her chest but end above the chest flaps, which stay in
+  // view (the user found the first, bigger collar covering them).
   const hem=new T.Box3().setFromObject(named(jacket,'hem-roll')[0]);assert.ok(hem.min.y/.76>1.09&&hem.min.y/.76<1.13,`hem at ${(hem.min.y/.76).toFixed(3)}`);
-  const collar=new T.Box3().setFromObject(named(jacket,'fur-collar')[0]);assert.ok(collar.min.y/.76<1.75,`collar points reach ${(collar.min.y/.76).toFixed(3)}`);
+  const collar=new T.Box3().setFromObject(named(jacket,'fur-collar')[0]),flapTop=spec.build.pockets.flap.top;
+  assert.ok(collar.min.y/.76<1.85&&collar.min.y/.76>flapTop,`collar points reach ${(collar.min.y/.76).toFixed(3)}, flaps start at ${flapTop}`);
   // The chest flaps lie on the outside of the body, one each side.
   for(const f of named(jacket,'chest-flap')){const b=new T.Box3().setFromObject(f),c=b.getCenter(new T.Vector3());assert.ok(c.z>.15&&Math.abs(c.x)>.1,'on the chest');}
   assert.ok(new T.Box3().setFromObject(named(jacket,'chest-flap')[0]).getCenter(new T.Vector3()).x*new T.Box3().setFromObject(named(jacket,'chest-flap')[1]).getCenter(new T.Vector3()).x<0);

@@ -1381,7 +1381,7 @@ export const GARMENTS = Object.freeze({
       },
       // One snap shows at the top of the front, on her right.
       snaps: [[-.03, 1.83]],
-      collar: { gap: .09, spread: .42, foldFront: 1.93, foldBack: 1.975, dropFront: .24, dropBack: .14, lift: .022, roll: .016 },
+      collar: { gap: .09, spread: .3, foldFront: 1.93, foldBack: 1.975, dropFront: .145, dropBack: .11, lift: .02, roll: .014 },
       pockets: { roll: .01, flap: { x0: .085, x1: .235, top: 1.765, height: .058, lift: .012 }, side: { x: .245, slant: .2, top: 1.44, bottom: 1.25 } },
       sleeve: {
         rows: [[.045, .124, .118], [0, .138, .132], [-.1, .142, .136], [-.25, .14, .135], [-.38, .136, .132], [-.45, .132, .128], [-.495, .124, .12]],
