@@ -1,6 +1,6 @@
 # Wardrobe item: Mango pink halftone dot shirt
 
-Authored 9 October 2026. Status: first version, awaiting the user's visual review. The third button-down, and the first relaxed, hip-length shirt on the shirt template.
+Authored 9 October 2026. Status: first version; approved: the user merged it, and merging means approved (their rule). The third button-down, and the first relaxed, hip-length shirt on the shirt template.
 
 ## Source and reference reading
 
@@ -75,7 +75,7 @@ Relaxed and straight, hip length with a curved hem, in soft pink and cream halft
     - over the skirt, the tucked hem and the visible bow.
   - The shared sleeve, hand, waistband, outerwear and styling tests also run on it.
 - `npm run build` succeeds.
-- Rendered in headless Chromium (software WebGL) from the front, a turn, the side and the back, over the pleated trousers and tucked into the skirt. Only the authoring chat has checked these renders; the user has not seen them yet. No device check.
+- Rendered in headless Chromium (software WebGL) from the front, a turn, the side and the back, over the pleated trousers and tucked into the skirt. The user saw them and merged the shirt. No device check.
 
 ## Known differences
 

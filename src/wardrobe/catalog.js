@@ -405,7 +405,7 @@ export const GARMENTS = Object.freeze({
   [MANGO_DOT_SHIRT_ID]: {
     slot: 'top',
     id: MANGO_DOT_SHIRT_ID, name: 'Mango pink halftone dot shirt', family: 'relaxed-button-down-shirt', version: 1,
-    status: 'reference-study-awaiting-visual-review', brandAsProvided: 'Mango (“MNG” neck label)',
+    status: 'user-approved', brandAsProvided: 'Mango (“MNG” neck label)',
     source: { note: 'user supplied five product photos without a description: a front flat lay, a close-up of the collar, the back on a model, and two fronts on models (one worn open low, one over white wide-leg jeans)' },
     referenceViews: ['front flat lay', 'collar close-up', 'back on model', 'front on model, open', 'front on model, with jeans'],
     details: ['relaxed long-sleeved shirt in a fine crepe', 'printed with a square lattice of soft pink dots on cream, in blocks of two kinds set in an uneven checker: big touching pink dots with small cream four-point stars between them, and the reverse (touching cream dots with small pink stars)', 'point collar, collar and stand in the print, one button at the collar', 'concealed placket: no buttons show down the front', 'long relaxed sleeves gathered into buttoned cuffs', 'hip length, with a curved shirt-tail hem that dips at the centre front and back', 'worn untucked and open at the neck on the models'],
