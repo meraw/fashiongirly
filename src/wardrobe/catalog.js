@@ -355,7 +355,7 @@ const BUILT_IN = {
   [PB_CHENILLE_ID]: {
     slot: 'top',
     id: PB_CHENILLE_ID, name: 'Grey chenille high-neck jumper', family: 'cropped-chenille-jumper', version: 1,
-    status: 'reference-study-awaiting-visual-review', brandAsProvided: 'Pull & Bear (the user could not find it online)',
+    status: 'user-approved', brandAsProvided: 'Pull & Bear (the user could not find it online)',
     source: { note: 'user supplied one phone photo of the jumper laid flat on the floor, front up, with a note: Pull & Bear, grey chenille, pay attention to the high collar' },
     referenceViews: ['front flat lay'],
     details: ['soft cool grey chenille knit in rows of plump, velvety loops that catch the light unevenly', 'a ribbed stand-up (mock) collar, high round her neck', 'boxy, cropped body with dropped shoulders', 'a deep ribbed hem band, gathered a little so the body blouses over it', 'long, relaxed sleeves gathered into long ribbed cuffs', 'all one colour; no print, label or seams on show'],
