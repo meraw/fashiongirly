@@ -8,6 +8,7 @@ export const ZIP_TRACK_DRESS_ID = 'navy-half-zip-track-dress-v1';
 export const BUFFALO_ASPHA_ID = 'buffalo-aspha-mid-olive-v1';
 export const DM_COW_SLIDE_ID = 'dr-martens-cow-slide-v1';
 export const UGG_LOWMEL_ID = 'ugg-lowmel-cream-v1';
+export const DM_BLAIRE_CHAIN_ID = 'dr-martens-blaire-quad-chain-v1';
 export const BRONZE_TOP_ID = 'desigual-bronze-mesh-v1';
 export const LILAC_TOP_ID = 'lilac-portrait-mockneck-v1';
 export const CROCHET_TOP_ID = 'desigual-crochet-flowers-v1';
@@ -758,6 +759,37 @@ export const GARMENTS = Object.freeze({
         { name: 'heel-counter', z: [-.17, .0], top: [[-.17, .17], [-.1, .155], [-.04, .128], [.0, .112]] },
         { name: 'side-quarter', z: [-.03, .3], top: [[-.03, .122], [.05, .162], [.11, .19], [.18, .192], [.24, .165], [.3, .118]] },
       ],
+    },
+  },
+  [DM_BLAIRE_CHAIN_ID]: {
+    slot: 'shoes',
+    id: DM_BLAIRE_CHAIN_ID, name: 'Dr. Martens Blaire Quad chain sandals', family: 'platform-strap-sandal', version: 1,
+    status: 'reference-study-awaiting-visual-review', brandAsProvided: 'Dr. Martens',
+    source: { note: 'user supplied seven product images: front three-quarter pair, back three-quarter close-up, top, buckle close-up, back, inner side, outer side; the back label reads BLAIRE II QUAD CHAIN' },
+    referenceViews: ['front three-quarter', 'back three-quarter', 'top', 'buckle close-up', 'back', 'inner side', 'outer side'],
+    details: ['open-toe platform strap sandal in glossy black patent leather', 'three straps straight across the foot and an ankle strap round the back of the ankle, joined to the sole by an upright strap on each side', 'chunky silver curb chain along the top of every strap, fixed with studs at each end', 'large silver buckles engraved Dr. Martens on the outer side, with pointed stitched tabs', 'tonal stitching along the strap edges', 'black heel pull loop lined in yellow, printed With Bouncing Soles', 'black footbed', 'tall Quad platform with fine horizontal ribbing, a grooved welt with yellow stitching and a sawtooth tread'],
+    material: { construction: 'patent leather straps with metal chains on a moulded platform', composition: 'not visible in the supplied images', finish: 'high-gloss patent, satin silver hardware, matte ribbed sole' },
+    fit: { silhouette: 'chunky platform strap sandal', platform: 'tall; raises her by the part above her normal foot level', adjustment: 'fixed authored fit for review' },
+    styling: { coverage: 'open toe and heel; bare feet', warmth: 'summer; not for rain or cold (open, patent)', palette: 'black with silver hardware and yellow stitching', mood: 'edgy, hardware-heavy' },
+    uncertainties: ['chains are drawn as alternating curb links, simplified', 'the Dr. Martens lettering on buckles, footbed and pull loop is not reproduced', 'her bare feet are toeless felt shapes', 'the ankle strap is modelled as one band with a front buckle'],
+    authoring: { texture: 'none; patent, metal and ribbed sole are materials and geometry in src/doll/model.js', runtimeGeneration: false, sourcePhotosBundled: false },
+    // Construction for makePlatformSlide() (template 'platform-sandal') in src/doll/model.js, in outfit units. Heights
+    // and strap positions are proportions of the side photos (sole length .5).
+    build: {
+      template: 'platform-sandal', cx: .16, baseFoot: .11, restCap: .27,
+      colours: { outsole: '#2a292c', leather: '#1c1b1e', footbed: '#1e1d20', stitch: '#e0a91f', skin: '#dfb195', buckle: '#c9ccd0', patent: '#151518', strapStitch: '#3c3c41', pullLoop: '#141416' },
+      plan: { front: .35, back: -.15, halfWidth: .12, nFront: 3.2, nBack: 2.8, heelNarrow: .1, toeNarrow: .15 },
+      // Quad sole: ribbed outsole with a sawtooth tread, a welt with yellow stitching, a ribbed top layer, the footbed.
+      sole: { style: 'quad', outsole: .1, rib: .0065, ribDepth: .0045, toothTop: .022, toothDepth: .018, welt: { grooves: [.106], stitch: .113, top: .121 }, footbed: .142, top: .142, heelTop: .142, lugs: 36, archGap: 0 },
+      foot: { nFront: 2.5, nBack: 2.2, instepTop: .275, rows: [[.13, .29, -.115, .082], [.148, .312, -.128, .093], [.168, .31, -.132, .095], [.188, .282, -.13, .091], [.208, .22, -.122, .084], [.23, .14, -.108, .075], [.255, .085, -.092, .066], [.285, .055, -.072, .055], [.33, .045, -.06, .05], [.44, .045, -.06, .05]] },
+      // Straps straight across: [z inner, z outer, width, gap above her foot].
+      bands: [[.24, .23, .046, .01], [.17, .16, .046, .012], [.098, .09, .046, .012]],
+      chain: { from: .2, to: .76, size: .0115 }, buckleAt: .9,
+      // Ankle strap: height, gap round the ankle, width, slope (higher at the back), closed all the way round her ankle
+      // (from/to in radians from the front), the chain's and buckle's angles on the outer side, and where the side uprights
+      // join it.
+      ankle: { y: .3, gap: .01, width: .04, tilt: -.006, closed: true, from: 0, to: 6.2832, chain: [1.25, 2.5], buckle: .95, upright: 1.45 },
+      pullLoop: { height: .065, width: .036 },
     },
   },
   // Outerwear.
