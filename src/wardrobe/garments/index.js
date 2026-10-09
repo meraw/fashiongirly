@@ -5,7 +5,9 @@
 // slot 00
 // slot 01
 // slot 02
+export { default as whiteLinenButtonDownShirtV1 } from './white-linen-button-down-shirt-v1.js';
 // slot 03
+export { default as lapisBlueLinenButtonDownShirtV1 } from './lapis-blue-linen-button-down-shirt-v1.js';
 // slot 04
 // slot 05
 // slot 06
