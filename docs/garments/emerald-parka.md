@@ -11,6 +11,7 @@ The user's own coat has a history:
 - It was originally a lighter blue than the photos, in a colour they could not find online.
 - It was damaged with bleach, and the user dyed it emerald green with Coloreria Italiana dye.
 - The colour cannot be captured on camera, so the user asked for **a slightly muted emerald green**.
+- After the first render, the user explained more: the original colour was “carta zucchero”, the dusty powder blue. The dye blended with it, more green than blue, but **less saturated** than the first version.
 
 Features read from the photos:
 
@@ -25,7 +26,11 @@ Features read from the photos:
 
 ## Colour
 
-The colour is the user's description, not a measurement. It was rendered and measured against a target for a slightly muted emerald. The front's plain areas now render at about RGB 54, 120, 86. The first try rendered as a light jade, about 90, 160, 120, so the shell was darkened.
+The colour is the user's description, not a measurement. Each version was rendered and measured on the front's plain areas:
+
+1. First try: a light jade, about RGB 90, 160, 120, so the shell was darkened.
+2. Second: a slightly muted emerald, about 54, 120, 86. The user found it too saturated.
+3. Now: a muted blue-green, about 79, 120, 102. This is emerald dyed over carta zucchero: greener than blue, but greyed and softened.
 
 Assumed, not stated (recorded as unknowns in the catalog entry):
 

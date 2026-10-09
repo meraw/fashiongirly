@@ -1139,8 +1139,8 @@ export const GARMENTS = Object.freeze({
     fit: { silhouette: 'oversized, straight to a slight A-line, dropped shoulders', length: 'knee on the model; assumed at least knee length on the user, who is short', sleeve: 'long and full, gathered at the wrist', wear: 'zipped closed in real life (the user wears outerwear closed unless it is designed to be worn open), hood down; it can also be shown open on the doll', adjustment: 'fixed authored fit for review' },
     layering: { closed: true, coversTopSleeves: true, coversWaistband: true, canOpen: true },
     styling: {
-      observed: { palette: ['emerald green (dyed)', 'cream sherpa', 'red and white cords'], pattern: 'plain', silhouette: 'oversized knee-length parka with dropped shoulders', coverage: 'torso, hips and thighs to the knee; arms to the wrist; neck when zipped; hood', material: 'woven shell with a sherpa-lined hood and body' },
-      user: { colour: 'a slightly muted emerald green: the user dyed it after a bleach accident, and the colour does not photograph well', wear: 'zipped closed, or not worn, in real life; shown open on the doll only to see how it looks' },
+      observed: { palette: ['muted blue-green emerald (dyed over powder blue)', 'cream sherpa', 'red and white cords'], pattern: 'plain', silhouette: 'oversized knee-length parka with dropped shoulders', coverage: 'torso, hips and thighs to the knee; arms to the wrist; neck when zipped; hood', material: 'woven shell with a sherpa-lined hood and body' },
+      user: { colour: 'a muted, less saturated emerald: the user dyed it emerald over its original carta zucchero (dusty powder blue) after a bleach accident; the two blended, more green than blue; the colour does not photograph well', wear: 'zipped closed, or not worn, in real life; shown open on the doll only to see how it looks' },
       inferred: { warmth: 'warm: a sherpa-lined parka for cold days', weather: 'cold, windy days; the hood suits rain or wind; long enough to cover a skirt or dress', unknown: ['waterproofing', 'fibre composition', 'whether the sherpa, stitching and cords took the dye (assumed not: they look as in the photos)', 'any marks left by the bleach under the dye', 'the exact length on the user'] },
     },
     uncertainties: ['the colour is the user\'s description, not a measurement', 'sherpa, stitching and cords are assumed to have kept their original colours', 'length assumed at the knee', 'the hood is worn down; its pile edge shows round her neck', 'pocket flaps are drawn as slanted raised flaps with one snap each'],
@@ -1149,7 +1149,7 @@ export const GARMENTS = Object.freeze({
     // elastic band, a sherpa-lined collar and hood edge, red hood and hem cords, and no sleeve badge.
     build: {
       template: 'zip-windbreaker', roughness: .82,
-      colours: { shell: '#0c4e38', stitch: '#0a4330', snap: '#c8c9c4', cord: '#c4504c', cordTip: '#ece7dc', zip: '#4a4a46', opening: '#06281c', toggle: '#ece7dc', sherpa: '#e6dbc4', lining: '#e2d6bd' },
+      colours: { shell: '#284e45', stitch: '#22423a', snap: '#c8c9c4', cord: '#c4504c', cordTip: '#ece7dc', zip: '#4a4a46', opening: '#0f2a24', toggle: '#ece7dc', sherpa: '#e6dbc4', lining: '#e2d6bd' },
       open: { shift: .1 },
       body: {
         rows: [[1.975, .132, .126], [1.935, .134, .128], [1.9, .146, .135], [1.875, .21, .168], [1.84, .28, .214], [1.8, .33, .248], [1.75, .356, .264], [1.65, .366, .276], [1.5, .37, .282], [1.35, .374, .287], [1.2, .38, .291], [1.05, .392, .296], [.9, .41, .302], [.78, .424, .306], [.7, .432, .307], [.682, .43, .304]],
