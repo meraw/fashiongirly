@@ -6,7 +6,8 @@ import { readFileSync } from 'node:fs';
 import { makeDoll, makeOutfit, disposeObject } from '../src/doll/model.js';
 import { cleanRecipe, editRecipe } from '../src/doll/recipe.js';
 import { startStudio } from '../src/doll/app.js';
-import { GARMENTS } from '../src/wardrobe/catalog.js';
+import { GARMENTS, DESIGUAL_MOUNTAIN_SHIRT_ID } from '../src/wardrobe/catalog.js';
+import { MOUNTAIN_SHIRT_ATLAS } from '../src/wardrobe/mountain-shirt-atlas.js';
 import { levelCaster } from '../src/doll/level-caster.js';
 // Tops: each reference top and how tops layer over her, the bottoms and each other.
 test('lilac shirt clears the trousers and seams around its lower hem',()=>{
@@ -338,6 +339,43 @@ test('spray floral mesh shirt: on the shirt template, worn open at the top, with
   for(let i=0;i<px.length;i+=4){const [r,g,b]=[px[i],px[i+1],px[i+2]];if(r>g*3&&g<40)deep++;if(g>160&&b>160)cream++;}
   const n=px.length/4;assert.ok(deep/n>.15&&deep/n<.4,`deep ${deep/n}`);assert.ok(cream/n>.05&&cream/n<.35,`cream ${cream/n}`);
   disposeObject(outfit);
+});
+
+test('mountain mesh shirt: printed from its atlas, high-hip hem, gathers either side of the placket, buttoned cuffs, buttoned to the top',()=>{
+  const id=DESIGUAL_MOUNTAIN_SHIRT_ID;
+  assert.equal(cleanRecipe({topId:id,knit:true}).knit,false);assert.match(MOUNTAIN_SHIRT_ATLAS,/^data:image\/webp;base64,/);
+  const atlas=new T.DataTexture(new Uint8Array([180,120,90,255]),1,1),outfit=makeOutfit({topId:id},{[id]:atlas});outfit.updateMatrixWorld(true);
+  const all=name=>{const found=[];outfit.traverse(o=>{if(o.name===name)found.push(o);});return found;};
+  for(const [name,count] of [['mesh-shirt-body',1],['mesh-shirt-sleeve',2],['shirt-cuff',2],['cuff-button',2],['cuff-seam',2],['bare-shoulder-skin',0],['shirt-collar-fall',1],['shirt-collar-topstitch',0],['hem-stitch',1]])
+    assert.equal(all(name).length,count,name);
+  // Eight glossy black buttons, worn buttoned to the top as in the flat lay: the top one just under the collar.
+  const buttons=all('shirt-button'),ys=buttons.map(b=>b.getWorldPosition(new T.Vector3()).y/.76);assert.equal(buttons.length,8);
+  const c=buttons[0].material.color;assert.ok(c.r<.05&&c.g<.05,'black buttons');assert.ok(Math.max(...ys)>1.85,'buttoned to the top');
+  const body=all('mesh-shirt-body')[0],p=body.geometry.attributes.position,uv=body.geometry.attributes.uv;
+  // Closed: the front reaches the neck, with no V cut into it.
+  let front=-Infinity,lowest=Infinity;for(let i=0;i<p.count;i++){if(p.getZ(i)>.09&&Math.abs(p.getX(i))<.004)front=Math.max(front,p.getY(i));lowest=Math.min(lowest,p.getY(i));}
+  assert.ok(front>1.89,`front reaches ${front}`);
+  // Longer than the cropped shirts: it ends at the high hip and covers the waistband, so the skirt's bow is hidden.
+  assert.ok(Math.abs(lowest-1.19)<.002,`hem at ${lowest}`);assert.equal(GARMENTS[id].layering.coversWaistband,true);
+  // The print comes from the atlas: the body from its top three quarters, each sleeve from its own half of the bottom
+  // quarter (her right sleeve on the left half).
+  assert.equal(body.material.map.source,atlas.source);
+  const vs=[...uv.array].filter((_,k)=>k%2);assert.ok(Math.min(...vs)>=.249&&Math.max(...vs)<=1.0001,'body rows');
+  for(const sleeve of all('mesh-shirt-sleeve')){const a=sleeve.geometry.attributes.uv.array,us=[...a].filter((_,k)=>!(k%2)),v=[...a].filter((_,k)=>k%2);
+    assert.ok(Math.max(...v)<=.2501,'sleeve rows');const right=sleeve.parent.position.x<0;assert.ok(right?Math.max(...us)<=.5:Math.min(...us)>=.5,'each sleeve its own half');}
+  // Gathers: either side of the placket, between the third and fifth buttons, the front ripples in and out; above and
+  // below the gathered band it is smooth.
+  // One column of the body, about .05 from the placket (columns are 129 vertices apart).
+  const ripple=(lo,hi)=>{let r=[];for(let i=4;i<p.count;i+=129){const x=p.getX(i),y=p.getY(i),z=p.getZ(i);if(y>lo&&y<hi)r.push([y,Math.hypot(x,z)]);}
+    r.sort((a,b)=>a[0]-b[0]);let turns=0;for(let k=2;k<r.length;k++)if((r[k][1]-r[k-1][1])*(r[k-1][1]-r[k-2][1])<0)turns++;return turns;};
+  assert.ok(ripple(1.45,1.61)>=3,`gathered (${ripple(1.45,1.61)} folds)`);assert.ok(ripple(1.22,1.38)<=1,'smooth below the gathers');
+  // Each cuff wraps the end of its sleeve, with its button on the outer side.
+  for(const button of all('cuff-button'))assert.ok(Math.sign(button.position.x)===Math.sign(button.parent.position.x),'button on the outer side');
+  // Without the atlas (a failed load) it still dresses her, in a flat rust colour; the other shirts gain none of the new parts.
+  const plain=makeOutfit({topId:id});const m=plain.getObjectByName('mesh-shirt-body').material;assert.equal(m.map,null);assert.ok(m.color.r>m.color.b);
+  for(const other of ['motel-tie-dye-mesh-shirt-v1','desigual-spray-floral-mesh-shirt-v1']){const o=makeOutfit({topId:other});
+    for(const name of ['shirt-cuff','cuff-button','bare-shoulder-skin'])assert.equal(o.getObjectByName(name),undefined,`${other}: ${name}`);disposeObject(o);}
+  [outfit,plain].forEach(disposeObject);atlas.dispose();
 });
 
 test('every top records styling facts for later outfit selection',()=>{

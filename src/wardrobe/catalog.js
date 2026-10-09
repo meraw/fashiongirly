@@ -33,6 +33,7 @@ export const PETIT_BATEAU_CARDIGAN_ID = 'petit-bateau-striped-cardigan-v1';
 export const TOMMY_STRIPE_POLO_ID = 'tommy-stripe-knit-polo-v1';
 export const MOTEL_TIE_DYE_SHIRT_ID = 'motel-tie-dye-mesh-shirt-v1';
 export const DESIGUAL_SPRAY_FLORAL_SHIRT_ID = 'desigual-spray-floral-mesh-shirt-v1';
+export const DESIGUAL_MOUNTAIN_SHIRT_ID = 'desigual-mountain-landscape-mesh-shirt-v1';
 export const VANGOGH_TEE_ID = 'van-gogh-patchwork-tee-v1';
 export const DESIGUAL_FRESCO_TEE_ID = 'desigual-fresco-rib-vneck-tee-v1';
 export const MICKEY_LONG_TEE_ID = 'black-mickey-print-long-tee-v1';
@@ -383,6 +384,21 @@ export const GARMENTS = Object.freeze({
     uncertainties: ['the flowers are drawn procedurally to match the photos\' colours, motif sizes and layout, not copied', 'worn with the top button open, as on the model', 'the shirttail hem and the cuffs are simplified to the template\'s straight hem and plain sleeve ends'],
     styling: { silhouette: 'slim, cropped at the waist', palette: ['black', 'red', 'cream', 'yellow', 'blue', 'green'], pattern: 'split floral: small scattered flowers on one half, large painted flowers on black on the other', coverage: { neck: 'point collar, top button open', sleeves: 'long', midriff: 'cropped at the waist' }, material: 'woven cotton poplin, composition unknown', warmth: 2, warmthBasis: 'inferred: an opaque woven shirt with long sleeves', weather: 'mild days, or as a layer under a jacket', mood: 'bold, playful, eclectic' },
     authoring: { template: 'makeButtonShirt() in src/doll/shirts.js', texture: 'procedural split floral print in src/doll/split-floral-print.js, drawn locally when first worn', runtimeGeneration: false, sourcePhotosBundled: false },
+  },
+  [DESIGUAL_MOUNTAIN_SHIRT_ID]: {
+    slot: 'top',
+    id: DESIGUAL_MOUNTAIN_SHIRT_ID, name: 'Desigual mountain landscape mesh shirt', family: 'fitted-mesh-button-down-shirt', version: 1,
+    status: 'authored-awaiting-user-review', brandAsProvided: 'Desigual (label in the flat lay)',
+    source: { note: 'user supplied five product photos without a written description: a front flat lay, the front on a model (two) and a close-up of the front, and the back on a model' },
+    referenceViews: ['front flat lay', 'front on model', 'front on model, closer and turned', 'back on model', 'front close-up'],
+    details: ['sheer stretch mesh printed all over with a painted mountain landscape at sunset: a peach, pink and lilac sky, ochre and rust mountains with lilac snow, dark brown slopes with cream flecks low down', 'on the back, one large snowy peak in the middle', 'point collar in the print', 'eight glossy black buttons from the collar stand to the hem; worn buttoned to the top, as in the flat lay', 'gathered either side of the placket below the bust', 'long fitted sleeves with buttoned cuffs, a black button on each', 'tonal stitching', 'slim and fitted, to the high hip'],
+    material: { construction: 'fine stretch mesh (the netting shows in the close-up)', composition: 'not stated', finish: 'slight sheen' },
+    fit: { silhouette: 'slim, fitted', sleeve: 'long and fitted, with buttoned cuffs at the wrist', hem: 'high hip, over the waistband', adjustment: 'fixed authored fit for review' },
+    exclusions: ['striped-shirt','knit-sweater'],
+    layering: { coversWaistband: true },
+    uncertainties: ['the print is taken from the product photos, so it is softer than the fabric and some photographed shading remains', 'the doll\'s torso is much wider and shorter than the model\'s, so the front shows a shorter slice of the landscape, and the mountains are lower', 'the sleeves come from crops of the photos and are squashed lengthwise: her arms are short and thick', 'not see-through, as for the other mesh shirts'],
+    styling: { silhouette: 'slim, high-hip length', palette: ['peach', 'rust', 'ochre', 'dark brown', 'lilac'], pattern: 'painted mountain landscape at sunset', coverage: { neck: 'point collar, buttoned to the top', sleeves: 'long, sheer, buttoned cuffs', midriff: 'covered' }, material: 'fine stretch mesh, composition unknown', warmth: 1, warmthBasis: 'inferred: thin, sheer mesh, though long-sleeved', weather: 'mild days, or as a layer; sheer' },
+    authoring: { template: 'makeButtonShirt() in src/doll/shirts.js', texture: 'mountain-shirt-atlas.js: the body unwrapped and the sleeves, projected from the user\'s flat lay (front) and back photo', runtimeGeneration: false, sourcePhotosBundled: 'processed crops only, as the texture atlas' },
   },
   [BARREL_JEANS_ID]: {
     slot: 'bottom',
