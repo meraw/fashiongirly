@@ -67,7 +67,7 @@ Garment file `src/wardrobe/garments/levis-colourblock-half-zip-anorak-v1.js` (sl
 
 ### New optional template settings (additive)
 
-Each defaults to the old behaviour. All eight existing jackets are unchanged: their fingerprints match `main`'s, closed, over the skirt and open.
+Each defaults to the old behaviour. All nine existing jackets, including the ONLY Onlerin jacket on the same template, are unchanged: their fingerprints match `main`'s, closed, over the skirt and open.
 
 - **`yoke.backCentre`:** the yoke also ends in a V across the back.
 - **`yoke.script` is optional,** and **`yoke.wordmark`** adds a small printed name in block capitals instead.
@@ -78,7 +78,7 @@ Each defaults to the old behaviour. All eight existing jackets are unchanged: th
 
 ## Checks
 
-- `npm test`: 118 passing after merging `main`, including the new `tests/levis-anorak.test.js`. It checks:
+- `npm test`: 119 passing after merging `main`, including the new `tests/levis-anorak.test.js`. It checks:
   - the parts, and the parts it leaves out
   - the half zip and its stop
   - the colour block: red above the V and pink below it, front and back; the V rising to the sides; red over the collar

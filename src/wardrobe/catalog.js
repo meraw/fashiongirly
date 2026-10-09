@@ -1849,6 +1849,8 @@ const BUILT_IN = {
     },
   },
 };
-// Garments added since 9 October 2026 each live in their own file in ./garments (one line each in ./garments/index.js),
-// so adding one touches no line another chat is editing. They join the built-in entries above.
-export const GARMENTS = Object.freeze({ ...BUILT_IN, ...Object.fromEntries(Object.values(FILED).map(g => [g.id, g])) });
+// Garments added since 9 October 2026 each live in their own file in ./garments (one line each in ./garments/index.js,
+// written by scripts/garment-index.mjs), so adding one touches no line another chat is editing. They join the built-in
+// entries above.
+// (In order of their ids, whatever their order in the index.)
+export const GARMENTS = Object.freeze({ ...BUILT_IN, ...Object.fromEntries(Object.values(FILED).sort((a, b) => a.id < b.id ? -1 : 1).map(g => [g.id, g])) });
