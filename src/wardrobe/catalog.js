@@ -872,14 +872,14 @@ export const GARMENTS = Object.freeze({
     referenceViews: ['front on model', 'back on model', 'side on model, open', 'front flat lay', 'back flat lay', 'front flat lay, collar close', 'inside'],
     details: ['slate-blue shell with an ecru yoke over the shoulders and upper sleeves', 'front yoke ends in a shallow V pointing down to the zip; across the back it ends straight, as a stitched flap', 'yoke colour ends diagonally on the sleeves, higher outside than underneath', 'gunmetal coil zip from hem to the top of the stand collar', 'hood worn down, blue outside with ecru lining, ecru drawcords with blue-and-white tips', 'vertical welt pockets low on each front, each closed by two white snaps', 'elastic gathered hem band and cuffs; the body and sleeves blouse into them', 'embroidered blue script on the yoke at her left chest', 'round white rubber badge on the upper left sleeve', 'small woven labels on the hood and low on the back'],
     material: { construction: 'woven windbreaker shell, jersey-lined body', composition: 'not visible in the supplied screenshots', finish: 'matte with a soft sheen' },
-    fit: { silhouette: 'boxy and relaxed, dropped shoulders', length: 'hip, just below the waistband', sleeve: 'long and relaxed, gathered at the wrist', wear: 'zipped closed: the user wears outerwear closed unless it is designed to be worn open', adjustment: 'fixed authored fit for review' },
+    fit: { silhouette: 'boxy and relaxed, dropped shoulders', length: 'hip, just below the waistband', sleeve: 'long and relaxed, gathered at the wrist', wear: 'zipped closed in real life (the user wears outerwear closed unless it is designed to be worn open); on the doll it can also be shown open, to see how it looks (user, 9 October 2026)', adjustment: 'fixed authored fit for review' },
     // A closed jacket covers the top's sleeves and the skirt's bow.
-    layering: { closed: true, coversTopSleeves: true, coversWaistband: true },
+    layering: { closed: true, coversTopSleeves: true, coversWaistband: true, canOpen: true },
     // For choosing outfits later. Observed: seen in the photos; user: the user's own words; inferred: read from the
     // construction, not stated anywhere.
     styling: {
       observed: { palette: ['slate blue', 'ecru'], pattern: 'colour-blocked: ecru yoke ending in a V at the front', silhouette: 'boxy hip-length blouson, dropped shoulders', coverage: 'torso and arms to the wrist; neck when zipped; hood (modelled down)', material: 'woven windbreaker shell with a grey jersey lining in the body' },
-      user: { wear: 'zipped closed, or not worn' },
+      user: { wear: 'zipped closed, or not worn, in real life; shown open on the doll only to see how it looks' },
       inferred: { warmth: 'light layer: unpadded shell and a thin lining', weather: 'mild, breezy or cool days; the hood suits light showers', unknown: ['waterproofing', 'fibre composition'] },
     },
     uncertainties: ['the embroidered script is suggested by small joined loops, not the brand lettering', 'the hood lies down on her back; her large head and hair hide its upper part and the collar', 'badge and labels carry no lettering', 'lining is not modelled beyond the collar and the hood edge'],
@@ -888,7 +888,9 @@ export const GARMENTS = Object.freeze({
     // collar down; sleeve rows are along the arm from the shoulder.
     build: {
       template: 'zip-windbreaker', roughness: .78,
-      colours: { shell: '#31425a', yoke: '#c3c5b9', embroidery: '#5f82b4', stitch: '#3b4b61', snap: '#ecebe6', cord: '#e2e0d8', zip: '#5b5850', opening: '#222a35' },
+      colours: { shell: '#31425a', yoke: '#c3c5b9', embroidery: '#5f82b4', stitch: '#3b4b61', snap: '#ecebe6', cord: '#e2e0d8', zip: '#5b5850', opening: '#222a35', lining: '#a09f9b' },
+      // Shown open: how far each front edge slides out. The lining colour is the grey jersey in the inside view, estimated.
+      open: { shift: .09 },
       body: {
         rows: [[1.975, .13, .124], [1.935, .131, .125], [1.9, .14, .13], [1.875, .2, .16], [1.84, .268, .205], [1.8, .318, .24], [1.75, .345, .258], [1.65, .357, .27], [1.5, .36, .276], [1.35, .362, .28], [1.22, .362, .282], [1.16, .356, .277], [1.135, .346, .266], [1.118, .338, .258]],
         overSkirt: [[1.975, .13, .124], [1.935, .131, .125], [1.9, .14, .13], [1.875, .2, .16], [1.84, .268, .205], [1.8, .318, .24], [1.75, .345, .258], [1.65, .357, .27], [1.5, .36, .276], [1.35, .365, .282], [1.22, .374, .288], [1.16, .376, .288], [1.135, .374, .282], [1.118, .37, .276]],
@@ -963,11 +965,11 @@ export const GARMENTS = Object.freeze({
     referenceViews: ['front on model, open', 'back on model', 'collar close-up', 'front flat lay', 'back flat lay'],
     details: ['one-colour stone (light greige) woven shell', 'tall stand collar with the hood stowed inside it, a zip seam across its back, metal snaps and a small cord toggle', 'zip covered by a storm placket from the hem to the top of the collar', 'raglan sleeves', 'curved front panel seams sweeping from the sides down to pocket openings low on each front', 'a horizontal flap seam across the middle of the back', 'reflective prints: RED BULL RACING running down beside the placket, Red Bull across the back above the flap', 'elastic gathered hem band with a cord toggle, elastic cuffs', 'small rectangular rubber patch on the upper left sleeve', 'boxy, hip length'],
     material: { construction: 'woven windbreaker shell', composition: 'not visible in the supplied screenshots', finish: 'matte, slightly technical; reflective prints' },
-    fit: { silhouette: 'boxy and relaxed, raglan shoulders', length: 'hip', sleeve: 'long and relaxed, gathered at the wrist', wear: 'zipped closed: the user wears outerwear closed unless it is designed to be worn open (the model wears it open)', adjustment: 'fixed authored fit for review' },
-    layering: { closed: true, coversTopSleeves: true, coversWaistband: true },
+    fit: { silhouette: 'boxy and relaxed, raglan shoulders', length: 'hip', sleeve: 'long and relaxed, gathered at the wrist', wear: 'zipped closed in real life (the user wears outerwear closed unless it is designed to be worn open; the model wears it open); on the doll it can also be shown open, to see how it looks (user, 9 October 2026)', adjustment: 'fixed authored fit for review' },
+    layering: { closed: true, coversTopSleeves: true, coversWaistband: true, canOpen: true },
     styling: {
       observed: { palette: ['stone', 'silver-white reflective print'], pattern: 'plain, with tonal reflective lettering', silhouette: 'boxy hip-length blouson, raglan sleeves', coverage: 'torso and arms to the wrist; neck when zipped (tall collar)', material: 'woven windbreaker shell' },
-      user: { wear: 'zipped closed, or not worn' },
+      user: { wear: 'zipped closed, or not worn, in real life; shown open on the doll only to see how it looks' },
       inferred: { warmth: 'light layer: unpadded shell', weather: 'mild, breezy or cool days; the stowed hood suits light showers', unknown: ['waterproofing', 'lining', 'fibre composition'] },
     },
     uncertainties: ['the reflective prints are spelled in a plain block font, not the brand typeface or logo', 'the hood stays stowed in the collar and is not modelled', 'the sleeve patch carries no lettering', 'pocket openings are drawn as narrow welts along the curved seams'],
@@ -977,6 +979,8 @@ export const GARMENTS = Object.freeze({
     build: {
       template: 'zip-windbreaker', roughness: .8,
       colours: { shell: '#97938a', stitch: '#817d74', snap: '#c9c5bc', cord: '#a9a59c', zip: '#8d8a86', opening: '#6c6861', print: '#f4f1eb', printShade: '#8c8880', badge: '#a29d94', toggle: '#2b2b2d' },
+      // Shown open: how far each front edge slides out. The lining is not visible in the photos, so it stays the shell colour.
+      open: { shift: .09 },
       body: {
         rows: [[1.975, .13, .124], [1.935, .131, .125], [1.9, .14, .13], [1.875, .2, .16], [1.84, .268, .205], [1.8, .318, .24], [1.75, .345, .258], [1.65, .357, .27], [1.5, .36, .276], [1.35, .362, .28], [1.22, .362, .282], [1.16, .356, .277], [1.135, .346, .266], [1.118, .338, .258]],
         overSkirt: [[1.975, .13, .124], [1.935, .131, .125], [1.9, .14, .13], [1.875, .2, .16], [1.84, .268, .205], [1.8, .318, .24], [1.75, .345, .258], [1.65, .357, .27], [1.5, .36, .276], [1.35, .365, .282], [1.22, .374, .288], [1.16, .376, .288], [1.135, .374, .282], [1.118, .37, .276]],

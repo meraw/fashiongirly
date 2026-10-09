@@ -6,7 +6,7 @@ import { GARMENTS } from '../wardrobe/catalog.js';
 
 export function makeOuterwear(id, overSkirt=false, {under=null,open=false}={}){
   const spec=GARMENTS[id]?.slot==='outerwear'?GARMENTS[id].build:null;
-  if(spec?.template==='zip-windbreaker')return makeZipWindbreaker(id,spec,overSkirt);
+  if(spec?.template==='zip-windbreaker')return makeZipWindbreaker(id,spec,overSkirt,open&&!!GARMENTS[id].layering?.canOpen,under);
   if(spec?.template==='leather-zip-jacket')return makeLeatherJacket(id,spec,overSkirt,under,open&&!!GARMENTS[id].layering?.canOpen);
   return null;
 }
@@ -169,6 +169,14 @@ function easeOver(under,{low,high,gap,radii,sleeve,openAt=null}){
   const eased=spread(spread(bins,4,Math.max),2,null).map(v=>Math.max(1,v));
   return y=>{const t=Math.max(0,Math.min(eased.length-1.001,(y-low)/step)),k=Math.floor(t),f=t-k;return eased[k]*(1-f)+eased[k+1]*f;};
 }
+// Spreads an easing (see easeOver) over a wider band of heights, `w` either side, never below what it was: a loose body
+// eases gradually over a collar or a jumper instead of in a sharp step.
+function broaden(fit,low,high,w){
+  const step=.005,n=Math.ceil((high-low)/step)+1,src=Array.from({length:n},(_,k)=>fit(low+k*step)),r=Math.round(w/step);
+  const wide=src.map((_,k)=>{let v=1;for(let d=-r;d<=r;d++)v=Math.max(v,src[Math.max(0,Math.min(n-1,k+d))]);return v;});
+  const soft=wide.map((_,k)=>{let v=0;for(let d=-r;d<=r;d++)v+=wide[Math.max(0,Math.min(n-1,k+d))];return v/(2*r+1);}).map((v,k)=>Math.max(v,src[k]));
+  return y=>{const t=Math.max(0,Math.min(n-1.001,(y-low)/step)),k=Math.floor(t),f=t-k;return soft[k]*(1-f)+soft[k+1]*f;};
+}
 // A centre-front zip strip from y0 to y1, lying on the body, with its teeth drawn by zipData().
 function centreZip(jacket,{at,normal},y0,y1,width,colour,name,span=y1-y0){
   const zy=[];for(let k=0;k<=60;k++)zy.push(y0+(y1-y0)*k/60);
@@ -189,13 +197,25 @@ function coveredZip(jacket,{at,normal,radii},P,B,mat,thread,metal){
   for(const [x,y] of P.snaps||[])for(const s of [-1,1]){const q=at(s*x/radii(y)[0],y,.006),n=normal(s*x/radii(y)[0],y);
     const stud=put(jacket,new T.CylinderGeometry(.008,.008,.004,16),metal,'collar-snap');stud.position.copy(q);stud.quaternion.setFromUnitVectors(V(0,1,0),n);}
 }
+// An open zip: a half along each front edge (angle 0 for her left front, 2pi for her right), moving with its panel.
+function zipHalves(jacket,{at,normal},y0,y1,width,colour,name){
+  const zipMap=dataTexture(zipData().data,16,16,.5,(y1-y0)/.014);zipMap.colorSpace=T.NoColorSpace;
+  const mat=new T.MeshStandardMaterial({color:colour,map:zipMap,metalness:.55,roughness:.45,side:T.DoubleSide}),ys=Array.from({length:41},(_,k)=>y0+(y1-y0)*k/40);
+  for(const [edge,inward] of [[1e-4,.02],[Math.PI*2-1e-4,-.02]])outward(ribbon(jacket,ys.map(y=>at(edge+inward*.25,y,.003)),ys.map(y=>normal(edge,y)),width*.6,mat,name),normal(edge,y0));
+}
+// Parts a ring-shaped shell (the hem band, the collar) at the front with the body's open fronts.
+function partRing(mesh,seg,d){const p=mesh.geometry.attributes.position;for(let k=0;k<p.count;k++)p.setX(k,p.getX(k)+openShift((k%(seg+1))/seg*Math.PI*2,d));p.needsUpdate=true;mesh.geometry.computeVertexNormals();return mesh;}
 function cordToggle(jacket,{at,normal,angleFor},{x,y,drop=.03},dark,cordMat){
   const a=angleFor(x,y),q=at(a,y,.008),n=normal(a,y);
   curve(jacket,[q.toArray(),at(a,y-drop*.5,.014).toArray(),at(a,y-drop,.012).toArray()],.0028,cordMat,'toggle-cord');
   const t=put(jacket,new T.CylinderGeometry(.007,.006,.02,12),dark,'cord-toggle');t.position.copy(at(a,y-drop,.013));t.lookAt(t.position.clone().add(n));t.rotateX(Math.PI/2);
 }
-function makeZipWindbreaker(id,spec,overSkirt){
-  const jacket=new T.Group();jacket.name='outerwear';jacket.userData.garmentId=id;
+// Optional: worn open (`open`, for jackets whose layering allows it). The fronts slide apart by `spec.open.shift` at their
+// edges, the zip parts into two halves, and a lining shows inside. Open, the layers under it are no longer hidden at the
+// neck (the shirt's collar points), so the body eases out where they need room, like the leather jacket. Zipped closed,
+// nothing here changes.
+function makeZipWindbreaker(id,spec,overSkirt,open=false,under=null){
+  const jacket=new T.Group();jacket.name='outerwear';jacket.userData.garmentId=id;jacket.userData.open=open;
   const C=spec.colours,B=spec.body,seg=128;
   const bodyMap=windbreakerBodyData(spec),body=fabric(dataTexture(bodyMap.data,bodyMap.w,bodyMap.h),null,spec),plain=fabric(null,C.shell,spec),ecruPlain=fabric(null,C.yoke||C.shell,spec);
   const thread=solid(C.stitch,.85),white=solid(C.snap,.45),cord=solid(C.cord,.9);
@@ -203,14 +223,33 @@ function makeZipWindbreaker(id,spec,overSkirt){
   // Boxy body from the stand collar to a gathered elastic hem. Over the skirt the lower body and band sit out over its fullness.
   // Fabric: the body blouses into the elastic band in small gathers, and a few soft creases run across the sides.
   const bandTop=B.hem+B.band,gather=(a,y)=>{const t=Math.max(0,1-(y-bandTop)/B.gatherHeight);return 1+B.gatherDepth*t*t*Math.cos(a*B.gathers)+.004*Math.sin(3*a+17*y)*Math.sin(a)**2;};
-  const {surf,normal,at,angleFor,radii}=jacketBody(jacket,overSkirt?B.overSkirt:B.rows,body,B.collarBase,gather);
+  const OD=open?spec.open?.shift??.09:null;
+  const rows=overSkirt?B.overSkirt:B.rows,own=rowRadii(rows);
+  const fit=open&&under?broaden(easeOver(under,{low:B.hem-.01,high:B.collarTop,gap:spec.open?.gap??.012,radii:own,sleeve:spec.sleeve,openAt:y=>Math.atan2(OD,own(y)[1])}),B.hem-.01,B.collarTop,spec.open?.ease??.06):null;
+  const {mesh:bodyMesh,surf,normal,at,angleFor,radii}=jacketBody(jacket,rows,body,B.collarBase,gather,seg,{open:OD,fit});
+  // Open: the edge on each side, seen from her centre line (for what shows between the fronts), and the lining inside.
+  jacket.userData.opening=open?y=>Math.atan2(OD,radii(y)[1]*(fit?fit(y):1)):()=>0;
+  if(open){const g=bodyMesh.geometry.clone(),p=g.attributes.position;for(let k=0;k<p.count;k++){p.setX(k,p.getX(k)*.992);p.setZ(k,p.getZ(k)*.992);}
+    put(jacket,g,new T.MeshStandardMaterial({color:C.lining||C.shell,roughness:.95,side:T.BackSide}),'jacket-lining');}
   // Elastic hem band, gathered narrower than the body, which tucks just inside it.
   const band=overSkirt?B.bandOverSkirt:B.bandRadius;
-  ribbed(shell(jacket,[[bandTop+.004,band[0]-.004,band[1]-.004],[bandTop-.006,band[0],band[1]],[B.hem+.008,band[0],band[1]],[B.hem,band[0]-.006,band[1]-.006]],plain,'elastic-hem-band',seg),B.bandPuckers,.014).userData.covering=true;
+  const bandMesh=shell(jacket,[[bandTop+.004,band[0]-.004,band[1]-.004],[bandTop-.006,band[0],band[1]],[B.hem+.008,band[0],band[1]],[B.hem,band[0]-.006,band[1]-.006]],plain,'elastic-hem-band',seg);
+  if(open)partRing(bandMesh,seg,OD);
+  ribbed(bandMesh,B.bandPuckers,.014).userData.covering=true;
   // Stand collar lined in the hood's ecru, seen from above.
-  shell(jacket,[[B.collarTop-.002,B.collarRadius[0]-.004,B.collarRadius[1]-.004],[B.collarBase+.01,B.collarRadius[0]+.004,B.collarRadius[1]+.002]],ecruPlain,'collar-lining',64);
+  const collarLining=shell(jacket,[[B.collarTop-.002,B.collarRadius[0]-.004,B.collarRadius[1]-.004],[B.collarBase+.01,B.collarRadius[0]+.004,B.collarRadius[1]+.002]],ecruPlain,'collar-lining',64);
+  if(open)partRing(collarLining,64,OD);
   // Centre-front coil zip from the hem to the top of the collar, a slider and pull at the top and a stop at the hem.
-  if(spec.placket)coveredZip(jacket,{at,normal,radii},spec.placket,B,plain,thread,metal);
+  // Open: the placket stays on her left front, along its edge, with the zip's halves on the two edges.
+  if(spec.placket){coveredZip(jacket,{at,normal,radii},open?{...spec.placket,offset:spec.placket.width/2+.004}:spec.placket,B,plain,thread,metal);
+    if(open)zipHalves(jacket,{at,normal},B.hem+.004,B.collarTop-.006,.014,C.zip,'zip-half');}
+  else if(open){
+    zipHalves(jacket,{at,normal},B.hem+.004,B.collarTop-.006,spec.zip.width,C.zip,'coil-zip-half');
+    const zy=Array.from({length:61},(_,k)=>B.hem+.004+(B.collarTop-B.hem-.01)*k/60);
+    for(const s of [-1,1])curve(jacket,zy.filter((_,k)=>k%3===0).map(y=>at(s*spec.zip.stitch/radii(y)[0],y,.0025).toArray()),.0014,thread,'zip-topstitch');
+    // The slider is left at the hem, on her right.
+    const ha=Math.PI*2-.03,slider=put(jacket,new T.BoxGeometry(.02,.026,.009),metal,'zip-slider');slider.position.copy(at(ha,B.hem+.02,.008));slider.lookAt(slider.position.clone().add(normal(ha,B.hem+.02)));
+  }
   else{
   const zy=centreZip(jacket,{at,normal},B.hem+.004,B.collarTop-.006,spec.zip.width,C.zip,'coil-zip',B.collarTop-B.hem);
   for(const s of [-1,1])curve(jacket,zy.filter((_,k)=>k%3===0).map(y=>at(s*spec.zip.stitch/radii(y)[0],y,.0025).toArray()),.0014,thread,'zip-topstitch');
@@ -260,8 +299,8 @@ function makeZipWindbreaker(id,spec,overSkirt){
   curve(jacket,Array.from({length:W+1},(_,j)=>hoodPoint(0,j/W).clone().addScaledVector(normal(Math.PI,H.top-(H.top-H.bottom)*j/W),.002).toArray()),.0016,thread,'hood-seam');
   const lp=hoodPoint(.12,.45),label=put(jacket,new T.BoxGeometry(.012,.045,.003),ecruPlain,'hood-label');label.position.copy(lp).addScaledVector(normal(Math.PI,lp.y),.004);label.lookAt(label.position.clone().add(normal(Math.PI,lp.y)));
   // The hood's opening: blue outside with the ecru lining rolled over its inner edge, from the zip round the back of the neck.
-  const opening=(off,lift)=>{const pts=[];for(let k=0;k<=24;k++){const a=H.opening.from+(Math.PI*2-2*H.opening.from)*k/24,[rx,rz]=B.collarRadius;
-    pts.push([Math.sin(a)*(rx+off),B.collarBase+H.opening.rise*(1-Math.cos(a))/2+lift,Math.cos(a)*(rz+off)]);}return pts;};
+  const opening=(off,lift)=>{const pts=[],g=fit?fit(B.collarBase):1;for(let k=0;k<=24;k++){const a=H.opening.from+(Math.PI*2-2*H.opening.from)*k/24,[rx,rz]=B.collarRadius.map(r=>r*g);
+    pts.push([Math.sin(a)*(rx+off)+(open?openShift(a,OD):0),B.collarBase+H.opening.rise*(1-Math.cos(a))/2+lift,Math.cos(a)*(rz+off)]);}return pts;};
   curve(jacket,opening(H.opening.out,0),H.opening.radius,plain,'hood-opening');
   curve(jacket,opening(H.opening.out-.01,H.opening.radius*.8),H.opening.radius*.55,ecruPlain,'hood-lining-edge');
   }

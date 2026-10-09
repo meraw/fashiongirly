@@ -28,14 +28,14 @@ Measured colour: the shell is about RGB 197, 192, 183 in plain, lit areas of the
 
 ## How the user wears it
 
-The user wears outerwear zipped closed unless it is designed to be worn open (see the Marikoo record). The model wears this one open, but nothing marks it as made to be worn open, so it is built **zipped closed** and has no “Wear it open” setting.
+The user wears outerwear zipped closed unless it is designed to be worn open (see the Marikoo record). The model wears this one open, but nothing marks it as made to be worn open, so it starts **zipped closed**. On 9 October 2026 the user asked to see jackets open on the doll, though not to wear them that way. So it has the “Wear it open” setting: the fronts part, the placket stays on her left front with a zip half on each edge, and the inside shows in the shell colour (the lining is not visible in the photos).
 
 ## For styling later
 
 Recorded in the catalog entry's `styling` block:
 
 - Observed in the photos: stone with silver-white reflective prints; plain apart from tonal lettering. A boxy, hip-length blouson with raglan sleeves. It covers her torso and arms to the wrist, and her neck when zipped (the collar is tall). A woven shell.
-- From the user: worn zipped closed, or not at all (their rule for outerwear).
+- From the user: worn zipped closed, or not at all, in real life (their rule for outerwear). Shown open on the doll only to see how it looks.
 - Inferred, not stated: a light layer, as the shell is unpadded, for mild, breezy or cool days. The stowed hood suits light showers. Waterproofing, lining and fibre composition are unknown.
 
 ## Implementation
@@ -53,6 +53,12 @@ Each setting is optional. When it is missing the template does exactly what it d
 - **`toggles`**: short cords ending in dark toggles (`cordToggle()`), here at the hem band and the collar.
 - **No `hood`, `cords` or `backLabel`**: those parts are left out.
 - **`badge.shape: 'rect'`**: a flat rectangular patch in place of the round badge.
+- **Shown open** (`layering.canOpen`, with `build.open.shift` and an optional `colours.lining`). This applies to both windbreakers, added on 9 October 2026 at the user's request:
+  - The fronts slide apart at their edges, as in the leather jacket, and the hem band and collar part with them.
+  - A coil zip becomes a half on each edge, with the slider left at the hem. A placket stays on her left front.
+  - A lining shows inside.
+  - The body eases out where the layers under it need room (`easeOver()`, spread wider by `broaden()` so a loose body eases gradually), for example over the classic shirt's collar points, which a zipped jacket hides.
+  - Zipped, both windbreakers are unchanged: their fingerprints match the versions before this setting.
 
 ### Details
 
@@ -63,15 +69,17 @@ Each setting is optional. When it is missing the template does exactly what it d
 
 ## Checks
 
-- `npm test`: 71 passing after merging `main`. The new `tests/red-bull-windbreaker.test.js` checks:
+- `npm test`: 72 passing after merging `main`. The new `tests/red-bull-windbreaker.test.js` checks:
   - the parts: placket, topstitching, collar snaps, two toggles on cords, pockets, cuffs and the rectangular patch on her left sleeve
   - that there is no coil zip, hood, drawcord, snap pocket or back label
   - the prints on the body texture: beside the placket at the front, across the back above the flap, and nothing on the sides
   - that the study wears it
   - that the Marikoo windbreaker keeps its own parts and gains none of the new ones
+  - shown open, for both windbreakers: the zip halves, the lining, the placket on the left front, the shirt collar showing, and nothing spanning the opening. Zipped, there is no lining or zip half and the shirt collar is hidden.
+- The shared coverage tests now also run both windbreakers open (they cover every way a jacket can be worn). The two tests that said the windbreaker only stays closed were updated to the user's new decision.
 - The shared outerwear tests in `tests/outerwear.test.js` pick up the new jacket automatically. They check that it covers every top, bottom and the skirt from its hem to its collar, hides the tops' sleeves, and keeps her arms and hands inside its sleeves and cuffs.
 - `npm run build` succeeds.
-- Rendered in headless Chromium from the front, a turn and the back, over the half-zip dress.
+- Rendered in headless Chromium from the front, a turn and the back, over the half-zip dress, zipped and open. The open Marikoo jacket was rendered over its study outfit and over the classic striped shirt.
 
 ## Review history
 
