@@ -225,6 +225,29 @@ test('crystal jeans: a grid of crystals over the front panels only, clear of the
   disposeObject(outfit);
 });
 
+test('Topshop black wide crop jeans: flared legs to a raw frayed hem just above her ankle, tan topstitching with tonal side seams',()=>{
+  const id='topshop-washed-black-wide-crop-v1';
+  assert.equal(cleanRecipe({bottomId:id}).bottomId,id);
+  const outfit=makeOutfit({bottomId:id});outfit.updateMatrixWorld(true);const jeans=outfit.getObjectByName('trousers');
+  const all=name=>{const found=[];jeans.traverse(o=>{if(o.name===name)found.push(o);});return found;};
+  for(const name of ['leather-patch','shank-button','back-yoke'])assert.ok(all(name).length,name);
+  assert.ok(all('frayed-hem').length>80,'a frayed raw hem round both legs');assert.equal(all('hem-stitch').length,0,'no stitched hem');
+  // Cropped almost to her ankle (the user's fit): the hem sits above the loafers but well below her knee.
+  const legs=all('jeans-leg'),box=new T.Box3();legs.forEach(l=>box.expandByObject(l));const hem=box.min.y/.76;
+  assert.ok(hem>.26&&hem<.34,`hem at ${hem}`);
+  // Wide legs flaring to the hem: each leg's cross-section (width by depth) is much larger at the hem than at the thigh.
+  const size=(leg,y)=>{const p=leg.geometry.attributes.position,b=[Infinity,-Infinity,Infinity,-Infinity];for(let i=0;i<p.count;i++)if(Math.abs(p.getY(i)-y)<.02){b[0]=Math.min(b[0],p.getX(i));b[1]=Math.max(b[1],p.getX(i));b[2]=Math.min(b[2],p.getZ(i));b[3]=Math.max(b[3],p.getZ(i));}return (b[1]-b[0])*(b[3]-b[2]);};
+  for(const leg of legs)assert.ok(size(leg,hem+.03)>size(leg,.9)*1.35,`flared ${size(leg,hem+.03)/size(leg,.9)}`);
+  // Tan topstitching on the pockets and fly; tonal side seams and inseams.
+  const tan=all('fly-stitch')[0].material.color,seam=all('side-seam')[0].material.color;
+  assert.ok(tan.r>tan.b*1.5,'tan topstitching');assert.ok(Math.abs(seam.r-seam.b)<.05&&seam.r<.1,'tonal side seams');
+  disposeObject(outfit);
+  // Other pairs keep their side seams in their topstitching thread.
+  const mango=makeOutfit({bottomId:'mango-washed-black-v1'});const m=mango.getObjectByName('trousers');
+  let seamColour,thread;m.traverse(o=>{if(o.name==='side-seam')seamColour=o.material.color;if(o.name==='fly-stitch')thread=o.material.color;});
+  assert.ok(seamColour.equals(thread),'Mango side seams unchanged');disposeObject(mango);
+});
+
 test('every waist-covering top hides every bottom between its hem and the waist',()=>{
   const tops=Object.keys(GARMENTS).filter(id=>GARMENTS[id].slot==='top'&&GARMENTS[id].layering?.coversWaistband);
   const bottoms=['classic',...Object.keys(GARMENTS).filter(id=>GARMENTS[id].slot==='bottom')];

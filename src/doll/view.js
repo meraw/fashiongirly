@@ -1,7 +1,7 @@
 import { createHairController } from '../hair/model.js';
 import * as T from 'three';
 import { LILAC_ATLAS } from '../wardrobe/lilac-atlas.js';
-import { BRONZE_TOP_ID, LILAC_TOP_ID, BARREL_JEANS_ID, DAVINIA_JEANS_ID, LEVIS_94_ID, TOMMY_MOM_ID, STRADIVARIUS_RELAXED_ID, MANGO_BLACK_JEANS_ID, BERSHKA_GREY_ID, TOMMY_CARPENTER_ID, ZARA_CARGO_ID, CRYSTAL_JEANS_ID, NIKE_TRACK_ID, PLEATED_LINEN_ID } from '../wardrobe/catalog.js';
+import { BRONZE_TOP_ID, LILAC_TOP_ID, BARREL_JEANS_ID, DAVINIA_JEANS_ID, LEVIS_94_ID, TOMMY_MOM_ID, STRADIVARIUS_RELAXED_ID, MANGO_BLACK_JEANS_ID, BERSHKA_GREY_ID, TOMMY_CARPENTER_ID, ZARA_CARGO_ID, CRYSTAL_JEANS_ID, NIKE_TRACK_ID, TOPSHOP_BLACK_CROP_ID, PLEATED_LINEN_ID } from '../wardrobe/catalog.js';
 import { BERSHKA_GREY_DENIM } from '../wardrobe/bershka-grey-denim.js';
 import { TOMMY_CARPENTER_DENIM } from '../wardrobe/tommy-carpenter-denim.js';
 import { ZARA_CARGO_FABRIC } from '../wardrobe/zara-cargo-fabric.js';
@@ -9,6 +9,7 @@ import { CRYSTAL_JEANS_DENIM } from '../wardrobe/crystal-jeans-denim.js';
 import { NIKE_TRACK_FABRIC } from '../wardrobe/nike-track-fabric.js';
 import { PLEATED_LINEN_FABRIC } from '../wardrobe/pleated-linen-fabric.js';
 import { MANGO_DENIM } from '../wardrobe/mango-denim.js';
+import { TOPSHOP_BLACK_CROP_DENIM } from '../wardrobe/topshop-black-crop-denim.js';
 import { STRADIVARIUS_DENIM } from '../wardrobe/stradivarius-denim.js';
 import { TOMMY_MOM_DENIM } from '../wardrobe/tommy-mom-denim.js';
 import { LEVIS_94_DENIM } from '../wardrobe/levis-94-denim.js';
@@ -22,7 +23,7 @@ import { BUFFALO_TAPE } from '../wardrobe/buffalo-tape.js';
 import { makeDoll, makeOutfit, disposeObject, fitDoll } from './model.js';
 export async function createDollView(host, recipe) {
   const atlas={};
-  try { for(const [id,data] of [[BRONZE_TOP_ID,BRONZE_ATLAS],[LILAC_TOP_ID,LILAC_ATLAS],[VANGOGH_TEE_ID,VANGOGH_TEE_ATLAS],[BARREL_JEANS_ID,TOPSHOP_DENIM],[DAVINIA_JEANS_ID,DAVINIA_DENIM],[LEVIS_94_ID,LEVIS_94_DENIM],[TOMMY_MOM_ID,TOMMY_MOM_DENIM],[STRADIVARIUS_RELAXED_ID,STRADIVARIUS_DENIM],[MANGO_BLACK_JEANS_ID,MANGO_DENIM],[BERSHKA_GREY_ID,BERSHKA_GREY_DENIM],[TOMMY_CARPENTER_ID,TOMMY_CARPENTER_DENIM],[ZARA_CARGO_ID,ZARA_CARGO_FABRIC],[CRYSTAL_JEANS_ID,CRYSTAL_JEANS_DENIM],[NIKE_TRACK_ID,NIKE_TRACK_FABRIC],[PLEATED_LINEN_ID,PLEATED_LINEN_FABRIC]]){atlas[id]=await new T.TextureLoader().loadAsync(data);atlas[id].colorSpace=T.SRGBColorSpace;} }
+  try { for(const [id,data] of [[BRONZE_TOP_ID,BRONZE_ATLAS],[LILAC_TOP_ID,LILAC_ATLAS],[VANGOGH_TEE_ID,VANGOGH_TEE_ATLAS],[BARREL_JEANS_ID,TOPSHOP_DENIM],[DAVINIA_JEANS_ID,DAVINIA_DENIM],[LEVIS_94_ID,LEVIS_94_DENIM],[TOMMY_MOM_ID,TOMMY_MOM_DENIM],[STRADIVARIUS_RELAXED_ID,STRADIVARIUS_DENIM],[MANGO_BLACK_JEANS_ID,MANGO_DENIM],[BERSHKA_GREY_ID,BERSHKA_GREY_DENIM],[TOMMY_CARPENTER_ID,TOMMY_CARPENTER_DENIM],[ZARA_CARGO_ID,ZARA_CARGO_FABRIC],[CRYSTAL_JEANS_ID,CRYSTAL_JEANS_DENIM],[NIKE_TRACK_ID,NIKE_TRACK_FABRIC],[TOPSHOP_BLACK_CROP_ID,TOPSHOP_BLACK_CROP_DENIM],[PLEATED_LINEN_ID,PLEATED_LINEN_FABRIC]]){atlas[id]=await new T.TextureLoader().loadAsync(data);atlas[id].colorSpace=T.SRGBColorSpace;} }
   catch(error){Object.values(atlas).forEach(t=>t.dispose());throw error;}
   // Shoe textures.
   try { for(const [id,data] of [[BUFFALO_ASPHA_ID,BUFFALO_TAPE]]){atlas[id]=await new T.TextureLoader().loadAsync(data);atlas[id].colorSpace=T.SRGBColorSpace;} }
