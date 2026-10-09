@@ -303,7 +303,7 @@ function makeLugBoot(id,spec,tape=null){
     }else{
       // Puffy flat laces: wide, soft, patterned, crossing between big eyelets, tied in a large floppy bow whose loops
       // lie out to the sides and whose long tails hang down over them.
-      const PL=spec.puffyLace,lm=new T.MeshStandardMaterial({map:laceTexture(C.lace,C.laceLine),roughness:.9,side:T.DoubleSide});lm.map.repeat.set(2,.3);
+      const PL=spec.puffyLace,lm=new T.MeshStandardMaterial({map:laceTexture(C.lace,C.laceLine),roughness:PL.matte?1:.9,side:T.DoubleSide});lm.map.repeat.set(2,.3);
       const run=(pts,name)=>{const c=new T.CatmullRomCurve3(pts),ps=c.getPoints(14),ns=ps.map(p=>{const y=Math.min(collarY(0),Math.max(yBase,p.y));return normal(side,y,0);});flatLace(boots,ps,ns,PL.width,PL.thick,lm,name);};
       // How far the crossings stand off the tongue (flatter laces when the spec gives a smaller lift).
       const lift=PL.lift??.032;
@@ -358,6 +358,8 @@ function makeLugBoot(id,spec,tape=null){
       const edgeAt=(pts,z)=>{if(z<=pts[0][0])return pts[0][1];for(let i=0;i<pts.length-1;i++)if(z<=pts[i+1][0])return pts[i][1]+(pts[i+1][1]-pts[i][1])*(z-pts[i][0])/(pts[i+1][0]-pts[i][0]);return pts[pts.length-1][1];};
       const ySole=z=>Math.max(yBase,soleTop(z))-.006;
       for(const P of spec.panels){const mat=P.colour?suede.clone():suede;if(P.colour){mat.color.set(P.colour);mat.sheenColor.set(new T.Color(P.colour).lerp(new T.Color('#ffffff'),.4));}
+        // A matte panel (dark leather) has no suede sheen, which would read as a grey gloss on black.
+        if(P.matte){mat.sheen=0;mat.roughness=1;}
         if(P.band){// a band all round the shoe, a fixed height above the sole
           const ring=(h,off)=>Array.from({length:N+1},(_,i)=>{const a=i/N*Math.PI*2,[,z0]=plan(yBase,a,0,base),y=ySole(z0)+h+(P.toe||0)*smooth(front-.12,front,z0)*(h>0?1:0);return surf(side,y,a,off).toArray();});
           ringShell(boots,[ring(0,.007),ring(P.band-.003,.007),ring(P.band,.0055),ring(P.band+.002,.002)],mat,P.name);
@@ -372,8 +374,11 @@ function makeLugBoot(id,spec,tape=null){
       for(const k of [-1,1]){const pts=[],nrm=[];for(let i=0;i<=16;i++){const y=y0-.01+(yFront-.004-(y0-.01))*i/16,a=laceAngle(y,k*(L+.012));pts.push(surf(side,y,a,.004));nrm.push(normal(side,y,a));}ribbon(boots,pts,nrm,.032,suede,'eyestay');}
     }
     // Leather stripes across both sides of the shoe, each a strip from the sole up to the lacing ([z, y] paths).
-    if(spec.stripes){const st=spec.stripes,mat=new T.MeshStandardMaterial({color:st.colour,roughness:.5,side:T.DoubleSide});
-      for(const k of [-1,1])for(const [[za,ya],[zb,yb]] of st.paths)ribbon(boots,...alongSide(side,k,Array.from({length:13},(_,i)=>[za+(zb-za)*i/12,ya+(yb-ya)*i/12]),.006,24),st.width,mat,'side-stripe');}
+    // A top given as 'lace' ends just below the lacing (the eyestay's outer edge) at that length along the shoe.
+    if(spec.stripes){const st=spec.stripes,mat=new T.MeshStandardMaterial({color:st.colour,roughness:st.roughness??.5,side:T.DoubleSide});
+      const laceEdgeY=(z,k)=>{let lo=yBase,hi=collarY(0);for(let i=0;i<24;i++){const m=(lo+hi)/2;if(surf(side,m,laceAngle(m,k*(L+st.gap))).z>z)lo=m;else hi=m;}return lo;};
+      for(const k of [-1,1])for(const [[za,ya],[zb,yb0]] of st.paths){const yb=yb0==='lace'?laceEdgeY(zb,k):yb0;
+        ribbon(boots,...alongSide(side,k,Array.from({length:13},(_,i)=>[za+(zb-za)*i/12,ya+(yb-ya)*i/12]),.006,24),st.width,mat,'side-stripe');}}
     // A round badge on the tongue: a white disc in a dark ring.
     if(spec.tongueBadge){const tb=spec.tongueBadge,p=surf(side,tb.y,0,.012),n=normal(side,tb.y,0);
       const disc=put(boots,new T.CylinderGeometry(tb.r,tb.r,.003,24),solid(tb.colour,.6),'tongue-badge');disc.position.copy(p);disc.quaternion.setFromUnitVectors(V(0,1,0),n);

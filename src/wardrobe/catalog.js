@@ -885,14 +885,14 @@ export const GARMENTS = Object.freeze({
       upper: [[.066, .41, -.155, .134], [.09, .425, -.158, .137], [.11, .425, -.16, .138], [.13, .415, -.16, .137], [.15, .39, -.158, .136], [.17, .345, -.155, .132], [.19, .28, -.15, .122], [.21, .215, -.138, .106], [.23, .17, -.122, .094], [.25, .15, -.112, .09]],
       collar: { front: .25, side: .205, back: .225 },
       nFront: 2.8, nBack: 2.1, heelNarrow: .1, toeNarrow: .2, restCap: .2, collarRoll: .007, drapeClear: .066, collarRest: .035,
-      eyelets: [.14, .16, .18, .2, .22], laceHalfWidth: .042, eyeletSize: [.008, .003],
-      puffyLace: { width: .036, thick: .009, lift: .016, loop: .09, tailTo: .1, bow: false },
+      eyelets: [.14, .16, .18, .2, .22], laceHalfWidth: .068, eyeletSize: [.008, .003],
+      puffyLace: { width: .036, thick: .009, lift: .016, loop: .09, tailTo: .1, bow: false, matte: true },
       sock: { cx: .16, z: .0, rows: [[.1, .074, .08], [.2, .075, .08], [.3, .074, .078], [.37, .074, .077], [.38, .079, .082], [.405, .079, .082], [.41, .074, .077]] },
-      // Three black stripes on each side, [z along the shoe, y] from the sole to the lacing, read from the side photo.
-      stripes: { colour: '#1e1e20', width: .026, paths: [[[.048, .068], [.12, .19]], [[.116, .068], [.188, .192]], [[.184, .068], [.25, .19]]] },
+      // Three wide black stripes on each side, matte, from the sole ([z along the shoe, y]) up to just below the lacing.
+      stripes: { colour: '#1e1e20', width: .034, roughness: .95, gap: .016, paths: [[[.048, .068], [.12, 'lace']], [[.116, .068], [.188, 'lace']], [[.184, .068], [.256, 'lace']]] },
       tongueBadge: { y: .243, r: .019, colour: '#f2f1ee', ring: '#1e1e20' },
       // The black leather heel tab over the back of the collar.
-      panels: [{ name: 'heel-overlay', colour: '#1f1f21', z: [-.168, -.056], bottom: [[-.168, .147], [-.11, .152], [-.056, .162]], top: [[-.168, .224], [-.11, .219], [-.056, .206]] }],
+      panels: [{ name: 'heel-overlay', colour: '#1f1f21', matte: true, z: [-.168, -.056], bottom: [[-.168, .147], [-.11, .152], [-.056, .162]], top: [[-.168, .224], [-.11, .219], [-.056, .206]] }],
     },
   },
   // Outerwear.

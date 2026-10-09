@@ -1,6 +1,6 @@
 # Wardrobe item: adidas Campus 00s grey suede trainers
 
-Authored 9 October 2026. Status: first interpretation awaiting the user's visual review. A pair of shoes from the user's wardrobe list, built on the shared laced-shoe template (`makeLugBoot()`, template `sneaker`).
+Authored 9 October 2026. Status: revised after the user's first review (laces, stripes, matte black); awaiting their second look. A pair of shoes from the user's wardrobe list, built on the shared laced-shoe template (`makeLugBoot()`, template `sneaker`).
 
 ## Source and reference reading
 
@@ -28,10 +28,27 @@ New laced-shoe template options, all off by default:
 - `sole.gum`: a gum rubber strip round the bottom of the sole, rising slightly with the toe spring.
 - `puffyLace.bow: false`: laced to the top with the ends tucked in, so there is no knot, bow or tails.
 - `puffyLace.lift`: how far the lace crossings stand off the tongue. A lower lift makes flat laces instead of the UGG pair's puffy arches; with the high default, these thin black laces stacked into lumps.
+- `puffyLace.matte`: fully matte laces.
+- `stripes` tops given as `'lace'` end just below the lacing (`gap` from its edge), and `stripes.roughness` sets their finish.
+- `panels[].matte`: a panel without the suede sheen, for dark leather.
 
 A fingerprint of every vertex of the Buffalo boots, the UGG sneakers and the loafers is identical before and after these changes.
 
 The black heel tab is a template `panels` entry in black.
+
+## Revision after user feedback
+
+The user didn't like the first version:
+- The laces were too close together.
+- There was too much space between the laces and the stripes, and the stripes were too thin.
+- The black parts looked shiny rather than opaque.
+
+The revision:
+- **Laces:** the lacing is much wider (half-width 0.068, from 0.042), so the laces cross in open Xs across most of the opening. The laces themselves are a little narrower, so the tongue shows between the crossings.
+- **Stripes:** wider (0.034, from 0.026), and each now runs from the sole up to just below the end of the laces.
+- **Matte black:** the laces, stripes and heel tab are matte. The stripes had a semi-gloss finish, and the heel tab took the suede's sheen, which reads as a grey gloss on black.
+
+While revising, a straight-across ladder lacing was tried by mistake; the user pointed out that their laces cross in Xs, and it was removed.
 
 ## Colour
 
