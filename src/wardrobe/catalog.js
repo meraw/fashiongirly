@@ -920,20 +920,20 @@ export const GARMENTS = Object.freeze({
     styling: { silhouette: 'low, chunky, rounded', palette: ['pale grey', 'black', 'cream', 'gum brown'], pattern: 'three black side stripes and a black heel tab', coverage: { foot: 'closed, low cut below the ankle' }, material: 'suede and leather on a rubber cupsole', warmth: 2, warmthBasis: 'inferred: closed suede upper, low cut', weather: 'dry days; suede does not suit rain' },
     uncertainties: ['the stripes\' serrated edges are drawn straight', 'the trefoil on the heel tab and the “CAMPUS” lettering are not reproduced; the tongue badge is a plain disc in a ring', 'the toe and quarter seams are not modelled'],
     authoring: { texture: 'procedural mottle(), laceTexture() and colours in src/doll/model.js; colours measured from the photos', runtimeGeneration: false, sourcePhotosBundled: false },
-    // Construction for makeLugBoot() (template 'sneaker'), in outfit units; the upper shares the UGG pair's proportions,
-    // which match this side photo (length about 2.3 times the heel height).
+    // Construction for makeLugBoot() (template 'sneaker'), in outfit units: the UGG pair's length and heel height (about
+    // 2.3 to 1, as in the side photo), but a low, flat toe for the front third, so the laces sit on the instep behind a plain toe.
     build: {
       template: 'sneaker', cx: .168,
-      colours: { upper: '#b2aca6', sole: '#d3ccb4', thread: '#b8b1a9', piping: '#b6aea6', lace: '#202022', laceLine: '#38383c', collar: '#e6e4e0', eyelet: '#c8c1ba', lining: '#e8e6e2', webbing: '#d6cfc8', sock: '#ebe9e3' },
+      colours: { upper: '#aca6a0', sole: '#d3ccb4', thread: '#b8b1a9', piping: '#b6aea6', lace: '#202022', laceLine: '#38383c', collar: '#e6e4e0', eyelet: '#c8c1ba', lining: '#e8e6e2', webbing: '#d6cfc8', sock: '#ebe9e3' },
       sole: { top: .066, heelTop: .066, heelFrom: -.03, rand: .066, lugTop: .012, groove: null, bulge: .003, flare: .012, toeLift: .018, lugs: 56, lugDepth: 0, gum: { height: .012, colour: '#a96a40' } },
-      upper: [[.066, .41, -.155, .134], [.09, .425, -.158, .137], [.11, .425, -.16, .138], [.13, .415, -.16, .137], [.15, .39, -.158, .136], [.17, .345, -.155, .132], [.19, .28, -.15, .122], [.21, .215, -.138, .106], [.23, .17, -.122, .094], [.25, .15, -.112, .09]],
+      upper: [[.066, .41, -.155, .134], [.09, .425, -.158, .137], [.105, .42, -.16, .138], [.12, .395, -.16, .137], [.14, .34, -.158, .136], [.16, .275, -.155, .132], [.18, .22, -.15, .122], [.2, .18, -.138, .106], [.22, .155, -.122, .094], [.25, .14, -.112, .09]],
       collar: { front: .25, side: .205, back: .225 },
       nFront: 2.8, nBack: 2.1, heelNarrow: .1, toeNarrow: .2, restCap: .2, collarRoll: .007, drapeClear: .066, collarRest: .035,
-      eyelets: [.135, .156, .177, .198, .219, .24], laceHalfWidth: .068, eyeletSize: [.008, .003],
+      eyelets: [.16, .179, .198, .217, .236], laceHalfWidth: .068, eyeletSize: [.008, .003],
       puffyLace: { width: .036, thick: .009, lift: .016, loop: .09, tailTo: .1, bow: false, matte: true },
       sock: { cx: .16, z: .0, rows: [[.1, .074, .08], [.2, .075, .08], [.3, .074, .078], [.37, .074, .077], [.38, .079, .082], [.405, .079, .082], [.41, .074, .077]] },
       // Three wide black stripes on each side, matte, from the sole ([z along the shoe, y]) up to just below the lacing.
-      stripes: { colour: '#1e1e20', width: .034, roughness: .95, gap: .016, paths: [[[.048, .068], [.12, 'lace']], [[.116, .068], [.188, 'lace']], [[.184, .068], [.256, 'lace']]] },
+      stripes: { colour: '#1e1e20', width: .034, roughness: .95, gap: .026, paths: [[[.048, .068], [.12, 'lace']], [[.116, .068], [.188, 'lace']], [[.184, .068], [.256, 'lace']]] },
       tongueBadge: { y: .257, r: .019, colour: '#f2f1ee', ring: '#1e1e20' },
       // The black leather heel tab over the back of the collar.
       panels: [{ name: 'heel-overlay', colour: '#1f1f21', matte: true, z: [-.168, -.056], bottom: [[-.168, .147], [-.11, .152], [-.056, .162]], top: [[-.168, .224], [-.11, .219], [-.056, .206]] }],

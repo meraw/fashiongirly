@@ -19,7 +19,7 @@ Features read from the photos:
 
 ## Implementation
 
-Catalog ID `adidas-campus-00s-grey-v1` (slot `shoes`). The upper shares the UGG sneakers' proportions, which match this side photo (length about 2.3 times the heel height). The sole is plain (no lugs), with a cream sidewall. She is not raised, and she wears the template's own white ankle socks, as with the UGG pair.
+Catalog ID `adidas-campus-00s-grey-v1` (slot `shoes`). The upper has the UGG sneakers' length and heel height (about 2.3 to 1, as in the side photo), but a low, flat toe for its front third (see the revisions below). The sole is plain (no lugs), with a cream sidewall. She is not raised, and she wears the template's own white ankle socks, as with the UGG pair.
 
 New laced-shoe template options, all off by default:
 
@@ -50,7 +50,11 @@ The revision:
 
 While revising, a straight-across ladder lacing was tried by mistake; the user pointed out that their laces cross in Xs, and it was removed.
 
-The user then pointed out an empty part with no laces at the front of the shoe. The lacing has six rows now instead of five, from just behind a plain suede toe right up under the tongue badge, which moved to the top of the tongue. The bare stretch of tongue above the top lace is gone. Starting the laces lower still made them hang over the toe.
+The user then pointed out that the photos have an empty part with no laces at the front, a plain suede toe, which the model lacked; at first this was misread as a gap in the model's lacing.
+- The upper now has a low, flat toe for its front third. It had kept the UGG pair's tall rounded toe, which pushed the laces almost to the tip.
+- The laces sit on the instep behind the toe, five rows from 0.16 to 0.236, with the badge at the top of the tongue.
+- The stripe tops stop a little lower (`gap` 0.026), where the surface curves into the lacing.
+- The flatter toe catches more light, so the suede was recalibrated in the studio: 207, 201, 195 from the front and 192, 184, 180 at a slight turn, against the photo's 187 to 209.
 
 ## Colour
 
