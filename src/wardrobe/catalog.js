@@ -492,7 +492,7 @@ export const GARMENTS = Object.freeze({
   [PINK_YOKE_SHIRT_ID]: {
     slot: 'top',
     id: PINK_YOKE_SHIRT_ID, name: 'Pink ditsy floral yoke shirt', family: 'gathered-yoke-button-down-shirt', version: 1,
-    status: 'reference-study-awaiting-visual-review', brandAsProvided: 'not stated',
+    status: 'user-approved', brandAsProvided: 'not stated',
     source: { note: 'user supplied four product photos without a description: full length on a model with grey skinny jeans, a closer front, the back, and a close-up of the collar, yoke and sleeve' },
     referenceViews: ['front full length on model', 'front, closer', 'back on model', 'collar, yoke and sleeve close-up'],
     details: ['boxy long-sleeved shirt in a soft, fluid fabric with a slight sheen', 'printed with small florals on soft pink: cream five-petal daisies with rust centres, rust flowers with cream centres, rust leaves on fine stems and tiny cream sprigs', 'big 1970s point collar with long points', 'a yoke across the front and back, with the body gathered below it', 'cream buttons down the front, worn with the top one open', 'full sleeves, gathered at a dropped shoulder and into buttoned cuffs', 'to the top of the thigh, with a gently curved hem, lowest at the centre front and back'],
