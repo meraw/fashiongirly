@@ -28,9 +28,12 @@ The colour differs between the photos: bright silver in the shop photo (about RG
 Its catalog entry and study preset are in their own file, `src/wardrobe/garments/only-onlerin-dark-silver-jacket-v1.js`, with one line in `src/wardrobe/garments/index.js`. It is on the zip-windbreaker template (`makeZipWindbreaker()` in `src/doll/outerwear.js`), with the Marikoo windbreaker's body, sleeves, hood, cords and gathered hem and cuffs.
 
 **Metallic finish (new, optional `metallic` setting).**
-- The shell is partly metal (0.6) and fairly shiny (roughness 0.3). The scene has no environment for a full metal to reflect, so a full metal would read black. The silver foil jumper uses the same balance.
-- The crumples are a new normal map, `crumpleData()`: small flat facets, each tilted its own way, with soft creases between them, so neighbouring facets catch the light differently, as crumpled foil does.
-- The facets are a little elongated across the body and repeat seamlessly.
+- The shell is partly metal (0.66) and fairly shiny (roughness 0.3). The scene has no environment for a full metal to reflect, so a full metal would read black. The silver foil jumper uses the same balance.
+- The crinkles are a new normal map, `crinkleData()`, built as a height field in three layers:
+  - long soft folds running down the jacket, so the light runs in bright and dark streaks, as on the hanger;
+  - small crumples: little planes tilted every way, their edges rounded off, as on paper crumpled and smoothed out;
+  - fine wrinkles over the top, mostly running down.
+- The tile repeats seamlessly, three times round the body.
 - The black lining (`colours.yoke`) stays plain cloth.
 - Every other windbreaker renders pixel-identical to `main`, closed and open over the skirt: the Marikoo, Red Bull, emerald parka, Woolrich bomber and adidas cropped windbreaker.
 
@@ -40,7 +43,7 @@ Its catalog entry and study preset are in their own file, `src/wardrobe/garments
 - A dark coil zip and black cords.
 - Open, it shows a black nylon lining.
 
-**Colour.** A mid, slightly cool silver (`#80838b`) under the metallic finish, between the bright shop photo and the darker second-hand ones.
+**Colour.** A dark, greenish khaki silver (`#868a82`) under the metallic finish, matched to the photo on a hanger: the chest renders at a median of about RGB 118, 116, 100, against the photo's 118, 114, 101.
 
 **Study preset.** “Silver windbreaker study”, over the black Mickey tee and the washed black jeans, with the cream 550s.
 
@@ -58,7 +61,7 @@ Its catalog entry and study preset are in their own file, `src/wardrobe/garments
   - its study;
   - that it opens.
 - The shared tests also run on it: it covers every top and every bottom and the skirt from its hem to its collar, closed and open, and her arms and hands stay inside its sleeves. `tests/garment-files.test.js` checks its file and index line.
-- `npm test`: 109 passing after merging `main` (which added the Replay rose sweatshirt in its own file). `npm run build` succeeds.
+- `npm test`: 111 passing. `npm run build` succeeds.
 - Rendered in headless Chromium (software WebGL):
   - front, three-quarter, side and back;
   - open;
@@ -69,6 +72,13 @@ Its catalog entry and study preset are in their own file, `src/wardrobe/garments
 
 ## Known differences
 
-- The crumples are a texture on a smooth shell, so the outline stays smooth. The facets are more regular than real crumpled nylon.
+- The crinkles are a texture on a smooth shell, so the outline stays smooth, and the pattern repeats round her.
 - The hidden pockets are not modelled.
 - The hood lies down on her back; her head hides its top.
+
+## Revision 1 (after review)
+
+The user's feedback on the first version: “The hue is more green than that, and the texture is wrong”.
+
+- **Hue.** The first version was a cool grey silver (`#80838b`). It is now a darker, greenish khaki silver (`#868a82`), matched to the photo on a hanger.
+- **Texture.** The first version's crumples were small, even, sharp facets, which read as a mosaic of broken glass. They are replaced by the three layers above: long soft folds giving vertical bright and dark streaks, rounded crumples and fine wrinkles, as on the hanger.

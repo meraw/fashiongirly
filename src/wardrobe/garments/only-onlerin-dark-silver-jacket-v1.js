@@ -16,16 +16,16 @@ export default {
     observed: { palette: ['dark silver', 'black'], pattern: 'plain metallic', silhouette: 'boxy hip-length blouson on an elastic hem', coverage: 'torso and arms to the wrist; neck when zipped; hood (modelled down)', material: 'crinkled metallic nylon, black lining' },
     inferred: { warmth: 'light layer: an unpadded shell and a thin lining', weather: 'mild, breezy or cool days; the coated shell and hood suit light showers', mood: 'bold, futuristic, sporty', unknown: ['waterproofing', 'fibre composition'] },
   },
-  uncertainties: ['the photos disagree on the colour (bright silver in the shop photo, darker and cooler in the second-hand ones); the name says dark silver, so a mid, slightly cool silver is used', 'the crumples are a texture over a smooth shell, so the outline stays smooth', 'the pockets are hidden in the front seam and are not modelled', 'the hood lies down on her back; her head hides its top'],
-  authoring: { template: 'makeZipWindbreaker() in src/doll/outerwear.js, with its optional metallic finish', texture: 'procedural: the seams drawn into the shell, the crumples drawn as small flat facets tilted every way; colours estimated from the photos', runtimeGeneration: false, sourcePhotosBundled: false },
+  uncertainties: ['the photos disagree on the colour (bright silver in the shop photo, darker and cooler in the second-hand ones); the name says dark silver; a darker, greenish khaki silver, matched to the photo on a hanger, is used', 'the crumples are a texture over a smooth shell, so the outline stays smooth', 'the pockets are hidden in the front seam and are not modelled', 'the hood lies down on her back; her head hides its top'],
+  authoring: { template: 'makeZipWindbreaker() in src/doll/outerwear.js, with its optional metallic finish', texture: 'procedural: the seams drawn into the shell; the crinkles drawn as long soft folds, small rounded crumples and fine wrinkles; colours matched to the photo on a hanger', runtimeGeneration: false, sourcePhotosBundled: false },
   // Construction for makeZipWindbreaker() in src/doll/outerwear.js, in outfit units: the Marikoo windbreaker's boxy
   // hip-length body, sleeves, hood and gathered hem and cuffs, which cover every top and bottom.
   build: {
     template: 'zip-windbreaker', roughness: .4,
-    // The metallic finish: how metal and how rough it is, the crumpled facets per tile, and the tile's repeats round and
-    // down and the facets' tilt.
-    metallic: { metalness: .6, roughness: .3, facets: 60, crumple: [4, 2.6, .9] },
-    colours: { shell: '#80838b', yoke: '#1c1c20', stitch: '#6d6f76', snap: '#c9cbd0', cord: '#1a1a1d', zip: '#2a2a2f', opening: '#141416', lining: '#1c1c20' },
+    // The metallic finish: how metal and how rough it is; the crinkle tile (crinkleData in outerwear.js: long soft folds,
+    // small tilted planes with rounded edges, and many fine wrinkles) and its repeats round and down.
+    metallic: { metalness: .66, roughness: .3, crinkle: { folds: 5, fold: 160, facets: 420, tilt: .4, soften: 3, wrinkles: 160, length: 80, width: 2.5, wrinkle: 6 }, repeat: [3, 1.2] },
+    colours: { shell: '#868a82', yoke: '#1c1c20', stitch: '#6d6f76', snap: '#c9cbd0', cord: '#1a1a1d', zip: '#2a2a2f', opening: '#141416', lining: '#1c1c20' },
     open: { shift: .09 }, liningFinish: 'nylon',
     body: {
       rows: [[1.975, .13, .124], [1.935, .131, .125], [1.9, .14, .13], [1.875, .2, .16], [1.84, .268, .205], [1.8, .318, .24], [1.75, .345, .258], [1.65, .357, .27], [1.5, .36, .276], [1.35, .362, .28], [1.22, .362, .282], [1.16, .356, .277], [1.135, .346, .266], [1.118, .338, .258]],

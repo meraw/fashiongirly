@@ -150,10 +150,11 @@ function fabric(map,colour,spec){
   if(K){const {normal,S}=crackleData(),n=dataTexture(normal,S,S,K.repeat[0],K.repeat[1]);n.colorSpace=T.NoColorSpace;
     Object.assign(m,{normalMap:n,normalScale:new T.Vector2(K.scale,K.scale),sheen:K.sheen??.12});}
   // Optional (`metallic`): a metallic coated nylon, crumpled all over: partly metal (the scene has no environment to
-  // reflect, so a full metal reads black), fairly shiny, crumpled into small flat facets tilted every way (crumpleData).
+  // reflect, so a full metal reads black), fairly shiny, and crinkled all over (crinkleData), the tile repeated
+  // `repeat` round and down.
   const M=spec.metallic;
-  if(M){const {normal,S}=crumpleData(M.facets),n=dataTexture(normal,S,S,M.crumple[0],M.crumple[1]);n.colorSpace=T.NoColorSpace;
-    Object.assign(m,{metalness:M.metalness,roughness:M.roughness,normalMap:n,normalScale:new T.Vector2(M.crumple[2],M.crumple[2]),sheen:0,bumpMap:null});}
+  if(M){const {normal,S}=crinkleData(M.crinkle),n=dataTexture(normal,S,S,M.repeat[0],M.repeat[1]);n.colorSpace=T.NoColorSpace;
+    Object.assign(m,{metalness:M.metalness,roughness:M.roughness,normalMap:n,normalScale:new T.Vector2(1,1),sheen:0,bumpMap:null});}
   return m;
 }
 
@@ -438,23 +439,43 @@ function makeZipWindbreaker(id,spec,overSkirt,open=false,under=null){
   return jacket;
 }
 
+// Crinkled metallic nylon, as a seamless normal map (`K`), built as a height field in three layers:
+// - folds: long soft ridges running down the garment (`folds` across the tile, `fold` high), so the light runs in
+//   bright and dark streaks, as on nylon that hangs;
+// - crumples: small planes (`facets` of them), each tilted its own way (up to `tilt`), their edges rounded off
+//   (`soften` pixels), so the surface is crumpled all over like paper smoothed out again;
+// - wrinkles: many short, fine creases over the top, mostly running down (`wrinkles` of them, up to `length` pixels long,
+//   about `width` wide, `wrinkle` deep).
+function crinkleData(K){
+  const key='crinkle:'+JSON.stringify(K);if(shellCache[key])return shellCache[key];
+  const S=512,rand=random(83),h=new Float32Array(S*S),c=new Float32Array(S*S),wrap=v=>((v%S)+S)%S,sm=t=>t*t*(3-2*t);
+  // Folds: two octaves of smooth noise, stretched down the tile; a soft ridge where each crosses its middle.
+  const octave=(gx,gy)=>{const g=Array.from({length:gx*gy},()=>rand());return (x,y)=>{const u=x/S*gx,v=y/S*gy,i0=Math.floor(u),j0=Math.floor(v),fu=sm(u-i0),fv=sm(v-j0),G=(i,j)=>g[(j%gy)*gx+(i%gx)];
+    return (G(i0,j0)*(1-fu)+G(i0+1,j0)*fu)*(1-fv)+(G(i0,j0+1)*(1-fu)+G(i0+1,j0+1)*fu)*fv;};};
+  const f1=octave(K.folds,Math.max(1,Math.round(K.folds/3))),f2=octave(K.folds*2,Math.max(1,Math.round(K.folds/2)));
+  const ridge=n=>1-Math.sqrt((2*n-1)**2+.01);
+  const cells=Array.from({length:K.facets},()=>{const a=rand()*Math.PI*2,t=K.tilt*(.3+.7*rand());return [rand()*S,rand()*S,Math.cos(a)*t,Math.sin(a)*t];});
+  for(let y=0;y<S;y++)for(let x=0;x<S;x++){
+    let best=1e9,q=null,ddx=0,ddy=0;for(const p of cells){let dx=x-p[0],dy=y-p[1];dx-=S*Math.round(dx/S);dy-=S*Math.round(dy/S);const d=dx*dx+dy*dy;if(d<best){best=d;q=p;ddx=dx;ddy=dy;}}
+    h[y*S+x]=K.fold*(ridge(f1(x,y))+.45*ridge(f2(x,y)));c[y*S+x]=q[2]*ddx+q[3]*ddy;}
+  // A few passes of a box blur, round and down: rounds off the crumples' edges and smooths the wrinkles.
+  const t=new Float32Array(S*S),blur=(a,r,passes)=>{for(let pass=0;pass<passes;pass++){
+    for(let y=0;y<S;y++)for(let x=0;x<S;x++){let v=0;for(let o=-r;o<=r;o++)v+=a[y*S+wrap(x+o)];t[y*S+x]=v/(2*r+1);}
+    for(let y=0;y<S;y++)for(let x=0;x<S;x++){let v=0;for(let o=-r;o<=r;o++)v+=t[wrap(y+o)*S+x];a[y*S+x]=v/(2*r+1);}}};
+  blur(c,K.soften,3);for(let i=0;i<S*S;i++){h[i]+=c[i];c[i]=0;}
+  for(let n=0;n<K.wrinkles;n++){const cx=rand()*S,cy=rand()*S,a=Math.PI/2+(rand()-.5)*2.2,len=K.length*(.4+.6*rand()),w=K.width*(.7+.6*rand()),bend=(rand()-.5)*.8,amp=K.wrinkle*(rand()<.5?-1:1)*(.5+.5*rand());
+    const steps=Math.ceil(len);
+    for(let k=0;k<=steps;k++){const t=k/steps-.5,ang=a+bend*t,px=cx+Math.cos(a)*t*len-Math.sin(a)*bend*t*t*len,py=cy+Math.sin(a)*t*len+Math.cos(a)*bend*t*t*len,fade=Math.cos(Math.PI*t);
+      for(let o=-Math.ceil(w*1.5);o<=Math.ceil(w*1.5);o++){const qx=Math.round(px-Math.sin(ang)*o),qy=Math.round(py+Math.cos(ang)*o);c[wrap(qy)*S+wrap(qx)]+=amp*fade*Math.exp(-2.5*(o/w)**2)/w;}}}
+  blur(c,1,2);for(let i=0;i<S*S;i++)h[i]+=c[i];
+  const normal=new Uint8Array(S*S*4),H=(x,y)=>h[wrap(y)*S+wrap(x)];
+  for(let y=0;y<S;y++)for(let x=0;x<S;x++){const nx=(H(x-1,y)-H(x+1,y))/2,ny=(H(x,y-1)-H(x,y+1))/2,l=Math.hypot(nx,ny,1),k=(y*S+x)*4;
+    normal[k]=Math.round((nx/l*.5+.5)*255);normal[k+1]=Math.round((ny/l*.5+.5)*255);normal[k+2]=Math.round((1/l*.5+.5)*255);normal[k+3]=255;}
+  shellCache[key]={normal,S};return shellCache[key];
+}
 // Crinkled faux leather: a tileable crackle of small domed cells split by fine creases, kept as a height field. It drives a
 // normal map (for both the leather and its glossy coat, so highlights break up along the creases) and a faint colour
 // variation. Built once and shared.
-// Crumpled foil, as a seamless normal map: `count` flat facets (cells round random points, wrapping round the tile), each
-// tilted its own way, with the creases between them slightly softened.
-function crumpleData(count){
-  const key='crumple:'+count;if(shellCache[key])return shellCache[key];
-  const S=256,rand=random(83),cells=Array.from({length:count},()=>{const t=rand()*Math.PI*2,k=.25+.5*rand();return [rand()*S,rand()*S,Math.cos(t)*k,Math.sin(t)*k];});
-  const nx=new Float32Array(S*S),ny=new Float32Array(S*S);
-  for(let y=0;y<S;y++)for(let x=0;x<S;x++){let f1=1e9,f2=1e9,c1=null,c2=null;
-    for(const c of cells){let dx=Math.abs(x-c[0]),dy=Math.abs(y-c[1]);dx=Math.min(dx,S-dx);dy=Math.min(dy,S-dy);const d=dx*dx+dy*dy;if(d<f1){f2=f1;c2=c1;f1=d;c1=c;}else if(d<f2){f2=d;c2=c;}}
-    // Within a pixel or two of a crease, the two facets' tilts blend.
-    const t=Math.min(1,(Math.sqrt(f2)-Math.sqrt(f1))/3),w=.5+.5*t,i=y*S+x;nx[i]=c1[2]*w+c2[2]*(1-w);ny[i]=c1[3]*w+c2[3]*(1-w);}
-  const normal=new Uint8Array(S*S*4);
-  for(let i=0;i<S*S;i++){const l=Math.hypot(nx[i],ny[i],1),k=i*4;normal[k]=Math.round((nx[i]/l*.5+.5)*255);normal[k+1]=Math.round((ny[i]/l*.5+.5)*255);normal[k+2]=Math.round((1/l*.5+.5)*255);normal[k+3]=255;}
-  shellCache[key]={normal,S};return shellCache[key];
-}
 function crackleData(){
   if(shellCache.crackle)return shellCache.crackle;
   const S=256,rand=random(61),cells=[],height=new Float32Array(S*S);
