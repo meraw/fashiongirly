@@ -319,3 +319,18 @@ test('pleated linen trousers: a deep pleat on each front hip, slant pockets, jet
     o.traverse(m=>{assert.ok(!['pleat-fold','welt-pocket-lips','welt-pocket-opening','welt-pocket-stitch','button-hole'].includes(m.name),`${other} has no ${m.name}`);
       if(m.name==='shank-button')assert.ok(m.material.metalness>0,`${other} keeps its metal button`);});disposeObject(o);}
 });
+
+test('every pair joins hips and legs without a band or a crack: the shading turns gradually, and the hips reach inside the legs',()=>{
+  for(const id of Object.keys(GARMENTS).filter(k=>GARMENTS[k].slot==='bottom'&&GARMENTS[k].build?.crotch)){
+    const outfit=makeOutfit({bottomId:id}),cy=GARMENTS[id].build.crotch.y,hips=outfit.getObjectByName('jeans-hips');
+    const p=hips.geometry.attributes.position,nm=hips.geometry.attributes.normal,n=129;let low=Infinity,worst=0;
+    for(let k=0;k<p.count;k++)low=Math.min(low,p.getY(k));
+    // Down each column of the thighs (clear of the crotch point between the legs), the surface direction changes by only a
+    // few degrees from one row to the next as the hips come down to the legs, instead of switching at the last row.
+    for(let k=n;k<p.count;k++){const a=k-n;if(p.getY(a)>cy+.08||p.getY(k)<cy-.001||Math.abs(p.getX(a))<.08)continue;
+      const dot=nm.getX(a)*nm.getX(k)+nm.getY(a)*nm.getY(k)+nm.getZ(a)*nm.getZ(k);worst=Math.max(worst,Math.acos(Math.min(1,dot))*180/Math.PI);}
+    assert.ok(worst<6,`${id}: the shading turns by ${worst.toFixed(1)} degrees between rows at the join`);
+    assert.ok(low<cy-.01,`${id}: the hips carry on below the crotch, inside the legs`);
+    disposeObject(outfit);
+  }
+});

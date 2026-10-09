@@ -1,10 +1,10 @@
-# Wardrobe item: pleated linen-blend wide trousers
+# Wardrobe item: Urban Classics pleated linen-blend wide trousers
 
 Authored 9 October 2026. Status: first version, awaiting the user's visual review. Built on the shared jeans template, extended for it.
 
 ## Source and reference reading
 
-The user sent seven phone screenshots of a product gallery (images 2, 4, 7 and 11 to 14 of 16), with no text: front, three-quarter and back on a model, front and back flat lays, and close-ups of a front pocket and a back pocket. The brand and the fabric composition are not visible. Photos are not stored in the repository.
+The user sent seven phone screenshots of a product gallery (images 2, 4, 7 and 11 to 14 of 16), with no text: front, three-quarter and back on a model, front and back flat lays, and close-ups of a front pocket and a back pocket. Neither the brand nor the fabric composition is visible; after seeing the first version, the user said they are Urban Classics. Photos are not stored in the repository.
 
 Features read from the photos:
 
@@ -66,9 +66,17 @@ Plain fabric measures about RGB 206, 199, 182 across the photos: 209, 203, 186 i
 - `npm run build` succeeds. The outfit builds in about 0.18 s, like the other wide pairs.
 - Rendered in headless Chromium from the front, a slight turn and the back, with the stripe polo and without a top, over the cow print slides. Compared side by side with the photos. Not yet seen by the user.
 
+## The line where the hips meet the legs
+
+On these pale trousers the user saw a horizontal band across both thighs where the hips meet the legs, and asked for it to be fixed for every pair. It came from the shared jeans template and showed on every pair (most on pale fabric). There were two causes:
+
+- **Shading.** Just above the crotch the hips' surface turns to meet the legs' outline, so it faced a little down at the front and back of the thighs and a little up at the sides, while the legs hang straight. Only the hips' bottom row took the legs' direction, so the light changed in one step. Now the hips' normals blend into the legs' over 0.06 above the crotch. The shapes are unchanged.
+- **A hairline crack.** The hips stopped exactly at the crotch, just inside the legs' top edge, and from her slightly-above eye line the gap showed what was behind as a fine broken line (on the Levi's '94, specks of her cream body). The hips now carry on 0.015 below the crotch, hidden inside the legs.
+
+Measured on renders, the sharpest brightness step down these trousers' thighs at the join fell from 5 to 9 levels to under 2, and the crack is gone on every pair. Built side by side with main, every outfit is identical apart from the trousers' hips: no stitching, pocket, top, shoe, jacket or dress moved.
+
 ## Known differences
 
-- The brand, the composition and how the user wears them (rise, length) are not known.
+- The composition and how the user wears them (rise, length) are not known.
 - The pleats are a soft ridge with a shadow line: the hips' surface is too coarse for a crisp fold, and the photos' pleat volume over the thighs is not modelled.
 - Drape and wrinkles are procedural; linen's characteristic creasing is not modelled.
-- A horizontal band shows where the hips meet the legs, more visibly than on darker pairs. It comes from the shared template (the Levi's '94 shows it too), so it is not fixed here.

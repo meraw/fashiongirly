@@ -1454,6 +1454,9 @@ function makeJeans(id,spec,swatch=null,rest=LOAFER_REST){
       for(let i=0;i<N;i++){const a=Math.PI+i/(N-1)*Math.PI*2,dx=Math.sin(a),dz=Math.cos(a),hip=1/Math.sqrt(dx*dx/(q.x*q.x)+dz*dz/(q.z*q.z)),base=hip+(legReach(y,dx,dz)*.995-hip)*w,r=base+pleat(dx*base,y,dz);
         if(prev)d+=Math.hypot(dx*hip-prev[0],dz*hip-prev[1]);prev=[dx*hip,dz*hip];restU.push(d);ring.push([dx*r,y,dz*r]);}
       rings.push(ring);}
+    // The hips carry on a little below the crotch, inside the legs: their edges meet there, and from above the narrow gap
+    // between them would otherwise show what is behind as a fine broken line.
+    rings.push(rings[rings.length-1].map(([x,,z])=>[x,crotchY-.015,z]));restU.push(...restU.slice(-N));
     body=[ringShell(jeans,rings,hipDenim,'jeans-hips')];body[0].userData.restU=restU;
   }else body=[shell(jeans,hips,hipDenim,'jeans-hips',64)];
   // Denim laid by real distance along each ring (u) and height (v), with one scale on hips and legs. On the hips, u
@@ -1557,12 +1560,16 @@ function makeJeans(id,spec,swatch=null,rest=LOAFER_REST){
     if(spec.crotch){leg.userData.ringSize=97;byDistance(leg);}
   }
   if(spec.crotch){
-    // Shade across the join: the hips' bottom edge takes the surface direction of the leg it meets, so the lighting
-    // flows from hips into legs instead of breaking along a line.
-    const hp=body[0].geometry.attributes.position,hn=body[0].geometry.attributes.normal,start=hp.count-129,v=new T.Vector3();
+    // Shade across the join: just above the crotch the hips' surface turns to meet the legs' outline, so on its own it
+    // would face a little up or down where the legs hang straight, catch the light differently and show a band. Its
+    // bottom edge takes the surface direction of the leg it meets, and the rows above blend into it over a short height,
+    // so the lighting flows from hips into legs instead of breaking along a line.
+    const hp=body[0].geometry.attributes.position,hn=body[0].geometry.attributes.normal,n=129,start=hp.count-n,v=new T.Vector3(),target=[],blend=.06;
     for(let i=start;i<hp.count;i++){v.fromBufferAttribute(hp,i);let best=null,bd=Infinity;
       for(const side of [-1,1]){const lp=legs[side].geometry.attributes.position;for(let k=0;k<97;k++){const d=(lp.getX(k)-v.x)**2+(lp.getZ(k)-v.z)**2;if(d<bd){bd=d;best=[side,k];}}}
-      const ln=legs[best[0]].geometry.attributes.normal;hn.setXYZ(i,ln.getX(best[1]),ln.getY(best[1]),ln.getZ(best[1]));}
+      const ln=legs[best[0]].geometry.attributes.normal;target.push(new T.Vector3(ln.getX(best[1]),ln.getY(best[1]),ln.getZ(best[1])));}
+    for(let k=0;k<hp.count;k++){const t=Math.min(1,Math.max(0,(hp.getY(k)-spec.crotch.y)/blend)),w=1-t*t*(3-2*t);if(w<=0)continue;
+      v.fromBufferAttribute(hn,k).multiplyScalar(1-w).addScaledVector(target[k%n],w).normalize();hn.setXYZ(k,v.x,v.y,v.z);}
     hn.needsUpdate=true;
   }
   if(spec.crystals&&spec.crotch){

@@ -709,8 +709,8 @@ export const GARMENTS = Object.freeze({
   },
   [PLEATED_LINEN_ID]: {
     slot: 'bottom',
-    id: PLEATED_LINEN_ID, name: 'Pleated linen-blend wide trousers', family: 'pleated-wide-trousers', version: 1,
-    status: 'reference-study-awaiting-visual-review', brandAsProvided: 'not visible in the screenshots',
+    id: PLEATED_LINEN_ID, name: 'Urban Classics pleated linen-blend wide trousers', family: 'pleated-wide-trousers', version: 1,
+    status: 'reference-study-awaiting-visual-review', brandAsProvided: 'Urban Classics (named by the user; not visible in the screenshots)',
     source: { note: 'user supplied seven phone screenshots of a product gallery (images 2, 4, 7 and 11 to 14 of 16), with no text: front, three-quarter and back on a model, front and back flat lays, and close-ups of a front pocket and a back pocket' },
     referenceViews: ['front on model', 'three-quarter on model', 'back on model', 'front flat lay', 'back flat lay', 'front pocket close-up', 'back pocket close-up'],
     details: ['high rise at the natural waist', 'one deep front pleat on each side, folded toward the fly and releasing at the hip', 'wide legs falling straight from the hip and widening slightly to the hem, full length, resting on the shoes', 'pale stone (sand) plain weave with visible linen slubs', 'slanted front pockets', 'zip fly with a curved stitched edge and one tonal four-hole button', 'six belt loops, none at the centre back', 'jetted (welt) back pockets with stitched outlines, and short darts above them', 'centre-back seam', 'tonal stitching and a plain hem'],
@@ -723,7 +723,7 @@ export const GARMENTS = Object.freeze({
       warmth: 1, warmthBasis: 'inferred from the light, open linen-look weave in the photos',
       weather: 'suits warm, dry days (inferred from the fabric); wind and rain performance unknown; the pale colour will show rain spots and dirt at the hem',
     },
-    uncertainties: ['composition and brand are not visible in the screenshots', 'the pleats\' depth and where they release are read from on-model photos', 'drape and wrinkles are procedural, from a small swatch', 'how the user wears them (rise, length) is not yet known'],
+    uncertainties: ['the composition is not visible in the screenshots', 'the pleats\' depth and where they release are read from on-model photos', 'drape and wrinkles are procedural, from a small swatch', 'how the user wears them (rise, length) is not yet known'],
     authoring: { texture: 'pleated-linen-fabric.js: flat-lit seamless swatch from the plain fabric below the back pocket in the close-up', runtimeGeneration: false, sourcePhotosBundled: 'fabric swatch only' },
     build: {
       template: 'jeans', legName: 'jeans-leg', fallback: [206, 199, 182],

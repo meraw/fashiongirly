@@ -47,4 +47,4 @@ The thread is a light grey (`#787676`; a paler grey read as white under the stud
 
 - The stone-wash repeats; the paler seams and thighs are subtler than in the photos.
 - The patch carries no lettering.
-- A faint line remains where the hips meet the legs.
+- Fixed 9 October 2026 for every pair: the line where the hips met the legs is gone (see [the pleated linen trousers](pleated-linen-wide-trousers.md#the-line-where-the-hips-meet-the-legs)).

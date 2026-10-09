@@ -65,4 +65,4 @@ Plain denim in the back photo measures RGB 162, 175, 183 where lit and 131, 145,
 - The crystals are larger and wider-spaced than the real ones.
 - The darker indigo round the fly and the pocket corners is not reproduced.
 - The leather patch carries no lettering.
-- A faint line remains where the hips meet the legs.
+- Fixed 9 October 2026 for every pair: the line where the hips met the legs is gone (see [the pleated linen trousers](pleated-linen-wide-trousers.md#the-line-where-the-hips-meet-the-legs)).
