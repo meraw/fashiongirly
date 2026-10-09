@@ -47,7 +47,7 @@ A chunky high-top on a stacked platform, all cream, plain and tonal; closed, ove
 
 ## Checks
 
-- `npm test`: 69 passing. The new test checks:
+- `npm test`: 70 passing after merging `main`. The new test checks:
   - the parts, including seven eyelets a side, two vent eyelets and an ankle patch per shoe, and two stitch lines per sole;
   - the grooves between the platform layers;
   - the patch and vents on the inner side of each foot;
