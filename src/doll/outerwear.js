@@ -58,24 +58,21 @@ function windbreakerBodyData(spec){
 // front or the back, in outfit units (x across, y up), and mirrored to both sides when `mirror` is set.
 const rowRadius=(rows,y)=>{for(let k=0;k<rows.length-1;k++)if(y<=rows[k][0]&&y>=rows[k+1][0]){const t=(rows[k][0]-y)/(rows[k][0]-rows[k+1][0]);return rows[k][1]+(rows[k+1][1]-rows[k][1])*t;}return y>rows[0][0]?rows[0][1]:rows.at(-1)[1];};
 const segDist=(x,y,[ax,ay],[bx,by])=>{const vx=bx-ax,vy=by-ay,t=Math.max(0,Math.min(1,((x-ax)*vx+(y-ay)*vy)/(vx*vx+vy*vy||1)));return Math.hypot(x-ax-vx*t,y-ay-vy*t);};
-// A suggestion of printed lettering at the doll's scale: a row of generic block glyphs, each built from strokes (a left
-// stem, a right stem or bowl, top, middle and bottom bars) chosen per glyph, so the row reads as bold lettering without
-// spelling anything. It is not the brand's own lettering.
-const glyphCache={};
-function glyphStrokes(seed,g){
-  const key=seed+':'+g;if(glyphCache[key])return glyphCache[key];const r=random(seed*31+g*97);
-  const q=()=>r(),parts={stem:q()<.85,right:q()<.6,bowl:q()<.35,top:q()<.6,mid:q()<.5,bottom:q()<.55,narrow:q()<.2};
-  if(!parts.right&&!parts.bowl&&!parts.top&&!parts.bottom)parts.bottom=true;
-  return glyphCache[key]=parts;
-}
-function glyphInk(u,v,count,seed){
-  const g=Math.floor(u*count);if(g<0||g>=count)return 0;const P=glyphStrokes(seed,g),f=(u*count-g-.12)/(P.narrow?.5:.76),t=1-v;
-  if(f<0||f>1||t<0||t>1)return 0;const w=.24,h=.17;
-  if(P.stem&&f<w)return 1;
-  if(P.right&&f>1-w)return 1;
-  if(P.bowl){const dx=(f-.45)/.55,dy=(t-.5)/.5,d=Math.hypot(dx,dy);if(d<1&&d>.62&&f>.3)return 1;}
-  if(P.top&&t<h)return 1;if(P.mid&&Math.abs(t-.5)<h/2)return 1;if(P.bottom&&t>1-h)return 1;
-  return 0;
+// Printed lettering at the doll's scale: plain block capitals on a 5 × 7 grid, one row per string, top row first.
+// A generic font, not the brand's own typeface. Characters without a pattern are left as spaces.
+const BLOCK_FONT={
+  A:['01110','10001','10001','11111','10001','10001','10001'],B:['11110','10001','10001','11110','10001','10001','11110'],
+  C:['01111','10000','10000','10000','10000','10000','01111'],D:['11110','10001','10001','10001','10001','10001','11110'],
+  E:['11111','10000','10000','11110','10000','10000','11111'],G:['01111','10000','10000','10011','10001','10001','01111'],
+  I:['01110','00100','00100','00100','00100','00100','01110'],L:['10000','10000','10000','10000','10000','10000','11111'],
+  N:['10001','11001','11001','10101','10011','10011','10001'],O:['01110','10001','10001','10001','10001','10001','01110'],
+  R:['11110','10001','10001','11110','10100','10010','10001'],U:['10001','10001','10001','10001','10001','10001','01110'],
+};
+// Whether the point (u along the text, 0–1; v across it, 0 at the letters' foot and 1 at their top) is inked.
+function letterInk(u,v,text){
+  const g=Math.floor(u*text.length);if(g<0||g>=text.length)return 0;const rows=BLOCK_FONT[text[g].toUpperCase()];if(!rows)return 0;
+  const f=(u*text.length-g-.12)/.76,t=1-v;if(f<0||f>=1||t<0||t>=1)return 0;
+  return rows[Math.floor(t*7)][Math.floor(f*5)]==='1'?1:0;
 }
 function plainBodyData(spec,key){
   const w=1024,h=512,data=new Uint8Array(w*h*4),C=spec.colours,shellC=rgb(C.shell),ink=C.print?rgb(C.print):null,inkDark=C.printShade?rgb(C.printShade):ink,rand=random(19),rows=spec.body.rows;
@@ -87,7 +84,7 @@ function plainBodyData(spec,key){
         else if(L.shadow&&d<L.shadow&&y<Math.min(pts[n][1],pts[n+1][1])+.0005)shade=Math.min(shade,1-(1-L.shade)*(1-d/L.shadow)*.6);}}}
     for(const P of spec.prints||[]){if(!!P.back===front)continue;const lx=x-P.x,ly=y-P.y,inside=P.vertical?Math.abs(lx)<P.height/2&&ly<0&&ly>-P.length:Math.abs(lx)<P.length/2&&ly>0&&ly<P.height;
       if(!inside)continue;const u=P.vertical?-ly/P.length:(lx+P.length/2)/P.length,v=P.vertical?(lx+P.height/2)/P.height:ly/P.height;
-      if(glyphInk(u,v,P.glyphs,P.seed||5)){const t=P.vertical?v:1-v;c=ink.map((q,n)=>q+(inkDark[n]-q)*t*.8);shade=1;}}
+      if(letterInk(u,v,P.text)){const t=P.vertical?v:1-v;c=ink.map((q,n)=>q+(inkDark[n]-q)*t*.8);shade=1;}}
     const grain=1+(rand()-.5)*.025;for(let n=0;n<3;n++)data[k+n]=Math.max(0,Math.min(255,c[n]*shade*grain));data[k+3]=255;}}
   shellCache[key]={data,w,h};return shellCache[key];
 }

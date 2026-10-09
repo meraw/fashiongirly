@@ -48,7 +48,7 @@ Each setting is optional. When it is missing the template does exactly what it d
 
 - **One-colour body** (no `yoke`): the body is drawn by `plainBodyData()` in the shell colour, and the sleeves use the shell colour too.
 - **`lines`**: seams drawn on the body texture. Each line is a list of points as seen straight on from the front or the back, optionally mirrored, with a width, a shade and an optional soft shadow below it.
-- **`prints`**: blocks of light printed lettering, horizontal or running downwards, on the front or back. They are drawn as generic block glyphs (`glyphStrokes()`), not the brand's lettering.
+- **`prints`**: blocks of light printed lettering, horizontal or running downwards, on the front or back. Each print spells its `text` in a plain 5 × 7 block-capital font (`letterInk()`), not the brand's typeface.
 - **`placket`**: a storm placket covering the zip (`coveredZip()`), with topstitching either side and snaps on the collar, in place of the coil zip, slider and pull.
 - **`toggles`**: short cords ending in dark toggles (`cordToggle()`), here at the hem band and the collar.
 - **No `hood`, `cords` or `backLabel`**: those parts are left out.
@@ -73,9 +73,13 @@ Each setting is optional. When it is missing the template does exactly what it d
 - `npm run build` succeeds.
 - Rendered in headless Chromium from the front, a turn and the back, over the half-zip dress.
 
+## Review history
+
+- The first version drew made-up block glyphs in place of the lettering. The user saw them as Russian (some looked like Cyrillic letters), so the prints now spell the words.
+
 ## Known differences
 
-- The prints are generic block glyphs. They suggest lettering and do not spell the brand's text or reproduce its logo. The sleeve patch has no lettering.
+- The prints spell “RED BULL RACING” and “RED BULL” in a plain block font. They do not use the brand's typeface or reproduce its logo. The sleeve patch has no lettering.
 - The hood stays stowed in the collar and is not modelled. The collar's back zip seam is not drawn.
 - The pocket openings are drawn as narrow welts along the curved seams.
 - Fit is fixed; there are no controls for this jacket.

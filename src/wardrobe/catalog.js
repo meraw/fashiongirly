@@ -900,7 +900,7 @@ export const GARMENTS = Object.freeze({
       user: { wear: 'zipped closed, or not worn' },
       inferred: { warmth: 'light layer: unpadded shell', weather: 'mild, breezy or cool days; the stowed hood suits light showers', unknown: ['waterproofing', 'lining', 'fibre composition'] },
     },
-    uncertainties: ['the reflective prints are suggested by glyph blocks, not the brand lettering', 'the hood stays stowed in the collar and is not modelled', 'the sleeve patch carries no lettering', 'pocket openings are drawn as narrow welts along the curved seams'],
+    uncertainties: ['the reflective prints are spelled in a plain block font, not the brand typeface or logo', 'the hood stays stowed in the collar and is not modelled', 'the sleeve patch carries no lettering', 'pocket openings are drawn as narrow welts along the curved seams'],
     authoring: { texture: 'procedural colour, seams and prints drawn locally in src/doll/outerwear.js (plainBodyData); colours measured from the photos', runtimeGeneration: false, sourcePhotosBundled: false },
     // On the zip-windbreaker template (same body and sleeve rows as the Marikoo jacket), with the template's optional
     // one-colour layout: no yoke, hood or drawcords; a covered zip, drawn seams, prints, toggles and a rectangular patch.
@@ -923,8 +923,8 @@ export const GARMENTS = Object.freeze({
         { points: [[-.34, 1.434], [.34, 1.434]], back: true, width: .0012, shade: .88 },
       ],
       prints: [
-        { x: -.064, y: 1.835, vertical: true, length: .32, height: .028, glyphs: 15, seed: 11 },
-        { x: 0, y: 1.445, back: true, length: .42, height: .07, glyphs: 7, seed: 3 },
+        { x: -.064, y: 1.835, vertical: true, length: .32, height: .028, text: 'RED BULL RACING' },
+        { x: 0, y: 1.445, back: true, length: .5, height: .07, text: 'RED BULL' },
       ],
       sleeve: {
         rows: [[.05, .135, .126], [0, .152, .143], [-.1, .158, .15], [-.25, .156, .148], [-.38, .152, .145], [-.47, .146, .14], [-.51, .132, .127], [-.53, .121, .116]],
