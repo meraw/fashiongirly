@@ -69,7 +69,7 @@ Catalog ID `replay-cream-rose-embroidered-sweatshirt-v1` (slot `top`), built by 
 
 ## Checks
 
-- `npm test`: 103 passing after merging `main` (the pink yoke shirt, the snap-collar jumper, the plaid flannel shirt and the “Life is awesome” jumper), including the new `tests/replay-sweatshirt.test.js`. It checks:
+- `npm test`: 105 passing after merging `main` (most recently the Desigual rugby shirt), including the new `tests/replay-sweatshirt.test.js`. It checks:
   - the parts, and the parts it leaves out
   - the roses and leaves on the front panel, a red big rose, and a plain back
   - the cream fleece

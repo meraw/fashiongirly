@@ -44,6 +44,7 @@ export const PB_CHENILLE_ID = 'pull-bear-grey-chenille-high-neck-v1';
 export const DESIGUAL_SPLIT_FLORAL_SHIRT_ID = 'desigual-split-floral-shirt-v1';
 export const MANGO_DOT_SHIRT_ID = 'mango-halftone-dot-shirt-v1';
 export const LEVIS_PLAID_FLANNEL_ID = 'levis-oversized-plaid-flannel-shirt-v1';
+export const DESIGUAL_RUGBY_ID = 'desigual-navy-rugby-tiger-patches-v1';
 export const LEVIS_FLORAL_LOGO_SWEATSHIRT_ID = 'levis-floral-batwing-sweatshirt-v1';
 export const DESIGUAL_LIFE_AWESOME_ID = 'desigual-life-is-awesome-jumper-v1';
 export const PINK_YOKE_SHIRT_ID = 'pink-ditsy-floral-yoke-shirt-v1';
@@ -596,6 +597,22 @@ export const GARMENTS = Object.freeze({
       // the stroke weight, letter spacing, word space and satin stitch spacing.
       embroidery: { text: 'LIFE IS AWESOME', top: 1.715, height: .056, arch: .03, weight: .25, spacing: .1, space: .3, stitch: .08, colour: '#857f1e', shade: '#585213' },
     },
+  },
+  [DESIGUAL_RUGBY_ID]: {
+    slot: 'top',
+    id: DESIGUAL_RUGBY_ID, name: 'Desigual navy rugby shirt with tiger patches', family: 'rugby-shirt', version: 1,
+    status: 'authored-awaiting-user-review', brandAsProvided: 'Desigual (the neck label)',
+    source: { note: 'user supplied seven product photos and a note: it is sold as a dress, but they wear it tucked in, with the buttons closed. Views: the front on a model (closer and full length), a front flat lay, the front on two other models, the back on a model, and a styled look tucked into white jeans' },
+    referenceViews: ['front on model', 'front on model, full length', 'front flat lay', 'front on model, closer', 'back on model', 'front on model, full length', 'styled, tucked into white jeans'],
+    details: ['oversized long-sleeved rugby shirt in a smooth heavy navy jersey, sold as a mini dress', 'cream rugby collar and a short cream placket with white buttons, worn buttoned', 'three appliqué tigers stacked on her left chest, in blue, pink and yellow, with white embroidered stripes', 'dropped shoulders, roomy sleeves into long ribbed cuffs', 'side slits at the hem'],
+    material: { construction: 'smooth heavy jersey', composition: 'not stated', finish: 'matte' },
+    fit: { silhouette: 'oversized; worn tucked in, bloused over the waistband', sleeve: 'long and roomy, into ribbed cuffs', hem: 'tucked into her trousers or skirt (the dress length is not shown)', neckline: 'rugby collar, buttoned', adjustment: 'fixed authored fit for review; tucked in as the user wears it' },
+    exclusions: ['striped-shirt','knit-sweater'],
+    // Tucked in (the user's way): into the trousers she wears, or into the skirt, whose bow shows.
+    layering: { tucksIn: true },
+    uncertainties: ['worn tucked in as the user does, so the dress length and side slits are not shown', 'the tigers are drawn in code at her scale as a suggestion of the patches, not copied', 'the dropped shoulders are not modelled'],
+    styling: { silhouette: 'oversized, tucked in and bloused at the waist', palette: ['navy', 'cream', 'blue', 'pink', 'yellow'], pattern: 'plain, with a contrast collar and placket and three small appliqué tigers', coverage: { neck: 'rugby collar, buttoned', sleeves: 'long, ribbed cuffs', midriff: 'covered' }, material: 'smooth heavy jersey', warmth: 2, warmthBasis: 'inferred: a long-sleeved heavy jersey', weather: 'cool to mild days' },
+    authoring: { template: 'makeButtonShirt() in src/doll/shirts.js', texture: 'procedural jerseyData() and tigerPatchData() in src/doll/shirts.js; colours measured on the flat lay', runtimeGeneration: false, sourcePhotosBundled: false },
   },
   [REPLAY_ROSE_SWEATSHIRT_ID]: {
     slot: 'top',
