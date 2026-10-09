@@ -3,7 +3,7 @@
 export default {
     slot: 'top',
     id: 'lapis-blue-linen-button-down-shirt-v1', name: 'Lapis blue linen button-down shirt', family: 'relaxed-button-down-shirt', version: 1, label: 'Lapis blue linen button-down shirt · study',
-    status: 'authored-awaiting-user-review', brandAsProvided: 'none given',
+    status: 'user-approved', brandAsProvided: 'none given',
     source: { note: 'the user asked for two linen button-down shirts, one white and one lapis blue, without photos or further description; built as a classic relaxed linen shirt' },
     referenceViews: [],
     details: ['lapis blue linen in a slubby plain weave, softly creased', 'relaxed, hip length with a curved shirt tail', 'point collar on a stand, topstitched', 'eight tonal blue buttons from the collar stand to the hem; worn buttoned to the top', 'patch chest pocket on her left', 'back yoke', 'long sleeves with buttoned cuffs', 'tonal stitching'],

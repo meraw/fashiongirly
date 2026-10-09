@@ -2,6 +2,8 @@
 // ../catalog.js, which may also carry its outfit study (`study`) and the texture module its view loads (`atlas`).
 // Adding a garment adds its file and one line here, in alphabetical order, so two chats adding garments edit
 // different lines. The name is the file name in camel case (tests/garment-files.test.js checks both).
+export { default as bomboogieBlueTeddyHoodJacketV1 } from './bomboogie-blue-teddy-hood-jacket-v1.js';
+export { default as bomboogieGreenTeddyHoodJacketV1 } from './bomboogie-green-teddy-hood-jacket-v1.js';
 export { default as desigualHawaiiPatchStripeTeeV1 } from './desigual-hawaii-patch-stripe-tee-v1.js';
 export { default as lapisBlueLinenButtonDownShirtV1 } from './lapis-blue-linen-button-down-shirt-v1.js';
 export { default as paisleyPrintRelaxedShirtV1 } from './paisley-print-relaxed-shirt-v1.js';
