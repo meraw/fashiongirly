@@ -1,27 +1,27 @@
-// Wardrobe item: Bomboogie blue teddy jacket with detachable hood. Record: docs/garments/bomboogie-teddy-hood-jackets.md.
+// Wardrobe item: Bomboogie black teddy jacket with detachable hood. Record: docs/garments/bomboogie-teddy-hood-jackets.md.
 // One garment per file (see src/wardrobe/garments/index.js); the entry is the same as a catalog.js entry, plus its study.
 export default {
     slot: 'outerwear',
-    id: 'bomboogie-blue-teddy-hood-jacket-v1', name: 'Bomboogie blue teddy jacket with detachable hood', family: 'teddy-hood-jacket', version: 1, label: 'Bomboogie blue teddy jacket with detachable hood · reference study',
+    id: 'bomboogie-black-teddy-hood-jacket-v1', name: 'Bomboogie black teddy jacket with detachable hood', family: 'teddy-hood-jacket', version: 1, label: 'Bomboogie black teddy jacket with detachable hood · reference study',
     status: 'authored-awaiting-user-review', brandAsProvided: 'Bomboogie (the neck label and the zip pull)',
-    source: { note: 'user supplied four product images of the green one (front closed with the hood down, back, side three-quarter with the hood up, front open with the bib zipped) and said they own two identical jackets, one green and one blue, and that the quilted hood and front zip part come off; they asked for that to be an option in the app' },
+    source: { note: 'user supplied four product images of the green one (front closed with the hood down, back, side three-quarter with the hood up, front open with the bib zipped) and said they own two identical jackets, one green and one black (they first wrote blue and corrected it to black), and that the quilted hood and front zip part come off; they asked for that to be an option in the app' },
     referenceViews: ['front, closed, hood down', 'back, hood down', 'side three-quarter, hood up', 'front, open, bib zipped'],
-    details: ['boxy cropped jacket in curly teddy (bouclé faux shearling) in navy blue', 'wide flat teddy collar', 'silver two-way metal zip up the centre front', 'dropped shoulders and wide straight sleeves', 'all edges rolled teddy', 'detachable insert in quilted glossy nylon: a hood, worn down here, joined to a bib with its own tonal zip, zipped into the jacket along its front edges', 'drawcord toggles at the sides of the hood (not modelled: under her chin)', 'nylon lining'],
+    details: ['boxy cropped jacket in curly teddy (bouclé faux shearling) in black', 'wide flat teddy collar', 'silver two-way metal zip up the centre front', 'dropped shoulders and wide straight sleeves', 'all edges rolled teddy', 'detachable insert in quilted glossy nylon: a hood, worn down here, joined to a bib with its own tonal zip, zipped into the jacket along its front edges', 'drawcord toggles at the sides of the hood (not modelled: under her chin)', 'nylon lining'],
     material: { construction: 'curly teddy faux shearling shell; quilted glossy nylon insert, padded', composition: 'not stated in the supplied images', finish: 'curly, matte pile; glossy quilted nylon' },
     fit: { silhouette: 'boxy and cropped, dropped shoulders', length: 'high hip', sleeve: 'long, wide and straight', wear: 'zipped closed, as the user wears outerwear unless it is designed to be worn open; it can be shown open, and with or without the hood and bib', adjustment: 'its own boxy size on her, easing out only where the layers under it need room' },
     // Closed, it hides the top's collar points and sleeves; it can be worn open, and its hood and bib come out.
     layering: { closed: true, canOpen: true, coversTopSleeves: true, coversWaistband: true, detachable: { label: 'Wear the quilted hood and bib' } },
     styling: {
-      observed: { palette: ['navy blue'], pattern: 'plain; texture from the curly pile and the quilting', silhouette: 'boxy cropped teddy jacket with a wide collar, and a quilted puffer hood and bib zipped in', coverage: 'torso to the high hip and arms to the wrist; the hood lies down on her back', material: 'teddy faux shearling, quilted nylon' },
+      observed: { palette: ['black'], pattern: 'plain; texture from the curly pile and the quilting', silhouette: 'boxy cropped teddy jacket with a wide collar, and a quilted puffer hood and bib zipped in', coverage: 'torso to the high hip and arms to the wrist; the hood lies down on her back', material: 'teddy faux shearling, quilted nylon' },
       inferred: { warmth: 'warm with the padded hood and bib zipped in, for cold days; a little lighter without them', weather: 'cold, dry days; the nylon hood copes with a shower better than the teddy', mood: 'cosy and sporty', unknown: ['fibre composition', 'padding', 'water resistance'] },
     },
-    uncertainties: ['no photo of the blue one was supplied: it is the green one in a navy blue, a guess at the shade', 'the teddy is a procedural curl texture, not copied', 'the hood is only shown worn down; on the doll her large head covers her neck, so its rim shows at the sides of her neck and the pouch on her back, and the cord toggles under her chin are left off', 'the label is not modelled'],
+    uncertainties: ['no photo of the black one was supplied: it is the green one in black, its teddy and nylon set to a soft black like the cropped hoodie\'s fleece', 'the teddy is a procedural curl texture, not copied', 'the hood is only shown worn down; on the doll her large head covers her neck, so its rim shows at the sides of her neck and the pouch on her back, and the cord toggles under her chin are left off', 'the label is not modelled'],
     authoring: { template: 'makeTeddyJacket() in src/doll/teddy-jacket.js (the teddy-hood-jacket template)', texture: 'procedural curly teddy and quilted nylon in src/doll/teddy-jacket.js', runtimeGeneration: false, sourcePhotosBundled: false },
     // Construction for makeTeddyJacket(), in outfit units: the fur jacket's boxy cropped body and dropped-shoulder sleeves,
     // eased out over anything under it by at least `fit.gap`.
     build: {
       template: 'teddy-hood-jacket',
-      colours: { teddy: '#1c2337', nylon: '#2f3850', lining: '#252c40', insertZip: '#3a4462', quiltStitch: '#1c2234', metal: '#b9b9bd' },
+      colours: { teddy: '#161618', nylon: '#1f2023', lining: '#18191b', insertZip: '#2a2b2f', quiltStitch: '#0c0c0e', metal: '#b9b9bd' },
       teddy: { sheen: .5, sheenLight: .3, bump: .04, tiles: { body: [7, 2.5], sleeve: [4, 2.5], trim: [3, 1.5] } },
       nylon: { roughness: .32, clearcoat: .6, clearcoatRoughness: .2 },
       fit: { gap: .014 },
@@ -50,5 +50,5 @@ export default {
       },
     },
     // The study preset: added to the outfit ideas with the other outerwear studies.
-    study: { name: 'Blue teddy jacket study', note: 'Reference study: the same Bomboogie teddy jacket in navy, as the user owns it in green and blue, with its quilted nylon hood and bib zipped in. The blue is a guess: no photo of it was supplied.', recipe: { topId: 'lapis-blue-linen-button-down-shirt-v1', bottomId: 'mango-washed-black-v1' } },
+    study: { name: 'Black teddy jacket study', note: 'Reference study: the same Bomboogie teddy jacket in black, as the user owns it in green and black, with its quilted glossy nylon hood and bib zipped in. No photo of the black one was supplied.', recipe: { topId: 'lapis-blue-linen-button-down-shirt-v1', bottomId: 'mango-washed-black-v1' } },
 };

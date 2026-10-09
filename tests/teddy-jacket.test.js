@@ -8,12 +8,12 @@ import { OUTFITS, cleanRecipe, DEFAULT } from '../src/doll/recipe.js';
 import { startStudio } from '../src/doll/app.js';
 import { GARMENTS, DESIGUAL_LEATHER_JACKET_ID } from '../src/wardrobe/catalog.js';
 import { check } from './outerwear-coverage.js';
-const GREEN='bomboogie-green-teddy-hood-jacket-v1',BLUE='bomboogie-blue-teddy-hood-jacket-v1';
+const GREEN='bomboogie-green-teddy-hood-jacket-v1',BLACK='bomboogie-black-teddy-hood-jacket-v1';
 const named=(root,name)=>{const found=[];root.traverse(o=>{if(o.name===name)found.push(o);});return found;};
 const wear=(id,extra={})=>{const outfit=makeOutfit({topId:'white-linen-button-down-shirt-v1',outerwearId:id,...extra});outfit.updateMatrixWorld(true);return outfit;};
 
-test('Bomboogie teddy jackets: green and blue, each with a study, worn closed with the hood and bib zipped in',()=>{
-  for(const id of [GREEN,BLUE]){const g=GARMENTS[id];
+test('Bomboogie teddy jackets: green and black, each with a study, worn closed with the hood and bib zipped in',()=>{
+  for(const id of [GREEN,BLACK]){const g=GARMENTS[id];
     assert.equal(g.slot,'outerwear');assert.ok(g.layering.canOpen&&g.layering.closed&&g.layering.detachable?.label,'can be worn open; its hood and bib come out');
     assert.ok(OUTFITS.some(look=>look.recipe.outerwearId===id),'a study wears it');
     const outfit=wear(id),jacket=outfit.getObjectByName('outerwear');
@@ -26,8 +26,8 @@ test('Bomboogie teddy jackets: green and blue, each with a study, worn closed wi
     const hood=new T.Box3().setFromObject(named(jacket,'quilted-hood')[0]);assert.ok(hood.getCenter(new T.Vector3()).z<-.1&&hood.min.y/.76>1.55,'the hood is down on her back');
     disposeObject(outfit);
   }
-  const green=wear(GREEN),blue=wear(BLUE),colour=o=>named(o,'jacket-body')[0].material.color;
-  assert.ok(colour(green).g>colour(green).b&&colour(blue).b>colour(blue).g,'one green, one blue');disposeObject(green);disposeObject(blue);
+  const green=wear(GREEN),black=wear(BLACK),colour=o=>named(o,'jacket-body')[0].material.color;
+  const k=colour(black);assert.ok(colour(green).g>colour(green).b&&Math.max(k.r,k.g,k.b)<.02&&Math.max(k.r,k.g,k.b)-Math.min(k.r,k.g,k.b)<.005,'one green, one black');disposeObject(green);disposeObject(black);
 });
 
 test('Bomboogie teddy jackets: without the hood and bib, none of the insert is worn',()=>{

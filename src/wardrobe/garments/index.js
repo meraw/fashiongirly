@@ -10,6 +10,7 @@ export { default as whiteLinenButtonDownShirtV1 } from './white-linen-button-dow
 export { default as lapisBlueLinenButtonDownShirtV1 } from './lapis-blue-linen-button-down-shirt-v1.js';
 // slot 04
 // slot 05
+export { default as bomboogieBlackTeddyHoodJacketV1 } from './bomboogie-black-teddy-hood-jacket-v1.js';
 // slot 06
 // slot 07
 // slot 08
@@ -42,7 +43,6 @@ export { default as desigualHawaiiPatchStripeTeeV1 } from './desigual-hawaii-pat
 // slot 32
 // slot 33
 // slot 34
-export { default as bomboogieBlueTeddyHoodJacketV1 } from './bomboogie-blue-teddy-hood-jacket-v1.js';
 // slot 35
 // slot 36
 export { default as pepeJeansIkatShirtV1 } from './pepe-jeans-ikat-shirt-v1.js';

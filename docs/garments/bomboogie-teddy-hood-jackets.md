@@ -1,4 +1,4 @@
-# Wardrobe items: Bomboogie teddy jackets with a detachable hood, green and blue
+# Wardrobe items: Bomboogie teddy jackets with a detachable hood, green and black
 
 Authored 9 October 2026. Status: first version, awaiting the user's visual review. The first outerwear with a detachable part, and the option in the app to take it out.
 
@@ -6,7 +6,7 @@ Authored 9 October 2026. Status: first version, awaiting the user's visual revie
 
 The user sent four product photos of the green one from Zalando, and said:
 
-- they have two identical jackets, one green and one blue;
+- they have two identical jackets, one green and one black (they first wrote blue, then corrected it to black);
 - the hood and the front zip part, in a different material, come off the coat;
 - they want that to be an option in the app.
 
@@ -17,7 +17,7 @@ The four photos:
 - a side three-quarter with the hood up;
 - the front open, showing the zipped bib.
 
-There is no photo of the blue one. The photos are not stored in the repository.
+There is no photo of the black one. The photos are not stored in the repository.
 
 Features read from the photos:
 
@@ -44,7 +44,7 @@ Measured on the photos of the green one:
 Two garments, slot `outerwear`, each in its own file in `src/wardrobe/garments/`:
 
 - `bomboogie-green-teddy-hood-jacket-v1.js`
-- `bomboogie-blue-teddy-hood-jacket-v1.js`
+- `bomboogie-black-teddy-hood-jacket-v1.js`
 
 They are built by `makeTeddyJacket()` in the new `src/doll/teddy-jacket.js`, template `teddy-hood-jacket`. `makeOuterwear()` gains one dispatch line for it, and an `insert` option.
 
@@ -86,12 +86,12 @@ They are built by `makeTeddyJacket()` in the new `src/doll/teddy-jacket.js`, tem
 | Green teddy, front | (58, 65, 44) | (58, 66, 44) |
 | Open bib | (120, 128, 107) | (119, 127, 105) |
 
-The blue one is the same jacket in navy (teddy `#1c2337`, nylon `#2f3850`). This is a guess at the shade: no photo of it was supplied.
+The black one is the same jacket in a soft black, like the cropped hoodie's black fleece (teddy `#161618`, nylon `#1f2023`). No photo of it was supplied.
 
 **Presets:**
 
 - "Green teddy jacket study": over the white linen shirt and the Tommy mom jeans.
-- "Blue teddy jacket study": over the lapis linen shirt and the Mango black jeans.
+- "Black teddy jacket study": over the lapis linen shirt and the Mango black jeans.
 
 ## Layering
 
@@ -102,7 +102,7 @@ The blue one is the same jacket in navy (teddy `#1c2337`, nylon `#2f3850`). This
 
 ## Styling facts
 
-- Boxy, cropped, with a wide collar; military green, or navy; plain, with a curly pile and quilting.
+- Boxy, cropped, with a wide collar; military green, or black; plain, with a curly pile and quilting.
 - Hood worn down.
 - Teddy faux shearling, with quilted nylon.
 - Warm with the padded hood and bib zipped in, for cold days, and a little lighter without them.
@@ -113,7 +113,7 @@ The blue one is the same jacket in navy (teddy `#1c2337`, nylon `#2f3850`). This
 - `npm test`: all passing. The new `tests/teddy-jacket.test.js` checks:
   - both jackets and their studies;
   - with the insert, closed: the hood down on her back, its rim, the bib's neck and zip, a two-way zip, curly matte teddy and glossy nylon;
-  - one jacket green and the other blue;
+  - one jacket green and the other black;
   - without the insert, open or closed: no hood, rim or bib;
   - open with the insert: the zip in halves, the bib quilted in channels and lying in front of every point of the top between the fronts;
   - without the insert, it covers the top and the skirt from hem to collar;
@@ -123,7 +123,7 @@ The blue one is the same jacket in navy (teddy `#1c2337`, nylon `#2f3850`). This
 - `npm run build` succeeds.
 - Rendered in headless Chromium (software WebGL) from the front, a turn, the side and the back:
   - the green one closed and open, with and without the insert, and open over the skirt without it;
-  - the blue one closed and open.
+  - the black one closed and open.
 
   Only the authoring chat has checked these renders; the user has not seen them yet. No device check.
 
@@ -132,4 +132,4 @@ The blue one is the same jacket in navy (teddy `#1c2337`, nylon `#2f3850`). This
 - **The hood** is only worn down. On the doll her large head covers her neck, so from the front its rim is hidden, and it shows on her back and at her shoulders from a turn. Its cord toggles, which would sit under her chin, are left off.
 - **The label** is not modelled.
 - **The teddy** is drawn in code, not copied. Its curls are flatter than the real pile.
-- **The blue** is a guess.
+- **The black one** is the green one recoloured; no photo of it was supplied.
