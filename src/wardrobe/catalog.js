@@ -306,7 +306,7 @@ export const GARMENTS = Object.freeze({
   [MICKEY_LONG_TEE_ID]: {
     slot: 'top',
     id: MICKEY_LONG_TEE_ID, name: 'Black Mickey Mouse print long-sleeve tee', family: 'printed-long-sleeve-tee', version: 1,
-    status: 'reference-study-awaiting-visual-review', brandAsProvided: 'not stated (a licensed Disney Mickey Mouse print)',
+    status: 'user-approved', brandAsProvided: 'not stated (a licensed Disney Mickey Mouse print)',
     source: { note: 'user supplied four shop screenshots without a description: front on a model, a closer front on another model, a close-up of the front and shoulder, and the back' },
     referenceViews: ['front on model', 'front, closer (second model)', 'front and shoulder close-up', 'back on model'],
     details: ['fitted long-sleeved crew-neck tee in black jersey with a faint slub', 'all-over scattered print of distressed Mickey Mouse stamps: cream heads and gloves, red shorts with cream buttons, ochre shoes, some whole figures', 'the stamps are inked unevenly, crossed by scratchy crackle lines, with paint splatter between them', 'narrow black ribbed crew neckband', 'long fitted set-in sleeves to the wrist, printed all over', 'plain turned hem at the waistband of high-rise jeans'],
