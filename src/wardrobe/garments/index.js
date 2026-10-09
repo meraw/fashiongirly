@@ -67,6 +67,7 @@ export { default as desigualPaintedFloralKnitJumperV1 } from './desigual-painted
 // slot 50
 export { default as tommyJeansRedVarsityCrestJumperV1 } from './tommy-jeans-red-varsity-crest-jumper-v1.js';
 // slot 51
+export { default as desigualPainterlyPatchworkVneckTeeV1 } from './desigual-painterly-patchwork-vneck-tee-v1.js';
 // slot 52
 // slot 53
 export { default as replayCreamRoseEmbroideredSweatshirtV1 } from './replay-cream-rose-embroidered-sweatshirt-v1.js';
