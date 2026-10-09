@@ -63,7 +63,7 @@ Each setting is optional. When it is missing the template does exactly what it d
 
 ## Checks
 
-- `npm test`: 68 passing after merging `main`. The new `tests/red-bull-windbreaker.test.js` checks:
+- `npm test`: 69 passing after merging `main`. The new `tests/red-bull-windbreaker.test.js` checks:
   - the parts: placket, topstitching, collar snaps, two toggles on cords, pockets, cuffs and the rectangular patch on her left sleeve
   - that there is no coil zip, hood, drawcord, snap pocket or back label
   - the prints on the body texture: beside the placket at the front, across the back above the flap, and nothing on the sides
