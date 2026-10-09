@@ -21,9 +21,9 @@ const BODY_ROWS=[[NECK,.112,.104],[1.875,.17,.124],[1.83,.228,.154],[1.775,.265,
 const RELAXED_ROWS=[[NECK,.112,.104],[1.875,.172,.126],[1.83,.232,.157],[1.775,.272,.181],[1.65,.286,.19],[1.5,.29,.197],[1.4,.295,.205],[1.3,.302,.215],[1.2,.314,.228],[1.12,.322,.234],[1.03,.328,.24]];
 // Over the skirt, the same shirt is tucked in: it narrows below 1.4 to end inside the skirt's waistband.
 const TUCKED_ROWS=[...RELAXED_ROWS.slice(0,7),[1.33,.292,.205],[1.26,.29,.205]];
-// Boxy and gathered below a yoke (the pink yoke shirt): as relaxed as the Mango shirt through the body, ending straight at
-// the hip like the lilac top; tucked into the skirt the same way.
-const YOKE_ROWS=[...RELAXED_ROWS.slice(0,4),[1.65,.29,.193],[1.5,.294,.202],[1.4,.3,.21],[1.3,.307,.219],[1.2,.314,.229],[1.1,.32,.24]];
+// Boxy and gathered below a yoke (the pink yoke shirt): as relaxed as the Mango shirt through the body and as long, to the
+// top of her thigh, with a gentler shirt-tail curve (shirttail in its style); tucked into the skirt the same way.
+const YOKE_ROWS=[...RELAXED_ROWS.slice(0,4),[1.65,.29,.193],[1.5,.294,.202],[1.4,.3,.21],[1.3,.307,.219],[1.2,.314,.229],[1.12,.322,.234],[1.02,.328,.24]];
 const YOKE_TUCKED=[...YOKE_ROWS.slice(0,7),[1.33,.292,.205],[1.26,.29,.205]];
 const PLACKET=.017;
 // A longer shirt ends at the high hip, on the printed tees' lower rows, which clear every waistband. With gathers, the
@@ -247,12 +247,12 @@ const STYLES={
     stitch:'#e4b9ac',facing:null,button:['#f2d9cf',.3],buttons:[],collarTopstitch:false,open:{bottom:1.8,half:.034},
     rows:RELAXED_ROWS,tucked:TUCKED_ROWS,depth:.7,shirttail:{from:1.24,centre:1.03,side:1.1},concealed:true,
     sleeve:[[.025,.11,.112],[-.04,.124,.122],[-.16,.126,.12],[-.28,.122,.116],[-.38,.113,.108],[-.45,.098,.096],[-.49,.088,.088],[-.53,.084,.085]],cuff:{from:-.455,to:-.535,button:true}},
-  // Boxy, hip length, gathered below a yoke front and back, with a big 1970s point collar, cream buttons (worn with the top
+  // Boxy, to the top of her thigh with a gently curved hem, gathered below a yoke front and back, with a big 1970s point collar, cream buttons (worn with the top
   // one open), and full sleeves gathered into buttoned cuffs. Optional settings: yoke (the seam's height at the front and
   // back, and its gathers), collar (a bigger collar) and sleeveFolds (gathers into the cuff).
   [PINK_YOKE_SHIRT_ID]:{print:ditsyFloralData,around:2,high:1.05,collarAround:1,depth:.7,bump:[crepeData,40,30,.0012],sheen:['#f6d0c8',.25,.55],roughness:.72,
-    stitch:'#e2b3a8',facing:null,button:['#f4ece0',.25],buttons:[1.785,1.685,1.585,1.485,1.385,1.285,1.185],collarTopstitch:false,open:{bottom:1.8,half:.034},
-    rows:YOKE_ROWS,tucked:YOKE_TUCKED,yoke:{front:1.72,back:1.7,folds:44,depth:.011},collar:{spread:.135,drop:.09,deeper:.012},
+    stitch:'#e2b3a8',facing:null,button:['#f4ece0',.25],buttons:[1.785,1.67,1.555,1.44,1.325,1.21,1.095],collarTopstitch:false,open:{bottom:1.8,half:.034},
+    rows:YOKE_ROWS,tucked:YOKE_TUCKED,shirttail:{from:1.24,centre:1.02,side:1.08},yoke:{front:1.72,back:1.7,folds:44,depth:.011},collar:{spread:.135,drop:.09,deeper:.012},
     sleeve:[[.025,.11,.112],[-.04,.13,.128],[-.18,.146,.142],[-.32,.144,.14],[-.42,.125,.122],[-.49,.095,.094],[-.53,.086,.087]],sleeveFolds:{count:14,depth:.006,from:-.3},cuff:{from:-.455,to:-.535,button:true}},
 };
 function texture({data,w,h},srgb){
