@@ -1,5 +1,5 @@
 import { DEFAULT_HAIR_ID, cleanHairId } from '../hair/catalog.js';
-import { BRONZE_TOP_ID, LILAC_TOP_ID, CROCHET_TOP_ID, PLAID_JUMPER_ID, STRIPE_JUMPER_ID, POINTELLE_FLOWER_ID, SILVER_CABLE_ID, LACROIX_FLOWER_ID, TOMMY_CABLE_ID, PETIT_BATEAU_CARDIGAN_ID, TOMMY_STRIPE_POLO_ID, MOTEL_TIE_DYE_SHIRT_ID, DESIGUAL_SPRAY_FLORAL_SHIRT_ID, BARREL_JEANS_ID, DAVINIA_JEANS_ID, LEVIS_94_ID, TOMMY_MOM_ID, STRADIVARIUS_RELAXED_ID, MANGO_BLACK_JEANS_ID, BERSHKA_GREY_ID, TOMMY_CARPENTER_ID, ZARA_CARGO_ID, CRYSTAL_JEANS_ID, NIKE_TRACK_ID, GARMENTS } from '../wardrobe/catalog.js';
+import { BRONZE_TOP_ID, LILAC_TOP_ID, CROCHET_TOP_ID, PLAID_JUMPER_ID, STRIPE_JUMPER_ID, POINTELLE_FLOWER_ID, SILVER_CABLE_ID, LACROIX_FLOWER_ID, TOMMY_CABLE_ID, PETIT_BATEAU_CARDIGAN_ID, TOMMY_STRIPE_POLO_ID, MOTEL_TIE_DYE_SHIRT_ID, DESIGUAL_SPRAY_FLORAL_SHIRT_ID, BARREL_JEANS_ID, DAVINIA_JEANS_ID, LEVIS_94_ID, TOMMY_MOM_ID, STRADIVARIUS_RELAXED_ID, MANGO_BLACK_JEANS_ID, BERSHKA_GREY_ID, TOMMY_CARPENTER_ID, ZARA_CARGO_ID, CRYSTAL_JEANS_ID, NIKE_TRACK_ID, TOPSHOP_BLACK_CROP_ID, GARMENTS } from '../wardrobe/catalog.js';
 import { BUFFALO_ASPHA_ID, DM_COW_SLIDE_ID, UGG_LOWMEL_ID, DM_BLAIRE_CHAIN_ID } from '../wardrobe/catalog.js';
 import { ZIP_TRACK_DRESS_ID } from '../wardrobe/catalog.js';
 import { MARIKOO_WINDBREAKER_ID, DESIGUAL_LEATHER_JACKET_ID, VANGOGH_TEE_ID, SAM_ZIP_BOOT_ID } from '../wardrobe/catalog.js';
@@ -45,6 +45,7 @@ export function editRecipe(current, sentence) {
 }
 
 export const OUTFITS = [
+  { name: 'Black wide crop study', note: 'Reference study: washed black wide-leg jeans flaring to a raw-cut hem almost at her ankle, with tan double stitching, copper rivets and a black leather back patch. The denim is taken from the product photo.', recipe: { ...DEFAULT, topId: TOMMY_STRIPE_POLO_ID, bottomId: TOPSHOP_BLACK_CROP_ID, knit: false, shirt: false } },
   { name: 'Nike track pants study', note: 'Reference study: raspberry woven track pants with white piping curving down each leg, an elastic drawstring waist and a small white swoosh. The fabric is taken from the product photo.', recipe: { ...DEFAULT, topId: CROCHET_TOP_ID, bottomId: NIKE_TRACK_ID, knit: false, shirt: false } },
   { name: 'Crystal jeans study', note: 'Reference study: light vintage-wash straight jeans with tiny crystals set in a grid over the whole front. The denim is taken from the product photo; the crystals are modelled.', recipe: { ...DEFAULT, topId: CROCHET_TOP_ID, bottomId: CRYSTAL_JEANS_ID, knit: false, shirt: false } },
   { name: 'Zara cargo trousers study', note: 'Reference study: light black cargo trousers with a gathered elastic waist and drawstring, flap cargo pockets on both thighs and elastic ankle cuffs. The fabric is taken from the product photo.', recipe: { ...DEFAULT, topId: CROCHET_TOP_ID, bottomId: ZARA_CARGO_ID, knit: false, shirt: false } },

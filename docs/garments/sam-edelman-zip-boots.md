@@ -54,7 +54,7 @@ It reuses the template's existing plain lug sole and `pullLoop`. The Buffalo boo
   - that she is not raised
   - that her socks stay inside the shaft. Narrowing the shaft makes this check fail.
 - The shared shoe test (every bottom with every shoe) runs on it. It caught the classic jeans' side seam touching the shaft near the top, so the shaft was eased there.
-- `npm test`: 68 passing after merging `main` (which added the Blaire sandals); `npm run build` succeeds.
+- `npm test`: 69 passing after merging `main` (which added the Blaire sandals and the Topshop black wide crop jeans); `npm run build` succeeds.
 - Rendered in headless Chromium from the front, a turn, the side and the back, with the cropped Davinia jeans and the long Levi's. The authoring chat checked these renders; the user has not seen them yet.
 
 ## Known differences

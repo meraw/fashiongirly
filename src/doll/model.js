@@ -1615,6 +1615,8 @@ function makeJeans(id,spec,swatch=null,rest=LOAFER_REST){
   if(spec.fly)curve(jeans,on(spec.fly),.0017*sw,thread,'fly-stitch');
   if(spec.fly&&spec.doubleSeams)curve(jeans,on(spec.fly.map(([x,y],k)=>[x+.008,y-(k===spec.fly.length-1?0:.004)]),false,.004),.0017*sw,thread,'fly-stitch');
   const seamNames=spec.twist?['twisted-side-seam','twisted-inseam']:['side-seam','inseam'];
+  // Side seams and inseams use the topstitching thread unless the spec gives them their own (tonal) thread.
+  const seamThread=spec.seamThread?solid(spec.seamThread,.85):thread;
   for(const side of [-1,1]){
     const fp=spec.frontPocket||{};
     if(fp.type==='slant')curve(jeans,on(fp.line.map(([x,y])=>[side*x,y])),.0017,thread,'slant-pocket-stitch');
@@ -1630,12 +1632,12 @@ function makeJeans(id,spec,swatch=null,rest=LOAFER_REST){
     const seam=spec.crotch?Array.from({length:7},(_,k)=>{const y=spec.waistband.y-spec.waistband.h/2-k*(spec.waistband.y-spec.waistband.h/2-.98)/6;return hipPoint(y,side*Math.PI/2);}):spec.sideSeamTop.map(([x,y])=>[side*x,y,0]);
     const legTop=spec.crotch?spec.crotch.y-.003:.97;
     const seamEnd=hemTop>hemY?Math.max(spec.seamEnd,hemTop+.01):spec.seamEnd;for(let k=0;k<=20;k++){const y=legTop-k*(legTop-seamEnd)/20;seam.push(legPoint(side,y,outAngle(side,y)));}
-    curve(jeans,seam,.0018*sw,thread,seamNames[0]);
+    curve(jeans,seam,.0018*sw,seamThread,seamNames[0]);
     // Double-needle seams: a second row just toward the front of each leg seam.
-    if(spec.doubleSeams)curve(jeans,seam.map(([x,y,z],k)=>k<seam.length-21?[x,y,z+.006]:legPoint(side,y,outAngle(side,y)-side*.07)),.0018*sw,thread,seamNames[0]);
+    if(spec.doubleSeams)curve(jeans,seam.map(([x,y,z],k)=>k<seam.length-21?[x,y,z+.006]:legPoint(side,y,outAngle(side,y)-side*.07)),.0018*sw,seamThread,seamNames[0]);
     const inTop=spec.crotch?spec.crotch.y-.003:.95,inseam=[];for(let k=0;k<=20;k++){const y=inTop-k*(inTop-seamEnd)/20;inseam.push(legPoint(side,y,inAngle(side,y)));}
-    curve(jeans,inseam,.0018*sw,thread,seamNames[1]);
-    if(spec.doubleSeams)curve(jeans,inseam.map(([x,y])=>legPoint(side,y,inAngle(side,y)+side*.07)),.0018*sw,thread,seamNames[1]);
+    curve(jeans,inseam,.0018*sw,seamThread,seamNames[1]);
+    if(spec.doubleSeams)curve(jeans,inseam.map(([x,y])=>legPoint(side,y,inAngle(side,y)+side*.07)),.0018*sw,seamThread,seamNames[1]);
     // Articulated knee: horizontal seams across the front and the back of each knee.
     if(spec.kneeSeams)for(const facing of [0,Math.PI]){
     const dart=[];for(let k=0;k<=8;k++)dart.push(legPoint(side,spec.kneeSeams+.006*Math.sin(Math.PI*k/8),facing-side*.55+side*.65*k/8,.002));
