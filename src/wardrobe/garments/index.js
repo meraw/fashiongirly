@@ -45,6 +45,7 @@ export { default as desigualHawaiiPatchStripeTeeV1 } from './desigual-hawaii-pat
 // slot 31
 // slot 32
 // slot 33
+export { default as levisRibcageStraightAnkleJeansV1 } from './levis-ribcage-straight-ankle-jeans-v1.js';
 // slot 34
 // slot 35
 // slot 36
