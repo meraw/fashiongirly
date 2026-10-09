@@ -36,7 +36,7 @@ function scriptPath(x0,y0,w,h){
 // height (v: y from 1 to 2 in outfit units).
 const shellCache={};
 function windbreakerBodyData(spec){
-  const key=JSON.stringify([spec.colours,spec.yoke,spec.lines,spec.prints]);if(shellCache[key])return shellCache[key];
+  const key=JSON.stringify([spec.colours,spec.yoke,spec.lines,spec.prints,...(spec.logo?[spec.logo]:[])]);if(shellCache[key])return shellCache[key];
   if(!spec.yoke)return plainBodyData(spec,key);
   const w=1024,h=512,data=new Uint8Array(w*h*4),C=spec.colours,Y=spec.yoke,blue=rgb(C.shell),ecru=rgb(C.yoke),rand=random(19);
   const yAt=v=>1+v/h,yokeY=a=>{const s=Math.abs(Math.sin(a)),c=Math.cos(a),front=Y.frontCentre+(Y.frontSide-Y.frontCentre)*s,t=Math.min(1,Math.max(0,(-c+.05)/.35));return front+(Y.back-front)*t;};
@@ -84,6 +84,13 @@ function plainBodyData(spec,key){
       for(let n=0;n<pts.length-1;n++){const d=segDist(x,y,pts[n],pts[n+1]);if(d<L.width)shade=Math.min(shade,L.shade);
         // A flap's soft shadow just below its edge.
         else if(L.shadow&&d<L.shadow&&y<Math.min(pts[n][1],pts[n+1][1])+.0005)shade=Math.min(shade,1-(1-L.shade)*(1-d/L.shadow)*.6);}}}
+    // Optional (`logo`): a small tonal trefoil, three leaves fanning up from a flat base and cut by two bars, embossed on
+    // her left chest (+x) in a shade of the shell.
+    const G=spec.logo;
+    if(G&&front){const u=(x-G.x)/G.size,v=(y-G.y)/G.size;
+      if(v>0&&v<1&&Math.abs(u)<.6){const leaf=(cx,cy,rx,ry,t)=>{const c=Math.cos(t),s2=Math.sin(t),dx=u-cx,dy=v-cy,px=dx*c+dy*s2,py=-dx*s2+dy*c;return (px/rx)**2+(py/ry)**2<1;};
+        const inLeaf=leaf(0,.5,.16,.5,0)||leaf(-.3,.33,.14,.36,.7)||leaf(.3,.33,.14,.36,-.7),cut=Math.abs(v-.2)<.035||Math.abs(v-.36)<.03;
+        if(inLeaf&&!cut)shade=Math.min(shade,G.shade??.92);}}
     for(const P of spec.prints||[]){if(!!P.back===front)continue;const lx=x-P.x,ly=y-P.y,inside=P.vertical?Math.abs(lx)<P.height/2&&ly<0&&ly>-P.length:Math.abs(lx)<P.length/2&&ly>0&&ly<P.height;
       if(!inside)continue;const u=P.vertical?-ly/P.length:(lx+P.length/2)/P.length,v=P.vertical?(lx+P.height/2)/P.height:ly/P.height;
       if(letterInk(u,v,P.text)){const t=P.vertical?v:1-v;c=ink.map((q,n)=>q+(inkDark[n]-q)*t*.8);shade=1;}}
@@ -269,7 +276,9 @@ function makeZipWindbreaker(id,spec,overSkirt,open=false,under=null){
   // (Optional `liningFinish: 'nylon'`: a smooth, slightly shiny lining, such as quilted nylon, even when the hood is fur-lined.)
   // Elastic hem band, gathered narrower than the body, which tucks just inside it.
   const band=overSkirt?B.bandOverSkirt:B.bandRadius;
-  const bandMesh=shell(jacket,[[bandTop+.004,band[0]-.004,band[1]-.004],[bandTop-.006,band[0],band[1]],[B.hem+.008,band[0],band[1]],[B.hem,band[0]-.006,band[1]-.006]],rib,'elastic-hem-band',seg);
+  // Optional (`bandChannels`): a shirred band, its elastic in several stitched channels, each puffing between the seams.
+  const shirred=(top,bottom,r,n)=>[[top+.004,r[0]-.004,r[1]-.004],...Array.from({length:2*n+1},(_,k)=>{const y=top-(top-bottom)*k/(2*n),d=k%2?.005:-.002;return [y,r[0]+d,r[1]+d];}),[bottom,r[0]-.006,r[1]-.006]];
+  const bandMesh=shell(jacket,B.bandChannels?shirred(bandTop,B.hem,band,B.bandChannels):[[bandTop+.004,band[0]-.004,band[1]-.004],[bandTop-.006,band[0],band[1]],[B.hem+.008,band[0],band[1]],[B.hem,band[0]-.006,band[1]-.006]],rib,'elastic-hem-band',seg);
   if(open)partRing(bandMesh,seg,OD);
   ribbed(bandMesh,B.bandPuckers,.014).userData.covering=true;
   // Optional (`padding.hemRoll`): the thick hem shows as a soft roll, with the cream lining just showing inside it. Open,
@@ -307,7 +316,8 @@ function makeZipWindbreaker(id,spec,overSkirt,open=false,under=null){
   const P=spec.pockets;
   // Optional (`pockets.style: 'flap'`): a wide flap across each lower front, from x0 to x1 at height `top`, with its
   // lower edge stitched and a metal snap in the middle.
-  if(P.style==='flap')for(const s of [-1,1]){
+  // (Pockets are optional: a jacket with its pockets hidden in its seams has none here.)
+  if(P?.style==='flap')for(const s of [-1,1]){
     const U=16,W=6,rows=[],y1=u=>P.top-P.height-P.point*Math.sin(Math.PI*u);
     const lift=P.lift??.009;
     for(let j=0;j<=W;j++){const r=[];for(let i=0;i<=U;i++){const u=i/U,y=P.top+(y1(u)-P.top)*j/W,x=s*(P.x0+(P.x1-P.x0)*u);r.push(at(angleFor(x,y),y,lift*(.5+.5*j/W)).toArray());}rows.push(r);}
@@ -318,7 +328,7 @@ function makeZipWindbreaker(id,spec,overSkirt,open=false,under=null){
     curve(jacket,Array.from({length:U+1},(_,i)=>{const u=i/U,y=y1(u)+.008;return at(angleFor(s*(P.x0+(P.x1-P.x0)*u),y),y,.0105).toArray();}),.0009,thread,'flap-topstitch');
     const my=y1(.5)+.014,ma=angleFor(s*(P.x0+P.x1)/2,my),stud=put(jacket,new T.CylinderGeometry(.008,.008,.004,16),metal,'pocket-snap');stud.position.copy(at(ma,my,.013));stud.quaternion.setFromUnitVectors(V(0,1,0),normal(ma,my));
   }
-  else for(const s of [-1,1]){
+  else if(P)for(const s of [-1,1]){
     const ys=[];for(let k=0;k<=12;k++)ys.push(P.top-(P.top-P.bottom)*k/12);
     const a=y=>angleFor(s*(P.x+P.slant*(P.top-y)),y);
     outward(ribbon(jacket,ys.map(y=>at(a(y),y,.0035)),ys.map(y=>normal(a(y),y)),P.width,plain,'pocket-welt'),normal(a(P.top),P.top));
@@ -397,7 +407,7 @@ function makeZipWindbreaker(id,spec,overSkirt,open=false,under=null){
       sp.setX(k,sp.getX(k)*g);sp.setZ(k,sp.getZ(k)*g);su.setXY(k,side>0?i/64:1-i/64,(y+.6)/.7);}
     sp.needsUpdate=true;su.needsUpdate=true;if(sf)sleeve.geometry.computeVertexNormals();
     roundSleeveCap(sleeve,side,S.rows[0][0]);
-    const cuff=ribbed(shell(arm,[[S.cuff[0]+.006,S.cuffRadius[0]-.004,S.cuffRadius[1]-.004],[S.cuff[0]-.006,...S.cuffRadius],[S.cuff[1]+.006,...S.cuffRadius],[S.cuff[1],S.cuffRadius[0]-.006,S.cuffRadius[1]-.006]],rib,'elastic-cuff',64),S.cuffPuckers,.03);
+    const cuff=ribbed(shell(arm,S.cuffChannels?shirred(S.cuff[0],S.cuff[1],S.cuffRadius,S.cuffChannels):[[S.cuff[0]+.006,S.cuffRadius[0]-.004,S.cuffRadius[1]-.004],[S.cuff[0]-.006,...S.cuffRadius],[S.cuff[1]+.006,...S.cuffRadius],[S.cuff[1],S.cuffRadius[0]-.006,S.cuffRadius[1]-.006]],rib,'elastic-cuff',64),S.cuffPuckers,.03);
     cuff.userData.covering=cuff.userData.cuff=true;
     // Round rubber badge on the upper left sleeve, just below the yoke colour.
     if(side>0&&S.badge){const r=S.badge.radius,y=S.badge.y;let rx=0;for(let k=0;k<S.rows.length-1;k++)if(y<=S.rows[k][0]&&y>=S.rows[k+1][0]){const t=(S.rows[k][0]-y)/(S.rows[k][0]-S.rows[k+1][0]);rx=S.rows[k][1]+(S.rows[k+1][1]-S.rows[k][1])*t;}
