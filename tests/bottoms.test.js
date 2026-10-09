@@ -256,7 +256,14 @@ test('every waist-covering top hides every bottom between its hem and the waist'
     // The top is the same whatever is worn under it, so it is built and measured once for all bottoms.
     const topOutfit=makeOutfit({topId});topOutfit.updateMatrixWorld(true);
     const covering=topOutfit.getObjectByName(topId).children.filter(o=>o.isMesh);
-    const hem=Math.min(...covering.map(o=>new T.Box3().setFromObject(o).min.y))/.76;
+    // The hem's height at each angle around her (3 degree steps): a shirt-tail hem is lower at the centre front and back
+    // than at the sides. Each step takes the higher of its own and its neighbours' lowest points, so a trouser vertex
+    // between two of the top's columns is checked only where the top reaches down past it.
+    const steps=120,lowest=new Array(steps).fill(Infinity),q=new T.Vector3(),step=a=>((Math.round((a+Math.PI)/(2*Math.PI)*steps)%steps)+steps)%steps;
+    for(const o of covering){const pos=o.geometry.attributes.position;for(let i=0;i<pos.count;i++){q.fromBufferAttribute(pos,i).applyMatrix4(o.matrixWorld);
+      const k=step(Math.atan2(q.x,q.z));lowest[k]=Math.min(lowest[k],q.y/.76);}}
+    const hemAt=lowest.map((_,k)=>Math.max(...[-1,0,1].map(d=>lowest[(k+d+steps)%steps]).filter(Number.isFinite)));
+    const hem=Math.min(...hemAt);
     // The top's triangles, from both sides, indexed by height and angle around her centre line, so each ray only tests
     // the triangles it can reach.
     const top=levelCaster(covering,{axis:[0,0],faces:'both'}),origin=new T.Vector3(),dir=new T.Vector3(),axis=new T.Vector3(0,1,0);
@@ -273,7 +280,7 @@ test('every waist-covering top hides every bottom between its hem and the waist'
       for(let k=0;k<(o.isInstancedMesh?o.count:1);k++){if(o.isInstancedMesh){o.getMatrixAt(k,im);each.multiplyMatrices(o.matrixWorld,im);}else each.copy(o.matrixWorld);
       for(let i=0;i<pos.count;i++){
         // Up to the top of the highest waistband (ultra high rise jeans reach her natural waist).
-        p.fromBufferAttribute(pos,i).applyMatrix4(each);const y=p.y/.76;if(y<hem+.012||y>1.4)continue;
+        p.fromBufferAttribute(pos,i).applyMatrix4(each);const y=p.y/.76;if(y<hem+.012||y>1.4||y<hemAt[step(Math.atan2(p.x,p.z))]+.012)continue;
         const radius=Math.hypot(p.x,p.z);if(radius<.01)continue;
         assert.ok(coverAt(p.y,Math.atan2(p.x,p.z))>radius+.001,`${o.name} shows through ${topId} over ${bottomId} at vertex ${i}`);checked++;
       }}});
