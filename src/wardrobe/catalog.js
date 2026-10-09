@@ -910,7 +910,7 @@ export const GARMENTS = Object.freeze({
   [ADIDAS_SUPERSTAR_PINK_ID]: {
     slot: 'shoes',
     id: ADIDAS_SUPERSTAR_PINK_ID, name: 'adidas Superstar pink suede sneakers', family: 'shell-toe-sneaker', version: 1,
-    status: 'reference-study-awaiting-visual-review', brandAsProvided: 'adidas (the insole reads adidas; the shell toe and three stripes are the Superstar)',
+    status: 'user-approved', brandAsProvided: 'adidas (the insole reads adidas; the shell toe and three stripes are the Superstar)',
     source: { note: 'user supplied four product photos without a description: front three-quarter, outer side, back three-quarter and top' },
     referenceViews: ['front three-quarter', 'outer side', 'back three-quarter', 'top'],
     details: ['low-top adidas Superstar, all one pink', 'pink suede upper', 'ridged rubber shell toe in the same pink, with a soft sheen', 'three slanted suede stripes on each side, edged with stitching and pierced with small holes', 'stitched eyestays, a heel counter overlay and a panel seam on each side', 'wide flat pink laces through punched eyelets', 'padded collar lined in a deeper, smooth pink; the suede tongue stands above the lacing', 'pink rubber cupsole with a pebbled sidewall and moulded lines, higher at the heel'],
