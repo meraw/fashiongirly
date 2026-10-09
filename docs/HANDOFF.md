@@ -64,7 +64,7 @@ The current flat recipe is not a garment database. It holds colours, bounded num
 - Garments need recognisable construction details, not just recolours.
 - Improve one garment's fit before adding many more rough options.
 - The bounded input is now labelled “Quick edits”. Unsupported sweater edits do not alter the reference top.
-- A merged pull request means the user approves how the garment looks (the user's rule, 9 October 2026): they do not merge anything that looks wrong. Record a merged garment as approved without asking for a separate review; feedback after a merge still applies.
+- A merged pull request means the user approves how the garment looks (the user's rule, 9 October 2026): they do not merge anything that looks wrong. Record a merged garment as approved without asking for a separate review; feedback after a merge still applies. Do not open a separate pull request just to record an approval (the user's rule, 9 October 2026): a garment's own pull request already marks it approved, so merging it records the approval.
 
 ## Where to resume
 

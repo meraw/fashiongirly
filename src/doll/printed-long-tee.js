@@ -8,6 +8,7 @@
 // own that repeats seamlessly round the arm. Both textures keep the same scale, in pixels per world unit.
 import * as T from 'three';
 import { random, weave, shell, roundSleeveCap, easeOverHand } from './model.js';
+import { stripePatchBody, stripeSleeve } from './stripe-patch-print.js';
 
 const PX=1300;// texture pixels per world unit
 const hex=h=>[1,3,5].map(i=>parseInt(h.slice(i,i+2),16));
@@ -79,18 +80,22 @@ function drawPrint(key,w,h,seed,wrapX,P){
 }
 function printTexture({data,w,h},wrapX){const t=new T.DataTexture(data,w,h,T.RGBAFormat);t.colorSpace=T.SRGBColorSpace;t.wrapS=wrapX?T.RepeatWrapping:T.ClampToEdgeWrapping;
   t.wrapT=T.ClampToEdgeWrapping;t.generateMipmaps=true;t.minFilter=T.LinearMipmapLinearFilter;t.magFilter=T.LinearFilter;t.anisotropy=4;t.needsUpdate=true;return t;}
-function jersey(map){
+function jersey(map,sheen='#57524d'){
   // Fine, soft stretch jersey: matte, with a faint sheen and a fine knit in the bump.
   const knit=weave('knit');knit.repeat.set(70,40);
-  return new T.MeshPhysicalMaterial({map,roughness:.82,sheen:.35,sheenColor:new T.Color('#57524d'),sheenRoughness:.6,bumpMap:knit,bumpScale:.0025,side:T.DoubleSide});
+  return new T.MeshPhysicalMaterial({map,roughness:.82,sheen:.35,sheenColor:new T.Color(sheen),sheenRoughness:.6,bumpMap:knit,bumpScale:.0025,side:T.DoubleSide});
 }
-export function makePrintedLongTee(id,spec){
+// Optional (the Hawaii patch tee): `print.draw: 'stripe-patch'` draws its stripes, lettering and patch
+// (stripe-patch-print.js) instead of the scattered stamps; `body.tucked` rows tuck it into the skirt; `sleeve.drop` sets
+// the dropped shoulder seam's depth on the sleeve; `colours.neckband` and `colours.sheen` set those apart from the band.
+export function makePrintedLongTee(id,spec,overSkirt=false){
   const top=new T.Group();top.name=id;
-  const B=spec.body,S=spec.sleeve,P=spec.print,C=spec.colours;
+  const B=spec.body,S=spec.sleeve,P=spec.print,C=spec.colours,stripes=P.draw==='stripe-patch';
+  const rows=overSkirt&&B.tucked?B.tucked:B.rows,hem=B.hem;
   // Body: front and back panels side by side, each the width of the widest row (scaled across by the outfit).
   const half=Math.max(...B.rows.map(r=>r[1])),panelW=Math.ceil(half*2*1.06*PX),bodyH=Math.ceil((B.neck-B.hem)*.76*PX)+8;
-  const bodyMap=printTexture(drawPrint(id+':body',panelW*2,bodyH,P.seed,false,P),false);
-  const body=shell(top,B.rows,jersey(bodyMap),'printed-tee-body',96);
+  const bodyMap=printTexture(stripes?stripePatchBody(id+':body',panelW,bodyH,B,P,half):drawPrint(id+':body',panelW*2,bodyH,P.seed,false,P),false);
+  const body=shell(top,rows,jersey(bodyMap,C.sheen),'printed-tee-body',96);
   const p=body.geometry.attributes.position,uv=body.geometry.attributes.uv;
   for(let i=0;i<uv.count;i++){const x=p.getX(i),z=p.getZ(i),u=.5+(z>=0?x:-x)/(half*2);
     uv.setXY(i,(z>=0?0:.5)+.5*Math.max(.002,Math.min(.998,u)),1-Math.max(0,Math.min(1,(B.neck-p.getY(i))*.76*PX/bodyH)));}
@@ -98,14 +103,16 @@ export function makePrintedLongTee(id,spec){
   // Narrow ribbed crew neckband, and a fine turned hem.
   const band=new T.MeshPhysicalMaterial({color:C.band,roughness:.85,sheen:.3,sheenColor:new T.Color('#2c2928'),bumpMap:weave('knit'),bumpScale:.006,side:T.DoubleSide});
   band.bumpMap.repeat.set(60,1);
-  shell(top,B.neckband,band,'crew-neckband',96);
-  shell(top,[[B.hem+.014,B.rows.at(-1)[1]+.002,B.rows.at(-1)[2]+.002],[B.hem-.001,B.rows.at(-1)[1]+.003,B.rows.at(-1)[2]+.003]],band,'turned-hem',96);
+  let neckband=band;if(C.neckband){neckband=band.clone();neckband.color.set(C.neckband);}
+  shell(top,B.neckband,neckband,'crew-neckband',96);
+  // Tucked into the skirt, its hem is out of sight inside the waistband.
+  if(rows===B.rows)shell(top,[[hem+.014,rows.at(-1)[1]+.002,rows.at(-1)[2]+.002],[hem-.001,rows.at(-1)[1]+.003,rows.at(-1)[2]+.003]],band,'turned-hem',96);
   // Long fitted sleeves, set in at the shoulder, ending at her wrist and easing over her hand.
   for(const side of [-1,1]){
     const arm=new T.Group();arm.position.set(side*.242,1.815,0);arm.rotation.z=side*.22;
     const yt=S.rows[0][0],yb=S.rows.at(-1)[0],around=Math.ceil(2*Math.PI*Math.sqrt((S.rows[2][1]**2+S.rows[2][2]**2)/2)*PX),len=Math.ceil((yt-yb)*.76*PX)+8;
-    const map=printTexture(drawPrint(id+':sleeve'+side,around,len,P.seed+(side<0?11:23),true,P),true);
-    const sleeve=shell(arm,S.rows,jersey(map),'reference-fitted-sleeve',64);
+    const map=printTexture(stripes?stripeSleeve(id+':sleeve'+side,around,len,P,S,side>0?.25:.75):drawPrint(id+':sleeve'+side,around,len,P.seed+(side<0?11:23),true,P),true);
+    const sleeve=shell(arm,S.rows,jersey(map,C.sheen),'reference-fitted-sleeve',64);
     const sp=sleeve.geometry.attributes.position,su=sleeve.geometry.attributes.uv;
     for(let k=0;k<su.count;k++)su.setXY(k,(k%65)/64,1-Math.max(0,Math.min(1,(yt-sp.getY(k))*.76*PX/len)));
     su.needsUpdate=true;
