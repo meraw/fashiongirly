@@ -12,6 +12,7 @@ import { random, solid, oval, curve, shell, roundSleeveCap, surfaceProbe, easeOv
 import { levelCaster } from './level-caster.js';
 import { grid } from './polo.js';
 import { MOTEL_TIE_DYE_SHIRT_ID, DESIGUAL_SPRAY_FLORAL_SHIRT_ID, DESIGUAL_SPLIT_FLORAL_SHIRT_ID, DESIGUAL_MOUNTAIN_SHIRT_ID, MANGO_DOT_SHIRT_ID, PINK_YOKE_SHIRT_ID, LEVIS_PLAID_FLANNEL_ID, DESIGUAL_RUGBY_ID } from '../wardrobe/catalog.js';
+import { ikatData } from './ikat-print.js';
 import { splitBodyData, splitCollarData, leftSleeveData, rightSleeveData } from './split-floral-print.js';
 
 // Warm grey-mauve tie-dye, measured in the shirt's own photos (hanger front and back): the darkest patches about
@@ -407,6 +408,16 @@ const STYLES={
     rows:[[NECK,.112,.104],[1.875,.17,.124],[1.83,.228,.154],[1.775,.268,.18],[1.65,.296,.198],[1.5,.304,.207],[1.4,.308,.214],[1.3,.311,.222],[1.242,.314,.232],[1.19,.316,.236]],
     sleeve:[[.025,.104,.104],[-.05,.124,.119],[-.2,.127,.121],[-.33,.122,.116],[-.42,.108,.104],[-.47,.094,.091],[-.53,.09,.087]],
     cuff:{from:-.455,to:-.535,button:true},backYoke:1.79,backPleat:1.55},
+  // Full length and worn loose over the waistband (the Pepe Jeans ikat shirt): a shirt-tail hem past the hips, a chest
+  // pocket on her left, buttoned cuffs and a chambray collar stand; worn with the top button open, as in the flat lay.
+  // Below 1.4 it eases out past her hips like the striped cardigan, whose rows clear every bottom, slimmer at the hem so
+  // the raised sides stay under a jacket's hem; over the skirt it hangs loose over the skirt's flare (its `tucked` shape),
+  // with a level hem. Light, slightly slubbed voile.
+  'pepe-jeans-ikat-shirt-v1':{print:ikatData,around:3,high:1.05,collarAround:3,bump:[fineRibData,300,1,.0012],sheen:['#ffffff',0,.6],roughness:.85,
+    stitch:'#e4e3ec',facing:'#7d93bd',button:['#efede6',.22],buttons:[1.785,1.68,1.575,1.47,1.365,1.26,1.155,1.05],collarTopstitch:false,open:{bottom:1.8,half:.034},
+    rows:[...BODY_ROWS.slice(0,7),[1.2,.312,.236],[1.1,.318,.236],[1.03,.322,.24],[.97,.324,.242]],
+    tucked:[...BODY_ROWS.slice(0,7),[1.3,.314,.234],[1.2,.334,.248],[1.1,.35,.257],[1.0,.376,.272],[.97,.383,.275]],
+    shirttail:{from:1.12,centre:.97,side:1.045},pocket:{x:[.084,.172],y:[1.6,1.7]},cuff:{from:-.48,to:-.535,button:true}},
 };
 function texture({data,w,h},srgb){
   const t=new T.DataTexture(data,w,h,T.RGBAFormat);if(srgb)t.colorSpace=T.SRGBColorSpace;t.wrapS=t.wrapT=T.RepeatWrapping;
