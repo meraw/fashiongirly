@@ -1821,7 +1821,7 @@ const BUILT_IN = {
   [LACE_SHIFT_DRESS_ID]: {
     slot: 'dress',
     id: LACE_SHIFT_DRESS_ID, name: 'Ivory lace shift dress', family: 'long-sleeve-mini-dress', version: 1,
-    status: 'reference-study-awaiting-visual-review', brandAsProvided: 'not stated (the trainers in the photos suggest Desigual)',
+    status: 'user-approved', brandAsProvided: 'not stated (the trainers in the photos suggest Desigual)',
     source: { note: 'user supplied six product photos with no text: full length front, flat front, full length back, and close-ups of the sleeve, the neckline and the back keyhole' },
     referenceViews: ['full length front on model', 'flat front', 'full length back on model', 'sleeve and shoulder close-up', 'neckline close-up', 'back keyhole close-up'],
     details: ['ivory floral lace, opaque over a lining on the body', 'horizontal bands of frilled trim across the body, closer together lower down', 'high lace collar with a ruffled top edge', 'long sheer lace sleeves crossed by lace insertion bands, slightly full', 'frilled cuffs gathered at the wrist', 'keyhole at the back of the neck closed by two small gold buttons', 'straight shift, mid-thigh'],
@@ -1849,6 +1849,8 @@ const BUILT_IN = {
     },
   },
 };
-// Garments added since 9 October 2026 each live in their own file in ./garments (one line each in ./garments/index.js),
-// so adding one touches no line another chat is editing. They join the built-in entries above.
-export const GARMENTS = Object.freeze({ ...BUILT_IN, ...Object.fromEntries(Object.values(FILED).map(g => [g.id, g])) });
+// Garments added since 9 October 2026 each live in their own file in ./garments (one line each in ./garments/index.js,
+// written by scripts/garment-index.mjs), so adding one touches no line another chat is editing. They join the built-in
+// entries above.
+// (In order of their ids, whatever their order in the index.)
+export const GARMENTS = Object.freeze({ ...BUILT_IN, ...Object.fromEntries(Object.values(FILED).sort((a, b) => a.id < b.id ? -1 : 1).map(g => [g.id, g])) });

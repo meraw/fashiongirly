@@ -58,7 +58,7 @@ Its catalog entry and study preset are in their own file, `src/wardrobe/garments
   - its study;
   - that it opens.
 - The shared tests also run on it: it covers every top and every bottom and the skirt from its hem to its collar, closed and open, and her arms and hands stay inside its sleeves. `tests/garment-files.test.js` checks its file and index line.
-- `npm test`: 108 passing. `npm run build` succeeds.
+- `npm test`: 109 passing after merging `main` (which added the Replay rose sweatshirt in its own file). `npm run build` succeeds.
 - Rendered in headless Chromium (software WebGL):
   - front, three-quarter, side and back;
   - open;
