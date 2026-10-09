@@ -52,15 +52,12 @@ From the catalog on `main` at the time of writing:
 
 Goal: the stylist reads every garment the same way, without rewriting 80 entries in a shared PR.
 
-1. **Write down the warmth scale** in this file and the handoff, matching the values already used:
-   `0` open or bare (slides, sandals) · `1` light (mesh, tees, linen) · `2` mid (shirts, light knits, sweatshirts, most jeans) · `3` warm (heavy knits, fleece, padded or wool jackets) · `4` very warm (sherpa or fur-lined, knee length).
-2. **Add `src/style/facts.js`** with `stylingFacts(garment)`, which reads all three existing shapes and returns one normalised object:
-   `{ warmth: 0–4 | null, rain: 'ok' | 'avoid' | null, wind: 'ok' | 'avoid' | null, palette: [names], hues: [hex], pattern: 'plain' | 'print' | 'stripe' | 'check' | ..., boldness: 0–2, length/volume tags (cropped, oversized, wide, slim, long), coverage, mood: [tags], provenance: 'observed' | 'user' | 'inferred' | 'unknown' }`.
-   Unknowns stay `null`; nothing is invented. A small colour-name lexicon maps palette words (`'raspberry pink'`, `'slate blue'`) to hues for colour scoring.
-3. **Backfill the 13 pieces without facts and give outerwear a numeric warmth**, each change on that garment's own lines (one PR is fine; it touches no shared line). Derive values from each garment record; mark them inferred.
-4. **Tests** (`tests/styling-facts.test.js`): every garment returns a valid object; warmth is in range or `null`; every outerwear piece and every pair of shoes has a warmth. New garments are covered automatically, so later chats are reminded to record facts.
+As built:
 
-This is a shared foundation, so one chat owns it, agreed with the user first (AGENTS.md).
+1. **The warmth scale** is the catalog's own, one for every slot (see the handoff): `1` light (mesh, tees, linen, thin shells, open shoes) · `2` mid (shirts, light knits, sweatshirts, jeans, closed sneakers) · `3` warm (heavy knits, fleece, padded or wool jackets, boots) · `4` very warm (sherpa-lined, knee length).
+2. **The facts were completed in another chat** (pull requests 95 and 96, merged while this was built): every garment records silhouette, palette, pattern, coverage, material, warmth with its basis, weather, a layering note and its unknowns, checked by `tests/styling.test.js`. This branch's own backfill of the same pieces was dropped in favour of that work when `main` was merged.
+3. **`src/style/facts.js`** reads the catalog's shapes (flat fields, and outerwear's observed / user / inferred groups) into one form for the stylist: warmth, rain (`'ok'`, `'avoid'` or unknown, read from the weather notes), colours (a small lexicon turns palette words such as `'raspberry pink'` into hues, with quiet neutrals and denim told apart), pattern kind and boldness, shape (cropped or long, big or slim, wide or slim legs, chunky or open shoes, coat length), and sporty or soft. Unknowns stay unknown.
+4. **Tests** (`tests/stylist.test.js`) check that every garment reads into that form, so new garments are covered automatically.
 
 ## Phase 2: the local stylist (no UI, no network) — built
 

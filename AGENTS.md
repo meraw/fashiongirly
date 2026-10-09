@@ -16,7 +16,7 @@ The user clarified on 8 October 2026 that **checking the weather and dressing he
 
 During garment work, preserve stable IDs, separate reusable pieces, slot/layer compatibility and known fit constraints. Record styling-relevant details (silhouette, palette/pattern, coverage, material, relative warmth and weather limitations) when supported; distinguish uncertain inferences and unknowns. See the product brief's “Building towards daily self-dressing” section. Do not add live weather/API dependencies during import or independently redesign shared styling foundations.
 
-Since 9 October 2026 she dresses herself from these facts (`src/style/`, see `docs/DAILY_STYLING_PLAN.md`). A new garment joins daily styling with no other change, but its `styling` must give a numeric `warmth` on the shared scale (0 open or bare, 1 light, 2 mid, 3 warm, 4 very warm) with its `warmthBasis`, and a `palette`; `tests/stylist.test.js` checks every garment. Note in `weather` what it does not suit (rain, cold), or set `rain: 'ok'` or `'avoid'` when known.
+Since 9 October 2026 she dresses herself from these facts (`src/style/`, see `docs/DAILY_STYLING_PLAN.md`). A new garment joins daily styling with no other change once its `styling` record is complete (see the handoff: warmth 1 to 4 with its basis, palette, pattern, coverage and the rest; `tests/styling.test.js` and `tests/stylist.test.js` check every garment). Say in `weather` what it does not suit (rain, cold); the stylist reads it, or `rain: 'ok'` or `'avoid'` when known.
 
 # Parallel chats
 

@@ -12,8 +12,8 @@ test('every garment gives the stylist readable facts on one warmth scale', () =>
   for (const g of Object.values(GARMENTS)) {
     const f = stylingFacts(g);
     assert.equal(f.slot, g.slot, g.id);
-    // Warmth: 0 open or bare, 1 light, 2 mid, 3 warm, 4 very warm. Every garment records one, so new garments must too.
-    assert.ok(Number.isFinite(f.warmth) && f.warmth >= 0 && f.warmth <= 4, `${g.id} records a warmth from 0 to 4`);
+    // Warmth: 1 light, 2 mid, 3 warm, 4 very warm (tests/styling.test.js checks the records themselves).
+    assert.ok([1, 2, 3, 4].includes(f.warmth), `${g.id} reads as a warmth from 1 to 4`);
     assert.ok(f.warmthBasis, `${g.id} says what its warmth is based on`);
     assert.ok(f.palette.length && f.colours.length, `${g.id} has a palette the stylist can read`);
     assert.ok([null, 'ok', 'avoid'].includes(f.rain), g.id);

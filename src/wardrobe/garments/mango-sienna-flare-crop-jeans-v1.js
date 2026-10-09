@@ -16,6 +16,8 @@ export default {
       coverage: { legs: 'to just above the ankle', waist: 'high' }, material: 'cotton denim',
       warmth: 2, warmthBasis: 'inferred: denim, with the ankle bare below the cropped hem',
       weather: 'mild to warm, dry days; the white shows rain spots and dirt, and the open hem lets the cold in',
+      layering: 'In the app it is worn with every top (tops that cover the waistband hang over it; the rugby shirt tucks in) and under every jacket and coat; a dress replaces it. Cropped flare: the hem sits on the collar of both boots and the pink Superstars, and ends above or falls round the other shoes.',
+      unknown: ['fibre composition', 'stretch'],
     },
     authoring: { texture: 'mango-sienna-denim.js: flat-lit seamless swatch from the plain thigh in the front photo (brightness variation only, coloured to a measured soft white)', runtimeGeneration: false, sourcePhotosBundled: 'fabric swatch only' },
     atlas: ['../wardrobe/mango-sienna-denim.js', 'MANGO_SIENNA_DENIM'],

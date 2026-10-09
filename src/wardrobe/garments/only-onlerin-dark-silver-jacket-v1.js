@@ -12,9 +12,11 @@ export default {
   // A closed jacket covers the top's sleeves and the skirt's bow.
   layering: { closed: true, coversTopSleeves: true, coversWaistband: true, canOpen: true },
   // For choosing outfits later. Observed: seen in the photos; inferred: read from the construction, not stated anywhere.
-  styling: { warmth: 1, warmthBasis: 'inferred: an unpadded shell with a thin lining',
+  styling: {
     observed: { palette: ['dark silver', 'black'], pattern: 'plain metallic', silhouette: 'boxy hip-length blouson on an elastic hem', coverage: 'torso and arms to the wrist; neck when zipped; hood (modelled down)', material: 'crinkled metallic nylon, black lining' },
     inferred: { warmth: 'light layer: an unpadded shell and a thin lining', weather: 'mild, breezy or cool days; the coated shell and hood suit light showers', mood: 'bold, futuristic, sporty', unknown: ['waterproofing', 'fibre composition'] },
+    warmth: 2, warmthBasis: 'inferred: an unpadded coated shell with a thin lining',
+    layering: 'In the app it goes over every top, bottom, the skirt and either dress; closed, it hides the top\'s sleeves and covers the skirt\'s bow (the hoodies put their hoods away and the chenille jumper narrows its collar under it). One jacket at a time, with nothing over it. Hip length on an elastic hem: tops longer than the hip, the skirt and dresses show below it. It can be shown open on the doll.',
   },
   uncertainties: ['the photos disagree on the colour (bright silver in the shop photo, darker and cooler in the second-hand ones); the name says dark silver; a darker, greenish khaki silver, matched to the photo on a hanger, is used', 'the crumples are a texture over a smooth shell, so the outline stays smooth', 'the pockets are hidden in the front seam and are not modelled', 'the hood lies down on her back; her head hides its top'],
   authoring: { template: 'makeZipWindbreaker() in src/doll/outerwear.js, with its optional metallic finish', texture: 'procedural: the seams drawn into the shell; the crinkles drawn as long soft folds, small rounded crumples and fine wrinkles; colours matched to the photo on a hanger', runtimeGeneration: false, sourcePhotosBundled: false },

@@ -3,9 +3,9 @@
 // into `observed`, `user` and `inferred` (outerwear), and a few prose fields. `stylingFacts()` reads all of them into
 // one plain object, so the catalog needs no rewrite. Unknowns stay null: nothing is invented here.
 //
-// Warmth uses one scale for every slot: 0 open or bare (slides, sandals), 1 light (mesh, tees, linen, thin shells),
-// 2 mid (shirts, light knits, sweatshirts, jeans, closed sneakers), 3 warm (heavy knits, fleece, padded or wool
-// jackets, boots), 4 very warm (a sherpa-lined knee-length parka).
+// Warmth uses the catalog's one scale for every slot (tests/styling.test.js): 1 light (mesh, tees, linen, thin shells,
+// open shoes), 2 mid (shirts, light knits, sweatshirts, jeans, closed sneakers), 3 warm (heavy knits, fleece, padded or
+// wool jackets, boots), 4 very warm (a sherpa-lined knee-length parka). Open shoes are recognised from their coverage.
 import { GARMENTS } from '../wardrobe/catalog.js';
 
 // Colour words as hue (degrees), saturation and lightness (0–1). A palette entry takes its last colour word, so
@@ -88,7 +88,7 @@ export function stylingFacts(garment) {
   const st = g.styling || {};
   const warmth = Number.isFinite(st.warmth) ? st.warmth : null;
   const cov = text(st.coverage, st.observed?.coverage);
-  const open = g.slot === 'shoes' && (warmth === 0 || /open toe|bare feet|sandal|slide/.test(cov + text(g.family)));
+  const open = g.slot === 'shoes' && /open toe|open-toe|bare feet|sandal|slide/.test(cov + text(g.family));
   const palette = list(st.palette ?? st.observed?.palette);
   // Denim blues act as quiet colours: jeans go with anything.
   const denim = /denim/.test(text(st.material, g.material?.construction));
