@@ -1,6 +1,6 @@
 # Wardrobe item: black Mickey Mouse print long-sleeve tee
 
-Authored 9 October 2026. Status: second version, awaiting visual review. The user found the first print too neat and too large (“Messier, smaller”); it was redrawn. Added by the chat that has been doing outerwear (any chat can add any category).
+Authored 9 October 2026. Status: second version, approved: the user merged it, and merging means approved (their rule). The user found the first print too neat and too large (“Messier, smaller”); it was redrawn. Added by the chat that has been doing outerwear (any chat can add any category).
 
 ## Source and reference reading
 
@@ -75,7 +75,7 @@ It covers the waistband, like the other tops at this length. A jacket hides its 
 - The shared tests also run on it: sleeves and hands, every waist-covering top over every bottom, the styling facts, and every jacket over every top.
 - `npm test`: 83 passing after merging `main` (which added the Desigual fresco V-neck tee); `npm run build` succeeds.
 - The print takes about a second to draw the first time it is worn, then is shared.
-- Rendered in headless Chromium from the front, a turn, the side and the back. The authoring chat checked these renders; the user has not seen them yet.
+- Rendered in headless Chromium from the front, a turn, the side and the back. The authoring chat checked these renders, and the user merged the pull request after seeing the revised print.
 
 ## Known differences
 
