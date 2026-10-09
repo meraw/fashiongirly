@@ -28,7 +28,7 @@ Catalog ID `pepe-jeans-ikat-shirt-v1` (slot `top`). It is built by the existing 
 
 - `body`: a longer body. It keeps the cropped shirts' rows down to 1.4, then follows its own:
   - `rows`: the striped cardigan's rows, which clear every bottom
-  - `skirtRows`: the cardigan's rows over the skirt's flare, a little closer at 1.0 to 1.1, used when she wears the skirt
+  - `skirtRows`: the cardigan's rows over the skirt's flare, a little closer at 1.0 to 1.1 (about 2%), used when she wears the skirt
   - `hem`: the hem height
   - `tail`: how far the hem rises toward the sides, for a shirttail. Each column of the body is cut shorter along its own surface, so the raised sides keep the body's shape at that height.
   The placket stitching and buttons run down to this hem, and the hem stitching follows its curve.
@@ -57,7 +57,7 @@ It covers the waistband (`layering.coversWaistband`), so the skirt's bow is hidd
 
 Two fits came from the shared tests:
 
-- **The windbreaker over the skirt.** Lifting the hem first carried the hem's flare up to the windbreaker's hem, where it showed through. Cutting the shirttail along the body fixed that over jeans. Over the skirt, the rows at 1.0 to 1.1 were brought in by about 1% so the windbreaker still covers the shirt there; it still clears the skirt.
+- **The windbreaker over the skirt.** Lifting the hem first carried the hem's flare up to the windbreaker's hem, where it showed through. Cutting the shirttail along the body fixed that over jeans. Over the skirt, the rows at 1.0 to 1.1 were brought in by about 2%, so the Marikoo windbreaker and the Woolrich bomber (added on `main` meanwhile, its hem at 1.04) still cover the shirt there; it still clears the skirt. The hem stitching lies on the body's surface just above the hem, rather than at the hem's radius, so it does not stand out from the narrower body at the raised sides.
 - **Waist coverage (shared test changed).** `tests/bottoms.test.js` (“every waist-covering top hides every bottom between its hem and the waist”) measured each top's hem as its lowest point. With a shirttail, the bottoms rightly show at the sides below the raised hem, so the test now takes the hem's height all round her: the lowest point of the top in each 2-degree slice, taking the higher of the neighbouring slices, with empty slices filled from the nearest. For tops with a level hem nothing changes. Narrowing this shirt at the hips still fails the test.
 
 ## Styling facts
@@ -78,7 +78,7 @@ Two fits came from the shared tests:
   - that the print holds navy, coral, the blues and white
   - that over the skirt no part of the skirt pokes through it. Building it with its usual rows over the skirt fails this check.
 - The shared tests also run on it, with the change to the waist coverage test above: every waist-covering top over every bottom, sleeves and hands, the styling facts, and outerwear over every top.
-- `npm test`: 87 passing after merging `main` (which added the Pull & Bear chenille jumper); `npm run build` succeeds.
+- `npm test`: 90 passing after merging `main` (which added the Pull & Bear chenille jumper, the Woolrich bomber and the adidas cropped windbreaker); `npm run build` succeeds.
 - Rendered in headless Chromium from the front, a turn, the side and the back. Also over the skirt. The authoring chat checked these renders; the user has not seen them yet.
 
 ## Known differences

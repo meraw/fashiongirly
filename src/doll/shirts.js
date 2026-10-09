@@ -143,7 +143,7 @@ const STYLES={
     // Below 1.4 it hangs loose past her hips like the striped cardigan, whose rows clear every bottom (and, worn over the
     // skirt, its flare, a little closer so a jacket's hem still covers it). The hem rises toward the sides by `tail`.
     body:{hem:.97,tail:.075,rows:[[1.2,.312,.236],[1.1,.318,.236],[1.0,.336,.252],[.97,.34,.253]],
-      skirtRows:[[1.3,.314,.234],[1.2,.334,.248],[1.1,.352,.258],[1.0,.381,.274],[.97,.388,.277]]},
+      skirtRows:[[1.3,.314,.234],[1.2,.334,.248],[1.1,.35,.257],[1.0,.376,.272],[.97,.383,.275]]},
     pocket:{x:.128,top:1.7,width:.088,height:.1},cuff:{depth:.055}},
 };
 function texture({data,w,h},srgb){
@@ -239,7 +239,9 @@ function makeShirt(id,style,overSkirt=false){
   for(const y of style.buttons){const hit=onSurface(0,y);if(!hit)continue;
     const b=oval(top,hit.point.clone().addScaledVector(hit.normal,.006).toArray(),[.0105/1.06,.0105/.76,.004],solid(buttonColour,buttonRoughness),'shirt-button',20);b.lookAt(b.position.clone().add(hit.normal));}
   // A stitched hem, all the way round just above the lower edge (following a shirttail's curve).
-  if(B){const p=body.geometry.attributes.position;curve(top,Array.from({length:129},(_,k)=>{const i=p.count-129+k;return [p.getX(i)*1.004,p.getY(i)+.012,p.getZ(i)*1.004];}),.0016,stitch,'hem-stitch');}
+  // On a longer shirt it lies on the body's surface: up the column from the hem, just off the cloth.
+  if(B){const p=body.geometry.attributes.position;curve(top,Array.from({length:129},(_,k)=>{const i=p.count-129+k,u=i-129,t=Math.min(1,.012/Math.max(1e-6,p.getY(u)-p.getY(i)));
+    const x=p.getX(i)+(p.getX(u)-p.getX(i))*t,y=p.getY(i)+(p.getY(u)-p.getY(i))*t,z=p.getZ(i)+(p.getZ(u)-p.getZ(i))*t,r=Math.hypot(x,z)||1,out=(r+.0012)/r;return [x*out,y,z*out];}),.0016,stitch,'hem-stitch');}
   else curve(top,Array.from({length:129},(_,k)=>{const a=k/128*Math.PI*2;return [Math.sin(a)*.2915,hemY+.012,Math.cos(a)*.2065];}),.0016,stitch,'hem-stitch');
   // A patch pocket on her left chest (style.pocket), in the print a little out of step with the body, stitched round.
   if(style.pocket){const P=style.pocket,x0=P.x-P.width/2,y0=P.top-P.height,pts=[],ok=[];
