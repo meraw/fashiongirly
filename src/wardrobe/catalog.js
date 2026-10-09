@@ -1192,21 +1192,23 @@ export const GARMENTS = Object.freeze({
     // elastic band, a sherpa-lined collar and hood edge, red hood and hem cords, and no sleeve badge.
     build: {
       template: 'zip-windbreaker', roughness: .82,
-      colours: { shell: '#284e45', stitch: '#22423a', snap: '#c8c9c4', cord: '#c4504c', cordTip: '#ece7dc', zip: '#4a4a46', opening: '#0f2a24', toggle: '#ece7dc', sherpa: '#e6dbc4', lining: '#e2d6bd' },
+      colours: { shell: '#2f5249', stitch: '#27453d', snap: '#c8c9c4', cord: '#c4504c', cordTip: '#ece7dc', zip: '#4a4a46', opening: '#0f2a24', toggle: '#ece7dc', sherpa: '#e6dbc4', lining: '#e2d6bd' },
       open: { shift: .1 },
+      // Padded and warm, not a thin shell: soft puffiness and folds, a matte crinkled cotton, rolled edges and the lining at the hem.
+      padding: { puff: .01, drape: .026, folds: 7, drapeTop: 1.2, sleeveFolds: .03, hemRoll: .018, edgeRoll: .014, crinkle: { repeat: [9, 6], scale: .22, sheen: .1 } },
       body: {
-        rows: [[1.975, .132, .126], [1.935, .134, .128], [1.9, .146, .135], [1.875, .21, .168], [1.84, .28, .214], [1.8, .33, .248], [1.75, .356, .264], [1.65, .366, .276], [1.5, .37, .282], [1.35, .374, .287], [1.2, .38, .291], [1.05, .392, .296], [.9, .41, .302], [.78, .424, .306], [.7, .432, .307], [.682, .43, .304]],
-        overSkirt: [[1.975, .132, .126], [1.935, .134, .128], [1.9, .146, .135], [1.875, .21, .168], [1.84, .28, .214], [1.8, .33, .248], [1.75, .356, .264], [1.65, .366, .276], [1.5, .37, .282], [1.35, .376, .288], [1.2, .39, .3], [1.05, .42, .315], [.9, .45, .33], [.78, .465, .338], [.7, .47, .338], [.682, .468, .335]],
-        hem: .655, band: .028, bandRadius: [.424, .3], bandOverSkirt: [.462, .33], bandPuckers: 64,
+        rows: [[1.975, .132, .126], [1.935, .134, .128], [1.9, .146, .135], [1.875, .215, .172], [1.84, .293, .224], [1.8, .345, .259], [1.75, .372, .276], [1.65, .382, .288], [1.5, .387, .295], [1.35, .391, .3], [1.2, .397, .304], [1.05, .41, .309], [.9, .428, .316], [.78, .443, .32], [.7, .451, .321], [.682, .449, .318]],
+        overSkirt: [[1.975, .132, .126], [1.935, .134, .128], [1.9, .146, .135], [1.875, .215, .172], [1.84, .293, .224], [1.8, .345, .259], [1.75, .372, .276], [1.65, .382, .288], [1.5, .387, .295], [1.35, .393, .301], [1.2, .408, .313], [1.05, .439, .329], [.9, .47, .345], [.78, .486, .353], [.7, .491, .353], [.682, .489, .35]],
+        hem: .655, band: .028, bandRadius: [.443, .313], bandOverSkirt: [.483, .345], bandPuckers: 64,
         gathers: 40, gatherDepth: .006, gatherHeight: .06,
         collarBase: 1.89, collarTop: 1.975, collarRadius: [.132, .126],
       },
       sleeve: {
-        rows: [[.05, .14, .13], [0, .16, .15], [-.1, .167, .158], [-.25, .166, .157], [-.38, .162, .154], [-.47, .156, .149], [-.51, .14, .134], [-.53, .125, .12]],
+        rows: [[.05, .15, .14], [0, .172, .162], [-.1, .181, .171], [-.25, .181, .171], [-.38, .177, .168], [-.47, .169, .161], [-.51, .149, .143], [-.53, .13, .125]],
         cuff: [-.522, -.575], cuffRadius: [.12, .118], cuffPuckers: 36, gathers: 16, gatherDepth: .024, gatherHeight: .09,
       },
       zip: { width: .016, stitch: .02 },
-      placket: { offset: .014, width: .06, snaps: [[.08, 1.95]] },
+      placket: { offset: .014, width: .06, snaps: [[.08, 1.95]], roll: .009 },
       toggles: [{ x: .06, y: .668, drop: .06 }, { x: -.06, y: .668, drop: .06 }],
       pockets: { x: .17, slant: .3, top: 1.22, bottom: 1.04, width: .042, snaps: [1.18], snap: .011 },
       cords: { x: .055, top: 1.885, end: 1.8, drift: .006, radius: .005 },

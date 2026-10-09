@@ -30,7 +30,7 @@ The colour is the user's description, not a measurement. Each version was render
 
 1. First try: a light jade, about RGB 90, 160, 120, so the shell was darkened.
 2. Second: a slightly muted emerald, about 54, 120, 86. The user found it too saturated.
-3. Now: a muted blue-green, about 79, 120, 102. This is emerald dyed over carta zucchero: greener than blue, but greyed and softened.
+3. Now: a muted blue-green, about 79, 120, 102 (78, 122, 103 with the padded cloth below). This is emerald dyed over carta zucchero: greener than blue, but greyed and softened.
 
 Assumed, not stated (recorded as unknowns in the catalog entry):
 
@@ -78,11 +78,20 @@ Each setting defaults to the old behaviour. Zipped, the Marikoo and Red Bull win
 - **`hood.label: false`:** no hood label.
 - **`hood.opening.lining`:** the radius and inset of the hood's lining edge.
 - **`sleeve.badge`:** now optional; without it, there is no sleeve badge.
+- **`padding`:** a padded, warm coat rather than a thin shell.
+  - `puff`: soft uneven puffiness all over the body.
+  - `drape` and `folds`: broad folds from the hips (`drapeTop`) to the hem, deeper toward the hem.
+  - `sleeveFolds`: padded sleeves bunching into soft folds above the cuff.
+  - `hemRoll`: a rolled hem with the lining just inside it.
+  - `edgeRoll`: shown open, a roll along each front edge.
+  - `crinkle`: a matte, softly crinkled cotton, using the leather jacket's crackle as a gentle normal map, with less sheen.
+- **`placket.roll`:** a padded placket with rounded edges.
 
 ## Checks
 
 - `npm test`: 79 passing. The new `tests/emerald-parka.test.js` checks:
   - the parts and those left out: no coil zip, hood label, sleeve badge or back label
+  - the padding: the hem roll and lining, the placket rolls, the matte crinkled cloth, folds toward the hem, and an edge roll on each front when open
   - the sherpa pile on the collar lining and hood edge, and the cream cord tips
   - knee length, below the skirt's and the dress's hems
   - the slanted pockets and the study
@@ -90,6 +99,13 @@ Each setting defaults to the old behaviour. Zipped, the Marikoo and Red Bull win
 - The shared outerwear tests pick it up automatically, zipped and open. They check that it covers every top and every bottom from its hem to its collar, with and without the skirt, and that her arms and hands stay inside its sleeves.
 - `npm run build` succeeds.
 - Rendered in headless Chromium: front, turn, side and back over its study outfit; open from the front and at a turn; over the skirt; and over the half-zip dress.
+
+## Review history
+
+1. The first colour was too saturated. The user explained the carta zucchero underneath, and it was muted to a blue-green.
+2. The user liked the colour, but said it looked like a thin raincoat rather than a very warm parka. Changes:
+   - The body is about 4.5% fuller below the shoulders, and the sleeves are fuller.
+   - It has the `padding` settings above: puffiness, folds toward the hem, bunched sleeves, a rolled hem, a padded placket and a matte crinkled cotton.
 
 ## Known differences
 

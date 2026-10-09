@@ -13,7 +13,7 @@ test('Emerald parka: knee length, snap placket, sherpa-lined hood down, red cord
   assert.equal(cleanRecipe({outerwearId:EMERALD_PARKA_ID}).outerwearOpen,false,'starts zipped, as the user wears it');
   const outfit=makeOutfit({outerwearId:EMERALD_PARKA_ID}),jacket=outfit.getObjectByName('outerwear');outfit.updateMatrixWorld(true);
   for(const [name,count] of [['jacket-body',1],['elastic-hem-band',1],['collar-lining',1],['zip-placket',1],['collar-snap',2],['toggle-cord',2],['cord-toggle',2],['drawcord',2],['cord-tip',4],
-    ['pocket-welt',2],['snap-button',2],['hood',1],['hood-edge',1],['hood-opening',1],['hood-lining-edge',1],['jacket-sleeve',2],['elastic-cuff',2],
+    ['pocket-welt',2],['snap-button',2],['hem-roll',1],['hem-lining',1],['placket-roll',2],['front-edge-roll',0],['hood',1],['hood-edge',1],['hood-opening',1],['hood-lining-edge',1],['jacket-sleeve',2],['elastic-cuff',2],
     ['coil-zip',0],['hood-label',0],['sleeve-badge',0],['back-label',0]])
     assert.equal(named(jacket,name).length,count,name);
   jacket.traverse(o=>{if(o.geometry)for(const v of o.geometry.attributes.position.array)assert.ok(Number.isFinite(v),o.name);});
@@ -29,6 +29,10 @@ test('Emerald parka: knee length, snap placket, sherpa-lined hood down, red cord
   const pts=Array.from({length:wp.count},(_,i)=>new T.Vector3().fromBufferAttribute(wp,i)).sort((p,q)=>q.y-p.y),n=Math.floor(pts.length/4);
   const meanX=list=>list.reduce((v,p)=>v+p.x,0)/list.length;
   assert.ok(meanX(pts.slice(-n))-meanX(pts.slice(0,n))>.03,'the flap slants out toward the side');
+  // Padded, not a thin shell: a matte crinkled cloth with little sheen, and a body that is not a smooth surface of revolution.
+  const body=named(jacket,'jacket-body')[0];assert.ok(body.material.normalMap,'crinkled cloth');assert.ok(body.material.sheen<.2,'matte');
+  const bp=body.geometry.attributes.position,ring=[];for(let i=0;i<bp.count;i++)if(Math.abs(bp.getY(i)-.8)<.01)ring.push(Math.hypot(bp.getX(i)/.45,bp.getZ(i)/.31));
+  assert.ok(Math.max(...ring)-Math.min(...ring)>.02,'folds hang toward the hem');
   [outfit,skirt,dress].forEach(disposeObject);
   assert.ok(OUTFITS.some(look=>look.recipe.outerwearId===EMERALD_PARKA_ID),'has a study');
 });
@@ -37,7 +41,7 @@ test('Emerald parka shown open: fronts apart to the hem, a sherpa lining inside,
   const outfit=makeOutfit({outerwearId:EMERALD_PARKA_ID,outerwearOpen:true}),jacket=outfit.getObjectByName('outerwear');
   assert.equal(jacket.userData.open,true);
   const lining=named(jacket,'jacket-lining');assert.equal(lining.length,1);assert.ok(lining[0].material.bumpMap,'sherpa lining');
-  assert.equal(named(jacket,'zip-half').length,2);
+  assert.equal(named(jacket,'zip-half').length,2);assert.equal(named(jacket,'front-edge-roll').length,2,'a padded roll edges each front');
   const p=new T.Vector3();let inGap=0;
   for(const name of ['jacket-body','elastic-hem-band'])for(const m of named(jacket,name)){const pos=m.geometry.attributes.position;for(let i=0;i<pos.count;i++){p.fromBufferAttribute(pos,i);if(p.z>0&&Math.abs(p.x)<.06)inGap++;}}
   assert.equal(inGap,0,'nothing spans the open front, down to the hem');
