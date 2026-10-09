@@ -69,7 +69,7 @@ Catalog ID `replay-cream-rose-embroidered-sweatshirt-v1` (slot `top`), built by 
 
 ## Checks
 
-- `npm test`: all passing, including the new `tests/replay-sweatshirt.test.js`. It checks:
+- `npm test`: 101 passing after merging `main` (the pink yoke shirt and the snap-collar jumper), including the new `tests/replay-sweatshirt.test.js`. It checks:
   - the parts, and the parts it leaves out
   - the roses and leaves on the front panel, a red big rose, and a plain back
   - the cream fleece
