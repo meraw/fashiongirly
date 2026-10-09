@@ -66,7 +66,8 @@ export const PRINCIPLES = [
       }
       const outer = o.outer?.shape;
       if (outer?.length === 'long' && (o.dress || b?.length === 'ankle')) add(.4, `the long ${short(o.outer)} over shorter lengths`);
-      if (outer?.length === 'cropped' && t && t.length !== 'cropped') add(.3, `the top shows below the cropped ${short(o.outer)}`);
+      // A top still showing under a closed jacket (scoreTaste swaps a hidden top for the jacket).
+      if (o.top && o.outer && !o.open && o.top.id !== o.outer.id) add(.3, `the ${short(o.top)} shows below the short ${short(o.outer)}`);
       return [score, reason];
     },
   },
@@ -93,11 +94,19 @@ export const PRINCIPLES = [
   },
 ];
 
+// Whether the top shows under a closed jacket: below a waist-length jacket unless the top is cropped too, and below one
+// that reaches the high hip only if the top is long.
+export function topShows(o) {
+  if (!o.top || !o.outer || o.open) return true;
+  const jacket = o.outer.shape.length, top = o.top.shape.length;
+  return (jacket === 'waist' && top !== 'cropped') || (jacket === 'cropped' && top === 'long');
+}
+
 export function scoreTaste(outfit, daring) {
-  // She judges what shows. A closed jacket hides the top under it, unless the jacket is cropped and the top is longer:
-  // then the jacket takes the top's place for proportion, and the hidden top and under-top are left out of colour and print.
-  const hidden = !!outfit.top && !!outfit.outer && !outfit.open && (outfit.outer.shape.length !== 'cropped' || outfit.top.shape.length === 'cropped');
-  const o = hidden ? { ...outfit, top: { ...outfit.outer, slot: 'top', shape: { length: outfit.outer.shape.length === 'cropped' ? 'cropped' : 'regular', volume: outfit.outer.shape.volume } }, under: null } : outfit;
+  // She judges what shows. When a closed jacket hides the top, the jacket takes the top's place for proportion, and the
+  // hidden top and under-top are left out of colour and print.
+  const hidden = !!outfit.top && !topShows(outfit);
+  const o = hidden ? { ...outfit, top: { ...outfit.outer, slot: 'top', shape: { length: ['waist', 'cropped'].includes(outfit.outer.shape.length) ? 'cropped' : 'regular', volume: outfit.outer.shape.volume } }, under: null } : outfit;
   const pieces = [hidden ? null : o.top, o.under, o.bottom, o.dress, o.shoes, o.outer].filter(Boolean);
   let total = 0; const reasons = [];
   for (const p of PRINCIPLES) { const [s, r] = p.score(o, daring, pieces); total += s; if (r && s > 0) reasons.push([s, r]); }

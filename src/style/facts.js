@@ -73,7 +73,9 @@ function readShape(g, st) {
   };
   if (g.slot === 'shoes') return { chunky: /chunky|platform|lug|stacked/.test(sil), boot: /boot/.test(sil), high: /high-top|boot/.test(sil) };
   if (g.slot === 'outerwear') return {
-    length: /knee/.test(sil) ? 'long' : /cropped|waist-length/.test(sil) ? 'cropped' : 'hip', hood: /hood/.test(sil + cov),
+    // How far down it covers: to the waist, to the high hip (often called cropped), the hip, or the knee.
+    length: /knee/.test(sil + cov) ? 'long' : /to the waist|waist-length/.test(sil + cov) ? 'waist' : /high hip|cropped/.test(sil + cov) ? 'cropped' : 'hip',
+    hood: /hood/.test(sil + cov),
     volume: /oversized|boxy/.test(sil) ? 'big' : /fitted|slim/.test(sil) ? 'slim' : 'regular',
   };
   if (g.slot === 'dress') return { length: 'mini' };
