@@ -6,7 +6,7 @@ import { readFileSync } from 'node:fs';
 import { makeDoll, makeOutfit, disposeObject, fitDoll } from '../src/doll/model.js';
 import { OUTFITS, cleanRecipe } from '../src/doll/recipe.js';
 import { startStudio } from '../src/doll/app.js';
-import { GARMENTS, BUFFALO_ASPHA_ID, DM_COW_SLIDE_ID, UGG_LOWMEL_ID } from '../src/wardrobe/catalog.js';
+import { GARMENTS, BUFFALO_ASPHA_ID, DM_COW_SLIDE_ID, UGG_LOWMEL_ID, DM_BLAIRE_CHAIN_ID } from '../src/wardrobe/catalog.js';
 import { levelCaster } from '../src/doll/level-caster.js';
 const shoes=Object.keys(GARMENTS).filter(id=>GARMENTS[id].slot==='shoes');
 const named=(root,name)=>{const found=[];root.traverse(o=>{if(o.name===name)found.push(o);});return found;};
@@ -140,6 +140,29 @@ test('UGG sneakers: low cream sneaker with puffy laces and her own ankle socks, 
   const uppers=around(named(shoesGroup,'boot-upper'));let inside=0;
   for(const sk of named(shoesGroup,'ankle-sock'))eachVertex(sk,p=>{const y=p.y/.76;if(y<spec.sole.top+.03||y>spec.collar.side-.02)return;const c=cast(uppers,Math.sign(p.x)*spec.cx*1.06,p);if(!c)return;assert.ok(c.hit&&c.hit.distance>c.r,'sock shows through the shoe');inside++;});
   assert.ok(inside>20);
+  [outfit,doll].forEach(disposeObject);
+});
+
+test('Blaire chain sandals: Quad platform raises her, patent straps with chains and buckles, an ankle strap, bare feet',()=>{
+  const spec=GARMENTS[DM_BLAIRE_CHAIN_ID].build,outfit=makeOutfit({shoesId:DM_BLAIRE_CHAIN_ID}),doll=makeDoll();fitDoll(doll,outfit);
+  doll.updateMatrixWorld(true);outfit.updateMatrixWorld(true);const g=outfit.getObjectByName('shoes');
+  for(const name of ['slide-outsole','slide-welt','welt-stitch','slide-platform','footbed','bare-foot','patent-strap','chain-link','stud','buckle','buckle-tab','ankle-strap','upright-strap','pull-loop'])assert.ok(g.getObjectByName(name),name);
+  for(const name of ['cow-strap','strap-cord','instep-strap'])assert.equal(g.getObjectByName(name),undefined,`no slide ${name}`);
+  assert.equal(named(g,'patent-strap').length,2*spec.bands.length);assert.equal(named(g,'ankle-strap').length,2);
+  // Every strap carries a chain: plenty of links, and buckles on all four straps of each foot.
+  assert.ok(named(g,'chain-link').length>2*4*6);assert.equal(named(g,'buckle').length,2*(spec.bands.length+1));
+  // Raised by the platform above her normal foot, sole on the floor, socks hidden.
+  assert.ok(Math.abs(outfit.userData.lift-(spec.sole.footbed-spec.baseFoot))<1e-9);assert.ok(Math.abs(new T.Box3().setFromObject(g).min.y)<.002);
+  doll.traverse(o=>{if(o.name==='sock')assert.equal(o.visible,false);});
+  // The Quad sole: straight ribbed walls (many rings) with a sawtooth tread.
+  const sole=named(g,'slide-outsole')[0].geometry.attributes.position;assert.ok(sole.count/481>20,'ribbed');
+  // Straps clear her foot, and the ankle strap clears her ankle.
+  const straps=[...named(g,'patent-strap'),...named(g,'ankle-strap')],ray=new T.Raycaster();let checked=0;
+  for(const f of named(g,'bare-foot'))eachVertex(f,p=>{ray.set(p.clone().setY(2),new T.Vector3(0,-1,0));const h=ray.intersectObjects(named(g,'patent-strap'),false)[0];if(!h)return;checked++;assert.ok(h.point.y>p.y+.003,'foot pokes through a strap');});
+  assert.ok(checked>50,`checked ${checked}`);
+  const ankle=around(named(g,'ankle-strap'));let ringed=0;
+  for(const f of named(g,'bare-foot'))eachVertex(f,p=>{const y=p.y/.76;if(Math.abs(y-spec.ankle.y)>.012)return;const c=cast(ankle,Math.sign(p.x)*spec.cx*1.06,p);if(!c||!c.hit)return;ringed++;assert.ok(c.hit.distance>c.r,'ankle pokes through the ankle strap');});
+  assert.ok(ringed>10,`ringed ${ringed}`);void straps;
   [outfit,doll].forEach(disposeObject);
 });
 
