@@ -1,6 +1,6 @@
 # Wardrobe item: Desigual split floral shirt
 
-Authored 9 October 2026. Status: first interpretation awaiting the user's visual review. Added by the chat that has been doing shoes and outerwear (any chat can add any category).
+Authored 9 October 2026. Status: first interpretation; approved: the user merged it, and merging means approved (their rule). Added by the chat that has been doing shoes and outerwear (any chat can add any category).
 
 ## Source and reference reading
 

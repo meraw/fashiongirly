@@ -4,6 +4,8 @@ import { makePrintedTee } from './printed-tee.js';
 import { makePrintedLongTee } from './printed-long-tee.js';
 import { makeChenilleJumper } from './chenille-jumper.js';
 import { makeLaceDress } from './lace-dress.js';
+import { makeSweatshirt } from './sweatshirt.js';
+import { makeHoodie } from './hoodie.js';
 import { makeOuterwear } from './outerwear.js';
 import { levelCaster } from './level-caster.js';
 import { BRONZE_TOP_ID, LILAC_TOP_ID, CROCHET_TOP_ID, PLAID_JUMPER_ID, STRIPE_JUMPER_ID, POINTELLE_FLOWER_ID, SILVER_CABLE_ID, LACROIX_FLOWER_ID, TOMMY_CABLE_ID, PETIT_BATEAU_CARDIGAN_ID, ZIP_TRACK_DRESS_ID, TOMMY_STRIPE_POLO_ID, GARMENTS } from '../wardrobe/catalog.js';
@@ -2005,10 +2007,12 @@ export function makeOutfit(raw, atlas=null) {
   const makeTop=id=>id===CROCHET_TOP_ID?makeCrochetTop():id===PLAID_JUMPER_ID?makePlaidJumper(id,state.skirt):id===STRIPE_JUMPER_ID?makeStripeJumper(id,state.skirt)
     :id===POINTELLE_FLOWER_ID?makePointelleJumper(id,state.skirt):id===SILVER_CABLE_ID?makeSilverCableJumper():id===LACROIX_FLOWER_ID?makeLacroixSweater(id,state.skirt)
     :id===TOMMY_CABLE_ID?makeTommyCableSweater(id,state.skirt):id===PETIT_BATEAU_CARDIGAN_ID?makeStripedCardigan(id,state.skirt)
-    :id===TOMMY_STRIPE_POLO_ID?makeKnitPolo(id):SHIRT_IDS.includes(id)?makeButtonShirt(id,atlas?.isTexture?atlas:atlas?.[id])
+    :id===TOMMY_STRIPE_POLO_ID?makeKnitPolo(id):SHIRT_IDS.includes(id)?makeButtonShirt(id,atlas?.isTexture?atlas:atlas?.[id],state.skirt)
     :GARMENTS[id]?.build?.template==='printed-raglan-tee'?makePrintedTee(id,GARMENTS[id].build,atlas?.isTexture?atlas:atlas?.[id])
     :GARMENTS[id]?.build?.template==='printed-long-tee'?makePrintedLongTee(id,GARMENTS[id].build)
     :GARMENTS[id]?.build?.template==='chenille-high-neck'?makeChenilleJumper(id,GARMENTS[id].build)
+    :GARMENTS[id]?.build?.template==='logo-sweatshirt'?makeSweatshirt(id,GARMENTS[id].build,state.skirt)
+    :GARMENTS[id]?.build?.template==='cropped-hoodie'?makeHoodie(id,GARMENTS[id].build)
     :makeReferenceTop(atlas?.isTexture?atlas:atlas?.[id],id);
   if(!dress&&state.topId!=='classic')root.add(makeTop(state.topId));
   if(dress)root.add(GARMENTS[dress].build?.template==='lace-shift-dress'?makeLaceDress(dress,GARMENTS[dress].build):makeZipTrackDress(dress));
@@ -2055,8 +2059,10 @@ export function makeOutfit(raw, atlas=null) {
     }
     positions.needsUpdate=true;panel.geometry.computeVertexNormals();
     ring(skirt,1.238,.294,.221,satin,'skirt-waistband',.04);
-    // A top that covers the waistband hides the bow, which would otherwise poke through its hem.
-    if(!GARMENTS[state.topId]?.layering?.coversWaistband&&!GARMENTS[state.outerwearId]?.layering?.coversWaistband){
+    // A top that covers the waistband hides the bow, which would otherwise poke through its hem; one tucked into the skirt
+    // (layering.tucksIntoSkirt) leaves it showing.
+    const topLayering=GARMENTS[state.topId]?.layering;
+    if(!(topLayering?.coversWaistband&&!topLayering.tucksIntoSkirt)&&!GARMENTS[state.outerwearId]?.layering?.coversWaistband){
     const ribbon=cloth(state.skirtColour);
     for(const side of [-1,1]){
       const loop=oval(skirt,[.22+side*.042,1.208,.193],[.052,.026,.019],ribbon,'ribbon-loop');loop.rotation.z=side*.35;

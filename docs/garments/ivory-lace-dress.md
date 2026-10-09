@@ -56,7 +56,7 @@ Catalog ID `desigual-ivory-lace-shift-dress-v1` (slot `dress`), built by `makeLa
 
 ## Checks
 
-- `npm test`: all passing after merging `main`, including the new `tests/lace-dress.test.js`. It checks:
+- `npm test`: 98 passing after merging `main`, including the new `tests/lace-dress.test.js`. It checks:
   - the parts, and the parts it leaves out
   - the opaque body and the sheer sleeves over skin
   - the mid-thigh hem, and frills closer together toward it
