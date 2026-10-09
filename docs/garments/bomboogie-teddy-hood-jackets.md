@@ -1,6 +1,6 @@
 # Wardrobe items: Bomboogie teddy jackets with a detachable hood, green and black
 
-Authored 9 October 2026. Status: first version, awaiting the user's visual review. The first outerwear with a detachable part, and the option in the app to take it out.
+Authored 9 October 2026. Status: approved: the user merged it, and merging means approved (their rule). The first outerwear with a detachable part, and the option in the app to take it out.
 
 ## Source and reference reading
 
@@ -125,7 +125,7 @@ The black one is the same jacket in a soft black, like the cropped hoodie's blac
   - the green one closed and open, with and without the insert, and open over the skirt without it;
   - the black one closed and open.
 
-  Only the authoring chat has checked these renders; the user has not seen them yet. No device check.
+  The user saw them and merged it. No device check.
 
 ## Known differences
 
