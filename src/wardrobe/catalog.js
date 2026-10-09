@@ -34,6 +34,7 @@ export const DESIGUAL_SPRAY_FLORAL_SHIRT_ID = 'desigual-spray-floral-mesh-shirt-
 export const VANGOGH_TEE_ID = 'van-gogh-patchwork-tee-v1';
 export const DESIGUAL_FRESCO_TEE_ID = 'desigual-fresco-rib-vneck-tee-v1';
 export const MICKEY_LONG_TEE_ID = 'black-mickey-print-long-tee-v1';
+export const PB_CHENILLE_ID = 'pull-bear-grey-chenille-high-neck-v1';
 export const BARREL_JEANS_ID = 'topshop-barrel-jeans-v1';
 export const DAVINIA_JEANS_ID = 'desigual-davinia-jeans-v1';
 export const LEVIS_94_ID = 'levis-94-wide-leg-v1';
@@ -333,6 +334,37 @@ export const GARMENTS = Object.freeze({
       print: { seed: 41, ground: '#121010', inks: { cream: '#d6cfc2', red: '#a8232e', ochre: '#c47f35' }, size: 36, spacing: 122, splatter: 1000, dropout: .23, scratches: 3, scratchWidth: .05, ragged: 1.3, fade: .75, faint: .25, spray: 14,
         mix: { head: .3, shorts: .22, glove: .26, shoe: .22 },
         inksFor: { head: ['cream', 'cream', 'cream', 'ochre', 'red'], shorts: ['red', 'red', 'red', 'ochre'], glove: ['cream', 'cream', 'ochre'], shoe: ['ochre', 'ochre', 'ochre', 'red', 'cream'] } },
+    },
+  },
+  [PB_CHENILLE_ID]: {
+    slot: 'top',
+    id: PB_CHENILLE_ID, name: 'Grey chenille high-neck jumper', family: 'cropped-chenille-jumper', version: 1,
+    status: 'reference-study-awaiting-visual-review', brandAsProvided: 'Pull & Bear (the user could not find it online)',
+    source: { note: 'user supplied one phone photo of the jumper laid flat on the floor, front up, with a note: Pull & Bear, grey chenille, pay attention to the high collar' },
+    referenceViews: ['front flat lay'],
+    details: ['soft cool grey chenille knit in rows of plump, velvety loops that catch the light unevenly', 'a ribbed stand-up (mock) collar, high round her neck', 'boxy, cropped body with dropped shoulders', 'a deep ribbed hem band, gathered a little so the body blouses over it', 'long, relaxed sleeves gathered into long ribbed cuffs', 'all one colour; no print, label or seams on show'],
+    material: { construction: 'chenille knit, plain stitch with rib trims', composition: 'not stated', finish: 'velvety pile with a soft sheen' },
+    fit: { silhouette: 'boxy and cropped', sleeve: 'long and relaxed, gathered into long ribbed cuffs', hem: 'cropped at the waist, deep rib band', neckline: 'ribbed stand-up mock neck', adjustment: 'fixed authored fit for review; how the user wears it is not yet known' },
+    exclusions: ['striped-shirt','knit-sweater'],
+    uncertainties: ['only a flat lay was supplied: the length on the body, the collar height and the sleeve length are read from it', 'the chenille is drawn in code as rows of loops, not copied from the photo', 'the collar stands wider than a real one would on her narrow neck, so it shows under her big head'],
+    styling: { silhouette: 'boxy, cropped at the waist', palette: ['grey'], pattern: 'plain', coverage: { neck: 'high stand-up collar', sleeves: 'long', midriff: 'cropped' }, material: 'chenille knit', warmth: 3, warmthBasis: 'inferred: thick chenille with a high collar and long sleeves, though cropped', weather: 'cool, dry days; chenille holds water and flattens when wet (inferred)' },
+    authoring: { texture: 'procedural, in src/doll/chenille-jumper.js: rows of chenille loops and rib columns; colour measured from the photo', runtimeGeneration: false, sourcePhotosBundled: false },
+    // Construction for makeChenilleJumper() in src/doll/chenille-jumper.js, in outfit units. Proportions from the flat
+    // lay: about as long as it is wide, the hem band a sixth of the length; the hem and band follow the cropped silver
+    // cable jumper, which clears every bottom and the skirt.
+    build: {
+      template: 'chenille-high-neck',
+      colours: { yarn: '#787c88', sheen: '#9a9eaa' },
+      body: { hem: 1.27, band: .09, loops: 16, rowPitch: .075, ribs: 52, bandRadius: [.29, .205],
+        rows: [[1.905, .112, .104], [1.875, .176, .128], [1.83, .242, .163], [1.775, .286, .19], [1.65, .304, .204], [1.5, .308, .21], [1.4, .31, .216], [1.372, .306, .214], [1.36, .296, .209]] },
+      // The stand-up collar, top row first: a ribbed tube from the shoulders to its rolled top edge, flaring so it stands
+      // clear of her head and shows under her chin. Under a jacket she wears the narrow collar instead, which fits inside
+      // the jacket's own collar.
+      collar: { ribs: 48, rows: [[1.94, .264, .228], [1.915, .248, .209], [1.88, .23, .19], [1.845, .215, .178]],
+        narrow: [[1.96, .108, .1], [1.92, .11, .102], [1.885, .118, .108]], narrowRibs: 32 },
+      sleeve: { loops: 7, cuffRibs: 26,
+        rows: [[.03, .12, .117], [-.06, .132, .127], [-.2, .13, .124], [-.33, .122, .117], [-.41, .112, .107], [-.44, .104, .1]],
+        cuff: [[-.425, .097, .093], [-.49, .093, .09], [-.565, .092, .089]] },
     },
   },
   [BARREL_JEANS_ID]: {
