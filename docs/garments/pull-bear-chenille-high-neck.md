@@ -1,6 +1,6 @@
 # Wardrobe item: Pull & Bear grey chenille high-neck jumper
 
-Authored 9 October 2026. Status: first version, awaiting the user's visual review.
+Authored 9 October 2026. Status: first version; approved: the user merged it, and merging means approved (their rule).
 
 ## Source and reference reading
 
@@ -62,7 +62,7 @@ Boxy and cropped at the waist; plain grey; a high stand-up collar and long sleev
   - the outerwear coverage tests, which first failed on the high collar and led to the narrow collar;
   - the triangle budget for every study. The rib bands use fewer segments to stay within it.
 - `npm run build` succeeds.
-- Rendered in headless Chromium from the front, the side and the back in the study, and under the Marikoo windbreaker (closed) and the Desigual leather jacket (open). Compared with the photo. Not yet seen by the user.
+- Rendered in headless Chromium from the front, the side and the back in the study, and under the Marikoo windbreaker (closed) and the Desigual leather jacket (open). Compared with the photo. The user merged it.
 
 ## Known differences
 
