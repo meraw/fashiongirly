@@ -35,7 +35,7 @@ The user saw that the front of the ankle strap was missing. The first version on
 
 ## Checks
 
-- `npm test`: 63 passing. A new test checks:
+- `npm test`: 67 passing. A new test checks:
   - the sandal's parts, and that the slide-only parts are absent;
   - the strap and buckle counts, and the chain links;
   - the lift, with the sole on the floor and her socks hidden;
