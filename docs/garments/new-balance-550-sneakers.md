@@ -21,7 +21,7 @@ Features read from the images:
 
 Catalog ID `new-balance-550-cream-v1` (slot `shoes`), template `sneaker`. It is built by the UGG sneakers' builder, `makeLugBoot()` in `src/doll/model.js`, with new options that default to the old behaviour. The boots, the UGG sneakers and the loafers render pixel-identical to `main`, bare and with jeans.
 
-- **Leather** (`leather`): a smooth, softly glossy upper instead of nubuck or mesh. Panels can be leather (`leather`), can carry punched holes or mesh as a bump map (`bump`), can sit at their own depth (`off`) and can go without stitching (`stitch: false`). The eyelets can be punched holes rather than metal (`punched`).
+- **Leather** (`leather`): a smooth, softly glossy upper instead of nubuck or mesh. Panels can be leather (`leather`), can carry punched holes or mesh as a bump map (`bump`), can sit at their own depth (`off`) and can go without stitching (`stitch: false`). It also uses the template's punched eyelets (`punched`) and tongue height (`tongueAbove`), which the pink Superstars added at the same time; when the two branches met, the 550 took the Superstars' version of `punched` (a matte material, as it had itself).
 - **Cupsole** (`sole.cup`): a grey outsole with block lugs cut into its wall, rising higher round the heel and toe, under a cream midsole with two grooves and a rounded top edge. `sole.randFrom` lets the sole come down toward the toe earlier.
 - **The N** (`logo`): a slanted N filled as a fine grid laid on the upper, so it follows the shoe's curve, with a white leather edge. It reads the right way round from outside on both sides of each shoe.
 - **Piping** (`trims`): white leather piping along the sweep, on both sides.

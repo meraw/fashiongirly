@@ -1,6 +1,6 @@
 # Wardrobe item: adidas Superstar pink suede sneakers
 
-Authored 9 October 2026. Status: first version, awaiting visual review. Added by the chat that has been doing outerwear (any chat can add any category).
+Authored 9 October 2026. Status: first version, approved: the user merged it, and merging means approved (their rule). Added by the chat that has been doing outerwear (any chat can add any category).
 
 ## Source and reference reading
 
@@ -69,7 +69,7 @@ The Buffalo boots, the UGG sneakers and the zip boots render pixel-identical to 
   - that her ankle socks stay inside the shoe below the collar
 - The shared shoe test (every bottom with every shoe) runs on it. It caught the collar, tongue and laces poking through the built-in barrel trousers, so the collar was lowered.
 - `npm test`: 75 passing after merging `main` (which added the Urban Classics pleated linen trousers and the Red Bull Racing windbreaker); `npm run build` succeeds.
-- Rendered in headless Chromium from the front, a turn, the side and the back, in close-up and in the study outfit, and under the long Levi's and Stradivarius jeans. The authoring chat checked these renders; the user has not seen them yet.
+- Rendered in headless Chromium from the front, a turn, the side and the back, in close-up and in the study outfit, and under the long Levi's and Stradivarius jeans. The authoring chat checked these renders, and the user merged the pull request after seeing them.
 
 ## Known differences
 
