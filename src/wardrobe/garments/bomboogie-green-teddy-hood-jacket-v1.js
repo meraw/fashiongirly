@@ -3,7 +3,7 @@
 export default {
     slot: 'outerwear',
     id: 'bomboogie-green-teddy-hood-jacket-v1', name: 'Bomboogie green teddy jacket with detachable hood', family: 'teddy-hood-jacket', version: 1, label: 'Bomboogie green teddy jacket with detachable hood · reference study',
-    status: 'authored-awaiting-user-review', brandAsProvided: 'Bomboogie (the neck label and the zip pull)',
+    status: 'user-approved', brandAsProvided: 'Bomboogie (the neck label and the zip pull)',
     source: { note: 'user supplied four product images of the green one (front closed with the hood down, back, side three-quarter with the hood up, front open with the bib zipped) and said they own two identical jackets, one green and one blue, and that the quilted hood and front zip part come off; they asked for that to be an option in the app' },
     referenceViews: ['front, closed, hood down', 'back, hood down', 'side three-quarter, hood up', 'front, open, bib zipped'],
     details: ['boxy cropped jacket in curly teddy (bouclé faux shearling) in military green', 'wide flat teddy collar', 'silver two-way metal zip up the centre front', 'dropped shoulders and wide straight sleeves', 'all edges rolled teddy', 'detachable insert in quilted glossy nylon: a hood, worn down here, joined to a bib with its own tonal zip, zipped into the jacket along its front edges', 'drawcord toggles at the sides of the hood (not modelled: under her chin)', 'nylon lining'],

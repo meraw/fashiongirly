@@ -83,3 +83,4 @@ export { default as replayCreamRoseEmbroideredSweatshirtV1 } from './replay-crea
 export { default as bomboogieGreenTeddyHoodJacketV1 } from './bomboogie-green-teddy-hood-jacket-v1.js';
 // slot 62
 // slot 63
+export { default as levisLilacGinghamShirtV1 } from './levis-lilac-gingham-shirt-v1.js';
