@@ -32,6 +32,7 @@ export const BERSHKA_GREY_ID = 'bershka-grey-wide-leg-v1';
 export const TOMMY_CARPENTER_ID = 'tommy-remastered-carpenter-v1';
 export const ZARA_CARGO_ID = 'zara-cargo-joggers-v1';
 export const CRYSTAL_JEANS_ID = 'crystal-straight-jeans-v1';
+export const NIKE_TRACK_ID = 'nike-piped-track-pants-v1';
 export const GARMENTS = Object.freeze({
   [BRONZE_TOP_ID]: {
     slot: 'top',
@@ -623,6 +624,45 @@ export const GARMENTS = Object.freeze({
       backPocket: { x: .12, outline: [[-.07, 1.175], [.07, 1.175], [.066, 1.05], [0, 1.025], [-.066, 1.05]], stitchBelow: 1.12 },
       centreBack: [[.004, 1.185], [.004, 1.08], [0, .99]],
       labelPatch: { name: 'leather-patch', size: [.072, .04, .005], colour: '#b08a5e', position: [-.08, 1.288, -(.17 + .004)], rotationY: Math.PI + .3 },
+    },
+  },
+  [NIKE_TRACK_ID]: {
+    slot: 'bottom',
+    id: NIKE_TRACK_ID, name: 'Nike woven track pants with piping', family: 'track-pants', version: 1,
+    status: 'reference-study-awaiting-visual-review', brandAsProvided: 'Nike (from the embroidered swoosh)',
+    source: { note: 'user supplied six phone screenshots of a product gallery: front on model full length and closer, side, pocket close-up, styled top half, back' },
+    referenceViews: ['front on model', 'front on model (closer)', 'side on model', 'pocket close-up', 'styled front (top half)', 'back on model'],
+    details: ['elastic gathered waistband with a tonal drawstring tied at the front', 'raspberry pink lightweight woven nylon with a fine crinkle and a soft sheen', 'wide straight legs, full length, pooling over the shoes', 'two white piping lines down each leg, one either side of the side seam, sweeping toward the front lower down', 'side seam pockets', 'small white embroidered swoosh on the wearer\'s left thigh', 'a small welt pocket on the back right'],
+    material: { construction: 'lightweight woven nylon', composition: 'not visible in the supplied screenshots', finish: 'raspberry pink with white piping' },
+    fit: { silhouette: 'wide straight track pant', rise: 'mid, elastic', length: 'full, pooling over the shoes', adjustment: 'fixed authored fit for review' },
+    styling: { silhouette: 'wide straight, full length, pooling over the shoes', palette: ['raspberry pink', 'white'], pattern: 'plain, with white piping curving down each leg and a small white swoosh', coverage: { waist: 'mid rise, elastic', legs: 'full length' }, material: 'lightweight woven nylon (from the photos), composition unknown', warmth: 1, warmthBasis: 'inferred: thin unlined woven shell', weather: 'mild days; light and breezy, not for the cold on its own; water resistance unknown' },
+    uncertainties: ['the piping paths are read from photos at different angles', 'the swoosh is a simple embroidered tick mark', 'folds and crinkle are procedural or from a small swatch'],
+    authoring: { texture: 'nike-track-fabric.js: flat-lit seamless swatch from the pocket close-up', runtimeGeneration: false, sourcePhotosBundled: 'fabric swatch only' },
+    build: {
+      template: 'jeans', legName: 'jeans-leg', fallback: [135, 42, 70],
+      // Light woven nylon: smooth, with a soft sheen and no twill.
+      surface: { roughness: .72, twill: 0, sheen: .2 },
+      crotch: { top: 1.18, y: .95 }, uvScale: [15, 7.5],
+      tiles: { small: [9, 4.5], legs: [1, 1], hips: [1, 1] },
+      hips: [[1.26, .257, .171], [1.16, .278, .191], [1.05, .295, .199], [.97, .306, .19], [.935, .25, .11]],
+      // Wide straight legs pooling over the shoes.
+      legs: [[1.03, .152, .182, .13], [.95, .16, .183, .153], [.75, .168, .186, .168], [.55, .174, .19, .175], [.35, .18, .193, .18], [.18, .185, .196, .185], [.06, .188, .199, .188]],
+      hem: 'rests-on-shoe', folds: { base: .006, low: .013, stack: .012 }, gradient: [.92, .12], whiskers: 0,
+      waistband: { y: 1.235, rx: .252, rz: .166, h: .055, gathers: { count: 60, depth: .025 } },
+      drawstring: { colour: '#c24a74', tip: '#c24a74', metal: false, knot: true, x: .012, length: .24 },
+      thread: '#b03c66',
+      centreFront: [[0, 1.207], [0, 1.1], [0, .975]],
+      // Side seam pockets, just in front of the side seam, edged by the front piping.
+      frontPocket: { type: 'slant', line: [[.228, 1.205], [.25, 1.13], [.262, 1.06]] },
+      // Two white piping lines on each leg, [height, angle from the side seam toward the front].
+      piping: { colour: '#f2eee8', radius: .0028, lines: [
+        [[1.205, .4], [1.05, .42], [.85, .55], [.65, .85], [.45, 1.1], [.25, 1.15], [.08, 1.1]],
+        [[1.205, -.3], [1.0, -.45], [.75, -.7], [.5, -.95], [.25, -1.08], [.08, -1.1]],
+      ] },
+      tick: { side: 1, x: .245, y: .9, size: .07, colour: '#f4f1ec' },
+      seamEnd: .1,
+      centreBack: [[0, 1.207], [0, 1.1], [0, .985]],
+      welt: [[-.19, 1.17], [-.15, 1.168], [-.11, 1.17]], weltColour: '#8e2a50',
     },
   },
   // Shoes.
