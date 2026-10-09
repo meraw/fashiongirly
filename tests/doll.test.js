@@ -107,3 +107,22 @@ test('cuffs and sleeve ends never cut through her mittens or thumbs',()=>{
   disposeObject(doll);
 });
 
+
+test('Nike track pants: white piping sweeping down each leg, a tick on the left thigh, a tied drawstring and no jeans hardware',()=>{
+  const id='nike-piped-track-pants-v1';assert.equal(cleanRecipe({bottomId:id}).bottomId,id);
+  const outfit=makeOutfit({bottomId:id});outfit.updateMatrixWorld(true);
+  const all=name=>{const found=[];outfit.traverse(o=>{if(o.name===name)found.push(o);});return found;},centre=o=>new T.Box3().setFromObject(o).getCenter(new T.Vector3());
+  for(const name of ['shank-button','belt-loop','fly-stitch','rivet','back-patch-pocket'])assert.equal(all(name).length,0,`no ${name}`);
+  for(const name of ['drawstring-knot','welt-pocket'])assert.equal(all(name).length,1,name);assert.equal(all('drawstring').length,2);
+  // The tick is on the front of the wearer's left thigh.
+  const [tick]=all('embroidered-tick');const t=centre(tick);assert.ok(t.x>0&&t.z>0,'tick on the front of the left thigh');
+  // Four piping lines, two per leg: one sweeps onto the front of the leg lower down, the other stays behind the side seam.
+  const pipes=all('piping');assert.equal(pipes.length,4);
+  for(const side of [-1,1]){const mine=pipes.filter(p=>Math.sign(centre(p).x)===side),cx=side*.18;
+    const angleAt=(p,y)=>{const pos=p.geometry.attributes.position;for(let i=0;i<pos.count;i++)if(Math.abs(pos.getY(i)-y)<.004)return Math.atan2(Math.abs(pos.getX(i)-cx),pos.getZ(i));return null;};
+    const front=mine.find(p=>centre(p).z>0),back=mine.find(p=>centre(p).z<0);assert.ok(front&&back,`two lines on leg ${side}`);
+    assert.ok(angleAt(front,.35)<angleAt(front,1.0),'front piping sweeps toward the front lower down');assert.ok(angleAt(back,.35)>Math.PI/2,'back piping behind the side seam');}
+  const legs=all('jeans-leg');let shoeTop=-Infinity;outfit.traverse(o=>{if(o.name==='loafer')shoeTop=Math.max(shoeTop,new T.Box3().setFromObject(o).max.y);});
+  assert.ok(Math.min(...legs.map(l=>new T.Box3().setFromObject(l).min.y))<shoeTop*.6,'full length, down over the shoes');
+  disposeObject(outfit);
+});
