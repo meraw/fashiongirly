@@ -65,7 +65,7 @@ Garment file `src/wardrobe/garments/levis-ribcage-straight-ankle-jeans-v1.js` (s
 
 ## Checks
 
-- `npm test`: all passing, including the new `tests/levis-ribcage-jeans.test.js`. It checks:
+- `npm test`: 128 passing after merging `main`, including the new `tests/levis-ribcage-jeans.test.js`. It checks:
   - the swatch module, a small WebP
   - the legs, the arcuate stitching and the patch
   - the ultra high rise
