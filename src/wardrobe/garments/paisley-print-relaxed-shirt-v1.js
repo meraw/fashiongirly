@@ -4,7 +4,7 @@
 export default {
     slot: 'top',
     id: 'paisley-print-relaxed-shirt-v1', name: 'Paisley print relaxed shirt', family: 'relaxed-printed-button-down-shirt', version: 1,
-    status: 'reference-study-awaiting-visual-review', brandAsProvided: 'not stated',
+    status: 'user-approved', brandAsProvided: 'not stated',
     source: { note: 'user supplied four product photos without a description: front on a model (half-length), full length, back on a model and a front close-up' },
     referenceViews: ['front on model', 'full length on model', 'back on model', 'front close-up'],
     details: ['relaxed long-sleeved button-down in a soft, fluid fabric with a slight sheen', 'warm white ground printed all over with large paisleys in concentric bands (ochre-yellow, peach, cornflower blue, lilac-pink, sage), outlined in near-black and ringed with coloured dots', 'feathery leaf sprays in blue and sage, and curling tendrils between the paisleys', 'point collar on a stand, worn with the top button open', 'white buttons down the front', 'fuller sleeves gathered into buttoned cuffs', 'back yoke with a centre pleat', 'curved shirttail hem'],

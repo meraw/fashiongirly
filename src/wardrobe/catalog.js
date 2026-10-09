@@ -297,7 +297,7 @@ const BUILT_IN = {
   [DESIGUAL_FRESCO_TEE_ID]: {
     slot: 'top',
     id: DESIGUAL_FRESCO_TEE_ID, name: 'Desigual fresco print V-neck tee', family: 'printed-raglan-tee', version: 1,
-    status: 'authored-awaiting-user-review', brandAsProvided: 'Desigual (label in the flat lay)',
+    status: 'user-approved', brandAsProvided: 'Desigual (label in the flat lay)',
     source: { note: 'user supplied four product photos without a written description: a front flat lay, the front on a model (full length and closer) and the back on a model' },
     referenceViews: ['front flat lay', 'front on model, full length', 'front on model, closer', 'back on model'],
     details: ['fitted short-sleeved tee in a fine stretch rib knit', 'printed all over with a pale baroque ceiling fresco: cherubs, clouds, a seated figure in white robes, dark rocks with a touch of teal, and an eagle with spread wings on the back', 'cream, beige, ochre and sage, with hints of teal, blue and pink', 'deep, wide V-neck with a narrow bound edge, its sides curving into the point', 'exposed cream overlocked seam down the centre front, from the point of the V to the hem', 'exposed overlocked seams from the neckline down to each underarm, front and back', 'lettuce-edge hem and sleeve hems in cream', 'elbow-length sleeves, slightly flared'],
@@ -400,7 +400,7 @@ const BUILT_IN = {
   [DESIGUAL_MOUNTAIN_SHIRT_ID]: {
     slot: 'top',
     id: DESIGUAL_MOUNTAIN_SHIRT_ID, name: 'Desigual mountain landscape mesh shirt', family: 'fitted-mesh-button-down-shirt', version: 1,
-    status: 'authored-awaiting-user-review', brandAsProvided: 'Desigual (label in the flat lay)',
+    status: 'user-approved', brandAsProvided: 'Desigual (label in the flat lay)',
     source: { note: 'user supplied five product photos without a written description: a front flat lay, the front on a model (two) and a close-up of the front, and the back on a model' },
     referenceViews: ['front flat lay', 'front on model', 'front on model, closer and turned', 'back on model', 'front close-up'],
     details: ['sheer stretch mesh printed all over with a painted mountain landscape at sunset: a peach, pink and lilac sky, ochre and rust mountains with lilac snow, dark brown slopes with cream flecks low down', 'on the back, one large snowy peak in the middle', 'point collar in the print', 'eight glossy black buttons from the collar stand to the hem; worn buttoned to the top, as in the flat lay', 'gathered either side of the placket below the bust', 'long fitted sleeves with buttoned cuffs, a black button on each', 'tonal stitching', 'slim and fitted, to the high hip'],
@@ -469,7 +469,7 @@ const BUILT_IN = {
   [ADIDAS_CROPPED_HOODIE_ID]: {
     slot: 'top',
     id: ADIDAS_CROPPED_HOODIE_ID, name: 'adidas Originals cropped hoodie', family: 'cropped-hoodie', version: 1,
-    status: 'authored-awaiting-user-review', brandAsProvided: 'adidas Originals (the logo and patch)',
+    status: 'user-approved', brandAsProvided: 'adidas Originals (the logo and patch)',
     source: { note: 'user supplied five product photos without a written description: a front flat lay, the front on a model, and close-ups of the hem and cuff, the chest logo and patch, and the hood' },
     referenceViews: ['front flat lay', 'front on model', 'hem and cuff close-up', 'chest logo and patch close-up', 'hood close-up'],
     details: ['black brushed French terry (fleece)', 'boxy and cropped at the waist, with dropped shoulders', 'ribbed hem band and long ribbed cuffs, each tipped in pale mint at the edge', 'hood lined in pale mint with fine dark pinstripes, its sides crossing at the front of the neck', 'thick black braided drawcords, knotted near their frayed ends', 'white embroidered trefoil and lowercase wordmark on her left chest', 'a white woven patch below it, with a green script name and small grey type'],
@@ -552,7 +552,7 @@ const BUILT_IN = {
   [LEVIS_PLAID_FLANNEL_ID]: {
     slot: 'top',
     id: LEVIS_PLAID_FLANNEL_ID, name: "Levi's oversized plaid flannel shirt", family: 'relaxed-button-down-shirt', version: 1,
-    status: 'authored-awaiting-user-review', brandAsProvided: "Levi's (the neck label and the tonal embroidery)",
+    status: 'user-approved', brandAsProvided: "Levi's (the neck label and the tonal embroidery)",
     source: { note: 'user supplied five product photos without a written description: the front on a model, the back on a model, a closer front, a front flat lay, and the model seated' },
     referenceViews: ['front on model', 'back on model', 'front, closer', 'front flat lay', 'seated on model'],
     details: ['soft brushed cotton flannel in a large plaid: a navy-black ground crossed by grey, light grey and white stripes, with a coral red line in each band', 'the stripes woven in a twill, hatching where they cross the ground', 'oversized and relaxed, with dropped shoulders, hip length with a curved shirt tail', 'point collar in the plaid', 'eight pale grey buttons from the collar stand to the hem; worn buttoned to the top', 'patch chest pocket on her left', 'back yoke', 'long sleeves with buttoned cuffs', 'small tonal embroidered mark on the lower left front'],
@@ -602,7 +602,7 @@ const BUILT_IN = {
   [DESIGUAL_RUGBY_ID]: {
     slot: 'top',
     id: DESIGUAL_RUGBY_ID, name: 'Desigual navy rugby shirt with tiger patches', family: 'rugby-shirt', version: 1,
-    status: 'authored-awaiting-user-review', brandAsProvided: 'Desigual (the neck label)',
+    status: 'user-approved', brandAsProvided: 'Desigual (the neck label)',
     source: { note: 'user supplied seven product photos and a note: it is sold as a dress, but they wear it tucked in, with the buttons closed. Views: the front on a model (closer and full length), a front flat lay, the front on two other models, the back on a model, and a styled look tucked into white jeans' },
     referenceViews: ['front on model', 'front on model, full length', 'front flat lay', 'front on model, closer', 'back on model', 'front on model, full length', 'styled, tucked into white jeans'],
     details: ['oversized long-sleeved rugby shirt in a smooth heavy navy jersey, sold as a mini dress', 'cream rugby collar and a short cream placket with white buttons, worn buttoned', 'three appliqué tigers stacked on her left chest, in blue, pink and yellow, with white embroidered stripes', 'dropped shoulders, roomy sleeves into long ribbed cuffs', 'side slits at the hem'],

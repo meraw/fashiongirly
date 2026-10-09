@@ -1,6 +1,6 @@
 # Wardrobe item: Desigual fresco print V-neck tee
 
-Authored 9 October 2026. Status: first version, awaiting the user's visual review. The second printed tee, and the first V-neck on the printed tee template.
+Authored 9 October 2026. Status: approved: the user merged it, and merging means approved (their rule). The second printed tee, and the first V-neck on the printed tee template.
 
 ## Source and reference reading
 
@@ -99,7 +99,7 @@ The back renders about 15 lighter than the back photo, which is shaded by the mo
 
   The Van Gogh tee's test passes unchanged. The shared tests also run on it: sleeves and hands, every waist-covering top over every bottom, the styling facts, and every jacket over every top. That last test caught the first placement of the neckline-to-underarm seams, which showed through the zipped Marikoo windbreaker; they now start lower.
 - `npm run build` succeeds.
-- Rendered in headless Chromium (software WebGL) from the front, a turn and the back, with the Mango black jeans, and over the skirt under the open leather jacket. Only the authoring chat has checked these renders; the user has not seen them yet. No device check.
+- Rendered in headless Chromium (software WebGL) from the front, a turn and the back, with the Mango black jeans, and over the skirt under the open leather jacket. The user saw them and merged it. No device check.
 
 ## Known differences
 

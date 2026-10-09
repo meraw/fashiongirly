@@ -5,8 +5,9 @@ import { V, random, weave, solid, put, oval, curve, shell, ringShell, ribbon, ri
 import { GARMENTS } from '../wardrobe/catalog.js';
 import { makeFurJacket } from './fur-jacket.js';
 import { makeTailoredCoat } from './tailored-coat.js';
+import { makeTeddyJacket } from './teddy-jacket.js';
 
-export function makeOuterwear(id, overSkirt=false, {under=null,open=false}={}){
+export function makeOuterwear(id, overSkirt=false, {under=null,open=false,insert=true}={}){
   const spec=GARMENTS[id]?.slot==='outerwear'?GARMENTS[id].build:null;
   // A top may carry two collars (userData.underJacket): one standing out to show under her chin, and a narrow one that
   // fits inside a jacket's collar. Under a jacket, the narrow one is worn.
@@ -14,6 +15,7 @@ export function makeOuterwear(id, overSkirt=false, {under=null,open=false}={}){
   if(spec?.template==='zip-windbreaker')return makeZipWindbreaker(id,spec,overSkirt,open&&!!GARMENTS[id].layering?.canOpen,under);
   if(spec?.template==='leather-zip-jacket')return makeLeatherJacket(id,spec,overSkirt,under,open&&!!GARMENTS[id].layering?.canOpen);
   if(spec?.template==='faux-fur-shirt-jacket')return makeFurJacket(id,spec,overSkirt,under);
+  if(spec?.template==='teddy-hood-jacket')return makeTeddyJacket(id,spec,overSkirt,under,open&&!!GARMENTS[id].layering?.canOpen,insert);
   if(spec?.template==='tailored-coat')return makeTailoredCoat(id,spec,overSkirt,under,open&&!!GARMENTS[id].layering?.canOpen);
   return null;
 }
