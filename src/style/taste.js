@@ -26,7 +26,7 @@ export const PRINCIPLES = [
       if (prints.length === 1) return [1.1, `the ${short(prints[0])} is the statement piece`];
       if (prints.length === 2) return [(d - .55) * 2.4, d > .55 ? 'two prints at once, on purpose' : null];
       if (prints.length > 2) return [-2, null];
-      return geo.length ? [.3, null] : [-.4 - .6 * d, null];
+      return geo.length ? [.3, null] : [-.7 * d, null];
     },
   },
   {
@@ -34,7 +34,7 @@ export const PRINCIPLES = [
     score(o, d, pieces) {
       let score = 0, reason = null;
       const leads = pieces.map(p => [p, lead(p)]).filter(([, c]) => c);
-      if (!leads.length) return [-.3 - .5 * d, null];
+      if (!leads.length) return [-.6 * d, null];
       // An echo: a colour in one piece picked up by another (the shoes, the bottoms or the jacket).
       echo: for (const a of pieces) for (const b of pieces) {
         if (a === b || a.slot === b.slot || !['shoes', 'bottom', 'outerwear'].includes(b.slot)) continue;
@@ -100,6 +100,29 @@ export function topShows(o) {
   if (!o.top || !o.outer || o.open) return true;
   const jacket = o.outer.shape.length, top = o.top.shape.length;
   return (jacket === 'waist' && top !== 'cropped') || (jacket === 'cropped' && top === 'long');
+}
+
+// How bold an outfit looks, from what shows: how much strong colour there is (weighted by how much of her each piece
+// covers), how much print or pattern, and opposite or many colours together. Black and denim score nothing; a
+// head-to-toe pink scores high, as does a print. Not a judgement of taste: daring decides how bold she goes today.
+const AREA = { top: .35, under: .08, bottom: .3, dress: .65, shoes: .1, outerwear: .4 };
+const PATTERN = { print: 1, geometric: .5, detail: .35 };
+export function boldness(outfit) {
+  const hidden = !!outfit.top && !topShows(outfit);
+  const pieces = [hidden ? null : outfit.top, hidden ? null : outfit.under, outfit.bottom, outfit.dress, outfit.shoes, outfit.outer].filter(Boolean);
+  let area = 0, colour = 0, pattern = 0; const hues = [];
+  for (const p of pieces) {
+    const a = AREA[p.slot] ?? .2, strong = p.main.filter(c => !c.quiet);
+    area += a;
+    colour += a * Math.max(0, ...strong.map(c => c.s * (1 - Math.abs(c.l - .5))));
+    pattern += a * (PATTERN[p.kind] || 0);
+    if (strong[0]) hues.push(strong[0].h);
+  }
+  let extra = 0;
+  for (let i = 0; i < hues.length; i++) for (let j = i + 1; j < hues.length; j++) if (hueGap(hues[i], hues[j]) >= 100) extra = .2;
+  const families = []; for (const h of hues) if (!families.some(f => hueGap(f, h) < 35)) families.push(h);
+  extra += .08 * Math.max(0, families.length - 1);
+  return area ? (1.4 * colour + .9 * pattern) / area + extra : 0;
 }
 
 export function scoreTaste(outfit, daring) {

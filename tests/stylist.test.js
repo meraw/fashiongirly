@@ -4,8 +4,8 @@ import { GARMENTS } from '../src/wardrobe/catalog.js';
 import { cleanRecipe } from '../src/doll/recipe.js';
 import { makeOutfit, disposeObject } from '../src/doll/model.js';
 import { stylingFacts, wardrobe, readColour } from '../src/style/facts.js';
-import { composeOutfit, needsFor } from '../src/style/stylist.js';
-import { learn, cleanLearned, learnedBonus } from '../src/style/taste.js';
+import { composeOutfit, needsFor, adjustOutfit, replacePiece, outfitOf } from '../src/style/stylist.js';
+import { learn, cleanLearned, learnedBonus, boldness } from '../src/style/taste.js';
 import { PRESETS, presetConditions } from '../src/weather/conditions.js';
 
 test('every garment gives the stylist readable facts on one warmth scale', () => {
@@ -90,9 +90,38 @@ test('kept pieces stay, set-aside pieces go, and daring changes her choices', ()
   const avoid = first.pieces.map(p => p.id);
   const other = composeOutfit(c, { seed: 4, avoid });
   for (const p of other.pieces) assert.ok(!avoid.includes(p.id), `${p.id} was set aside`);
-  const easy = new Set(), bold = new Set();
-  for (let seed = 1; seed <= 6; seed++) { easy.add(JSON.stringify(composeOutfit(c, { seed, daring: 0 }).recipe)); bold.add(JSON.stringify(composeOutfit(c, { seed, daring: 1 }).recipe)); }
-  assert.notDeepEqual([...easy].sort(), [...bold].sort(), 'daring changes what she picks');
+  // Daring is measured on the outfits: an easy pick is quieter than a bold one in the same weather, every time.
+  for (const id of ['mild', 'chilly', 'warm', 'cold', 'rainy']) for (let seed = 1; seed <= 3; seed++) {
+    const easy = composeOutfit(presetConditions(id), { seed, daring: 0 }), bold = composeOutfit(presetConditions(id), { seed, daring: 1 });
+    assert.ok(easy.boldness < bold.boldness, `${id} seed ${seed}: easy ${easy.boldness.toFixed(2)} below bold ${bold.boldness.toFixed(2)}`);
+  }
+});
+
+test('boldness reads colour and print: black is quiet, all pink and prints are bold', () => {
+  const look = ids => ({ top: stylingFacts(ids[0]), bottom: stylingFacts(ids[1]), shoes: stylingFacts(ids[2]) });
+  const black = boldness(look(['pull-bear-grey-chenille-high-neck-v1', 'mango-washed-black-v1', 'sam-edelman-front-zip-lug-boot-v1']));
+  const pink = boldness(look(['pink-ditsy-floral-yoke-shirt-v1', 'nike-piped-track-pants-v1', 'adidas-superstar-pink-suede-v1']));
+  assert.ok(black < .1, `grey and black are quiet (${black})`);
+  assert.ok(pink > black + .5, `head-to-toe pink is bold (${pink})`);
+});
+
+test('bolder, easier and set-aside change as little as possible, and keep kept pieces', () => {
+  for (const id of ['mild', 'chilly', 'rainy']) for (const seed of [1, 2]) {
+    const c = presetConditions(id), r = composeOutfit(c, { seed }).recipe, now = boldness(outfitOf(r));
+    for (const dir of [1, -1]) {
+      const a = adjustOutfit(c, r, dir, { seed });
+      if (!a) continue;
+      assert.ok((a.boldness - now) * dir > 0, `${id} ${seed}: ${dir > 0 ? 'bolder' : 'easier'}`);
+      assert.ok(a.changed.length >= 1 && a.changed.length <= 2, `${id} ${seed}: one or two pieces change`);
+      assert.equal(a.recipe.hairId, r.hairId, 'her hair stays');
+      assert.deepEqual(cleanRecipe(a.recipe), a.recipe);
+    }
+    const kept = adjustOutfit(c, r, 1, { seed, keep: { shoes: r.shoesId, bottom: r.bottomId } });
+    if (kept) { assert.equal(kept.recipe.shoesId, r.shoesId); if (r.dressId === 'none') assert.equal(kept.recipe.bottomId, r.bottomId); }
+    const swap = replacePiece(c, r, 'shoes', { seed, avoid: [r.shoesId] });
+    assert.notEqual(swap.recipe.shoesId, r.shoesId);
+    assert.deepEqual(swap.changed.map(x => x.slot), ['shoes'], 'only the shoes change');
+  }
 });
 
 test('saved looks teach her; pieces set aside count against them', () => {

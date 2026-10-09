@@ -13,7 +13,7 @@ export function dayKey(now = Date.now(), startsAt = DAY_STARTS_AT) {
 export const PRESETS = [
   { id: 'hot', label: 'Hot', feels: 28 }, { id: 'warm', label: 'Warm', feels: 22 }, { id: 'mild', label: 'Mild', feels: 16 },
   { id: 'chilly', label: 'Chilly', feels: 10 }, { id: 'cold', label: 'Cold', feels: 3 }, { id: 'freezing', label: 'Freezing', feels: -3 },
-  { id: 'rainy', label: 'Rainy', feels: 12, rainChance: 85, rainMm: 5, code: 63 }, { id: 'windy', label: 'Windy', feels: 13, windKmh: 45 },
+  { id: 'rainy', label: 'Rainy', feels: 12, rainChance: 85, rainMm: 5, code: 63 }, { id: 'pouring', label: 'Pouring', feels: 11, rainChance: 95, rainMm: 14, code: 65 }, { id: 'windy', label: 'Windy', feels: 13, windKmh: 45 },
   { id: 'snowy', label: 'Snowy', feels: -2, rainChance: 80, snow: true, code: 73 },
 ];
 export function presetConditions(id, day = dayKey()) {

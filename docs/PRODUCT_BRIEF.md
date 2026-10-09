@@ -14,6 +14,9 @@ The user has a separate project, [meraw/outfits](https://github.com/meraw/outfit
 
 ## Character and visual direction
 
+The app around her (the user's request, 9 October 2026): colours taken from the Desigual mountain landscape shirt, with a purple and orange contrast; a simple animated sky behind her that follows the weather (sun, rain, heavy rain and so on), in the spirit of the Google weather frog but simpler; and separate pages (Today, Dress her, Wardrobe) rather than everything on one. The user found the first single-page layout's manual controls a mess.
+
+
 The user rejected a human-like vector character as resembling a textbook illustration. Of four concept directions, they chose D: a tiny tactile doll, cute and intentionally unreal, with an oversized soft head, embroidered-looking eyes with star highlights, rosy cheeks, a fuzzy dark bob, a flower clip, tiny hands, and miniature expressive clothes. A subsequent set of outfit concept images received “Perfect!”
 
 The procedural 3D implementation is an approximation of that direction. The user called the original body “wonky and offputting” but liked the face. A revision shortened the body, brought the arms closer, replaced separate fingers with mittens, and restrained the ballooning sleeves and legs. The user said that version was better. Treat the current face and compact proportions as the working base, not proof that visual development is finished. Later the user found her shoulders far too square in the fitted tops and asked for lightly rounded shoulders: each arm now starts a little below the top of the body, and fitted sleeves curve over the shoulder instead of ending in a corner.

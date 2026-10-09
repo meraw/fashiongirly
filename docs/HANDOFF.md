@@ -18,6 +18,7 @@ Since 9 October 2026 every garment, in every slot, has a `styling` record, check
 
 - Static JavaScript app with Three.js 0.180.0; no runtime AI calls. Its one network request is the day's forecast from Open-Meteo (free, no key), allowed by the user on 9 October 2026.
 - Daily self-dressing, first version (9 October 2026): the Today panel at the top of the studio (`src/today/today.js`) checks the weather on the first open after 5:00 and dresses her with the stylist (`src/style/`). See [DAILY_STYLING_PLAN.md](DAILY_STYLING_PLAN.md) for how it works, what she judges, and what is left.
+- App design (the user's request, 9 October 2026, after trying the first version): three pages sharing the doll, switched by the address's hash (`src/doll/pages.js`): Today, Dress her (one picker per slot; controls that do not apply are put away; the built-in study pieces' colour and shape controls sit in a closed section) and Wardrobe (every garment by kind, `src/doll/wardrobe-page.js`; the study looks are in a closed section there). On a phone the tabs sit at the bottom. Colours come from the Desigual mountain landscape shirt (peach and apricot sky, ochre, rust, dark brown, lilac), pushed to the purple and orange contrast the user asked for; tokens are at the top of `studio.css`. Behind the doll, a simple animated sky follows the weather, like the Google weather frog (`src/today/sky.js`): sun, a few clouds, overcast, rain, heavy rain, snow, fog, and gusts in wind; it holds still with reduced motion.
 - Procedural doll and a separate replaceable wardrobe group. The cute face and revised compact body are the current visual baseline. The shoulders were softened on user request: arms start slightly lower (`makeDoll`), and `roundSleeveCap()` curves the outer top of every reference-top sleeve.
 - Knit sweater, striped shirt, barrel jeans, and optional pleated skirt over jeans with a ribbon.
 - Outerwear slot with two zip windbreakers and a leather jacket, worn over any top, bottoms, skirt or dress (`src/doll/outerwear.js`).
@@ -63,7 +64,10 @@ Since 9 October 2026 every garment, in every slot, has a `styling` record, check
 | `src/style/taste.js` | Her taste written down: principles with weights, the daring default, and what she learns from saved and set-aside pieces |
 | `src/style/stylist.js` | `composeOutfit(conditions, options)`: weather needs, candidate outfits, scoring, hair; returns a recipe `cleanRecipe()` accepts unchanged |
 | `src/weather/` | Conditions, presets, the 5:00 day boundary, and the Open-Meteo forecast and place search |
-| `src/today/today.js` | The Today panel: daily look, keep, another idea, bolder/easier, set aside, undo, place and manual weather; state in local storage |
+| `src/today/today.js` | The Today panel: daily look, keep, another idea, bolder/easier, set aside, first pick, undo, place and manual weather; state in local storage |
+| `src/today/sky.js` | `skyKind(conditions)` and `paintSky(el, conditions)`: the animated sky behind the doll (CSS in `studio.css`) |
+| `src/doll/pages.js`, `src/doll/wardrobe-page.js` | The Today / Dress her / Wardrobe pages, and the Wardrobe page's garment grid |
+| `tests/pages.test.js` | Pages, the Wardrobe page, controls put away on Dress her, and the sky for each kind of weather |
 | `tests/stylist.test.js`, `tests/weather.test.js`, `tests/today.test.js` | Facts for every garment, weather rules for every preset, the forecast fixture, and the panel in jsdom |
 | `scripts/build.mjs` | Static build including local Three.js dependencies |
 | `.github/workflows/pages.yml` | Manually dispatched Pages deployment |

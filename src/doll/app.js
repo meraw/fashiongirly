@@ -3,6 +3,8 @@ import { hairName } from '../hair/catalog.js';
 import { DEFAULT, SWATCHES, OUTFITS, cleanRecipe, editRecipe } from './recipe.js';
 import { GARMENTS } from '../wardrobe/catalog.js';
 import { mountToday } from '../today/today.js';
+import { mountPages } from './pages.js';
+import { mountWardrobe } from './wardrobe-page.js';
 const KEY='fashiongirly.plush-draft.v1', BOOK='fashiongirly.plush-looks.v1';
 export async function startStudio(doc=document, makeView, options={}) {
   const $=id=>doc.getElementById(id);let storage;
@@ -12,7 +14,7 @@ export async function startStudio(doc=document, makeView, options={}) {
   // selector lacks is added at the end (a top that can be worn under another also joins the under-top selector).
   const SELECTS={top:'top-select',bottom:'bottom-select',shoes:'shoes-select',outerwear:'outerwear-select',dress:'dress-select'};
   for(const g of Object.values(GARMENTS)){const select=$(SELECTS[g.slot]);if(!select||[...select.options].some(o=>o.value===g.id))continue;
-    for(const s of [select,...(g.slot==='top'&&g.layering?.underTop?[$('under-select')]:[])]){const o=doc.createElement('option');o.value=g.id;o.textContent=g.label??`${g.name} · reference study`;s.append(o);}}
+    for(const s of [select,...(g.slot==='top'&&g.layering?.underTop?[$('under-select')]:[])]){const o=doc.createElement('option');o.value=g.id;o.textContent=g.label??g.name;s.append(o);}}
   try {recipe=cleanRecipe(JSON.parse(storage?.getItem(KEY)||'null'));} catch {}
   try {const data=JSON.parse(storage?.getItem(BOOK)||'[]');if(Array.isArray(data))looks=data.slice(0,24).map(cleanRecipe);} catch {}
   function message(text){$('message').textContent=text;}
@@ -22,6 +24,8 @@ export async function startStudio(doc=document, makeView, options={}) {
   function swatches(id,choices,key){$(id).replaceChildren(...choices.map(([name,color])=>{const b=doc.createElement('button');b.type='button';b.style.background=color;b.setAttribute('aria-label',name);b.dataset.color=color;b.onclick=()=>{recipe[key]=color;sync();apply();};return b;}));}
   swatches('sweater-colours',SWATCHES,'sweater');swatches('denim-colours',[['Indigo','#283c59'],['Washed blue','#71899b'],['Charcoal','#39363b'],['Ecru','#d9cbb2']],'trousers');
   const hairControls=mountHairControls(doc,id=>{recipe.hairId=id;sync();apply();message(`${hairName(id)} — saved with this outfit.`);});
+  const pages=mountPages(doc),wardrobe=mountWardrobe(doc,{wear:(patch,g)=>{recipe=cleanRecipe({...recipe,...patch});sync();apply();message(`Wearing the ${g.name}.`);}});
+  let today=null;
   $('outfit-ideas').replaceChildren(...OUTFITS.map(look=>{
     const button=doc.createElement('button');button.type='button';button.textContent=look.name;
     button.onclick=()=>{recipe=cleanRecipe({...look.recipe,hairId:recipe.hairId});sync();apply();message(look.note);};return button;
@@ -40,7 +44,13 @@ export async function startStudio(doc=document, makeView, options={}) {
     const detachable=GARMENTS[recipe.outerwearId]?.layering?.detachable;$('outerwear-insert').checked=recipe.outerwearInsert;$('outerwear-insert').disabled=!detachable;$('outerwear-insert-label').textContent=detachable?.label??'Wear its detachable part';
     for(const key of ['knit','shirt'])$(key).disabled=dress||recipe.topId!=='classic';$('skirt').disabled=dress;$('under-select').disabled||=dress;
     const selected=OUTFITS.find(look=>Object.keys(DEFAULT).filter(key=>key!=='hairId').every(key=>look.recipe[key]===recipe[key]));
-    $('outfit-title').textContent=selected?.name||'Her own little experiment.';
+    const pick=today?.getState()?.result?.recipe,same=pick&&JSON.stringify(cleanRecipe(pick))===JSON.stringify(cleanRecipe(recipe));
+    $('outfit-title').textContent=selected?.name||(same?'Her pick for today.':'Her own little experiment.');
+    // Controls that do not apply to what she is wearing are put away rather than greyed out.
+    $('under-field').hidden=$('under-select').disabled;
+    $('outerwear-options').hidden=recipe.outerwearId==='none';$('outerwear-open-field').hidden=$('outerwear-open').disabled;$('outerwear-insert-field').hidden=$('outerwear-insert').disabled;
+    $('classic-controls').hidden=dress||(recipe.topId!=='classic'&&recipe.bottomId!=='classic');
+    wardrobe.sync(recipe);
     for(const button of $('outfit-ideas').children)button.setAttribute('aria-pressed',String(button.textContent===selected?.name));
     for(const key of ['sleeve','hem','barrel']){$(key).value=Math.round(recipe[key]*100);const value=recipe[key];$(`${key}-value`).textContent=key==='hem'?(value<.34?'Cropped':value>.66?'Longer':'At the waist'):value<.34?'A little':value>.66?'A lot':'In between';$(key).setAttribute('aria-valuetext',`${$(`${key}-value`).textContent}, ${Math.round(value*100)} percent`);}
     for(const key of ['knit','shirt','skirt'])$(key).checked=recipe[key];
@@ -74,13 +84,13 @@ export async function startStudio(doc=document, makeView, options={}) {
   }
   $('lookbook-open').onclick=()=>{book();$('lookbook').showModal();};$('lookbook-close').onclick=()=>$('lookbook').close();
   // Each morning she checks the weather and dresses herself (src/today/today.js); her pick is worn like any other recipe.
-  const win=doc.defaultView,today=mountToday(doc,{storage,getRecipe:()=>cleanRecipe(recipe),wear:next=>{recipe=cleanRecipe(next);sync();apply();message('');},
+  const win=doc.defaultView;today=mountToday(doc,{storage,getRecipe:()=>cleanRecipe(recipe),wear:next=>{recipe=cleanRecipe(next);sync();apply();message('');},
     fetch:'fetch' in options?options.fetch:win?.fetch?.bind(win),geolocation:'geolocation' in options?options.geolocation:win?.navigator?.geolocation,now:options.now});
   const showError=text=>{$('loading')?.remove();$('view-error').hidden=false;$('view-error').textContent=text;};
   $('stage').addEventListener('view-error',e=>showError(e.detail));sync();
   // If she dressed for the day while the view was loading, show that outfit once the view is ready.
   try {const factory=makeView || (await import('./view.js')).createDollView,first=recipe;view=await factory($('stage'),recipe);if(recipe!==first)view.update(recipe);view.turn(-25);$('loading')?.remove();}
   catch(error){showError(error.message||'The 3D view could not load. Please reload and try again.');}
-  return {getRecipe:()=>cleanRecipe(recipe),today,dispose(){clearTimeout(timer);persist();hairControls.dispose();today.dispose();view?.dispose();}};
+  return {getRecipe:()=>cleanRecipe(recipe),today,dispose(){clearTimeout(timer);persist();hairControls.dispose();today.dispose();pages.dispose();wardrobe.dispose();view?.dispose();}};
 }
 

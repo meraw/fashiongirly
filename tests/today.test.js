@@ -60,6 +60,9 @@ test('reopening the same day keeps her look; after 5:00 the next day she dresses
   next.close();
 });
 
+// The slots in which two recipes differ (hair aside, which these buttons leave alone).
+const differ = (a, b) => ['topId', 'underTopId', 'bottomId', 'dressId', 'shoesId', 'outerwearId'].filter(k => a[k] !== b[k]);
+
 test('keep a piece, ask for another idea, set one aside, then undo', async () => {
   const p = await open(), d = p.d, before = p.app.getRecipe();
   const keep = [...d.querySelectorAll('#today-pieces li')].find(li => li.textContent.startsWith('Shoes')).querySelector('.today-keep');
@@ -73,15 +76,32 @@ test('keep a piece, ask for another idea, set one aside, then undo', async () =>
   top.querySelector('.today-aside').click();
   const third = p.app.getRecipe();
   assert.notEqual(lead(third), lead(other), 'a piece set aside is not worn today');
+  assert.deepEqual(differ(third, other), [third.dressId !== 'none' ? 'dressId' : 'topId'], 'and only that piece changes');
   assert.ok(p.read(TODAY_KEY).avoid.includes(lead(other)));
   assert.ok(p.read(LEARNED_KEY).pieces[lead(other)] < 0, 'and counts a little against it');
   click(d, 'today-undo');
   assert.deepEqual(p.app.getRecipe(), other, 'undo brings back the look before');
+  click(d, 'today-first');
+  assert.deepEqual(p.app.getRecipe(), before, 'her first pick of the day comes back');
+  assert.equal(d.getElementById('outfit-title').textContent, 'Her pick for today.');
+  p.close();
+});
+
+test('bolder and easier change her look a piece at a time, in the direction asked', async () => {
+  const { boldness } = await import('../src/style/taste.js'), { outfitOf } = await import('../src/style/stylist.js');
+  const p = await open(), d = p.d, b = r => boldness(outfitOf(r));
+  const start = p.app.getRecipe();
   click(d, 'today-bolder');
+  const bolder = p.app.getRecipe();
+  assert.ok(b(bolder) > b(start), 'bolder is bolder');
+  assert.ok(differ(bolder, start).length >= 1 && differ(bolder, start).length <= 2, 'one or two pieces change, not the whole look');
+  assert.equal(bolder.hairId, start.hairId);
+  assert.match(d.getElementById('today-status').textContent, /^Bolder: the .* instead of the /);
   assert.ok(p.read(TODAY_KEY).daring > .5);
-  assert.equal(d.getElementById('today-daring').textContent, 'playful');
-  click(d, 'today-bolder');
-  assert.equal(d.getElementById('today-daring').textContent, 'daring');
+  click(d, 'today-easier'); click(d, 'today-easier');
+  const easier = p.app.getRecipe();
+  assert.ok(b(easier) < b(bolder), 'easier is quieter');
+  assert.ok(differ(easier, bolder).length <= 4);
   p.close();
 });
 
