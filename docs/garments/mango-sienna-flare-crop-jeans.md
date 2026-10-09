@@ -75,7 +75,7 @@ Fit found by the shared tests: with the hems centred straight under the knees, t
   - that the hem sits above her ankle
   - that the stand-in colour (without the swatch) is white
 - The shared tests also run on it: every waist-covering top over every bottom, every shoe under every bottom, outerwear over every bottom, the garment-file layout.
-- `npm test`: 129 passing after merging `main` (which added the ONLY Onlerin jacket, the hashed garment index, the Levi's anorak, the Mango Claudia slim crop jeans, the Desigual garden mesh tee, the Bomboogie teddy jackets and the Desigual painted floral jumper); `npm run build` succeeds.
+- `npm test`: all passing after merging `main` (130 tests at the last count, after `main` added among others the ONLY Onlerin jacket, the hashed garment index, the Mango Claudia and Levi's Ribcage jeans); `npm run build` succeeds.
 - Rendered in headless Chromium from the front, a turn, the side and the back, with the black hoodie and with the crochet top, and over the Buffalo boots.
 
 ## Known differences
