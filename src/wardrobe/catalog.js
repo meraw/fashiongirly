@@ -14,6 +14,7 @@ export const SAM_ZIP_BOOT_ID = 'sam-edelman-front-zip-lug-boot-v1';
 export const DM_BLAIRE_CHAIN_ID = 'dr-martens-blaire-quad-chain-v1';
 export const ADIDAS_SUPERSTAR_PINK_ID = 'adidas-superstar-pink-suede-v1';
 export const CONVERSE_LIFT_HI_ID = 'converse-modern-lift-hi-egret-v1';
+export const NB_550_ID = 'new-balance-550-cream-v1';
 export const BRONZE_TOP_ID = 'desigual-bronze-mesh-v1';
 export const LILAC_TOP_ID = 'lilac-portrait-mockneck-v1';
 export const CROCHET_TOP_ID = 'desigual-crochet-flowers-v1';
@@ -978,6 +979,48 @@ export const GARMENTS = Object.freeze({
       // box's height, as on every Chuck Taylor.
       panels: [{ name: 'toe-cap', rubber: true, z: [.26, .44], top: [[.26, .107], [.3, .13], [.34, .152], [.38, .166], [.44, .174]] }],
       coversSocks: true, anklePatch: { at: [-.042, .236], r: .034 }, vents: [[.096, .125], [.042, .125]],
+    },
+  },
+  [NB_550_ID]: {
+    slot: 'shoes',
+    id: NB_550_ID, name: 'New Balance 550 cream leather sneakers', family: 'retro-basketball-sneaker', version: 1,
+    status: 'reference-study-awaiting-visual-review', brandAsProvided: 'New Balance',
+    source: { note: 'user supplied six product images: front three-quarter, back three-quarter pair, outer side, sole, inner side, toe three-quarter; the midsole reads new balance and the vamp is embossed 550' },
+    referenceViews: ['front three-quarter', 'back three-quarter pair', 'outer side', 'sole', 'inner side', 'toe three-quarter'],
+    details: ['low retro basketball sneaker, all cream and off-white', 'smooth cream leather upper with a slightly darker heel counter and a pale leather toe cap', 'perforated leather quarter below the lacing', 'beige mesh window under the collar', 'big slanted N on each side in pale pinkish suede, edged in white leather', 'white leather piping sweeping from the heel down and forward, then up to the lacing', 'white leather edges along the eyestays, punched eyelets, white flat laces in a bow', 'very puffy padded collar with a peach-yellow lining, and a tall puffy nylon tongue with a label', 'chunky cupsole: an aged cream midsole with horizontal grooves over a grey rubber outsole with block lugs, rising higher round the heel and toe', '550 embossed on the vamp and new balance on the midsole'],
+    material: { construction: 'leather, suede and mesh upper on a rubber cupsole', composition: 'not visible in the supplied images', finish: 'smooth leather, matte suede and mesh, matte rubber' },
+    fit: { silhouette: 'low chunky retro basketball sneaker', height: 'low, below the ankle bone, so her socks show', platform: 'sole within her normal foot height; she is not raised', adjustment: 'fixed authored fit for review' },
+    styling: { coverage: 'closed low sneaker; her ankle socks show', warmth: 'all seasons except deep cold; leather sheds light rain, the perforations and mesh breathe', palette: 'cream and off-white with a grey outsole; goes with almost anything', mood: 'retro sporty, clean, everyday' },
+    uncertainties: ['the 550 and new balance lettering, the heel NB and the tongue label carry no lettering', 'the suede toe overlay is not modelled; the toe top is smooth leather', 'the midsole’s stepped heel is simplified to straight grooves', 'the composition is not stated in the images'],
+    authoring: { texture: 'none; leather, suede, perforations, mesh and rubber are procedural materials and geometry in src/doll/model.js', runtimeGeneration: false, sourcePhotosBundled: false },
+    // Construction for makeLugBoot() (template 'sneaker') in src/doll/model.js, in outfit units. Proportions from the
+    // outer side photo: the shoe is about 2.2 times as long as the heel collar is high, and the sole is a fifth of its length. Heights are
+    // outfit units, which stand at .76 of their length on her; the collar and tongue stay below where the classic trousers
+    // end (.29), so the shoe is a little shorter than the photo's proportions to keep it from looking long and low.
+    build: {
+      template: 'sneaker', cx: .168, leather: true, punched: true,
+      colours: { upper: '#b6ad9d', sole: '#bbaf99', outsole: '#959698', thread: '#cbc2b3', piping: '#f2f0eb', trim: '#f4f2ee', welt: '#bdb3a2', lace: '#f3f1ed', laceLine: '#f3f1ed', collar: '#bdb5a7', eyelet: '#b3ab9e', lining: '#c8ab7d', webbing: '#e2ddd4', sock: '#ecdcac', tongue: '#b8afa0' },
+      // Cupsole: a grey outsole, higher round the heel and toe, with block lugs, under a cream midsole with two grooves.
+      sole: { top: .105, heelTop: .105, heelFrom: -.043, rand: .085, randFrom: .126, lugTop: .016, groove: null, bulge: 0, flare: .012, toeLift: .014, lugs: 64, lugDepth: .005,
+        cup: { outsole: .016, heel: .048, heelFrom: -.016, toe: .04, toeFrom: .18, slot: .036, gap: .17, grooves: [.06, .08] } },
+      upper: [[.08, .349, -.156, .128], [.099, .355, -.158, .131], [.123, .349, -.16, .132], [.147, .322, -.16, .132], [.171, .277, -.158, .13], [.195, .225, -.156, .125], [.213, .185, -.153, .116], [.23, .152, -.148, .104], [.246, .127, -.144, .095], [.262, .11, -.138, .09], [.28, .1, -.132, .088]],
+      collar: { front: .268, side: .222, back: .27 },
+      nFront: 2.8, nBack: 2.1, heelNarrow: .1, toeNarrow: .2, restCap: .24, collarRoll: .006, collarPad: { radius: .014, from: .75 }, drapeClear: .066, collarRest: .035,
+      eyelets: [.183, .198, .213, .228, .243, .257], laceHalfWidth: .036, eyeletSize: [.006, .0022],
+      puffyLace: { width: .028, thick: .01, loop: .065, tailTo: .18, lift: .6, knot: [.015, .012, .01] },
+      tongueAbove: .002, tonguePad: [.085, .022], tongueLabel: .265,
+      sock: { cx: .16, z: .0, rows: [[.1, .074, .08], [.2, .075, .08], [.3, .074, .078], [.37, .074, .077], [.38, .079, .082], [.405, .079, .082], [.41, .074, .077]] },
+      // Overlays, as [z, y] edges on both sides: the heel counter, a mesh window under the collar, the perforated quarter
+      // below the lacing and the toe cap.
+      panels: [
+        { name: 'heel-counter', leather: true, colour: '#afa595', z: [-.196, .04], top: [[-.196, .219], [-.165, .219], [-.113, .195], [-.07, .165], [-.044, .144], [.002, .12], [.04, .111]] },
+        { name: 'side-window', bump: 'mesh', colour: '#a99e8c', z: [-.093, .016], bottom: [[-.093, .166], [.016, .178]], top: [[-.093, .198], [.016, .207]] },
+        { name: 'perforated-quarter', leather: true, bump: 'perforated', colour: '#b2a899', stitch: false, z: [.011, .227], top: [[.011, .116], [.04, .109], [.079, .116], [.119, .145], [.155, .181], [.177, .201], [.205, .183], [.227, .147]] },
+        { name: 'toe-cap', leather: true, colour: '#aca394', off: .0045, z: [.182, .434], top: [[.182, .126], [.254, .135], [.344, .14], [.434, .14]] },
+      ],
+      // White leather piping: the sweep from the heel down and forward, then up to the lacing.
+      trims: [[[-.165, .219], [-.113, .195], [-.07, .165], [-.044, .144], [.002, .12], [.04, .111], [.079, .118], [.119, .147], [.155, .183], [.177, .207]]],
+      logo: { z: .067, y: .17, w: .07, h: .092, slant: .24, colour: '#a29487' },
     },
   },
   // Outerwear.

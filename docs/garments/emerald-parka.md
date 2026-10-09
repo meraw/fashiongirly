@@ -81,7 +81,7 @@ Each setting defaults to the old behaviour. Zipped, the Marikoo and Red Bull win
 
 ## Checks
 
-- `npm test`: 76 passing. The new `tests/emerald-parka.test.js` checks:
+- `npm test`: 79 passing. The new `tests/emerald-parka.test.js` checks:
   - the parts and those left out: no coil zip, hood label, sleeve badge or back label
   - the sherpa pile on the collar lining and hood edge, and the cream cord tips
   - knee length, below the skirt's and the dress's hems

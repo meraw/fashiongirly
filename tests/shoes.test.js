@@ -6,7 +6,7 @@ import { readFileSync } from 'node:fs';
 import { makeDoll, makeOutfit, disposeObject, fitDoll } from '../src/doll/model.js';
 import { OUTFITS, cleanRecipe } from '../src/doll/recipe.js';
 import { startStudio } from '../src/doll/app.js';
-import { GARMENTS, BUFFALO_ASPHA_ID, DM_COW_SLIDE_ID, UGG_LOWMEL_ID, DM_BLAIRE_CHAIN_ID, CONVERSE_LIFT_HI_ID } from '../src/wardrobe/catalog.js';
+import { GARMENTS, BUFFALO_ASPHA_ID, DM_COW_SLIDE_ID, UGG_LOWMEL_ID, DM_BLAIRE_CHAIN_ID, CONVERSE_LIFT_HI_ID, NB_550_ID } from '../src/wardrobe/catalog.js';
 import { levelCaster } from '../src/doll/level-caster.js';
 const shoes=Object.keys(GARMENTS).filter(id=>GARMENTS[id].slot==='shoes');
 const named=(root,name)=>{const found=[];root.traverse(o=>{if(o.name===name)found.push(o);});return found;};
@@ -163,6 +163,34 @@ test('Blaire chain sandals: Quad platform raises her, patent straps with chains 
   const ankle=around(named(g,'ankle-strap'));let ringed=0;
   for(const f of named(g,'bare-foot'))eachVertex(f,p=>{const y=p.y/.76;if(Math.abs(y-spec.ankle.y)>.012)return;const c=cast(ankle,Math.sign(p.x)*spec.cx*1.06,p);if(!c||!c.hit)return;ringed++;assert.ok(c.hit.distance>c.r,'ankle pokes through the ankle strap');});
   assert.ok(ringed>10,`ringed ${ringed}`);void straps;
+  [outfit,doll].forEach(disposeObject);
+});
+
+test('New Balance 550: leather sneaker on a two-tone cupsole, a big N each side, her own ankle socks, not raised',()=>{
+  const spec=GARMENTS[NB_550_ID].build,outfit=makeOutfit({shoesId:NB_550_ID}),doll=makeDoll();fitDoll(doll,outfit);
+  doll.updateMatrixWorld(true);outfit.updateMatrixWorld(true);const g=outfit.getObjectByName('shoes');
+  for(const name of ['outsole','lug-sole','boot-upper','collar-pad','tongue','tongue-pad','tongue-label','eyelet','lace','lace-bow','heel-counter','side-window','perforated-quarter','toe-cap','eyestay','trim-piping','logo','logo-edge','ankle-sock'])assert.ok(g.getObjectByName(name),name);
+  for(const name of ['quilt-stitch','heel-tab','webbing-loop','side-piping','pull-loop'])assert.equal(g.getObjectByName(name),undefined,`no ${name}`);
+  assert.equal(named(g,'eyelet').length,2*2*spec.eyelets.length);assert.equal(named(g,'logo').length,4,'an N on both sides of each shoe');
+  // Not raised, sole on the floor, her round socks replaced by the shoe's ankle socks.
+  assert.equal(outfit.userData.lift,0);assert.equal(doll.position.y,0);assert.ok(Math.abs(new T.Box3().setFromObject(g).min.y)<.002);
+  doll.traverse(o=>{if(o.name==='sock')assert.equal(o.visible,false);});
+  // The cupsole: a grey outsole under a cream midsole, rising higher at the heel than under the arch.
+  const out=named(g,'outsole')[0],mid=named(g,'lug-sole')[0];assert.notEqual(out.material.color.getHexString(),mid.material.color.getHexString());
+  assert.ok(new T.Box3().setFromObject(out).max.y<new T.Box3().setFromObject(mid).max.y);
+  let heel=0,arch=0;const pos=out.geometry.attributes.position,q=new T.Vector3();
+  for(let i=0;i<pos.count;i++){q.fromBufferAttribute(pos,i).applyMatrix4(out.matrixWorld);if(q.z<-.15)heel=Math.max(heel,q.y);else if(Math.abs(q.z-.08)<.02)arch=Math.max(arch,q.y);}
+  assert.ok(heel>arch+.02*.76,'outsole rises round the heel');
+  // The N lies on the outside of the upper, below its collar.
+  const uppers=around(named(g,'boot-upper'));let onTop=0;
+  for(const logo of named(g,'logo'))eachVertex(logo,p=>{const c=cast(uppers,Math.sign(p.x)*spec.cx,p);if(!c||!c.hit)return;onTop++;assert.ok(c.hit.distance<c.r,'the N sinks into the upper');});
+  assert.ok(onTop>100,`checked ${onTop}`);
+  // The ankle socks stay inside the shoe below its collar, and her legs inside the ankle socks.
+  let inside=0;for(const sk of named(g,'ankle-sock'))eachVertex(sk,p=>{const y=p.y/.76;if(y<spec.sole.top+.03||y>spec.collar.side-.02)return;const c=cast(uppers,Math.sign(p.x)*spec.cx*1.06,p);if(!c)return;assert.ok(c.hit&&c.hit.distance>c.r,'sock shows through the shoe');inside++;});
+  assert.ok(inside>20);
+  const socks=around(named(g,'ankle-sock')),top=spec.sock.rows.at(-1)[0];let checked=0;
+  doll.traverse(o=>{if(o.name!=='leg')return;eachVertex(o,p=>{const y=p.y/.76;if(y>top-.008)return;const c=cast(socks,Math.sign(p.x)*spec.sock.cx*1.06,p.clone().setZ(p.z-spec.sock.z));if(!c)return;assert.ok(c.hit&&c.hit.distance>c.r,'leg shows through the ankle sock');checked++;});});
+  assert.ok(checked>20,`checked ${checked}`);
   [outfit,doll].forEach(disposeObject);
 });
 
