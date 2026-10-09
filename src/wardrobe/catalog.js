@@ -442,7 +442,7 @@ export const GARMENTS = Object.freeze({
       sleeve: { tip: .016, cuffRibs: 26,
         rows: [[.03, .12, .117], [-.06, .132, .127], [-.2, .13, .124], [-.33, .122, .117], [-.41, .112, .107], [-.44, .104, .1]],
         cuff: [[-.425, .097, .093], [-.49, .093, .09], [-.565, .092, .089]] },
-      hood: { top: 1.89, bottom: 1.6, round: .07, halfWidth: .2, lift: .08, edge: .011, opening: { from: .06, rise: .05, out: .05, radius: .014, band: .04, dip: .03 } },
+      hood: { top: 1.89, bottom: 1.6, round: .07, halfWidth: .2, lift: .08, edge: .011, opening: { from: 1.05, rise: .05, out: .03, radius: .014, band: .04, dip: 0 } },
       cords: { x: .035, drift: .012, top: 1.875, knot: 1.56, radius: .0105, tassel: .03 },
       logo: { at: [.1, 1.765], size: .07 },
       patch: { at: [.1, 1.69], size: [.075, .04] },

@@ -47,9 +47,9 @@ Catalog ID `adidas-originals-cropped-hoodie-black-v1` (slot `top`), template `cr
 **Hood, worn down:**
 
 - A rounded pouch lies over her upper back, fuller toward the bottom, with a centre seam and rolled edges, as for the jackets' lowered hoods.
-- Its opening comes round her neck and crosses at the centre front, dipping a little below her chin.
-- The striped lining shows inside its rolled edge, as a pale mint band round her neck.
-- Her large head hides most of the opening from the front.
+- Its opening runs from the sides of her neck round the back, with the striped lining inside its rolled edge.
+- Her large head hides the opening from the front, so the lining shows only from the side and back.
+- At the front, the cords come straight out of the neckline.
 
 **Drawcords.** Thick braided cords, with a chevron braid in their bump:
 
@@ -89,6 +89,10 @@ The chenille jumper's test checks that no other top swaps parts this way. It now
 - Brushed French terry.
 - Warmth 2 of 4, inferred from the brushed fleece, cropped. Cool to mild days.
 
+## Revision after the user's first look
+
+The user saw "a weird floating thing" at the collar. The hood's opening came forward and crossed at the front just under her chin, and its rolled edge and mint lining showed there as two pale pieces, loose from the body. The opening now starts at the sides of her neck, under her head, and lies close to the body, so nothing sits loose at the front.
+
 ## Checks
 
 - `npm test`: 93 passing. The new tests check:
@@ -106,6 +110,6 @@ The chenille jumper's test checks that no other top swaps parts this way. It now
 ## Known differences
 
 - The logo and patch are simplified at her scale.
-- The hood is only worn down. From the front her head hides most of it and the lining shows only round her neck.
+- The hood is only worn down. From the front her head hides it, and the lining does not show.
 - Under a jacket the hood is put away rather than lying over the jacket's collar.
 - The fleece is drawn, not taken from the photos.
