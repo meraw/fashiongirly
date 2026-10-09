@@ -78,7 +78,7 @@ Two fits came from the shared tests:
   - that the print holds navy, coral, the blues and white
   - that over the skirt no part of the skirt pokes through it. Building it with its usual rows over the skirt fails this check.
 - The shared tests also run on it, with the change to the waist coverage test above: every waist-covering top over every bottom, sleeves and hands, the styling facts, and outerwear over every top.
-- `npm test`: 85 passing; `npm run build` succeeds.
+- `npm test`: 87 passing after merging `main` (which added the Pull & Bear chenille jumper); `npm run build` succeeds.
 - Rendered in headless Chromium from the front, a turn, the side and the back. Also over the skirt. The authoring chat checked these renders; the user has not seen them yet.
 
 ## Known differences
