@@ -60,7 +60,7 @@ Catalog ID `only-carmakoma-taupe-wool-coat-v1` (slot `outerwear`), built by `mak
 
 ## Checks
 
-- `npm test`: 92 passing after merging `main`, including the new `tests/tailored-coat.test.js`. It checks:
+- `npm test`: 93 passing after merging `main`, including the new `tests/tailored-coat.test.js`. It checks:
   - the parts, and the parts it leaves out
   - the raw edges
   - the one button at the break, at centre front
