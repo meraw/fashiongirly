@@ -3,6 +3,7 @@ import { cleanRecipe } from './recipe.js';
 import { makePrintedTee } from './printed-tee.js';
 import { makePrintedLongTee } from './printed-long-tee.js';
 import { makeChenilleJumper } from './chenille-jumper.js';
+import { makeLaceDress } from './lace-dress.js';
 import { makeOuterwear } from './outerwear.js';
 import { levelCaster } from './level-caster.js';
 import { BRONZE_TOP_ID, LILAC_TOP_ID, CROCHET_TOP_ID, PLAID_JUMPER_ID, STRIPE_JUMPER_ID, POINTELLE_FLOWER_ID, SILVER_CABLE_ID, LACROIX_FLOWER_ID, TOMMY_CABLE_ID, PETIT_BATEAU_CARDIGAN_ID, ZIP_TRACK_DRESS_ID, TOMMY_STRIPE_POLO_ID, GARMENTS } from '../wardrobe/catalog.js';
@@ -2010,7 +2011,7 @@ export function makeOutfit(raw, atlas=null) {
     :GARMENTS[id]?.build?.template==='chenille-high-neck'?makeChenilleJumper(id,GARMENTS[id].build)
     :makeReferenceTop(atlas?.isTexture?atlas:atlas?.[id],id);
   if(!dress&&state.topId!=='classic')root.add(makeTop(state.topId));
-  if(dress)root.add(makeZipTrackDress(dress));
+  if(dress)root.add(GARMENTS[dress].build?.template==='lace-shift-dress'?makeLaceDress(dress,GARMENTS[dress].build):makeZipTrackDress(dress));
   // A top that can be worn over another top (layering.overTop, such as a cardigan) may have a slim top under it
   // (layering.underTop). The under top shows in the opening instead of her skin; its sleeves stay inside the outer
   // sleeves (hidden), and its body is eased in a little below its collar so it sits inside the outer top; its collar
