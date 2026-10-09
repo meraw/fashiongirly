@@ -1,6 +1,6 @@
 # Wardrobe item: black front-zip lug-sole ankle boots
 
-Authored 9 October 2026. Status: first version, awaiting the user's visual review. Added by the chat that has been doing outerwear (any chat can add any category).
+Authored 9 October 2026. Status: first version, approved: the user merged it, and merging means approved (their rule). Added by the chat that has been doing outerwear (any chat can add any category).
 
 ## Source and reference reading
 
