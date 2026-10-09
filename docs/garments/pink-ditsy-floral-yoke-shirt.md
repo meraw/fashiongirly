@@ -69,7 +69,7 @@ Boxy, gathered below a yoke and to the top of the thigh with a gently curved hem
 
 ## Checks
 
-- `npm test`: 98 passing.
+- `npm test`: 99 passing.
   - The new test checks:
     - the parts: the yoke seam, seven cream buttons, buttoned cuffs and full sleeves;
     - the gathers below the yoke, against the smooth yoke above;

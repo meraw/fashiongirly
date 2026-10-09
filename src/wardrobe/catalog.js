@@ -10,6 +10,7 @@ export const ADIDAS_CROPPED_WINDBREAKER_ID = 'adidas-cream-cropped-windbreaker-v
 export const ONLY_TAUPE_COAT_ID = 'only-carmakoma-taupe-wool-coat-v1';
 // Dresses: none by default ('none'); a catalog dress fills the 'dress' slot and is worn instead of the top and bottoms.
 export const ZIP_TRACK_DRESS_ID = 'navy-half-zip-track-dress-v1';
+export const LACE_SHIFT_DRESS_ID = 'desigual-ivory-lace-shift-dress-v1';
 // Shoes: built-in loafers are 'classic'; catalog shoes fill the 'shoes' slot.
 export const BUFFALO_ASPHA_ID = 'buffalo-aspha-mid-olive-v1';
 export const DM_COW_SLIDE_ID = 'dr-martens-cow-slide-v1';
@@ -1657,7 +1658,7 @@ export const GARMENTS = Object.freeze({
   [ONLY_TAUPE_COAT_ID]: {
     slot: 'outerwear',
     id: ONLY_TAUPE_COAT_ID, name: 'ONLY Carmakoma taupe coat', family: 'tailored-coat', version: 1,
-    status: 'reference-study-awaiting-visual-review', brandAsProvided: 'ONLY Carmakoma (from the product photos)',
+    status: 'user-approved', brandAsProvided: 'ONLY Carmakoma (from the product photos)',
     source: { note: 'user supplied five product photos: front flat, front on a model (open), a close-up of the lapels and buttons, back, and full length on the model; the user said their coat has only one button' },
     referenceViews: ['front flat, buttoned', 'front on model, open', 'lapel and button close-up', 'back on model', 'full length on model'],
     details: ['taupe brown melange felted wool-look double-face fabric', 'notched lapel collar', 'single-breasted; the user\'s coat has one button, at the lapel break', 'clean raw edges throughout, as on double-face wool', 'slanted welt pockets at the hip', 'long plain sleeves', 'centre-back seam', 'slightly oversized, straight, to just above the knee'],
@@ -1706,5 +1707,35 @@ export const GARMENTS = Object.freeze({
     styling: { silhouette: 'A-line mini, upper thigh', palette: ['navy', 'cream'], pattern: 'sporty colour-blocked raglan sleeves', coverage: { neck: 'high stand collar', sleeves: 'long', midriff: 'covered', legs: 'bare from the upper thigh' }, material: 'textured cable-rib jersey', warmth: 2, warmthBasis: 'inferred: long-sleeved jersey, but bare legs', weather: 'mild days; bare legs below the hem' },
     uncertainties: ['the brand is not shown on the dress in the screenshots (only the sneakers carry a logo)', 'the rib texture is drawn, not copied', 'the sleeve panel layout is read from the front and back photos; the underarm is not shown', 'the collar is modelled standing, as in three of the photos'],
     authoring: { texture: 'procedural zipDressData() in src/doll/model.js', runtimeGeneration: false, sourcePhotosBundled: false },
+  },
+  [LACE_SHIFT_DRESS_ID]: {
+    slot: 'dress',
+    id: LACE_SHIFT_DRESS_ID, name: 'Ivory lace shift dress', family: 'long-sleeve-mini-dress', version: 1,
+    status: 'reference-study-awaiting-visual-review', brandAsProvided: 'not stated (the trainers in the photos suggest Desigual)',
+    source: { note: 'user supplied six product photos with no text: full length front, flat front, full length back, and close-ups of the sleeve, the neckline and the back keyhole' },
+    referenceViews: ['full length front on model', 'flat front', 'full length back on model', 'sleeve and shoulder close-up', 'neckline close-up', 'back keyhole close-up'],
+    details: ['ivory floral lace, opaque over a lining on the body', 'horizontal bands of frilled trim across the body, closer together lower down', 'high lace collar with a ruffled top edge', 'long sheer lace sleeves crossed by lace insertion bands, slightly full', 'frilled cuffs gathered at the wrist', 'keyhole at the back of the neck closed by two small gold buttons', 'straight shift, mid-thigh'],
+    material: { construction: 'lace over a lining (body); sheer lace (sleeves, collar)', composition: 'not visible in the supplied photos', finish: 'soft, textured' },
+    fit: { silhouette: 'straight shift', sleeve: 'long, slightly full, frilled cuffs', hem: 'mid-thigh', neckline: 'high ruffled lace collar, back keyhole', adjustment: 'fixed authored fit for review' },
+    layering: { replacesTop: true, replacesBottom: true, bareLegs: true },
+    styling: { silhouette: 'straight shift mini, mid-thigh', palette: ['ivory'], pattern: 'tonal floral lace with frilled bands', coverage: { neck: 'high collar', sleeves: 'long, sheer', midriff: 'covered', legs: 'bare from mid-thigh' }, material: 'lace, sheer on the sleeves', warmth: 1, warmthBasis: 'inferred: lace with sheer sleeves and bare legs', weather: 'mild, dry days; under a coat when cooler' },
+    uncertainties: ['the lace pattern is drawn as generic roses and leaves, not copied', 'the frill bands are placed by eye from the photos', 'the brand is not stated'],
+    authoring: { texture: 'procedural lace in src/doll/lace-dress.js; colour measured from the photos', runtimeGeneration: false, sourcePhotosBundled: false },
+    // Built by makeLaceDress() (src/doll/lace-dress.js); makeOutfit() picks it by template.
+    build: {
+      template: 'lace-shift-dress',
+      colours: { lace: '#ede9df', trim: '#f1ede4', skin: '#dfb195', button: '#c9a24a' },
+      tiles: { body: [3, 2], trim: [24, 1], collar: [2, .22], sleeve: [2, 1.3], cuff: [2, .25] },
+      body: {
+        rows: [[1.905, .112, .104], [1.875, .172, .126], [1.83, .235, .158], [1.775, .272, .183], [1.65, .287, .195], [1.5, .292, .202], [1.35, .296, .21], [1.2, .304, .222], [1.1, .313, .23], [1, .322, .236], [.92, .33, .241], [.845, .336, .244]],
+        frills: [1.78, 1.68, 1.58, 1.48, 1.38, 1.28, 1.19, 1.1, 1.02, .94],
+      },
+      collar: { top: 1.985, radius: [.118, .111], keyhole: { y: 1.82, h: .055 }, buttons: [1.885, 1.866] },
+      sleeve: {
+        rows: [[.03, .118, .115], [-.05, .13, .126], [-.17, .132, .127], [-.29, .128, .123], [-.4, .121, .116], [-.46, .113, .108]],
+        bands: [-.08, -.19, -.3, -.4],
+        cuff: [-.455, -.495, -.575], cuffRadius: [.1, .094], frillRadius: .13,
+      },
+    },
   },
 });
