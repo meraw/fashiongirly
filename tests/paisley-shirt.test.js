@@ -4,10 +4,11 @@ import * as T from 'three';
 import { makeOutfit, disposeObject } from '../src/doll/model.js';
 import { OUTFITS } from '../src/doll/recipe.js';
 import { GARMENTS, PAISLEY_SHIRT_ID, MOTEL_TIE_DYE_SHIRT_ID, DESIGUAL_SPRAY_FLORAL_SHIRT_ID, DESIGUAL_SPLIT_FLORAL_SHIRT_ID, DESIGUAL_MOUNTAIN_SHIRT_ID, MANGO_DOT_SHIRT_ID } from '../src/wardrobe/catalog.js';
+import { PAISLEY_SHIRT_ATLAS } from '../src/wardrobe/paisley-shirt-atlas.js';
 const named=(root,name)=>{const found=[];root.traverse(o=>{if(o.name===name)found.push(o);});return found;};
 const box=o=>new T.Box3().setFromObject(o);
 
-test('paisley shirt: relaxed and longer than the fitted shirts, cuffed sleeves, a back yoke with a pleat, and a drawn paisley print',()=>{
+test('paisley shirt: relaxed and longer than the fitted shirts, cuffed sleeves, a back yoke with a pleat, printed from its photo atlas',()=>{
   const g=GARMENTS[PAISLEY_SHIRT_ID];assert.equal(g.slot,'top');assert.ok(g.layering?.coversWaistband);assert.ok(OUTFITS.some(look=>look.recipe.topId===PAISLEY_SHIRT_ID),'a study preset wears it');
   const outfit=makeOutfit({topId:PAISLEY_SHIRT_ID,knit:false,shirt:false}),top=outfit.getObjectByName(PAISLEY_SHIRT_ID);outfit.updateMatrixWorld(true);
   for(const [name,count] of [['mesh-shirt-body',1],['mesh-shirt-sleeve',2],['shirt-cuff',2],['cuff-button',2],['cuff-seam',2],['shirt-collar-fall',1],['shirt-button',8],['yoke-seam',1],['back-pleat',2],['hem-stitch',1]])
@@ -19,18 +20,18 @@ test('paisley shirt: relaxed and longer than the fitted shirts, cuffed sleeves, 
   assert.ok(ours.min.y/.76<theirs.min.y/.76-.05,`longer (hem ${(ours.min.y/.76).toFixed(3)} against ${(theirs.min.y/.76).toFixed(3)})`);
   // The yoke seam and pleat are on her back.
   for(const name of ['yoke-seam','back-pleat'])for(const o of named(top,name))assert.ok(box(o).max.z<0,`${name} on the back`);
-  // The print: about half warm white ground, with every ink in it, and the tile repeats without a seam both ways.
-  const body=named(top,'mesh-shirt-body')[0],{data,width:w,height:h}=body.material.map.image;let ground=0;
-  for(let i=0;i<w*h*4;i+=4){const [r,gr,b]=[data[i],data[i+1],data[i+2]];if(r>205&&gr>205&&b>205&&Math.max(r,gr,b)-Math.min(r,gr,b)<16)ground++;}
-  assert.ok(ground>w*h*.3&&ground<w*h*.75,`ground share ${(ground/w/h).toFixed(2)}`);
-  const hue=(r,gr,b)=>{const mx=Math.max(r,gr,b),mn=Math.min(r,gr,b);if(mx-mn<30)return null;const d=mx-mn;let hh=mx===r?((gr-b)/d)%6:mx===gr?(b-r)/d+2:(r-gr)/d+4;return (hh*60+360)%360;};
-  const families={yellow:[35,60],blue:[200,240],pink:[320,350],green:[70,140]},found=Object.fromEntries(Object.keys(families).map(k=>[k,0]));
-  for(let i=0;i<w*h*4;i+=4){const hh=hue(data[i],data[i+1],data[i+2]);if(hh===null)continue;for(const [k,[a,b]] of Object.entries(families))if(hh>=a&&hh<b)found[k]++;}
-  for(const [k,n] of Object.entries(found))assert.ok(n>w*h*.01,`${k} ink (${n})`);
-  const diff=(a,b,col)=>{let s=0;const n=col?h:w;for(let t=0;t<n;t++)for(let k=0;k<3;k++){const ia=col?(t*w+a)*4:(a*w+t)*4,ib=col?(t*w+b)*4:(b*w+t)*4;s+=Math.abs(data[ia+k]-data[ib+k]);}return s/n;};
-  const seamX=diff(w-1,0,true),innerX=diff(w>>1,(w>>1)+1,true),seamY=diff(h-1,0,false),innerY=diff(h>>1,(h>>1)+1,false);
-  assert.ok(seamX<innerX*2+2&&seamY<innerY*2+2,`seamless (${seamX.toFixed(1)}/${innerX.toFixed(1)}, ${seamY.toFixed(1)}/${innerY.toFixed(1)})`);
-  [outfit,fitted].forEach(disposeObject);
+  // The print comes from its atlas of the product photos: the body from the top three quarters, each sleeve from its own
+  // half of the bottom quarter (her right sleeve on the left half), the cuffs and collar from it too.
+  assert.match(PAISLEY_SHIRT_ATLAS,/^data:image\/webp;base64,/);
+  const atlas=new T.DataTexture(new Uint8Array([210,200,185,255]),1,1),printed=makeOutfit({topId:PAISLEY_SHIRT_ID,knit:false,shirt:false},{[PAISLEY_SHIRT_ID]:atlas});
+  const shirt=printed.getObjectByName(PAISLEY_SHIRT_ID),body=named(shirt,'mesh-shirt-body')[0],uv=body.geometry.attributes.uv;
+  for(const name of ['mesh-shirt-body','mesh-shirt-sleeve','shirt-cuff','shirt-collar-fall'])for(const o of named(shirt,name))assert.equal(o.material.map.source,atlas.source,name);
+  const vs=[...uv.array].filter((_,k)=>k%2);assert.ok(Math.min(...vs)>=.249&&Math.max(...vs)<=1.0001,'body rows');
+  for(const sleeve of named(shirt,'mesh-shirt-sleeve')){const a=sleeve.geometry.attributes.uv.array,us=[...a].filter((_,k)=>!(k%2)),v=[...a].filter((_,k)=>k%2);
+    assert.ok(Math.max(...v)<=.2501,'sleeve rows');const right=sleeve.parent.position.x<0;assert.ok(right?Math.max(...us)<=.5:Math.min(...us)>=.5,'each sleeve its own half');}
+  // Without the atlas (a failed load) it still dresses her, in a flat cream.
+  const plain=named(top,'mesh-shirt-body')[0].material;assert.equal(plain.map,null);assert.ok(plain.color.r>plain.color.b);
+  [outfit,fitted,printed].forEach(disposeObject);atlas.dispose();
 });
 
 test('the other shirts keep their own construction: no yoke or relaxed body, and the fitted ones no cuffs',()=>{

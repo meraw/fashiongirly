@@ -178,77 +178,6 @@ function fineRibData(){
   return {data,w,h};
   });
 }
-// Paisley print: big teardrop paisleys in concentric bands, feathery leaf sprays and curling tendrils, all outlined in
-// near-black on a warm white ground, read from the shirt's photos (front, back and a close-up). Drawn here, not copied.
-// Measured: the ground about (236, 237, 239) in the evenly lit back view; ochre-yellow the commonest ink, then peach,
-// cornflower blue, lilac-pink, a little violet and sage, outlines near (54, 46, 39). The ground is drawn a little darker,
-// since the studio's exposure lifts it.
-const PAISLEY={ground:[230,231,232],ink:[36,29,24],yellow:[204,152,28],ochre:[170,112,30],peach:[214,128,78],blue:[52,96,172],sky:[104,146,200],pink:[198,104,138],lilac:[132,98,176],sage:[112,140,104]};
-// One tile is half her girth (.83 wide) and .684 high, in world units, so motifs stay round. A large paisley is about
-// a third of her front's width, as on the model. Paisleys: [x, y, size, turn, tail, curl, outer band, comb band, core,
-// dotted ring]. Sprays: [x, y, arc radius, from, to, leaflets, colours]. Tendrils: [x, y, radius, turns, turn, colour].
-const PAISLEY_W=.83,PAISLEY_H=.684;
-const PAISLEYS=[
-  [.16,.2,.085,2.3,1.25,2.2,'yellow','blue','pink','pink'],[.6,.46,.09,-.7,1.3,-2.2,'pink','yellow','blue','peach'],
-  [.47,.13,.055,.9,1.2,2.4,'blue','peach','sage','yellow'],[.1,.55,.065,-2.4,1.2,2,'ochre','lilac','blue','pink'],
-  [.77,.17,.05,3.5,1.2,-2.4,'sage','yellow','pink','yellow'],[.36,.38,.045,1.7,1.2,2.2,'lilac','yellow','sage','peach'],
-  [.75,.63,.042,-1.2,1.2,2,'yellow','blue','peach','pink'],[.3,.62,.05,.3,1.2,-2,'peach','sky','yellow','pink'],
-  [.58,.27,.032,2.8,1.1,2,'yellow','pink','blue','sage'],
-];
-const SPRAYS=[
-  [.37,.56,.11,-.5,1.9,8,['blue','sage','sky']],[.72,.03,.1,1.9,3.9,8,['sage','blue','yellow']],[.02,.33,.09,.9,2.7,7,['yellow','ochre','peach']],
-  [.26,.02,.08,-1.6,.2,7,['lilac','pink','sky']],[.5,.33,.07,3.6,5.4,6,['yellow','ochre','yellow']],[.86,.4,.08,1.2,3,7,['blue','sky','sage']],
-  [.08,.44,.075,-.9,.9,6,['yellow','peach','ochre']],[.62,.02,.07,-2.6,-1,6,['blue','sky','lilac']],
-];
-const TENDRILS=[[.45,.27,.036,1.6,.4,'yellow'],[.26,.41,.03,1.4,2.6,'blue'],[.68,.32,.032,1.5,-1.1,'pink'],[.08,.1,.028,1.3,1.2,'yellow'],[.56,.6,.024,1.3,3.5,'blue'],[.82,.47,.028,1.5,.9,'yellow'],[.2,.47,.022,1.3,4,'pink']];
-function paisleyData(){
-  return cached('paisley',()=>{
-  const w=640,h=Math.round(w*PAISLEY_H/PAISLEY_W),data=new Uint8Array(w*h*4),px=PAISLEY_W/w,rand=random(29),C=PAISLEY;
-  const col=new Float32Array(w*h*3);for(let i=0;i<w*h;i++)col.set(C.ground,i*3);
-  const set=(i,c,k=1)=>{for(let j=0;j<3;j++)col[i*3+j]+=(c[j]-col[i*3+j])*k;};
-  const wrapX=d=>d-PAISLEY_W*Math.round(d/PAISLEY_W),wrapY=d=>d-PAISLEY_H*Math.round(d/PAISLEY_H);
-  // Visit the pixels within `reach` of (x, y), across the tile's edges, with their offsets from it.
-  const near=(x,y,reach,fn)=>{const x0=Math.floor((x-reach)/px),x1=Math.ceil((x+reach)/px),y0=Math.floor((y-reach)/px),y1=Math.ceil((y+reach)/px);
-    for(let yy=y0;yy<=y1;yy++)for(let xx=x0;xx<=x1;xx++){const ix=((xx%w)+w)%w,iy=((yy%h)+h)%h;fn(iy*w+ix,wrapX(ix*px-x),wrapY(iy*px-y));}};
-  // A line of the given width along points, stamped as discs.
-  const stroke=(pts,width,c)=>{for(let k=0;k<pts.length-1;k++){const [ax,ay]=pts[k],[bx,by]=pts[k+1],n=Math.max(1,Math.ceil(Math.hypot(bx-ax,by-ay)/(px*.7)));
-    for(let t=0;t<=n;t++){const x=ax+(bx-ax)*t/n,y=ay+(by-ay)*t/n;near(x,y,width,(i,dx,dy)=>{if(dx*dx+dy*dy<=width*width)set(i,c);});}}};
-  // Tendrils: spiralling lines, under everything else, with a dot at the tip.
-  for(const [x,y,r,turns,turn,c] of TENDRILS){const pts=[];for(let k=0;k<=60;k++){const t=k/60,a=turn+t*turns*Math.PI*2,rr=r*(1-.85*t);pts.push([x+Math.cos(a)*rr,y+Math.sin(a)*rr]);}
-    stroke(pts,.0032,C[c]);stroke(pts,.0012,C.ink);const [ex,ey]=pts[0];near(ex,ey,.006,(i,dx,dy)=>{if(dx*dx+dy*dy<.005**2)set(i,C[c]);});}
-  // Leaf sprays: a stem along an arc with leaflets leaning out from it, each filled, outlined and veined.
-  for(const [x,y,R,a0,a1,n,cs] of SPRAYS){
-    const stem=Array.from({length:25},(_,k)=>{const a=a0+(a1-a0)*k/24;return [x+Math.cos(a)*R,y+Math.sin(a)*R];});stroke(stem,.0018,C.ink);
-    for(let k=0;k<n;k++){const a=a0+(a1-a0)*(k+.5)/n,bx=x+Math.cos(a)*R,by=y+Math.sin(a)*R,dir=a+(a1>a0?.45:-.45),L=R*.5*(.75+.5*Math.sin(Math.PI*(k+.5)/n)),W=L*.38;
-      const cx=bx+Math.cos(dir)*L,cy=by+Math.sin(dir)*L,c=Math.cos(dir),sn=Math.sin(dir),fill=C[cs[k%cs.length]];
-      near(cx,cy,L*1.05,(i,dx,dy)=>{const lx=dx*c+dy*sn,ly=-dx*sn+dy*c;if(Math.abs(lx)>=L)return;const half=W*Math.pow(1-(lx/L)**2,.8),m=half-Math.abs(ly);
-        if(m<0)return;set(i,m<.0022||Math.abs(ly)<.001?C.ink:fill);});}
-  }
-  // Paisleys: a teardrop whose tail curls, filled in bands from the edge in: an ink outline, a band with fine ink dots,
-  // an ink line, a combed band, an ink line and a solid core with a pale eye; ringed outside by coloured dots.
-  for(const [x,y,size,turn,tail,bend,outer,comb,core,dots] of PAISLEYS){
-    const s=size*1.12,curl=bend*.65,c=Math.cos(turn),sn=Math.sin(turn);
-    near(x,y,s*(1+tail)*1.3,(i,dx,dy)=>{const lx=(dx*c+dy*sn)/s,ly=(-dx*sn+dy*c)/s,d=Math.hypot(lx,ly);
-      let a=Math.atan2(ly,lx)+curl*Math.max(0,d-.7)*.6;a=((a+Math.PI)%(Math.PI*2)+Math.PI*2)%(Math.PI*2)-Math.PI;
-      const f=d/(1+tail*Math.exp(-((a/.5)**2))),ang=Math.atan2(ly,lx);
-      if(f>=1.08&&f<1.17){if(Math.sin(ang*30)>.55&&Math.abs(f-1.125)<.035)set(i,C[dots]);return;}
-      if(f>=1.045)return;
-      if(f>=1){set(i,C[dots]);return;}
-      if(f>=.93){set(i,C.ink);return;}
-      if(f>=.74){set(i,Math.sin(ang*40)>.88&&Math.abs(f-.835)<.025?C.ink:C[outer]);return;}
-      if(f>=.7){set(i,C.ink);return;}
-      if(f>=.46){set(i,Math.sin(ang*26)>.1?C[comb]:C.ground);return;}
-      if(f>=.42){set(i,C.ink);return;}
-      set(i,f<.14?C.ground:C[core]);});
-  }
-  // A fine scatter of ink dots in the ground, and a soft blur so lines read as printed, not stamped.
-  for(let k=0;k<260;k++){const x=rand()*PAISLEY_W,y=rand()*PAISLEY_H;near(x,y,.0025,(i,dx,dy)=>{if(dx*dx+dy*dy<.0018**2)set(i,C.ink,.8);});}
-  for(let y=0;y<h;y++)for(let x=0;x<w;x++){const i=(y*w+x)*4;let r=0,g=0,b=0;
-    for(const [dx,dy,k] of [[0,0,.5],[1,0,.125],[-1,0,.125],[0,1,.125],[0,-1,.125]]){const j=((((y+dy)+h)%h)*w+(((x+dx)+w)%w))*3;r+=col[j]*k;g+=col[j+1]*k;b+=col[j+2]*k;}
-    const n=1+(rand()-.5)*.03;data[i]=Math.min(255,r*n);data[i+1]=Math.min(255,g*n);data[i+2]=Math.min(255,b*n);data[i+3]=255;}
-  return {data,w,h};
-  });
-}
 // Each shirt's style. Heights are in outfit units; tile sizes say how many print tiles go round her and how tall one is.
 const STYLES={
   // Worn buttoned to the top, as on the hanger: black topstitching, a black-faced stand and glossy black buttons.
@@ -276,10 +205,11 @@ const STYLES={
     stitch:'#e4b9ac',facing:null,button:['#f2d9cf',.3],buttons:[],collarTopstitch:false,open:{bottom:1.8,half:.034},
     rows:RELAXED_ROWS,tucked:TUCKED_ROWS,depth:.7,shirttail:{from:1.24,centre:1.03,side:1.1},concealed:true,
     sleeve:[[.025,.11,.112],[-.04,.124,.122],[-.16,.126,.12],[-.28,.122,.116],[-.38,.113,.108],[-.45,.098,.096],[-.49,.088,.088],[-.53,.084,.085]],cuff:{from:-.455,to:-.535,button:true}},
-  // A relaxed shirt in printed viscose crepe, worn loose with the top button open: its own fuller body (rows) to a hem at
-  // the high hip, as wide there as the Tommy sweater, which clears every jacket, bottom and the skirt; fuller sleeves
-  // into buttoned cuffs; a back yoke with a centre pleat; white buttons.
-  [PAISLEY_SHIRT_ID]:{print:paisleyData,around:2,high:.9,collarAround:2,bump:[crepeData,90,60,.0012],sheen:['#fffaf0',.25,.45],roughness:.7,
+  // A relaxed shirt in printed viscose crepe, worn loose with the top button open, printed from an atlas of the product
+  // photos (a fine-line paisley): its own fuller body (rows) to a hem at the high hip, as wide there as the Tommy
+  // sweater, which clears every jacket, bottom and the skirt; fuller sleeves into buttoned cuffs; a back yoke with a
+  // centre pleat; white buttons.
+  [PAISLEY_SHIRT_ID]:{atlas:{tone:'#bdbab5',fallback:'#d9cba8'},bump:[crepeData,90,60,.0012],sheen:['#fffaf0',.25,.45],roughness:.7,
     stitch:'#d8d2c4',facing:null,button:['#f3f0ea',.25],buttons:[1.785,1.705,1.625,1.545,1.465,1.385,1.305,1.225],collarTopstitch:true,open:{bottom:1.8,half:.034},
     rows:[[NECK,.112,.104],[1.875,.17,.124],[1.83,.228,.154],[1.775,.268,.18],[1.65,.296,.198],[1.5,.304,.207],[1.4,.308,.214],[1.3,.311,.222],[1.242,.314,.232],[1.19,.316,.236]],
     sleeve:[[.025,.104,.104],[-.05,.124,.119],[-.2,.127,.121],[-.33,.122,.116],[-.42,.108,.104],[-.47,.094,.091],[-.53,.09,.087]],
