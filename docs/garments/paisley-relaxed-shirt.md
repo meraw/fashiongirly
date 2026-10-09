@@ -20,7 +20,7 @@ Measured: the ground about RGB 236, 237, 239 in the evenly lit back view. Ochre-
 
 ## Implementation
 
-Catalog ID `paisley-print-relaxed-shirt-v1` (slot `top`), built by `makeButtonShirt()` in `src/doll/shirts.js` with its own style. `makeOutfit` already passes each shirt its atlas; `view.js` loads this one's.
+Catalog ID `paisley-print-relaxed-shirt-v1` (slot `top`), in its own garment file, `src/wardrobe/garments/paisley-print-relaxed-shirt-v1.js` (its catalog entry, its study preset and its print atlas, which the 3D view loads from there). It is built by `makeButtonShirt()` in `src/doll/shirts.js` with its own style; `makeOutfit` passes each shirt its atlas.
 
 **Template options.** The shirt template has optional settings, used only by the shirts that set them. This shirt uses:
 
@@ -61,7 +61,7 @@ A relaxed shirt to the high hip; a large all-over paisley print in white, ochre,
 
 ## Checks
 
-- `npm test` passes (107), including a new `tests/paisley-shirt.test.js`, which checks:
+- `npm test` passes (109), including a new `tests/paisley-shirt.test.js`, which checks:
   - the parts: body, sleeves, cuffs with buttons and stitching, collar, eight buttons, the yoke seam and pleat, the hem stitching;
   - it is wider at the waist and longer than the fitted shirts;
   - the yoke and pleat are on her back;

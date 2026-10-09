@@ -11,7 +11,7 @@ import * as T from 'three';
 import { random, solid, oval, curve, shell, roundSleeveCap, surfaceProbe, easeOverHand, trimToEdge } from './model.js';
 import { levelCaster } from './level-caster.js';
 import { grid } from './polo.js';
-import { MOTEL_TIE_DYE_SHIRT_ID, DESIGUAL_SPRAY_FLORAL_SHIRT_ID, DESIGUAL_SPLIT_FLORAL_SHIRT_ID, DESIGUAL_MOUNTAIN_SHIRT_ID, MANGO_DOT_SHIRT_ID, PINK_YOKE_SHIRT_ID, LEVIS_PLAID_FLANNEL_ID, DESIGUAL_RUGBY_ID, PAISLEY_SHIRT_ID } from '../wardrobe/catalog.js';
+import { MOTEL_TIE_DYE_SHIRT_ID, DESIGUAL_SPRAY_FLORAL_SHIRT_ID, DESIGUAL_SPLIT_FLORAL_SHIRT_ID, DESIGUAL_MOUNTAIN_SHIRT_ID, MANGO_DOT_SHIRT_ID, PINK_YOKE_SHIRT_ID, LEVIS_PLAID_FLANNEL_ID, DESIGUAL_RUGBY_ID } from '../wardrobe/catalog.js';
 import { splitBodyData, splitCollarData, leftSleeveData, rightSleeveData } from './split-floral-print.js';
 
 // Warm grey-mauve tie-dye, measured in the shirt's own photos (hanger front and back): the darkest patches about
@@ -355,7 +355,7 @@ const STYLES={
   // photos (a fine-line paisley): its own fuller body (rows) to a hem at the high hip, as wide there as the Tommy
   // sweater, which clears every jacket, bottom and the skirt; fuller sleeves into buttoned cuffs; a back yoke
   // (backYoke) with a centre pleat (backPleat); white buttons.
-  [PAISLEY_SHIRT_ID]:{atlas:{tone:'#bdbab5',fallback:'#d9cba8'},bump:[crepeData,90,60,.0012],sheen:['#fffaf0',.25,.45],roughness:.7,
+  'paisley-print-relaxed-shirt-v1':{atlas:{tone:'#bdbab5',fallback:'#d9cba8'},bump:[crepeData,90,60,.0012],sheen:['#fffaf0',.25,.45],roughness:.7,
     stitch:'#d8d2c4',facing:null,button:['#f3f0ea',.25],buttons:[1.785,1.705,1.625,1.545,1.465,1.385,1.305,1.225],collarTopstitch:true,open:{bottom:1.8,half:.034},
     rows:[[NECK,.112,.104],[1.875,.17,.124],[1.83,.228,.154],[1.775,.268,.18],[1.65,.296,.198],[1.5,.304,.207],[1.4,.308,.214],[1.3,.311,.222],[1.242,.314,.232],[1.19,.316,.236]],
     sleeve:[[.025,.104,.104],[-.05,.124,.119],[-.2,.127,.121],[-.33,.122,.116],[-.42,.108,.104],[-.47,.094,.091],[-.53,.09,.087]],

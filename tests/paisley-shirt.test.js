@@ -3,8 +3,9 @@ import assert from 'node:assert/strict';
 import * as T from 'three';
 import { makeOutfit, disposeObject } from '../src/doll/model.js';
 import { OUTFITS } from '../src/doll/recipe.js';
-import { GARMENTS, PAISLEY_SHIRT_ID, MOTEL_TIE_DYE_SHIRT_ID, DESIGUAL_SPRAY_FLORAL_SHIRT_ID, DESIGUAL_SPLIT_FLORAL_SHIRT_ID, DESIGUAL_MOUNTAIN_SHIRT_ID, MANGO_DOT_SHIRT_ID, PINK_YOKE_SHIRT_ID, LEVIS_PLAID_FLANNEL_ID } from '../src/wardrobe/catalog.js';
+import { GARMENTS, MOTEL_TIE_DYE_SHIRT_ID, DESIGUAL_SPRAY_FLORAL_SHIRT_ID, DESIGUAL_SPLIT_FLORAL_SHIRT_ID, DESIGUAL_MOUNTAIN_SHIRT_ID, MANGO_DOT_SHIRT_ID, PINK_YOKE_SHIRT_ID, LEVIS_PLAID_FLANNEL_ID } from '../src/wardrobe/catalog.js';
 import { PAISLEY_SHIRT_ATLAS } from '../src/wardrobe/paisley-shirt-atlas.js';
+const PAISLEY_SHIRT_ID='paisley-print-relaxed-shirt-v1';
 const named=(root,name)=>{const found=[];root.traverse(o=>{if(o.name===name)found.push(o);});return found;};
 const box=o=>new T.Box3().setFromObject(o);
 
