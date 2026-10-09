@@ -2,9 +2,9 @@ import * as T from 'three';
 import { cleanRecipe } from './recipe.js';
 import { makeOuterwear } from './outerwear.js';
 import { levelCaster } from './level-caster.js';
-import { BRONZE_TOP_ID, LILAC_TOP_ID, CROCHET_TOP_ID, PLAID_JUMPER_ID, STRIPE_JUMPER_ID, POINTELLE_FLOWER_ID, SILVER_CABLE_ID, LACROIX_FLOWER_ID, TOMMY_CABLE_ID, PETIT_BATEAU_CARDIGAN_ID, ZIP_TRACK_DRESS_ID, TOMMY_STRIPE_POLO_ID, MOTEL_TIE_DYE_SHIRT_ID, GARMENTS } from '../wardrobe/catalog.js';
+import { BRONZE_TOP_ID, LILAC_TOP_ID, CROCHET_TOP_ID, PLAID_JUMPER_ID, STRIPE_JUMPER_ID, POINTELLE_FLOWER_ID, SILVER_CABLE_ID, LACROIX_FLOWER_ID, TOMMY_CABLE_ID, PETIT_BATEAU_CARDIGAN_ID, ZIP_TRACK_DRESS_ID, TOMMY_STRIPE_POLO_ID, GARMENTS } from '../wardrobe/catalog.js';
 import { makeKnitPolo } from './polo.js';
-import { makeButtonShirt } from './shirts.js';
+import { makeButtonShirt, SHIRT_IDS } from './shirts.js';
 // Body and wardrobe share one toy proportion system; the face stays unscaled.
 const BODY_HEIGHT = .76;
 const BODY_WIDTH = 1.06;
@@ -1706,7 +1706,7 @@ export function makeOutfit(raw, atlas=null) {
   const makeTop=id=>id===CROCHET_TOP_ID?makeCrochetTop():id===PLAID_JUMPER_ID?makePlaidJumper(id,state.skirt):id===STRIPE_JUMPER_ID?makeStripeJumper(id,state.skirt)
     :id===POINTELLE_FLOWER_ID?makePointelleJumper(id,state.skirt):id===SILVER_CABLE_ID?makeSilverCableJumper():id===LACROIX_FLOWER_ID?makeLacroixSweater(id,state.skirt)
     :id===TOMMY_CABLE_ID?makeTommyCableSweater(id,state.skirt):id===PETIT_BATEAU_CARDIGAN_ID?makeStripedCardigan(id,state.skirt)
-    :id===TOMMY_STRIPE_POLO_ID?makeKnitPolo(id):id===MOTEL_TIE_DYE_SHIRT_ID?makeButtonShirt(id)
+    :id===TOMMY_STRIPE_POLO_ID?makeKnitPolo(id):SHIRT_IDS.includes(id)?makeButtonShirt(id)
     :makeReferenceTop(atlas?.isTexture?atlas:atlas?.[id],id);
   if(!dress&&state.topId!=='classic')root.add(makeTop(state.topId));
   if(dress)root.add(makeZipTrackDress(dress));
