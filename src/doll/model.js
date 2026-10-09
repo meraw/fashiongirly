@@ -4,6 +4,7 @@ import { makePrintedTee } from './printed-tee.js';
 import { makePrintedLongTee } from './printed-long-tee.js';
 import { makeChenilleJumper } from './chenille-jumper.js';
 import { makeSweatshirt } from './sweatshirt.js';
+import { makeHoodie } from './hoodie.js';
 import { makeOuterwear } from './outerwear.js';
 import { levelCaster } from './level-caster.js';
 import { BRONZE_TOP_ID, LILAC_TOP_ID, CROCHET_TOP_ID, PLAID_JUMPER_ID, STRIPE_JUMPER_ID, POINTELLE_FLOWER_ID, SILVER_CABLE_ID, LACROIX_FLOWER_ID, TOMMY_CABLE_ID, PETIT_BATEAU_CARDIGAN_ID, ZIP_TRACK_DRESS_ID, TOMMY_STRIPE_POLO_ID, GARMENTS } from '../wardrobe/catalog.js';
@@ -2010,6 +2011,7 @@ export function makeOutfit(raw, atlas=null) {
     :GARMENTS[id]?.build?.template==='printed-long-tee'?makePrintedLongTee(id,GARMENTS[id].build)
     :GARMENTS[id]?.build?.template==='chenille-high-neck'?makeChenilleJumper(id,GARMENTS[id].build)
     :GARMENTS[id]?.build?.template==='logo-sweatshirt'?makeSweatshirt(id,GARMENTS[id].build,state.skirt)
+    :GARMENTS[id]?.build?.template==='cropped-hoodie'?makeHoodie(id,GARMENTS[id].build)
     :makeReferenceTop(atlas?.isTexture?atlas:atlas?.[id],id);
   if(!dress&&state.topId!=='classic')root.add(makeTop(state.topId));
   if(dress)root.add(makeZipTrackDress(dress));
