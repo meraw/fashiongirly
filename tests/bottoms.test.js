@@ -256,7 +256,14 @@ test('every waist-covering top hides every bottom between its hem and the waist'
     // The top is the same whatever is worn under it, so it is built and measured once for all bottoms.
     const topOutfit=makeOutfit({topId});topOutfit.updateMatrixWorld(true);
     const covering=topOutfit.getObjectByName(topId).children.filter(o=>o.isMesh);
-    const hem=Math.min(...covering.map(o=>new T.Box3().setFromObject(o).min.y))/.76;
+    // The hem's height all round her (a shirttail rises toward the sides, where the bottoms show below it): the lowest
+    // point of the top in each 2-degree slice round her centre line, taking the higher of the neighbouring slices.
+    const low=new Float32Array(180).fill(Infinity),q=new T.Vector3();
+    for(const o of covering){const pos=o.geometry.attributes.position;for(let i=0;i<pos.count;i++){q.fromBufferAttribute(pos,i).applyMatrix4(o.matrixWorld);
+      const b=((Math.floor((Math.atan2(q.x,q.z)+Math.PI)/(Math.PI*2)*180)%180)+180)%180;low[b]=Math.min(low[b],q.y/.76);}}
+    // Slices with no vertex of their own (a coarse top) take the nearest slice's height.
+    const filled=Array.from(low,(h,b)=>{if(h<Infinity)return h;for(let d=1;d<90;d++){const n=Math.min(low[(b+d)%180],low[(b+180-d)%180]);if(n<Infinity)return n;}return h;});
+    const hemAt=a=>{const b=((Math.floor((a+Math.PI)/(Math.PI*2)*180)%180)+180)%180;return Math.max(filled[(b+179)%180],filled[b],filled[(b+1)%180]);};
     // The top's triangles, from both sides, indexed by height and angle around her centre line, so each ray only tests
     // the triangles it can reach.
     const top=levelCaster(covering,{axis:[0,0],faces:'both'}),origin=new T.Vector3(),dir=new T.Vector3(),axis=new T.Vector3(0,1,0);
@@ -273,7 +280,7 @@ test('every waist-covering top hides every bottom between its hem and the waist'
       for(let k=0;k<(o.isInstancedMesh?o.count:1);k++){if(o.isInstancedMesh){o.getMatrixAt(k,im);each.multiplyMatrices(o.matrixWorld,im);}else each.copy(o.matrixWorld);
       for(let i=0;i<pos.count;i++){
         // Up to the top of the highest waistband (ultra high rise jeans reach her natural waist).
-        p.fromBufferAttribute(pos,i).applyMatrix4(each);const y=p.y/.76;if(y<hem+.012||y>1.4)continue;
+        p.fromBufferAttribute(pos,i).applyMatrix4(each);const y=p.y/.76;if(y>1.4||y<hemAt(Math.atan2(p.x,p.z))+.012)continue;
         const radius=Math.hypot(p.x,p.z);if(radius<.01)continue;
         assert.ok(coverAt(p.y,Math.atan2(p.x,p.z))>radius+.001,`${o.name} shows through ${topId} over ${bottomId} at vertex ${i}`);checked++;
       }}});

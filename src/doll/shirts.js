@@ -4,7 +4,8 @@
 import * as T from 'three';
 import { random, solid, oval, curve, shell, roundSleeveCap, surfaceProbe, easeOverHand, trimToEdge } from './model.js';
 import { grid } from './polo.js';
-import { MOTEL_TIE_DYE_SHIRT_ID, DESIGUAL_SPRAY_FLORAL_SHIRT_ID } from '../wardrobe/catalog.js';
+import { MOTEL_TIE_DYE_SHIRT_ID, DESIGUAL_SPRAY_FLORAL_SHIRT_ID, PEPE_IKAT_SHIRT_ID } from '../wardrobe/catalog.js';
+import { ikatData } from './ikat-print.js';
 
 // Warm grey-mauve tie-dye, measured in the shirt's own photos (hanger front and back): the darkest patches about
 // (55, 43, 43), the middle (100, 88, 87), the palest (215, 205, 200). Darker than measured: exposure, tone mapping and
@@ -135,6 +136,15 @@ const STYLES={
   // Worn with the top button open, as on the model: tonal stitching, the stand in the print, and pale peach buttons.
   [DESIGUAL_SPRAY_FLORAL_SHIRT_ID]:{print:sprayFloralData,around:2,high:1.04,collarAround:2,bump:[fineRibData,220,1,.003],sheen:['#ff9c9c',.12,.5],roughness:.72,
     stitch:'#d9817f',facing:null,button:['#f4c0b2',.3],buttons:[1.785,1.707,1.63,1.552,1.475,1.397,1.32],collarTopstitch:false,open:{bottom:1.8,half:.034}},
+  // Full length and worn loose over the waistband: a curved shirttail hem, a chest pocket on her left, buttoned cuffs and
+  // a chambray collar stand; worn with the top button open, as in the flat lay. Light, slightly slubbed voile.
+  [PEPE_IKAT_SHIRT_ID]:{print:ikatData,around:3,high:1.05,collarAround:3,bump:[fineRibData,300,1,.0012],sheen:['#ffffff',0,.6],roughness:.85,
+    stitch:'#e4e3ec',facing:'#7d93bd',button:['#efede6',.22],buttons:[1.785,1.68,1.575,1.47,1.365,1.26,1.155,1.05],collarTopstitch:false,open:{bottom:1.8,half:.034},
+    // Below 1.4 it hangs loose past her hips like the striped cardigan, whose rows clear every bottom (and, worn over the
+    // skirt, its flare, a little closer so a jacket's hem still covers it). The hem rises toward the sides by `tail`.
+    body:{hem:.97,tail:.075,rows:[[1.2,.312,.236],[1.1,.318,.236],[1.0,.336,.252],[.97,.34,.253]],
+      skirtRows:[[1.3,.314,.234],[1.2,.334,.248],[1.1,.352,.258],[1.0,.381,.274],[.97,.388,.277]]},
+    pocket:{x:.128,top:1.7,width:.088,height:.1},cuff:{depth:.055}},
 };
 function texture({data,w,h},srgb){
   const t=new T.DataTexture(data,w,h,T.RGBAFormat);if(srgb)t.colorSpace=T.SRGBColorSpace;t.wrapS=t.wrapT=T.RepeatWrapping;
@@ -175,10 +185,22 @@ function makeShirtCollar(top,mat,facing,stitch,style){
   if(style.collarTopstitch)curve(top,Array.from({length:97},(_,i)=>at(i/96,1,.16)),.0016,stitch,'shirt-collar-topstitch');
   return fall;
 }
-function makeShirt(id,style){
+function makeShirt(id,style,overSkirt=false){
   const top=new T.Group();top.name=id;
   const stitch=solid(style.stitch,.6),facing=style.facing&&solid(style.facing,.85);
-  const body=shell(top,BODY_ROWS,printMaterial(style),'mesh-shirt-body',128);
+  // A longer shirt (style.body) keeps the cropped shirts' rows down to 1.4, then its own; cropped shirts are unchanged.
+  const B=style.body,hemY=B?B.hem:HEM,rows=B?[...BODY_ROWS.slice(0,7),...(overSkirt?B.skirtRows:B.rows)]:BODY_ROWS;
+  const body=shell(top,rows,printMaterial(style),'mesh-shirt-body',128);
+  // A curved shirttail: the hem rises toward the sides, lowest at the centre front and back. Each column of the body is
+  // cut shorter along its own surface (the rows below spread evenly up to the new hem), so the sides keep the body's
+  // shape at that height rather than lifting the flare of the hem with them.
+  if(B?.tail){const p=body.geometry.attributes.position,seg=128,rowsN=p.count/(seg+1),band=.14;
+    for(let i=0;i<=seg;i++){const col=Array.from({length:rowsN},(_,j)=>j*(seg+1)+i),pts=col.map(k=>[p.getX(k),p.getY(k),p.getZ(k)]);
+      const lift=B.tail*Math.abs(Math.sin(Math.atan2(pts[0][0],pts[0][2])))**1.6;if(lift<1e-6)continue;
+      // Height along the column from the top (rows run down from the neck), and the original surface at a height.
+      const at=y=>{let k=0;while(k<pts.length-2&&pts[k+1][1]>y)k++;const [a,b]=[pts[k],pts[k+1]],t=Math.max(0,Math.min(1,(a[1]-y)/((a[1]-b[1])||1)));return [a[0]+(b[0]-a[0])*t,y,a[2]+(b[2]-a[2])*t];};
+      col.forEach((k,j)=>{const y=pts[j][1];if(y>hemY+band)return;const q=at(y+lift*(1-(y-hemY)/band));p.setXYZ(k,q[0],q[1],q[2]);});}
+    p.needsUpdate=true;body.geometry.computeVertexNormals();}
   // Worn open at the top: a narrow V cut down to the second button.
   const open=style.open;
   if(open)trimToEdge(body,128,v=>v,(x,z)=>z<=0?NECK+1:Math.min(NECK+1,open.bottom+(NECK-open.bottom)*Math.abs(x)/open.half));
@@ -189,6 +211,12 @@ function makeShirt(id,style){
     const sleeve=shell(arm,[[.025,.1,.102],[-.04,.113,.109],[-.16,.108,.102],[-.28,.105,.1],[-.40,.097,.092],[-.49,.08,.082],[-.53,.079,.081]],printMaterial(style),'mesh-shirt-sleeve',48);
     roundSleeveCap(sleeve,side,.025);mapPrint(sleeve,1,style.high,v=>v.applyMatrix4(arm.matrix));easeOverHand(sleeve,side);
     const p=sleeve.geometry.attributes.position,hem=[];for(let i=p.count-49;i<p.count;i++)hem.push([p.getX(i)*1.02,p.getY(i)+.008,p.getZ(i)*1.02]);
+    // A buttoned cuff (style.cuff): a band in the print round the end of the sleeve, stitched along its top edge.
+    if(style.cuff){const d=style.cuff.depth,cuff=shell(arm,[[-.53+d,.087,.089],[-.53,.087,.089],[-.535,.086,.088]],printMaterial(style),'shirt-cuff',48);
+      mapPrint(cuff,1,style.high,v=>v.applyMatrix4(arm.matrix));easeOverHand(cuff,side,.01);
+      const q=cuff.geometry.attributes.position,edge=[];for(let i=0;i<=48;i++)edge.push([q.getX(i)*1.02,q.getY(i)-.006,q.getZ(i)*1.02]);curve(arm,edge,.0014,stitch,'cuff-stitch');
+      const b=oval(arm,[0,0,0],[.008,.008,.003],solid(style.button[0],style.button[1]),'cuff-button',16),k=Math.round(48*(side<0?.25:.75)),at=new T.Vector3(q.getX(k)*1.04,(q.getY(k)+q.getY(k+49))/2,q.getZ(k)*1.04);
+      b.position.copy(at);b.lookAt(at.clone().multiply(new T.Vector3(2,1,2)));}
     curve(arm,hem,.0014,stitch,'sleeve-hem-stitch');
     top.add(arm);
   }
@@ -203,18 +231,29 @@ function makeShirt(id,style){
   if(open){
     const edge=y=>open.half*(y-open.bottom)/(NECK-open.bottom);
     for(const side of [-1,1])line([...Array.from({length:6},(_,k)=>{const y=1.885-(1.885-open.bottom)*k/5;return [side*(edge(y)+PLACKET),y];}),
-      ...Array.from({length:12},(_,k)=>[side*PLACKET,open.bottom-.012-(open.bottom-.012-HEM-.012)*k/11])],'placket-stitch');
+      ...Array.from({length:12},(_,k)=>[side*PLACKET,open.bottom-.012-(open.bottom-.012-hemY-.012)*k/11])],'placket-stitch');
   }
-  else for(const side of [-1,1])line(Array.from({length:14},(_,k)=>[side*PLACKET,1.885-(1.885-HEM-.012)*k/13]),'placket-stitch');
+  else for(const side of [-1,1])line(Array.from({length:14},(_,k)=>[side*PLACKET,1.885-(1.885-hemY-.012)*k/13]),'placket-stitch');
   // Buttons, slightly domed.
   const [buttonColour,buttonRoughness]=style.button;
   for(const y of style.buttons){const hit=onSurface(0,y);if(!hit)continue;
     const b=oval(top,hit.point.clone().addScaledVector(hit.normal,.006).toArray(),[.0105/1.06,.0105/.76,.004],solid(buttonColour,buttonRoughness),'shirt-button',20);b.lookAt(b.position.clone().add(hit.normal));}
-  // A stitched hem, all the way round just above the lower edge.
-  curve(top,Array.from({length:129},(_,k)=>{const a=k/128*Math.PI*2;return [Math.sin(a)*.2915,HEM+.012,Math.cos(a)*.2065];}),.0016,stitch,'hem-stitch');
+  // A stitched hem, all the way round just above the lower edge (following a shirttail's curve).
+  if(B){const p=body.geometry.attributes.position;curve(top,Array.from({length:129},(_,k)=>{const i=p.count-129+k;return [p.getX(i)*1.004,p.getY(i)+.012,p.getZ(i)*1.004];}),.0016,stitch,'hem-stitch');}
+  else curve(top,Array.from({length:129},(_,k)=>{const a=k/128*Math.PI*2;return [Math.sin(a)*.2915,hemY+.012,Math.cos(a)*.2065];}),.0016,stitch,'hem-stitch');
+  // A patch pocket on her left chest (style.pocket), in the print a little out of step with the body, stitched round.
+  if(style.pocket){const P=style.pocket,x0=P.x-P.width/2,y0=P.top-P.height,pts=[],ok=[];
+    for(let j=0;j<=8;j++)for(let i=0;i<=8;i++){const hit=onSurface(x0+P.width*i/8,y0+P.height*j/8);ok.push(!!hit);pts.push(hit?hit.point.addScaledVector(hit.normal,.004):null);}
+    if(ok.every(Boolean)){const pocket=grid(top,8,8,(u,v)=>pts[Math.round(v*8)*9+Math.round(u*8)].toArray(),printMaterial(style),'shirt-pocket');
+      const uv=pocket.geometry.attributes.uv,q=pocket.geometry.attributes.position;
+      for(let i=0;i<uv.count;i++)uv.setXY(i,Math.atan2(q.getX(i),q.getZ(i))/(Math.PI*2)*style.around+.06,q.getY(i)/style.high+.04);uv.needsUpdate=true;
+      const at=(x,y)=>{const hit=onSurface(x,y);return hit.point.addScaledVector(hit.normal,.0055).toArray();},inset=.006;
+      curve(top,[[x0+inset,P.top-.004],[x0+inset,y0+inset],[x0+P.width-inset,y0+inset],[x0+P.width-inset,P.top-.004]].map(([x,y])=>at(x,y)),.0013,stitch,'pocket-stitch');
+      curve(top,Array.from({length:9},(_,k)=>at(x0+inset+(P.width-2*inset)*k/8,P.top-.012)),.0013,stitch,'pocket-stitch');}}
   return top;
 }
 const surfaceCache=new Map();
 export const SHIRT_IDS=Object.keys(STYLES);
-// Cropped at the waist, so each shirt is the same with or without the skirt.
-export function makeButtonShirt(id=MOTEL_TIE_DYE_SHIRT_ID){return makeShirt(id,STYLES[id]||STYLES[MOTEL_TIE_DYE_SHIRT_ID]);}
+// The cropped shirts end at the waist, so they are the same with or without the skirt.
+// A full-length shirt (style.body) hangs out over the skirt's flare when she wears the skirt.
+export function makeButtonShirt(id=MOTEL_TIE_DYE_SHIRT_ID,overSkirt=false){return makeShirt(id,STYLES[id]||STYLES[MOTEL_TIE_DYE_SHIRT_ID],overSkirt);}
