@@ -41,6 +41,7 @@ export const MICKEY_LONG_TEE_ID = 'black-mickey-print-long-tee-v1';
 export const PB_CHENILLE_ID = 'pull-bear-grey-chenille-high-neck-v1';
 export const DESIGUAL_SPLIT_FLORAL_SHIRT_ID = 'desigual-split-floral-shirt-v1';
 export const MANGO_DOT_SHIRT_ID = 'mango-halftone-dot-shirt-v1';
+export const PINK_YOKE_SHIRT_ID = 'pink-ditsy-floral-yoke-shirt-v1';
 export const BARREL_JEANS_ID = 'topshop-barrel-jeans-v1';
 export const DAVINIA_JEANS_ID = 'desigual-davinia-jeans-v1';
 export const LEVIS_94_ID = 'levis-94-wide-leg-v1';
@@ -417,6 +418,22 @@ export const GARMENTS = Object.freeze({
     uncertainties: ['the print is redrawn in code as a regular halftone lattice in an uneven checker of blocks, not copied; the real blocks vary more in size', 'the dots are drawn a little larger than on the shirt (about 16 across her front instead of about 22), so they stay visible on a phone', 'worn with the top button open, as on the models; the flat lay is buttoned to the collar', 'the dropped shoulder seam is not modelled; the sleeves join where the shirt template\'s sleeves do', 'over the skirt it is tucked in rather than worn loose'],
     styling: { silhouette: 'relaxed and straight, hip length with a curved hem', palette: ['soft pink', 'cream'], pattern: 'pink and cream halftone dots in a patchwork checker', coverage: { neck: 'point collar, top button open', sleeves: 'long, cuffed', midriff: 'covered, to the hip' }, material: 'fine crepe, composition not stated', warmth: 1, warmthBasis: 'inferred: a light, thin crepe shirt, though long-sleeved', weather: 'mild to warm days, or as a light layer' },
     authoring: { template: 'makeButtonShirt() in src/doll/shirts.js', texture: 'procedural dotPatchData() and crepeData() in src/doll/shirts.js, drawn locally when first worn; colours measured in the collar close-up', runtimeGeneration: false, sourcePhotosBundled: false },
+  },
+  [PINK_YOKE_SHIRT_ID]: {
+    slot: 'top',
+    id: PINK_YOKE_SHIRT_ID, name: 'Pink ditsy floral yoke shirt', family: 'gathered-yoke-button-down-shirt', version: 1,
+    status: 'reference-study-awaiting-visual-review', brandAsProvided: 'not stated',
+    source: { note: 'user supplied four product photos without a description: full length on a model with grey skinny jeans, a closer front, the back, and a close-up of the collar, yoke and sleeve' },
+    referenceViews: ['front full length on model', 'front, closer', 'back on model', 'collar, yoke and sleeve close-up'],
+    details: ['boxy long-sleeved shirt in a soft, fluid fabric with a slight sheen', 'printed with small florals on soft pink: cream five-petal daisies with rust centres, rust flowers with cream centres, rust leaves on fine stems and tiny cream sprigs', 'big 1970s point collar with long points', 'a yoke across the front and back, with the body gathered below it', 'cream buttons down the front, worn with the top one open', 'full sleeves, gathered at a dropped shoulder and into buttoned cuffs', 'straight hem at the high hip'],
+    material: { construction: 'soft woven fabric with a slight sheen (read from the photos)', composition: 'not stated', finish: 'soft sheen' },
+    fit: { silhouette: 'boxy, gathered below the yoke', sleeve: 'long, full, gathered into cuffs', hem: 'straight, high hip', neckline: 'big point collar, top button open', adjustment: 'fixed authored fit for review' },
+    exclusions: ['striped-shirt','knit-sweater'],
+    // Hangs over every waistband; over the skirt it is tucked in, so the skirt's bow shows.
+    layering: { coversWaistband: true, tucksIntoSkirt: true },
+    uncertainties: ['the print is redrawn in code as scattered daisies, rust flowers, leaves and sprigs, not copied from the photos', 'the flowers are drawn a little larger than on the shirt, so they stay visible on a phone', 'the dropped shoulder seam and the gathers at the sleeve head are not modelled; the sleeves are full and gather into the cuffs', 'over the skirt it is tucked in rather than worn loose', 'brand not stated'],
+    styling: { silhouette: 'boxy, gathered below a yoke, high-hip length', palette: ['soft pink', 'cream', 'rust'], pattern: 'small scattered florals (ditsy)', coverage: { neck: 'big point collar, top button open', sleeves: 'long, full, cuffed', midriff: 'covered, to the high hip' }, material: 'soft woven fabric, composition not stated', warmth: 1, warmthBasis: 'inferred: a light, fluid shirt fabric, though long-sleeved', weather: 'mild to warm days, or as a light layer' },
+    authoring: { template: 'makeButtonShirt() in src/doll/shirts.js', texture: 'procedural ditsyFloralData() and crepeData() in src/doll/shirts.js, drawn locally when first worn; colours measured in the close-up', runtimeGeneration: false, sourcePhotosBundled: false },
   },
   [BARREL_JEANS_ID]: {
     slot: 'bottom',

@@ -6,7 +6,7 @@
 import * as T from 'three';
 import { random, solid, oval, curve, shell, roundSleeveCap, surfaceProbe, easeOverHand, trimToEdge } from './model.js';
 import { grid } from './polo.js';
-import { MOTEL_TIE_DYE_SHIRT_ID, DESIGUAL_SPRAY_FLORAL_SHIRT_ID, DESIGUAL_SPLIT_FLORAL_SHIRT_ID, DESIGUAL_MOUNTAIN_SHIRT_ID, MANGO_DOT_SHIRT_ID } from '../wardrobe/catalog.js';
+import { MOTEL_TIE_DYE_SHIRT_ID, DESIGUAL_SPRAY_FLORAL_SHIRT_ID, DESIGUAL_SPLIT_FLORAL_SHIRT_ID, DESIGUAL_MOUNTAIN_SHIRT_ID, MANGO_DOT_SHIRT_ID, PINK_YOKE_SHIRT_ID } from '../wardrobe/catalog.js';
 import { splitBodyData, splitCollarData, leftSleeveData, rightSleeveData } from './split-floral-print.js';
 
 // Warm grey-mauve tie-dye, measured in the shirt's own photos (hanger front and back): the darkest patches about
@@ -21,6 +21,10 @@ const BODY_ROWS=[[NECK,.112,.104],[1.875,.17,.124],[1.83,.228,.154],[1.775,.265,
 const RELAXED_ROWS=[[NECK,.112,.104],[1.875,.172,.126],[1.83,.232,.157],[1.775,.272,.181],[1.65,.286,.19],[1.5,.29,.197],[1.4,.295,.205],[1.3,.302,.215],[1.2,.314,.228],[1.12,.322,.234],[1.03,.328,.24]];
 // Over the skirt, the same shirt is tucked in: it narrows below 1.4 to end inside the skirt's waistband.
 const TUCKED_ROWS=[...RELAXED_ROWS.slice(0,7),[1.33,.292,.205],[1.26,.29,.205]];
+// Boxy and gathered below a yoke (the pink yoke shirt): as relaxed as the Mango shirt through the body, ending straight at
+// the hip like the lilac top; tucked into the skirt the same way.
+const YOKE_ROWS=[...RELAXED_ROWS.slice(0,4),[1.65,.29,.193],[1.5,.294,.202],[1.4,.3,.21],[1.3,.307,.219],[1.2,.314,.229],[1.1,.32,.24]];
+const YOKE_TUCKED=[...YOKE_ROWS.slice(0,7),[1.33,.292,.205],[1.26,.29,.205]];
 const PLACKET=.017;
 // A longer shirt ends at the high hip, on the printed tees' lower rows, which clear every waistband. With gathers, the
 // rows are doubled (midpoints added) so the gathers have rows enough to fold.
@@ -151,6 +155,45 @@ function dotPatchData(){
   return {data,w:size,h:size};
   });
 }
+// Ditsy florals on pink, read from the pink yoke shirt's photos: cream five-petal daisies with rust centres, smaller
+// rust flowers with cream centres, rust leaves on fine stems and tiny cream sprigs, scattered densely. Measured in the
+// close-up: pink about (219, 184, 174), cream (220, 210, 193), solid rust (160, 87, 55); about 60% pink, 20% cream, 20% rust.
+// Calibrated in studio renders, which lift these colours strongly: rendered pink (219, 184, 173), cream (223, 211, 197),
+// solid rust (162, 88, 59), and an average of (210, 174, 159) against the photos' (207, 173, 158).
+const DITSY={pink:[168,126,122],cream:[172,158,140],rust:[100,52,30]};
+function ditsyFloralData(){
+  return cached('ditsy-floral',()=>{
+  const size=512,rand=random(131),px=new Float32Array(size*size*3);
+  for(let i=0;i<size*size;i++)for(let k=0;k<3;k++)px[i*3+k]=DITSY.pink[k];
+  const smooth=(a,b,t)=>{const f=Math.max(0,Math.min(1,(t-a)/(b-a)));return f*f*(3-2*f);};
+  // Paints a shape over the tile, wrapping at its edges: inside(dx, dy) is how far inside the shape a point is, in pixels.
+  const paint=(cx,cy,reach,colour,inside,amount=1)=>{
+    for(let y=Math.floor(cy-reach);y<=Math.ceil(cy+reach);y++)for(let x=Math.floor(cx-reach);x<=Math.ceil(cx+reach);x++){
+      const d=inside(x+.5-cx,y+.5-cy);if(d<=-1)continue;const a=smooth(-1,1,d)*amount;if(a<=0)continue;
+      const i=(((y%size)+size)%size)*size+(((x%size)+size)%size);for(let k=0;k<3;k++)px[i*3+k]+=(colour[k]-px[i*3+k])*a;}};
+  // A flower of n petals: rounded petals (shape below 1) or pointed ones (above 1), turned by `turn`.
+  const flower=(r,n,turn,shape)=>(dx,dy)=>{const d=Math.hypot(dx,dy),c=Math.abs(Math.cos(n*(Math.atan2(dy,dx)-turn)/2));return r*(.5+.5*c**shape)-d;};
+  const disc=r=>(dx,dy)=>r-Math.hypot(dx,dy);
+  const leaf=(len,w,turn)=>(dx,dy)=>{const c=Math.cos(turn),s=Math.sin(turn),u=dx*c+dy*s,v=-dx*s+dy*c;if(Math.abs(u)>=len)return -(Math.abs(u)-len);return w*Math.sqrt(1-(u/len)**2)-Math.abs(v);};
+  const stem=(len,turn)=>(dx,dy)=>{const c=Math.cos(turn),s=Math.sin(turn),u=dx*c+dy*s,v=-dx*s+dy*c;return u<0||u>len?-2:1-Math.abs(v);};
+  // Scattered without crowding: each new flower keeps a little clear of those already placed (wrapping round the tile).
+  const placed=[],place=(r,gap,tries=60)=>{for(let t=0;t<tries;t++){const x=rand()*size,y=rand()*size;
+    if(placed.every(([px2,py2,pr])=>{let dx=Math.abs(x-px2),dy=Math.abs(y-py2);dx=Math.min(dx,size-dx);dy=Math.min(dy,size-dy);return Math.hypot(dx,dy)>(r+pr)*gap;})){placed.push([x,y,r]);return [x,y];}}return null;};
+  // Large and middle cream daisies, then rust flowers with leaves on fine stems, then tiny cream sprigs in the gaps.
+  const daisies=[...Array(66)].map(()=>13+rand()*15).sort((a,b)=>b-a),rusts=[...Array(80)].map(()=>10+rand()*9).sort((a,b)=>b-a);
+  // Both kinds are placed together, largest first, so the rust flowers spread evenly among the daisies.
+  const blooms=[...daisies.map(r=>[r,'cream']),...rusts.map(r=>[r,'rust'])].sort((a,b)=>b[0]-a[0]);
+  for(const [r,kind] of blooms){const at=place(r,kind==='cream'?.82:.62);if(!at)continue;const [x,y]=at;
+    if(kind==='cream'){paint(x,y,r+2,DITSY.cream,flower(r,5,rand()*7,.55));paint(x,y,r*.3,DITSY.rust,disc(r*.17+1));continue;}
+    for(let k=0;k<2;k++){const a=rand()*Math.PI*2,len=r*(1.3+rand()*.7);paint(x,y,len+2,DITSY.rust,stem(len,a));
+      paint(x+Math.cos(a)*len,y+Math.sin(a)*len,r*.7,DITSY.rust,leaf(r*.55,r*.22,a+(rand()-.5)));}
+    paint(x,y,r+2,DITSY.rust,flower(r,5,rand()*7,.9));paint(x,y,r*.35,DITSY.cream,disc(r*.2+.5));}
+  for(let k=0;k<160;k++){const r=4+rand()*4,at=place(r,.5,20);if(!at)continue;const [x,y]=at;paint(x,y,r+2,DITSY.cream,flower(r,7,rand()*7,2.5),.9);}
+  const data=new Uint8Array(size*size*4);
+  for(let i=0;i<size*size;i++){const n=1+(rand()-.5)*.03;for(let k=0;k<3;k++)data[i*4+k]=Math.max(0,Math.min(255,px[i*3+k]*n));data[i*4+3]=255;}
+  return {data,w:size,h:size};
+  });
+}
 function crepeData(){
   // Crepe: a fine, irregular pebbled crinkle, as on the close-up of the collar.
   return cached('crepe',()=>{
@@ -204,6 +247,13 @@ const STYLES={
     stitch:'#e4b9ac',facing:null,button:['#f2d9cf',.3],buttons:[],collarTopstitch:false,open:{bottom:1.8,half:.034},
     rows:RELAXED_ROWS,tucked:TUCKED_ROWS,depth:.7,shirttail:{from:1.24,centre:1.03,side:1.1},concealed:true,
     sleeve:[[.025,.11,.112],[-.04,.124,.122],[-.16,.126,.12],[-.28,.122,.116],[-.38,.113,.108],[-.45,.098,.096],[-.49,.088,.088],[-.53,.084,.085]],cuff:{from:-.455,to:-.535,button:true}},
+  // Boxy, hip length, gathered below a yoke front and back, with a big 1970s point collar, cream buttons (worn with the top
+  // one open), and full sleeves gathered into buttoned cuffs. Optional settings: yoke (the seam's height at the front and
+  // back, and its gathers), collar (a bigger collar) and sleeveFolds (gathers into the cuff).
+  [PINK_YOKE_SHIRT_ID]:{print:ditsyFloralData,around:2,high:1.05,collarAround:1,depth:.7,bump:[crepeData,40,30,.0012],sheen:['#f6d0c8',.25,.55],roughness:.72,
+    stitch:'#e2b3a8',facing:null,button:['#f4ece0',.25],buttons:[1.785,1.685,1.585,1.485,1.385,1.285,1.185],collarTopstitch:false,open:{bottom:1.8,half:.034},
+    rows:YOKE_ROWS,tucked:YOKE_TUCKED,yoke:{front:1.72,back:1.7,folds:44,depth:.011},collar:{spread:.135,drop:.09,deeper:.012},
+    sleeve:[[.025,.11,.112],[-.04,.13,.128],[-.18,.146,.142],[-.32,.144,.14],[-.42,.125,.122],[-.49,.095,.094],[-.53,.086,.087]],sleeveFolds:{count:14,depth:.006,from:-.3},cuff:{from:-.455,to:-.535,button:true}},
 };
 function texture({data,w,h},srgb){
   const t=new T.DataTexture(data,w,h,T.RGBAFormat);if(srgb)t.colorSpace=T.SRGBColorSpace;t.wrapS=t.wrapT=T.RepeatWrapping;
@@ -241,6 +291,16 @@ function atlasByAngle(mesh,v,side=0){
 }
 // Gathers either side of the placket: folds fanning out from it, deepest at the placket and fading toward her sides and
 // at the top and bottom of the gathered band.
+// A yoke (optional `yoke`): the body is gathered just below a seam across the front (at `front`) and the back (`back`):
+// fine folds all round, deepest under the seam and fading out toward the hem, and kept off the placket.
+const yokeAt=(Y,a)=>Y.back+(Y.front-Y.back)*(1+Math.cos(a))/2;
+function yokeGathers(mesh,Y,hem){
+  const p=mesh.geometry.attributes.position,smooth=(a,b,t)=>{const f=Math.max(0,Math.min(1,(t-a)/(b-a)));return f*f*(3-2*f);};
+  for(let i=0;i<p.count;i++){const x=p.getX(i),y=p.getY(i),z=p.getZ(i),a=Math.atan2(x,z),top=yokeAt(Y,a);if(y>=top)continue;
+    const t=Math.min(1,(top-y)/(top-hem)),placket=z>0?smooth(PLACKET,PLACKET*3,Math.abs(x)):1,r=Math.hypot(x,z);
+    const k=1+Y.depth*(1-t)**1.3*smooth(0,.03,t)*placket*Math.cos(a*Y.folds)/r;p.setX(i,x*k);p.setZ(i,z*k);}
+  p.needsUpdate=true;mesh.geometry.computeVertexNormals();
+}
 function gather(mesh,{from,to,reach,depth,folds}){
   const p=mesh.geometry.attributes.position,mid=(from+to)/2,half=(to-from)/2;
   for(let i=0;i<p.count;i++){const x=p.getX(i),y=p.getY(i),z=p.getZ(i);if(z<=0||y<from||y>to)continue;
@@ -266,8 +326,11 @@ function makeShirtCollar(top,mat,facing,stitch,style){
   // the left; v from fold to edge.
   const open=style.open,x0=open?open.half+.008:.012;
   const fold=a=>[.123*Math.sin(a),1.952-.03*(1+Math.cos(a))/2,.115*Math.cos(a)];
-  const frontX=v=>x0+(.1-x0)*v**1.3;
-  const outerY=(a,u)=>{const end=Math.max(0,1-Math.min(u,1-u)/.12);return 1.888-.04*(1+Math.cos(a))/2-.05*end*end;};
+  // A bigger collar (optional `collar`): its points spread wider (`spread`) and hang lower (`drop`), and it lies deeper on
+  // her shoulders (`deeper`).
+  const C=style.collar||{},spread=C.spread??.1,drop=C.drop??.05,deeper=C.deeper??0;
+  const frontX=v=>x0+(spread-x0)*v**1.3;
+  const outerY=(a,u)=>{const end=Math.max(0,1-Math.min(u,1-u)/.12);return 1.888-deeper-.04*(1+Math.cos(a))/2-drop*end*end;};
   const at=(u,v,inset=0)=>{
     const vv=v*(1-inset),y=outerY(0,0)+(fold(0)[1]-outerY(0,0))*(1-vv),[rx]=bodyRadii(y,style.rows);
     const r=vv<1e-6?.123:.123+(rx+.01-.123)*vv,start=Math.asin(Math.min(.99,(frontX(vv)+inset*.6*(1-vv))/r));
@@ -303,6 +366,7 @@ function makeShirt(id,style,atlas=null,skirt=false){
   const open=style.open;
   if(open)trimToEdge(body,128,v=>v,(x,z)=>z<=0?NECK+1:Math.min(NECK+1,open.bottom+(NECK-open.bottom)*Math.abs(x)/open.half));
   if(style.ruche)gather(body,style.ruche);
+  if(style.yoke)yokeGathers(body,style.yoke,hem);
   if(style.atlas)atlasBody(body,128,hem);else mapPrint(body,style.around,style.high,undefined,style.depth);
   for(const side of [-1,1]){
     const arm=new T.Group();arm.position.set(side*.242,1.815,0);arm.rotation.z=side*.22;arm.updateMatrix();
@@ -310,6 +374,10 @@ function makeShirt(id,style,atlas=null,skirt=false){
     // Optional (`sleevePrints`): each sleeve its own print, laid out [around, high].
     const SP=style.sleevePrints?.[side>0?'left':'right'];
     const sleeve=shell(arm,style.sleeve||[[.025,.1,.102],[-.04,.113,.109],[-.16,.108,.102],[-.28,.105,.1],[-.40,.097,.092],[-.49,.08,.082],[-.53,.079,.081]],printMaterial(style,SP?.[0],atlas),'mesh-shirt-sleeve',48);
+    // Full sleeves gathered into the cuff (optional `sleeveFolds`): fine folds round the arm, growing toward the cuff.
+    if(style.sleeveFolds){const F=style.sleeveFolds,q=sleeve.geometry.attributes.position;
+      for(let i=0;i<q.count;i++){const x=q.getX(i),y=q.getY(i),z=q.getZ(i);if(y>F.from)continue;const r=Math.hypot(x,z),t=Math.min(1,(F.from-y)/(F.from+.53)),k=1+F.depth*t*Math.cos(Math.atan2(x,z)*F.count)/r;q.setX(i,x*k);q.setZ(i,z*k);}
+      q.needsUpdate=true;sleeve.geometry.computeVertexNormals();}
     roundSleeveCap(sleeve,side,.025);if(style.atlas)atlasSleeve(sleeve,48,side,.025,-.53);else mapPrint(sleeve,SP?SP[1]:1,SP?SP[2]:style.high,v=>v.applyMatrix4(arm.matrix));easeOverHand(sleeve,side);
     const p=sleeve.geometry.attributes.position,hem=[];for(let i=p.count-49;i<p.count;i++)hem.push([p.getX(i)*1.02,p.getY(i)+.008,p.getZ(i)*1.02]);
     curve(arm,hem,.0014,stitch,'sleeve-hem-stitch');
@@ -345,6 +413,8 @@ function makeShirt(id,style,atlas=null,skirt=false){
       ...Array.from({length:12},(_,k)=>[side*PLACKET,open.bottom-.012-(open.bottom-.012-hem-.012)*k/11])],'placket-stitch');
   }
   else for(const side of [-1,1])line(Array.from({length:14},(_,k)=>[side*PLACKET,1.885-(1.885-hem-.012)*k/13]),'placket-stitch');
+  // The yoke's seam, all the way round just proud of the body, with the gathers starting below it.
+  if(style.yoke)curve(top,Array.from({length:129},(_,k)=>{const a=k/128*Math.PI*2,y=yokeAt(style.yoke,a),[rx,rz]=bodyRadii(y,rows);return [Math.sin(a)*(rx+.005),y,Math.cos(a)*(rz+.005)];}),.0016,stitch,'yoke-seam');
   // Buttons, slightly domed.
   const [buttonColour,buttonRoughness]=style.button;
   for(const y of style.buttons){const hit=onSurface(0,y);if(!hit)continue;
