@@ -12,6 +12,7 @@ export const UGG_LOWMEL_ID = 'ugg-lowmel-cream-v1';
 export const SAM_ZIP_BOOT_ID = 'sam-edelman-front-zip-lug-boot-v1';
 export const DM_BLAIRE_CHAIN_ID = 'dr-martens-blaire-quad-chain-v1';
 export const ADIDAS_SUPERSTAR_PINK_ID = 'adidas-superstar-pink-suede-v1';
+export const CONVERSE_LIFT_HI_ID = 'converse-modern-lift-hi-egret-v1';
 export const ADIDAS_CAMPUS_ID = 'adidas-campus-00s-grey-v1';
 export const BRONZE_TOP_ID = 'desigual-bronze-mesh-v1';
 export const LILAC_TOP_ID = 'lilac-portrait-mockneck-v1';
@@ -945,6 +946,38 @@ export const GARMENTS = Object.freeze({
       soleLines: [{ down: .022 }, { at: .016 }],
       // The heel counter's top edge, and the panel seam from the sole up to the eyestay, as [z, y] paths.
       seams: [[[-.155, .195], [-.129, .21], [-.103, .205], [-.078, .19], [-.055, .184], [-.045, .1935], [-.025, .215], [-.007, .231]], [[.015, .087], [.0025, .128], [-.006, .158], [.019, .176], [.044, .1935], [.075, .217], [.1, .237]]],
+    },
+  },
+  [CONVERSE_LIFT_HI_ID]: {
+    slot: 'shoes',
+    id: CONVERSE_LIFT_HI_ID, name: 'Converse Chuck Taylor Modern Lift high-top', family: 'canvas-platform-high-top-sneaker', version: 1,
+    status: 'reference-study-awaiting-visual-review', brandAsProvided: 'Converse',
+    source: { note: 'user supplied five phone screenshots of a decathlon.it product gallery: outer side, inner side, a pair seen from the front, and a top view (twice)' },
+    referenceViews: ['outer side', 'inner side', 'front pair', 'top view'],
+    details: ['monochrome cream (egret) canvas high-top', 'stacked platform sole in cream with grooves between its layers and tonal stitch lines', 'seven silver eyelets a side up the lacing, cream flat laces', 'rubber toe cap in the sole\'s cream wrapping the front of the toe', 'round tonal ankle patch with an embossed star on the inner side', 'two small vent eyelets low on the inner side', 'rounded toe, padded collar'],
+    material: { construction: 'cotton canvas upper on a rubber platform', composition: 'not visible in the supplied screenshots', finish: 'matte canvas' },
+    fit: { silhouette: 'high-top platform sneaker', height: 'over the ankle', adjustment: 'fixed authored fit for review' },
+    uncertainties: ['the patch carries no lettering', 'the heel label and insole logo are not modelled', 'the platform stays within her foot height, so she is not raised; the real platform may be a little taller'],
+    styling: { silhouette: 'chunky high-top on a stacked platform', palette: ['cream'], pattern: 'plain, tonal', coverage: { feet: 'closed, over the ankle' }, material: 'canvas on rubber', warmth: 2, warmthBasis: 'inferred: closed canvas high-top', weather: 'dry mild days; canvas is not waterproof' },
+    authoring: { texture: 'procedural materials from the shoe template; colours measured in the screenshots', runtimeGeneration: false, sourcePhotosBundled: false },
+    build: {
+      template: 'sneaker', cx: .168,
+      colours: { upper: '#e4dfcf', sole: '#ddd5bb', thread: '#cbc1a5', piping: '#d6cfb9', lace: '#ece7da', eyelet: '#c6c8cb', lining: '#e2dbc7', webbing: '#ddd6c2', patch: '#e9e5d8' },
+      // A flat stacked platform about a quarter of the shoe's height, in three layers with grooves between them and
+      // stitch lines round it; the toe bumper rises a little higher. It stays within her foot height (she is not raised).
+      sole: { top: .105, heelTop: .105, heelFrom: -.03, rand: .118, lugTop: .012, groove: null, bulge: .003, flare: .012, toeLift: .015, lugs: 60, lugDepth: 0, ribs: [.04, .072], stitches: [.056, .088] },
+      // Side photo proportions: a rounded toe, the lacing rising diagonally to a straight ankle shaft about two thirds of
+      // the shoe's length high. The shaft narrows to hug her leg above the ankle, as a laced high-top does, so her leg
+      // does not come out of a loose opening; from .265 up it stays inside the classic jeans' cuff, which falls over it. It
+      // covers her socks completely, so they are hidden (coversSocks).
+      upper: [[.105, .42, -.158, .13], [.125, .425, -.16, .132], [.145, .415, -.162, .132], [.16, .385, -.162, .13], [.175, .34, -.16, .128], [.195, .29, -.158, .126], [.22, .22, -.15, .12], [.245, .125, -.124, .106], [.265, .085, -.104, .097], [.29, .08, -.1, .095], [.32, .08, -.099, .094], [.35, .08, -.097, .092], [.38, .079, -.095, .089], [.42, .078, -.094, .087]],
+      collar: { front: .38, side: .395, back: .41 },
+      nFront: 2.1, nBack: 2, heelNarrow: .12, toeNarrow: .25, restCap: .18, collarRoll: .009, drapeClear: .05,
+      eyelets: [.175, .2, .225, .25, .275, .3, .325], laceHalfWidth: .03, eyeletSize: [.0095, .0032],
+      // The rubber toe cap in the sole's colour, wrapping the front of the toe from the sole up to about half the toe
+      // box's height, as on every Chuck Taylor.
+      panels: [{ name: 'toe-cap', rubber: true, z: [.26, .44], top: [[.26, .107], [.3, .13], [.34, .152], [.38, .166], [.44, .174]] }],
+      coversSocks: true, anklePatch: { at: [-.042, .236], r: .034 }, vents: [[.096, .125], [.042, .125]],
     },
   },
   [ADIDAS_CAMPUS_ID]: {
