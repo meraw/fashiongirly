@@ -348,12 +348,21 @@ def paint_meadow(w=2400, h=800):
 
 
 # ---------------------------------------------------------------------------------------------------------------
-# Brushwork on its own, in grey: broad sideways strokes laid over the doll's weather skies (CSS blends it softly),
-# so every sky looks painted whatever its colour. It tiles side to side.
+# Brushwork on its own, in grey: broad sideways strokes laid over the whole painted sky (CSS blends it softly), so
+# every weather looks painted whatever its colour. It tiles both ways without a seam: each axis is blended with a
+# copy of itself shifted by half, weighted so that both edges end on the same strokes.
+def seamless(a):
+    for axis in (1, 0):
+        n = a.shape[axis]
+        t = np.abs(np.linspace(-1, 1, n, dtype=np.float32))
+        t = t[None, :] if axis == 1 else t[:, None]
+        a = a * (1 - t) + np.roll(a, n // 2, axis=axis) * t
+    return a
+
+
 def paint_brush(w=1024, h=1024):
-    a = (stretched(h, w * 2, 220, 34, SEED + 600) - .5) * .9 + (stretched(h, w * 2, 70, 9, SEED + 601) - .5) * .45
-    a = a[:, :w] * np.linspace(1, 0, w)[None, :] + a[:, w:] * np.linspace(0, 1, w)[None, :]
-    a = a + grain(h, w, SEED + 602, .12)
+    a = (stretched(h, w, 220, 34, SEED + 600) - .5) * .9 + (stretched(h, w, 70, 9, SEED + 601) - .5) * .45
+    a = seamless(a) + grain(h, w, SEED + 602, .12)
     return np.clip(.5 + a * .5, 0, 1)
 
 
