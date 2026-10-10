@@ -1,13 +1,15 @@
 // Tucking a top in. Below the top of the waistband she wears (her trousers' or the skirt's), the top is drawn in just
-// inside it (each height and angle measured on the waistband), and just above it the fabric narrows into it, as a
-// tucked top blouses over the waistband. Fabric far below the waistband's top is folded up out of the way, out of sight.
+// inside it (each height and angle measured on the waistband), and above it the fabric blouses over the waistband's
+// edge and goes straight in at its top. Fabric far below the waistband's top is folded up out of the way, out of sight.
 // Built in outfit units, before makeOutfit scales the outfit.
 import * as T from 'three';
 import { levelCaster } from './level-caster.js';
 
-// The fabric is fully in from a little above the waistband's top (GAP: about a top's row spacing, so the straight edge
-// from the last row outside to the first row inside cannot cut through the waistband), easing out over BLEND above that.
-const GAP=.04,BLEND=.05,FOLD=.1;
+// Just above the waistband's top the fabric goes straight in: rows less than SNAP above it are drawn down to just inside
+// its top (SNAP is about a top's row spacing, so the straight edge from the last row outside to the first row inside
+// cannot cut through the waistband). Above that, over BLEND, the fabric eases in only as far as the waistband's outer
+// edge, blousing over it: drawn in any further, it would leave a gap that shows the inside of the trousers.
+const SNAP=.03,BLEND=.05,FOLD=.1;
 // A bottom's waistband: its top (the highest point near her front and back) and the radius of its inner surface at an
 // angle round her: the closest anywhere from just below its top down to where the tucked fabric is folded away, since
 // at the very top a ray can miss the waistband or meet a patch or loop standing outside it, and below the waistband
@@ -23,13 +25,17 @@ function measureWaist(waist){
   const inner=(y,a)=>{const key=Math.round(y/.004)+':'+Math.round(a/(Math.PI/90));
     if(!cache.has(key)){const hit=cast(o.set(0,y,0),d.set(Math.sin(a),0,Math.cos(a)).applyAxisAngle(up,1e-5));cache.set(key,hit?hit.distance:null);}return cache.get(key);};
   const inside=a=>{let rin=null;for(let h=top-.004;h>top-FOLD-.04;h-=.006){const r=inner(h,a);if(r!=null)rin=rin==null?r:Math.min(rin,r);}return rin;};
-  return {top,inside};
+  // Its outer edge at the top: the farthest surface just below the top, all round her.
+  const edges=new Map(),outside=a=>{const key=Math.round(a/(Math.PI/90));
+    if(!edges.has(key)){let r=null;for(let h=top-.004;h>top-.03;h-=.006){const hit=cast(o.set(0,h,0),d.set(Math.sin(a),0,Math.cos(a)).applyAxisAngle(up,1e-5),true);if(hit)r=Math.max(r??0,hit.distance);}edges.set(key,r);}return edges.get(key);};
+  return {top,inside,outside};
 }
 // Where a point of the top goes when it is tucked into this waistband (into `out`); false if it stays where it is.
 function tuckPoint(w,x,y,z,out){
-  if(y>w.top+GAP+BLEND)return false;
-  const r=Math.hypot(x,z)||1,a=Math.atan2(x,z),fy=Math.max(y,w.top-FOLD),rin=w.inside(a);if(rin==null)return false;
-  const s=fy>w.top+GAP?(fy-w.top-GAP)/BLEND:0,k=(r+(Math.min(r,rin-.007)-r)*(1-s)**2)/r;out.set(x*k,fy,z*k);return true;
+  if(y>w.top+SNAP+BLEND)return false;
+  const r=Math.hypot(x,z)||1,a=Math.atan2(x,z),rin=w.inside(a);if(rin==null)return false;
+  if(y>w.top+SNAP){const s=(y-w.top-SNAP)/BLEND,edge=(w.outside(a)??rin)+.004,k=(r+(Math.min(r,edge)-r)*(1-s)**2)/r;out.set(x*k,y,z*k);return true;}
+  const fy=Math.min(Math.max(y,w.top-FOLD),w.top-.004),k=Math.min(r,rin-.007)/r;out.set(x*k,fy,z*k);return true;
 }
 // One piece of a top, built in outfit units (a button-down's body): tucked in place. Returns the waistband's top.
 export function tuckInto(mesh,waist){
@@ -51,7 +57,7 @@ export function tuckTop(top,waist){
   for(const mesh of meshes){
     const g=mesh.geometry;if(!g.boundingSphere)g.computeBoundingSphere();
     const centre=g.boundingSphere.center.clone().applyMatrix4(mesh.matrixWorld),radius=g.boundingSphere.radius*mesh.matrixWorld.getMaxScaleOnAxis();
-    if(centre.y-radius>w.top+GAP+BLEND)continue;
+    if(centre.y-radius>w.top+SNAP+BLEND)continue;
     if(radius<.03){
       if(centre.y-radius<w.top){mesh.visible=false;continue;}
       if(tuckPoint(w,centre.x,centre.y,centre.z,q)){inverse.copy(mesh.parent.matrixWorld).invert();mesh.position.add(q.applyMatrix4(inverse).sub(centre.applyMatrix4(inverse)));}
