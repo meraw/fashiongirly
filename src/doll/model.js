@@ -77,12 +77,13 @@ function star(group,x,y,offset,r,mat) {
 function makeHead() {
   const head=new T.Group();head.name='doll-head';head.position.set(0,2.34,0);head.rotation.z=-.105;
   const skin=cloth('#e2b698'), dark=cloth('#392625'), cream=solid('#fff2d7'), iris=cloth('#51372d'), blush=new T.MeshStandardMaterial({color:'#d7888a',transparent:true,opacity:.42,roughness:1});
-  // A doll's head rather than a ball: a small chin below the smile and fuller cheeks at the jaw, both outside the
-  // face's features, which keep their places on the plain ellipsoid (faceZ).
+  // A doll's head rather than a ball: a small chin brought forward under the smile, low enough to stay behind a
+  // stand-up collar, and fuller cheeks at the jaw, both outside the face's features, which keep their places on the
+  // plain ellipsoid (faceZ).
   const headGeo=new T.SphereGeometry(1,48,36),hp=headGeo.attributes.position;
   for(let i=0;i<hp.count;i++){const x=hp.getX(i),y=hp.getY(i),z=hp.getZ(i);
-    const chin=Math.max(0,-y-.45)/.55*Math.max(0,z+.2)*.1,jaw=Math.max(0,Math.abs(x)-.72)/.28*Math.max(0,1-Math.abs(y+.25)/.45)*.05,s=1+chin+jaw;
-    hp.setXYZ(i,x*s,y*s,z*s);}
+    const chin=Math.max(0,-y-.7)/.3*Math.max(0,z+.2)*.06,jaw=Math.max(0,Math.abs(x)-.72)/.28*Math.max(0,1-Math.abs(y+.25)/.45)*.05,s=1+jaw;
+    hp.setXYZ(i,x*s,y*s,z*s+chin);}
   headGeo.computeVertexNormals();put(head,headGeo,skin,'felt-head').scale.set(.5,.47,.405);
   for(const side of [-1,1]) {
     oval(head,[side*.473,-.04,0],[.08,.12,.075],skin,'ear');

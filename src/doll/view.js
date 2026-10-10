@@ -63,10 +63,12 @@ export async function createDollView(host, recipe) {
   const light=lightScene(scene,renderer);
   // She stands in a resting pose (pose.js): her body is posed once, each hairstyle when it is put on, and every
   // outfit after it is fitted, all by the same field, so clothes and hair stay with the body.
-  const model=new T.Group();scene.add(model);const doll=makeDoll();pose(doll);model.add(doll);const hair=createHairController(doll);
-  const poseHair=()=>{const h=doll.getObjectByName('outfit-hair');if(h&&!h.userData.posed){h.userData.posed=true;pose(h,doll);}};
-  const dress=next=>{const worn=makeOutfit(next,atlas);fitDoll(doll,worn);pose(worn,worn,worn.userData.lift||0);return worn;};
-  hair.update(recipe.hairId);poseHair();let outfit=dress(recipe),current=cleanRecipe(recipe);model.add(outfit);
+  // All of it is posed in the model group's space, her world's units (the wardrobe's own group is scaled to her toy
+  // proportions, so its local space would stretch the field), less the lift her shoes give her.
+  const model=new T.Group();scene.add(model);const doll=makeDoll();model.add(doll);pose(doll,model);const hair=createHairController(doll);
+  const poseHair=()=>{const h=doll.getObjectByName('outfit-hair');if(h&&!h.userData.posed){h.userData.posed=true;pose(h,model,doll.position.y);}};
+  const dress=next=>{const worn=makeOutfit(next,atlas);model.add(worn);fitDoll(doll,worn);pose(worn,model,doll.position.y);return worn;};
+  hair.update(recipe.hairId);poseHair();let outfit=dress(recipe),current=cleanRecipe(recipe);
   const clothingKey=state=>JSON.stringify({...state,hairId:undefined});let lastClothing=clothingKey(recipe);
   let angle=-.12,target=angle,frame=null,drag=null,pending=0;
   const draw=()=>{frame=null;if(closed)return;model.rotation.y=angle;renderer.render(scene,camera);};
@@ -111,7 +113,7 @@ export async function createDollView(host, recipe) {
   const restored=()=>{host.dispatchEvent(new CustomEvent('view-restored'));render();};renderer.domElement.addEventListener('webglcontextrestored',restored);
   return {
     // A new outfit is built once its textures have arrived (usually at once); only the latest request is built.
-    update(next){hair.update(next.hairId);poseHair();current=cleanRecipe(next);const key=clothingKey(next);if(key!==lastClothing){lastClothing=key;const ticket=++pending;texturesFor(next).then(()=>{if(closed||ticket!==pending)return;const replacement=dress(next);model.remove(outfit);disposeObject(outfit);outfit=replacement;model.add(outfit);render();});}render();},
+    update(next){hair.update(next.hairId);poseHair();current=cleanRecipe(next);const key=clothingKey(next);if(key!==lastClothing){lastClothing=key;const ticket=++pending;texturesFor(next).then(()=>{if(closed||ticket!==pending)return;const replacement=dress(next);model.remove(outfit);disposeObject(outfit);outfit=replacement;render();});}render();},
     turn(degrees){target=degrees*Math.PI/180;angle=target;render();},
     dispose(){if(closed)return;closed=true;cancelAnimationFrame(frame);cancelAnimationFrame(hover);observer.disconnect();renderer.domElement.removeEventListener('pointerdown',down);renderer.domElement.removeEventListener('pointermove',move);renderer.domElement.removeEventListener('pointerup',up);renderer.domElement.removeEventListener('pointercancel',up);renderer.domElement.removeEventListener('webglcontextlost',lost);renderer.domElement.removeEventListener('webglcontextrestored',restored);doc.removeEventListener('weather-change',onWeather);hair.dispose();disposeObject(model);Object.values(atlas).forEach(t=>t.dispose());light.dispose();renderer.dispose();renderer.domElement.remove();},
   };
