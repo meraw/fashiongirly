@@ -4,12 +4,12 @@
 // Optional, for shirts that need them (a shirt without them is built as before): a print from a texture atlas made from
 // the product photos (`atlas`), a longer hem (`hem`), gathers either side of the placket (`ruche`) and buttoned cuffs (`cuff`).
 // Also optional: print repeats round a sleeve (`sleeveAround`), a chest pocket (`pocket`) and a back yoke seam (`backYoke`);
-// a short contrast placket (`placket`), appliqué patches (`patches`), ribbed cuffs (`cuff.rib`) and a shirt tucked into
-// whatever bottom she wears (`tuckIn`); and soft creases pressed into the fabric (`creases`), as linen creases in wear.
+// a short contrast placket (`placket`), appliqué patches (`patches`), ribbed cuffs (`cuff.rib`) and a shirt worn tucked
+// into her trousers unless the outfit says otherwise (`tuckIn`); and soft creases pressed into the fabric (`creases`), as linen creases in wear.
 // Also a centre back pleat below the back yoke seam (`backPleat`), and a small tonal embroidered logo (`logo`).
 import * as T from 'three';
 import { random, solid, oval, curve, shell, roundSleeveCap, surfaceProbe, easeOverHand, trimToEdge } from './model.js';
-import { levelCaster } from './level-caster.js';
+import { tuckInto } from './tuck.js';
 import { grid } from './polo.js';
 import { MOTEL_TIE_DYE_SHIRT_ID, DESIGUAL_SPRAY_FLORAL_SHIRT_ID, DESIGUAL_SPLIT_FLORAL_SHIRT_ID, DESIGUAL_MOUNTAIN_SHIRT_ID, MANGO_DOT_SHIRT_ID, PINK_YOKE_SHIRT_ID, LEVIS_PLAID_FLANNEL_ID, DESIGUAL_RUGBY_ID } from '../wardrobe/catalog.js';
 import { ikatData } from './ikat-print.js';
@@ -289,27 +289,6 @@ function tigerPatchData(colour,seed){
   return {data,w,h};
   });
 }
-// Tucked into the trousers she wears: below the top of their waistband the body is drawn in just inside the waistband (each
-// height and angle measured on the trousers), and just above it the fabric narrows into the waistband, as a tucked shirt
-// blouses over it. Fabric far below the waistband's top is folded up out of the way.
-function tuckInto(mesh,trousers){
-  trousers.updateMatrixWorld(true);
-  const meshes=[];trousers.traverse(o=>{if(o.isMesh&&!o.isInstancedMesh)meshes.push(o);});if(!meshes.length)return null;
-  const v=new T.Vector3();let top=-Infinity;
-  for(const m of meshes){const p=m.geometry.attributes.position;for(let i=0;i<p.count;i++){v.fromBufferAttribute(p,i).applyMatrix4(m.matrixWorld);if(Math.abs(v.x)<.32)top=Math.max(top,v.y);}}
-  const cast=levelCaster(meshes,{axis:[0,0],faces:'both'}),o=new T.Vector3(),d=new T.Vector3(),cache=new Map();
-  const inner=(y,a)=>{const key=Math.round(y/.004)+':'+Math.round(a/(Math.PI/90));
-    if(!cache.has(key)){const hit=cast(o.set(0,y,0),d.set(Math.sin(a),0,Math.cos(a)).applyAxisAngle(new T.Vector3(0,1,0),1e-5));cache.set(key,hit?hit.distance:null);}return cache.get(key);};
-  const p=mesh.geometry.attributes.position,blend=.05,fold=.1;
-  for(let i=0;i<p.count;i++){let y=p.getY(i);if(y>top+blend)continue;const x=p.getX(i),z=p.getZ(i),r=Math.hypot(x,z)||1,a=Math.atan2(x,z);
-    if(y<top-fold)y=top-fold;
-    // The waistband's inner surface: the closest over this height and a little below it, since at the very top a ray can
-    // miss the waistband or meet a patch or loop standing outside it.
-    let rin=null;for(let h=Math.min(y,top-.004),n=0;h>top-fold-.04&&n<4;h-=.006){const d=inner(h,a);if(d!=null){rin=rin==null?d:Math.min(rin,d);n++;}}
-    if(rin==null)continue;const inside=Math.min(r,rin-.007);
-    const s=y>top?(y-top)/blend:0,target=r+(inside-r)*(1-s)**2,k=target/r;p.setXYZ(i,x*k,y,z*k);}
-  p.needsUpdate=true;mesh.geometry.computeVertexNormals();return top;
-}
 // Linen, woven: a plain weave of slubby yarn. Each thread is a little thicker or thinner, a little lighter or darker, than
 // its neighbours, and here and there a slub (a thick, uneven run of the yarn) stands out along it, lighter in a dyed linen,
 // which takes the dye less evenly, and a touch greyer in a white one (`lift`, positive toward white, negative toward grey).
@@ -538,7 +517,7 @@ function makeShirtCollar(top,mat,facing,stitch,style){
   if(style.collarTopstitch)curve(top,Array.from({length:97},(_,i)=>at(i/96,1,.16)),.0016,stitch,'shirt-collar-topstitch');
   return fall;
 }
-function makeShirt(id,style,atlas=null,skirt=false,trousers=null){
+function makeShirt(id,style,atlas=null,skirt=false,trousers=null,tucked=style.tuckIn){
   const top=new T.Group();top.name=id;
   const stitch=solid(style.stitch,.6),facing=style.facing&&solid(style.facing,.85);
   // The body's rows: the style's own (rows, or tucked over the skirt), else the cropped or longer standard rows.
@@ -560,8 +539,11 @@ function makeShirt(id,style,atlas=null,skirt=false,trousers=null){
   // Optional (`creases`): linen creases, fading out toward the shoulders and collar, deepest round her waist.
   // They fade out toward the hem too, so it hangs as cut.
   if(style.creases)crease(body,style.creases,y=>smoothstep(1.8,1.68,y)*smoothstep(1.14,1.26,y)*(.6+.4*Math.exp(-(((y-1.4)/.12)**2))));
-  // Optional (`tuckIn`): tucked into her trousers (over the skirt, the tucked rows tuck it into the skirt instead).
-  const tuckedIn=style.tuckIn&&!skirt&&trousers?tuckInto(body,trousers):null;
+  // Tucked into her trousers when the outfit says so (`tucked`; by default the style's `tuckIn`). Over the skirt, a shirt
+  // the catalog tucks into the skirt (layering.tucksIntoSkirt) is built tucked by its `tucked` rows; makeOutfit (tuck.js)
+  // tucks any other shirt the outfit says is tucked.
+  const tuckedIn=tucked&&!skirt&&trousers?tuckInto(body,trousers):null;
+  if(tuckedIn!=null)top.userData.tucked=true;
   if(style.atlas)atlasBody(body,128,hem);else mapPrint(body,style.around,style.high,undefined,style.depth);
   for(const side of [-1,1]){
     const arm=new T.Group();arm.position.set(side*.242,1.815,0);arm.rotation.z=side*.22;arm.updateMatrix();
@@ -598,7 +580,8 @@ function makeShirt(id,style,atlas=null,skirt=false,trousers=null){
     if(tuckedIn!=null){const hit=probe(x,y,true);return hit&&{point:hit.point.clone(),normal:hit.normal.clone()};}
     if(!surfaceCache.has(key)){const hit=probe(x,y,true);surfaceCache.set(key,hit&&{point:hit.point.clone(),normal:hit.normal.clone()});}
     const hit=surfaceCache.get(key);return hit&&{point:hit.point.clone(),normal:hit.normal.clone()};};
-  const line=(pts,name,r=.0016)=>{const out=pts.map(([x,y])=>onSurface(x,y)).filter(Boolean).map(h=>h.point.addScaledVector(h.normal,.0025).toArray());if(out.length>1)curve(top,out,r,stitch,name);};
+  // Stitching stops at the top of the waistband she is tucked into.
+  const line=(pts,name,r=.0016)=>{const out=pts.filter(([,y])=>tuckedIn==null||y>=tuckedIn).map(([x,y])=>onSurface(x,y)).filter(Boolean).map(h=>h.point.addScaledVector(h.normal,.0025).toArray());if(out.length>1)curve(top,out,r,stitch,name);};
   // The placket: the same print, edged by stitching down both sides from the collar to the hem. Worn open, the stitching
   // follows each side of the V down to the second button, then runs down both edges of the closed placket.
   if(style.placket){
@@ -657,9 +640,9 @@ function makeShirt(id,style,atlas=null,skirt=false,trousers=null){
   if(style.backYoke&&style.backPleat){const back=surfaceProbe(top,['mesh-shirt-body']);
     for(const x of [-.012,.012]){const pts=[];for(let k=0;k<=5;k++){const hit=back(x,style.backYoke-.004-(style.backYoke-.004-style.backPleat)*k/5,false);if(hit)pts.push(hit.point.clone().addScaledVector(hit.normal,.0025).toArray());}
       if(pts.length>1)curve(top,pts,.0014,stitch,'back-pleat');}}
-  // Buttons, slightly domed.
+  // Buttons, slightly domed. Tucked in, those at or below the waistband's top are inside it.
   const [buttonColour,buttonRoughness]=style.button;
-  for(const y of style.buttons){const hit=onSurface(0,y);if(!hit)continue;
+  for(const y of style.buttons){if(tuckedIn!=null&&y<tuckedIn+.02)continue;const hit=onSurface(0,y);if(!hit)continue;
     const b=oval(top,hit.point.clone().addScaledVector(hit.normal,.006).toArray(),[.0105/1.06,.0105/.76,.004],solid(buttonColour,buttonRoughness),'shirt-button',20);b.lookAt(b.position.clone().add(hit.normal));}
   // A stitched hem, all the way round just above the lower edge (following the shirt-tail curve, where it has one).
   if(style.rows){const p=body.geometry.attributes.position;
@@ -672,7 +655,7 @@ const surfaceCache=new Map();
 export const SHIRT_IDS=Object.keys(STYLES);
 // The cropped shirts end above the skirt's waistband and the longer one covers it, so they are the same with or without
 // the skirt; a hip-length shirt with tucked rows is tucked into the skirt when she wears one.
-export function makeButtonShirt(id=MOTEL_TIE_DYE_SHIRT_ID,atlas=null,skirt=false,trousers=null){return makeShirt(id,STYLES[id]||STYLES[MOTEL_TIE_DYE_SHIRT_ID],atlas,skirt,trousers);}
+export function makeButtonShirt(id=MOTEL_TIE_DYE_SHIRT_ID,atlas=null,skirt=false,trousers=null,tucked){const style=STYLES[id]||STYLES[MOTEL_TIE_DYE_SHIRT_ID];return makeShirt(id,style,atlas,skirt,trousers,tucked??style.tuckIn);}
 // A woven check shirt from its catalog `build` (template `check-shirt`): `check` is its weave (see wovenCheckData) with
 // how many tiles go round her body (`around`), sleeve (`sleeveAround`) and collar (`collarAround`) and how tall a tile is
 // (`high`); the rest are shirt style settings (stitch, button, buttons, cuff, backYoke and so on), the relaxed hip-length

@@ -7,7 +7,22 @@ import { ADIDAS_SUPERSTAR_PINK_ID } from '../wardrobe/catalog.js';
 import { MICKEY_LONG_TEE_ID, DESIGUAL_SPLIT_FLORAL_SHIRT_ID, MANGO_DOT_SHIRT_ID, LEVIS_FLORAL_LOGO_SWEATSHIRT_ID, PINK_YOKE_SHIRT_ID, STRIPE_SNAP_JUMPER_ID, DESIGUAL_LIFE_AWESOME_ID } from '../wardrobe/catalog.js';
 import { PB_CHENILLE_ID } from '../wardrobe/catalog.js';
 import { DESIGUAL_MOUNTAIN_SHIRT_ID, ADIDAS_CROPPED_HOODIE_ID, LEVIS_PLAID_FLANNEL_ID, DESIGUAL_RUGBY_ID } from '../wardrobe/catalog.js';
-export const DEFAULT = Object.freeze({ sweater: '#bf303e', trousers: '#283c59', sleeve: .74, hem: .3, barrel: .78, knit: true, shirt: true, skirt: false, skirtColour: '#bd9bc8', topId: 'classic', bottomId: 'classic', shoesId: 'classic', underTopId: 'none', dressId: 'none', outerwearId: 'none', outerwearOpen: false, outerwearInsert: true, hairId: DEFAULT_HAIR_ID });
+export const DEFAULT = Object.freeze({ sweater: '#bf303e', trousers: '#283c59', sleeve: .74, hem: .3, barrel: .78, knit: true, shirt: true, skirt: false, skirtColour: '#bd9bc8', topId: 'classic', bottomId: 'classic', shoesId: 'classic', underTopId: 'none', dressId: 'none', outerwearId: 'none', outerwearOpen: false, outerwearInsert: true, tucked: false, hairId: DEFAULT_HAIR_ID });
+// Tops that can be tucked in: shirts, tees and fitted tops long enough to reach past the waistband. Jumpers,
+// sweatshirts, hoodies and cardigans are worn loose, and a cropped top ends above the waistband. A catalog entry can
+// say otherwise with `layering.tuck` (true or false).
+const LOOSE = /sweatshirt|hoodie|jumper|sweater|cardigan|knit/;
+export function canTuck(topId) {
+  const g = GARMENTS[topId];
+  if (g?.slot !== 'top') return false;
+  const L = g.layering || {};
+  if (typeof L.tuck === 'boolean') return L.tuck;
+  return !!(L.coversWaistband || L.tucksIn) && /shirt|tee|top/.test(g.family || '') && !LOOSE.test(g.family || '');
+}
+// Over the skirt, some tops are always tucked in: those the catalog tucks into the skirt, and those worn tucked in.
+export const tuckedOverSkirt = topId => !!(GARMENTS[topId]?.layering?.tucksIntoSkirt || GARMENTS[topId]?.layering?.tucksIn);
+// Whether she can tuck in or untuck the top she wears in this outfit (a cleaned recipe).
+export const tuckable = r => r.dressId === 'none' && canTuck(r.topId) && !(r.skirt && tuckedOverSkirt(r.topId));
 export const SWATCHES = [['Tomato', '#bf303e'], ['Butter', '#ead391'], ['Lilac', '#bd9bc8'], ['Cobalt', '#315cb3'], ['Moss', '#74804b'], ['Cream', '#f0e3cb']];
 export function cleanRecipe(value = {}) {
   const v = value && typeof value === 'object' ? value : {};
@@ -30,6 +45,10 @@ export function cleanRecipe(value = {}) {
   // Outerwear with a detachable part (`layering.detachable`, a zip-in hood and bib, say) is worn with it unless taken out.
   result.outerwearInsert=v.outerwearInsert!==false||!GARMENTS[result.outerwearId]?.layering?.detachable;
   if(result.topId!== 'classic'){result.knit=false;result.shirt=false;}
+  // Tucked in or worn loose: as the recipe says, else as the top is usually worn (`layering.tucksIn`). A top that cannot
+  // be tucked is worn loose; one the skirt always takes tucked is tucked over it.
+  const tuck=canTuck(result.topId)&&result.dressId==='none';
+  result.tucked=tuck&&(result.skirt&&tuckedOverSkirt(result.topId)||(typeof v.tucked==='boolean'?v.tucked:!!GARMENTS[result.topId].layering?.tucksIn));
   return result;
 }
 export function editRecipe(current, sentence) {
@@ -86,7 +105,7 @@ const BUILT_IN_OUTFITS = [
   { name: 'Cropped hoodie study', note: 'Reference study: a boxy, cropped black adidas Originals hoodie with mint tipping on the rib hem and cuffs, a mint pinstriped hood lining, thick braided drawcords and a white embroidered logo with a woven patch. The logo and patch are drawn at her scale, not copied.', recipe: { ...DEFAULT, topId: ADIDAS_CROPPED_HOODIE_ID, bottomId: MANGO_BLACK_JEANS_ID, knit: false, shirt: false } },
   { name: 'Striped snap-collar jumper study', note: 'Reference study: a relaxed cream waffle-knit jumper with slate-grey stripes, raglan sleeves, a big rib collar and a snap placket worn with the top snaps open, as the user wears it, with light jeans. The knit is drawn in code, not copied.', recipe: { ...DEFAULT, topId: STRIPE_SNAP_JUMPER_ID, bottomId: STRADIVARIUS_RELAXED_ID, shoesId: NB_550_ID, knit: false, shirt: false } },
   { name: 'Plaid flannel study', note: 'Reference study: an oversized Levi’s flannel shirt in a large navy-black plaid with grey, white and coral stripes, buttoned to the top, with a chest pocket, a curved shirt tail and buttoned cuffs. The plaid is woven in code from the photos, not copied.', recipe: { ...DEFAULT, topId: LEVIS_PLAID_FLANNEL_ID, bottomId: TOMMY_MOM_ID, knit: false, shirt: false } },
-  { name: 'Rugby shirt study', note: 'Reference study: an oversized navy Desigual rugby shirt with a cream collar and placket and three appliqué tigers, worn tucked in with the buttons closed, as the user wears it. The tigers are drawn at her scale, not copied.', recipe: { ...DEFAULT, topId: DESIGUAL_RUGBY_ID, bottomId: CRYSTAL_JEANS_ID, knit: false, shirt: false } },
+  { name: 'Rugby shirt study', note: 'Reference study: an oversized navy Desigual rugby shirt with a cream collar and placket and three appliqué tigers, worn tucked in with the buttons closed, as the user wears it. The tigers are drawn at her scale, not copied.', recipe: { ...DEFAULT, topId: DESIGUAL_RUGBY_ID, bottomId: CRYSTAL_JEANS_ID, knit: false, shirt: false, tucked: true } },
   { name: 'Windowpane jumper study', note: 'Reference study: brushed oversized jumper with a knitted-in rust, taupe and pale-blue check and deep ribbing. The check is drawn from the photos, not copied.', recipe: { ...DEFAULT, topId: PLAID_JUMPER_ID, knit: false, shirt: false, trousers: '#283c59', barrel: .35 } },
   { name: 'Crochet flower study', note: 'Reference study: joined crochet flowers, open lace, a filet neckband and scalloped edges. The motif repeat is drawn from the photos, not copied.', recipe: { ...DEFAULT, topId: CROCHET_TOP_ID, knit: false, shirt: false, trousers: '#d9cbb2', barrel: .3 } },
   { name: 'Lilac portrait study', note: 'Portrait and floral front, silvery back, navy patterned sleeves and a raised collar. Artwork is an interpretation of the references.', recipe: { ...DEFAULT, topId: LILAC_TOP_ID, knit: false, shirt: false, trousers: '#39363b', barrel: .12 } },

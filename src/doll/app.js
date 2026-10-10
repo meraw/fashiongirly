@@ -1,6 +1,6 @@
 import { mountHairControls } from '../hair/controls.js';
 import { hairName } from '../hair/catalog.js';
-import { DEFAULT, SWATCHES, OUTFITS, cleanRecipe, editRecipe } from './recipe.js';
+import { DEFAULT, SWATCHES, OUTFITS, cleanRecipe, editRecipe, canTuck, tuckable } from './recipe.js';
 import { GARMENTS } from '../wardrobe/catalog.js';
 import { mountToday } from '../today/today.js';
 import { mountPages } from './pages.js';
@@ -24,8 +24,10 @@ export async function startStudio(doc=document, makeView, options={}) {
   function swatches(id,choices,key){$(id).replaceChildren(...choices.map(([name,color])=>{const b=doc.createElement('button');b.type='button';b.style.background=color;b.setAttribute('aria-label',name);b.dataset.color=color;b.onclick=()=>{recipe[key]=color;sync();apply();};return b;}));}
   swatches('sweater-colours',SWATCHES,'sweater');swatches('denim-colours',[['Indigo','#283c59'],['Washed blue','#71899b'],['Charcoal','#39363b'],['Ecru','#d9cbb2']],'trousers');
   const hairControls=mountHairControls(doc,id=>{recipe.hairId=id;sync();apply();message(`${hairName(id)} — saved with this outfit.`);});
-  const pages=mountPages(doc),wardrobe=mountWardrobe(doc,{wear:(patch,g)=>{recipe=cleanRecipe({...recipe,...patch});sync();apply();message(`Wearing the ${g.name}.`);}});
+  const pages=mountPages(doc),wardrobe=mountWardrobe(doc,{wear:(patch,g)=>{recipe=cleanRecipe({...recipe,...patch,...(patch.topId&&patch.topId!==recipe.topId?{tucked:undefined}:{})});sync();apply();message(`Wearing the ${g.name}.`);}});
   let today=null;
+  // The studies and authored looks as she would wear them, to recognise one when she wears it.
+  const CLEAN_OUTFITS=OUTFITS.map(look=>({...look,recipe:cleanRecipe(look.recipe)}));
   $('outfit-ideas').replaceChildren(...OUTFITS.map(look=>{
     const button=doc.createElement('button');button.type='button';button.textContent=look.name;
     button.onclick=()=>{recipe=cleanRecipe({...look.recipe,hairId:recipe.hairId});sync();apply();message(look.note);};return button;
@@ -43,14 +45,17 @@ export async function startStudio(doc=document, makeView, options={}) {
     // Outerwear with a detachable part (a zip-in hood and bib) can be worn with it or without; the label names the part.
     const detachable=GARMENTS[recipe.outerwearId]?.layering?.detachable;$('outerwear-insert').checked=recipe.outerwearInsert;$('outerwear-insert').disabled=!detachable;$('outerwear-insert-label').textContent=detachable?.label??'Wear its detachable part';
     for(const key of ['knit','shirt'])$(key).disabled=dress||recipe.topId!=='classic';$('skirt').disabled=dress;$('under-select').disabled||=dress;
-    const selected=OUTFITS.find(look=>Object.keys(DEFAULT).filter(key=>key!=='hairId').every(key=>look.recipe[key]===recipe[key]));
+    const selected=CLEAN_OUTFITS.find(look=>Object.keys(DEFAULT).filter(key=>key!=='hairId').every(key=>look.recipe[key]===recipe[key]));
     // One of today's looks, or Another idea, is named as such until she is dressed differently.
-    const day=today?.getState(),look=day&&(day.choice==='idea'?day.idea:day.trio?.[day.choice]),same=look&&JSON.stringify(cleanRecipe(look.recipe))===JSON.stringify(cleanRecipe(recipe));
+    const day=today?.getState(),look=day&&(day.choice==='idea'?day.idea:day.trio?.[day.choice]),same=look&&JSON.stringify({...cleanRecipe(look.recipe),tucked:null})===JSON.stringify({...cleanRecipe(recipe),tucked:null});
     $('outfit-title').textContent=selected?.name||(same?today.title():'Her own little experiment.');
     // Controls that do not apply to what she is wearing are put away rather than greyed out.
     $('under-field').hidden=$('under-select').disabled;
     $('outerwear-options').hidden=recipe.outerwearId==='none';$('outerwear-open-field').hidden=$('outerwear-open').disabled;$('outerwear-insert-field').hidden=$('outerwear-insert').disabled;
     $('classic-controls').hidden=dress||(recipe.topId!=='classic'&&recipe.bottomId!=='classic');
+    // Her top tucks in or out with a tap on it (or the tuck button, for the keyboard); the hint under her says so.
+    const tuck=tuckable(recipe);$('tuck').hidden=!tuck;$('tuck').textContent=recipe.tucked?'Untuck her top':'Tuck her top in';$('tuck').setAttribute('aria-pressed',String(recipe.tucked));
+    $('drag-hint').textContent=tuck?`Drag to turn her · tap her top to ${recipe.tucked?'untuck it':'tuck it in'}`:'Drag to turn her';
     wardrobe.sync(recipe);
     for(const button of $('outfit-ideas').children)button.setAttribute('aria-pressed',String(button.textContent===selected?.name));
     for(const key of ['sleeve','hem','barrel']){$(key).value=Math.round(recipe[key]*100);const value=recipe[key];$(`${key}-value`).textContent=key==='hem'?(value<.34?'Cropped':value>.66?'Longer':'At the waist'):value<.34?'A little':value>.66?'A lot':'In between';$(key).setAttribute('aria-valuetext',`${$(`${key}-value`).textContent}, ${Math.round(value*100)} percent`);}
@@ -64,7 +69,7 @@ export async function startStudio(doc=document, makeView, options={}) {
   }
   for(const key of ['sleeve','hem','barrel'])$(key).oninput=()=>{recipe[key]=Number($(key).value)/100;sync();schedule();};
   for(const key of ['knit','shirt','skirt'])$(key).onchange=()=>{recipe[key]=$(key).checked;sync();apply();};
-  $('top-select').onchange=()=>{recipe=cleanRecipe({...recipe,dressId:'none',topId:$('top-select').value,underTopId:recipe.underTopId,knit:$('top-select').value==='classic',shirt:$('top-select').value==='classic'});sync();apply();message(recipe.topId==='classic'?'Classic layers restored.':'Reference top selected. Its fit and print are fixed for this first review.');};
+  $('top-select').onchange=()=>{recipe=cleanRecipe({...recipe,dressId:'none',tucked:undefined,topId:$('top-select').value,underTopId:recipe.underTopId,knit:$('top-select').value==='classic',shirt:$('top-select').value==='classic'});sync();apply();message(recipe.topId==='classic'?'Classic layers restored.':'Reference top selected. Its fit and print are fixed for this first review.');};
   $('under-select').onchange=()=>{recipe=cleanRecipe({...recipe,underTopId:$('under-select').value});sync();apply();message(recipe.underTopId==='none'?'Worn on its own, over her skin.':'A top underneath: it shows in the opening, and its sleeves stay inside.');};
   $('bottom-select').onchange=()=>{recipe=cleanRecipe({...recipe,dressId:'none',bottomId:$('bottom-select').value});sync();apply();message(recipe.bottomId==='classic'?'Classic jeans restored.':'Reference jeans selected. Their fit and wash are fixed for this first review.');};
   $('dress-select').onchange=()=>{recipe=cleanRecipe({...recipe,dressId:$('dress-select').value});sync();apply();message(recipe.dressId==='none'?'Dress off: her top and bottoms are back.':'Dress on, worn instead of the top and bottoms. Shoes and outerwear still go with it.');};
@@ -74,6 +79,14 @@ export async function startStudio(doc=document, makeView, options={}) {
   $('outerwear-insert').onchange=()=>{recipe=cleanRecipe({...recipe,outerwearInsert:$('outerwear-insert').checked});sync();apply();message(recipe.outerwearInsert?'Worn with its detachable part.':'Detachable part taken out.');};
   $('outerwear-open').onchange=()=>{recipe=cleanRecipe({...recipe,outerwearOpen:$('outerwear-open').checked});sync();apply();message(recipe.outerwearOpen?'Worn open.':'Zipped closed.');};
   $('edit-form').onsubmit=e=>{e.preventDefault();const result=editRecipe(recipe,$('request').value);recipe=result.recipe;sync();apply();message(result.changes.length?`Changed: ${result.changes.join(', ')}. Only these supported details were interpreted.`:(recipe.topId==='classic'?'I could not interpret that yet. Try “butter sweater, enormous sleeves, cropped”.':'This reference top has a fixed fit and print for now. Try “straight jeans” or “add a skirt”.'));};
+  // Tucking her top in or out. A top that cannot be tucked, or that the skirt always takes tucked, says why.
+  function toggleTuck(){
+    const name=GARMENTS[recipe.topId]?.name;
+    if(!tuckable(recipe)){if(name)message(canTuck(recipe.topId)?`Over the skirt, the ${name} stays tucked in.`:`The ${name} is worn loose: it is not one to tuck in.`);return;}
+    recipe=cleanRecipe({...recipe,tucked:!recipe.tucked});sync();apply();message(recipe.tucked?`The ${name} is tucked in.`:`The ${name} is worn loose.`);
+  }
+  $('stage').addEventListener('garment-tap',e=>{if(e.detail.id===recipe.topId&&recipe.dressId==='none')toggleTuck();});
+  $('tuck').onclick=toggleTuck;
   $('reset').onclick=()=>{recipe=cleanRecipe(DEFAULT);sync();apply();message('Back to the original outfit.');};
   function storeLooks(next){try{if(!storage)throw new Error();storage.setItem(BOOK,JSON.stringify(next));looks=next;sync();return true;}catch{message('This browser could not save your look.');return false;}}
   $('save').onclick=()=>{if(looks.length>=24){message('Your lookbook is full. Remove a look to make room.');return;}if(storeLooks([cleanRecipe(recipe),...looks]))message('Saved in My looks.');};

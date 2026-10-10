@@ -121,7 +121,7 @@ function pullToDaring(list, daring) {
 function finish(o, needs, s, rng, { keep = {}, recent = [], current = DEFAULT, hairId = null } = {}) {
   const hair = hairId ? { id: hairId, reason: null } : chooseHair(o, needs, rng, { keep: keep.hair, recentHair: recent.map(r => r.hairId) });
   const recipe = cleanRecipe({
-    ...current, knit: false, shirt: false, skirt: false,
+    ...current, knit: false, shirt: false, skirt: false, tucked: undefined,
     topId: o.top?.id ?? current.topId, underTopId: o.under?.id ?? 'none', bottomId: o.bottom?.id ?? current.bottomId,
     dressId: o.dress?.id ?? 'none', shoesId: o.shoes?.id ?? 'classic', outerwearId: o.outer?.id ?? 'none',
     outerwearOpen: o.open, outerwearInsert: !o.outer?.layering.detachable || needs.feels < 10 || needs.rainy, hairId: hair.id,

@@ -48,7 +48,8 @@ For GitHub Pages: select **Settings → Pages → Source → GitHub Actions**, t
 
 - `src/doll/model.js`: doll identity and separately constructed outfit, procedural fabric textures, and resource disposal.
 - `src/doll/recipe.js`: clothing recipe validation and bounded description editing.
-- `src/doll/view.js`: Three.js camera, lighting, touch rotation, and rendering lifecycle.
+- `src/doll/view.js`: Three.js camera, lighting, touch rotation, taps on her clothes, and rendering lifecycle.
+- `src/doll/tuck.js`: tucks a shirt or tee into her trousers or skirt; tap her top to tuck it in or out.
 - `src/doll/app.js`: controls, draft storage, and lookbook.
 - `src/today/today.js`: the Today panel: the daily look, refinements, location and weather choice. `src/today/sky.js`: the weather sky behind her.
 - `src/doll/pages.js`, `src/doll/wardrobe-page.js`: the page tabs and the Wardrobe page.
