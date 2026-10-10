@@ -1,8 +1,9 @@
 /* Fashiongirly. The world of the Desigual mountain landscape shirt: a painted sunset from deep purple through plum
    and rose to orange and apricot, ochre and rust mountains with lilac snow, dark brown slopes flecked with cream
-   (painted by scripts/art/paint-scenery.py). Over it, cream cloth: cards stitched like patches, an embroidered
-   flower like the one in her hair, rickrack trim, woven labels, fabric swatches. Display type is Fraunces (bundled,
-   SIL Open Font License), soft and a little wonky like the doll. */
+   (painted by scripts/art/paint-scenery.py), the page itself, with the doll standing in it. Over it, a dusk sheet
+   with cream cards; the embroidered flower like the one in her hair marks the brand and the chosen look, one rickrack
+   trims the sheet, and garments show as fabric swatches. Display type is Fraunces (bundled, SIL Open Font License),
+   soft and a little wonky like the doll. */
 @font-face{font-family:Fraunces;src:url("../fonts/fraunces-latin-full-normal.woff2") format("woff2");font-weight:100 900;font-style:normal;font-display:swap}
 @font-face{font-family:Fraunces;src:url("../fonts/fraunces-latin-full-italic.woff2") format("woff2");font-weight:100 900;font-style:italic;font-display:swap}
 :root{
@@ -34,9 +35,6 @@ h3{font-size:14px;margin:0}
 .help{font-size:11px;line-height:1.55;color:var(--muted);margin:6px 0 0}
 .lede{font-size:14px;line-height:1.6;margin:10px 0 0}
 /* A woven label, as sewn into clothes. */
-.tag{display:inline-flex;align-items:center;gap:7px;margin:0 0 10px;padding:6px 12px 6px 9px;border-radius:3px 9px 9px 3px;background-color:var(--purple);background-image:repeating-linear-gradient(90deg,#ffffff0d 0 1px,transparent 1px 3px);color:#fff3e4;font:600 10px/1 system-ui,sans-serif;letter-spacing:1.8px;text-transform:uppercase;box-shadow:inset 0 0 0 2px #ffffff1f,0 2px 0 #2c154633}
-.tag::before{content:"";width:7px;height:7px;border-radius:50%;background:var(--apricot);box-shadow:0 0 0 2px #ffffff26}
-.small-tag{padding:4px 9px 4px 7px;font-size:9px;margin-bottom:6px}
 
 /* The world, fixed behind everything: the painted sunset (src/art/sky.webp), the weather drawn over it by
    src/today/sky.js (the sun's glow, clouds, rain, snow, fog, gusts), the painted mountains and the meadow she stands
@@ -83,7 +81,8 @@ h3{font-size:14px;margin:0}
 /* The sheet: dusk over the world, holding the pages. The stage bar (today's three looks, what she wears and the
    heart) sits under her on a wide screen and at the top of the sheet on a phone. */
 .sheet{position:relative;z-index:2;margin-left:auto;width:var(--panel-w);min-height:100vh;padding:92px 26px 48px;background:linear-gradient(180deg,#1a0a36f2,#2b1352f8);box-shadow:-30px 0 60px -40px #0d0420}
-.stage-bar{position:fixed;left:24px;right:calc(var(--panel-w) + 24px);bottom:20px;z-index:3;max-width:760px;margin:0 auto;padding:12px 14px 10px;border-radius:22px;background:#1a0a36b0;backdrop-filter:blur(10px);box-shadow:inset 0 1px 0 #ffffff1f}
+.stage-bar{position:fixed;left:24px;right:calc(var(--panel-w) + 24px);bottom:20px;z-index:3;max-width:760px;margin:0 auto;padding:10px 14px 10px;border-radius:22px;background:#1a0a36b0;backdrop-filter:blur(10px);box-shadow:inset 0 1px 0 #ffffff1f}
+.stage-bar::before{content:"";display:block;height:12px;margin:0 2px 10px;background:var(--rickrack) left center / 24px 12px repeat-x;opacity:.9}
 
 /* Today's three looks: three fabric tabs, each a strip of its pieces' cloth, compared at a glance. */
 .looks{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
@@ -93,7 +92,7 @@ h3{font-size:14px;margin:0}
 .look-name{font:500 16px/1.05 var(--display);font-variation-settings:"SOFT" 100,"WONK" 1;margin-top:3px}
 .look-note{font-size:9.5px;letter-spacing:1px;text-transform:uppercase;color:var(--muted)}
 .outfit-swatch{display:flex;height:30px;border-radius:9px;overflow:hidden;box-shadow:inset 0 0 0 1px #0000001a;background:repeating-linear-gradient(45deg,#efe2d6 0 6px,#f8efe7 6px 12px)}
-.outfit-swatch-piece{display:block;min-width:6px;border-right:1.5px dashed #ffffffaa}
+.outfit-swatch-piece{display:block;min-width:6px;border-right:1px solid #ffffff66}
 .outfit-swatch-piece:last-child{border-right:0}
 .look[aria-pressed=true]{transform:translateY(-3px)}
 #look-pick[aria-pressed=true]{background:linear-gradient(180deg,#fff1e6,#ffe2cc);box-shadow:0 0 0 2px var(--orange),0 14px 24px -12px #000}
@@ -101,8 +100,8 @@ h3{font-size:14px;margin:0}
 #look-easier[aria-pressed=true]{background:linear-gradient(180deg,#fffaf2,#f6e8d6);box-shadow:0 0 0 2px #c49a74,0 14px 24px -12px #000}
 .look[aria-pressed=true]::after{content:"";position:absolute;top:-9px;right:-7px;width:24px;height:24px;background:var(--flower) center/contain no-repeat;filter:drop-shadow(0 2px 3px #0003)}
 .look-caption{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:12px 4px 2px;color:var(--cream)}
-.look-caption h2{font-size:26px;color:var(--cream);text-shadow:0 2px 14px #0d042088}
-.save{flex-shrink:0;width:46px;height:46px;border-radius:50%;border:1.5px dashed var(--apricot);background:radial-gradient(circle at 35% 30%,#fff7ef,#ffe1cc);color:var(--orange-deep);font-size:23px;line-height:1;box-shadow:0 6px 14px -8px #000}
+.look-caption h2{font-size:30px;color:var(--cream);text-shadow:0 2px 14px #0d042088}
+.save{flex-shrink:0;width:46px;height:46px;border-radius:50%;border:1.5px solid var(--apricot);background:radial-gradient(circle at 35% 30%,#fff7ef,#ffe1cc);color:var(--orange-deep);font-size:23px;line-height:1;box-shadow:0 6px 14px -8px #000}
 #message{font-size:12px;line-height:1.5;color:#f3d9ff;margin:0;padding:4px 4px 2px}
 #message:empty{display:none}
 
@@ -149,7 +148,7 @@ h3{font-size:14px;margin:0}
 @keyframes gust{from{transform:translateX(-120px);opacity:0}30%{opacity:.8}to{transform:translateX(110cqw);opacity:0}}
 
 /* Small weather pictures, for the day and its hours. */
-.wx{position:relative;display:inline-block;width:70px;height:70px;flex-shrink:0}
+.wx{position:relative;display:inline-block;width:44px;height:44px;flex-shrink:0}
 .wx.still{width:28px;height:28px}
 .wx span{position:absolute;display:block}
 .wx-sun{left:6%;top:6%;width:58%;height:58%;border-radius:50%;background:radial-gradient(circle at 40% 36%,#fff4cb,#ffc865 46%,#f18b3d 85%);box-shadow:0 0 18px #ffb45e99}
@@ -171,25 +170,22 @@ h3{font-size:14px;margin:0}
 .wx.still *,.wx.still *::before{animation:none}
 @keyframes wxfall{from{transform:translateY(-3px);opacity:0}25%{opacity:1}to{transform:translateY(10px);opacity:0}}
 
-/* Pages: a heading on a pane of dusk over the sunset, trimmed with rickrack, then a card of stitched cloth. */
+/* Pages: a quiet heading on the dusk, then a card of cream cloth. */
 .pages{min-width:0}
 .page[hidden]{display:none}
 .hero{position:relative;color:var(--cream);padding:6px 6px 0;margin-bottom:18px}
 .hero .eyebrow{color:#f3d9ff;opacity:.9}
-.hero h2{font-size:34px;line-height:1.04;color:var(--cream);text-shadow:0 3px 22px #2c154688}
+.hero h2{font-size:24px;line-height:1.1;color:var(--cream);text-shadow:0 3px 22px #2c154688}
 .hero h2 em{color:var(--apricot)}
 .hero .lede{color:#fbe7ff}
-.hero::after{content:"";display:block;height:12px;margin-top:18px;background:var(--rickrack) left center / 24px 12px repeat-x;opacity:.95}
-.card{position:relative;padding:30px 30px 32px;border-radius:var(--radius);background-color:var(--card);background-image:var(--linen),linear-gradient(180deg,#fffaf4,#fdf0e4);box-shadow:0 40px 80px -40px #0d0420ee,0 0 0 1px #ffffff99,inset 0 1px 0 #fff}
-.card::before{content:"";position:absolute;inset:9px;border:1.5px dashed #e8a57c;border-radius:19px;pointer-events:none}
-.card::after{content:"";position:absolute;top:-18px;right:24px;width:50px;height:50px;background:var(--flower) center/contain no-repeat;filter:drop-shadow(0 3px 5px #2c154655);transform:rotate(-12deg)}
+.card{position:relative;padding:24px 22px 26px;border-radius:var(--radius);background-color:var(--card);background-image:var(--linen),linear-gradient(180deg,#fffaf4,#fdf0e4);box-shadow:0 40px 80px -40px #0d0420ee,0 0 0 1px #ffffff99,inset 0 1px 0 #fff}
 
 /* Today. */
-.hero-weather{display:flex;align-items:center;gap:14px;margin:6px 0 12px}
+.hero-weather{display:flex;align-items:center;gap:10px;margin:4px 0 10px}
 .today-icon:empty{display:none}
-.temp{font:300 64px/.9 var(--display);font-variation-settings:"SOFT" 100,"WONK" 0;letter-spacing:-3px;color:#fff;text-shadow:0 6px 30px #ef7b3c99}
+.temp{font:400 30px/1 var(--display);font-variation-settings:"SOFT" 100,"WONK" 0;letter-spacing:-.5px;color:#fff}
 .temp:empty{display:none}
-.today-weather{font:italic 17px/1.4 var(--display);color:#fde8d8;margin:0;max-width:320px}
+.today-weather{font:italic 16px/1.35 var(--display);color:#fde8d8;margin:0;max-width:320px}
 .today-weather:empty{display:none}
 .today-hours{display:flex;flex-wrap:wrap;gap:8px;list-style:none;margin:0 0 20px;padding:0}
 .today-hours:empty{display:none}
@@ -199,16 +195,16 @@ h3{font-size:14px;margin:0}
 .today-status{font-size:13px;line-height:1.5;color:#fff;background:#ffffff22;border-radius:12px;padding:8px 12px;margin:14px 0 0}
 .today-status:empty{display:none}
 /* What she chose is said once, under her (the stage bar's title), so here it is a quiet line. */
-#today-heading{font:italic 400 16px/1.45 var(--display);font-variation-settings:"SOFT" 100;color:#f3d9ff;margin:10px 0 0;text-shadow:none}
+#today-heading{position:absolute;width:1px;height:1px;margin:-1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
 .today-look{display:none}
 .today-pieces{list-style:none;padding:0;margin:0}
-.today-pieces li{display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:1.5px dotted #ecc9b0;font-size:14px}
+.today-pieces li{display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid #efdfd2;font-size:14px}
 .today-pieces li>span:last-child{flex:1;min-width:0}
-.piece-cloth{display:block;flex-shrink:0;width:30px;height:30px;border-radius:9px;box-shadow:inset 0 0 0 1px #0000001f,0 2px 4px -2px #0004;outline:1.5px dashed #ffffffb0;outline-offset:-5px}
+.piece-cloth{display:block;flex-shrink:0;width:30px;height:30px;border-radius:9px;box-shadow:inset 0 0 0 1px #0000001f,0 2px 4px -2px #0004}
 .piece-cloth.hair{border-radius:50%;background:radial-gradient(circle at 35% 30%,#6b4a44,#362725)!important}
 .piece-cloth.empty{background:transparent;box-shadow:inset 0 0 0 1.5px #e5c9b4;outline:0}
 .today-slot{flex:0 0 76px;font-size:10px;letter-spacing:1.3px;text-transform:uppercase;color:var(--muted)}
-.today-reasons{position:relative;margin:18px 0 0;padding:16px 18px 16px 34px;border-radius:18px;background:linear-gradient(135deg,#fdeadb,#efe3fb);font:16px/1.55 var(--display);font-variation-settings:"SOFT" 100;color:var(--ink);box-shadow:inset 0 0 0 1px #ffffffaa}
+.today-reasons{margin:16px 0 0;padding:0 0 0 22px;font:15px/1.5 var(--display);font-variation-settings:"SOFT" 100;color:var(--muted)}
 .today-reasons li::marker{content:"✿  ";color:var(--orange)}
 .today-reasons:empty{display:none}
 .today-actions{display:flex;flex-wrap:wrap;gap:9px;margin-top:20px}
@@ -237,9 +233,9 @@ select{width:100%;max-width:100%;min-height:48px;padding:10px 40px 10px 14px;bor
 .options[hidden],.options>[hidden]{display:none}
 .toggle{font-size:13px;display:flex;align-items:center;gap:8px}
 input[type=checkbox]{accent-color:var(--purple);width:16px;height:16px}
-.classic{margin-top:26px;padding-top:18px;border-top:1.5px dotted #ecc9b0}
+.classic{margin-top:26px;padding-top:18px;border-top:1px solid #efdfd2}
 .classic[hidden]{display:none}
-.classic summary{cursor:pointer;font:italic 17px var(--display);color:var(--purple)}
+.classic summary{cursor:pointer;font:italic 16px var(--display);color:var(--purple)}
 .control-heading{display:flex;justify-content:space-between;align-items:center;margin:20px 0 12px;gap:10px}
 .swatches{display:flex;gap:10px;flex-wrap:wrap}
 .swatches button{width:28px;height:28px;border:1px solid #0002;border-radius:50%}
@@ -258,16 +254,16 @@ input[type=range]{width:100%;accent-color:var(--orange);margin:8px 0 0}
 /* Wardrobe: a swatch of each piece's cloth. */
 .wardrobe-group{margin-top:26px}
 .wardrobe-group:first-child{margin-top:4px}
-.wardrobe-group h3{display:flex;align-items:center;gap:10px;font:italic 22px var(--display);font-variation-settings:"SOFT" 100,"WONK" 1;color:var(--rust);margin-bottom:12px}
-.wardrobe-group h3::after{content:"";flex:1;height:12px;background:var(--rickrack-lilac) left center / 24px 12px repeat-x;opacity:.8}
+.wardrobe-group h3{display:flex;align-items:center;gap:10px;font:italic 20px var(--display);font-variation-settings:"SOFT" 100,"WONK" 1;color:var(--rust);margin-bottom:12px}
+.wardrobe-group h3::after{content:"";flex:1;height:1px;background:#ecd6c6}
 .piece-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(148px,1fr));gap:10px}
 .piece{display:flex;flex-direction:column;align-items:stretch;gap:9px;text-align:left;border:1.5px solid #ecd6c6;background:#fffdf9;border-radius:16px;padding:7px 7px 11px;font-size:13px;line-height:1.3;transition:transform .15s,box-shadow .15s}
 .piece:hover{transform:translateY(-2px);box-shadow:0 10px 18px -12px #3b1f5c88}
-.piece-swatch{display:block;height:54px;border-radius:11px;box-shadow:inset 0 0 0 1px #0000001a;outline:1.5px dashed #ffffffa8;outline-offset:-6px}
+.piece-swatch{display:block;height:54px;border-radius:11px;box-shadow:inset 0 0 0 1px #0000001a}
 .piece-name{padding:0 5px}
 .piece[aria-pressed=true]{border-color:var(--purple);box-shadow:0 0 0 2px var(--purple),0 12px 20px -14px #3b1f5caa;background:var(--lilac-soft)}
-.studies{margin-top:30px;padding-top:18px;border-top:1.5px dotted #ecc9b0}
-.studies summary{cursor:pointer;font:italic 17px var(--display);color:var(--purple)}
+.studies{margin-top:30px;padding-top:18px;border-top:1px solid #efdfd2}
+.studies summary{cursor:pointer;font:italic 16px var(--display);color:var(--purple)}
 .outfit-ideas{display:flex;flex-wrap:wrap;gap:6px;margin-top:12px}
 .outfit-ideas button{border:1.5px solid var(--line);background:#fff;border-radius:999px;padding:7px 12px;font-size:12px}
 .outfit-ideas button[aria-pressed=true]{background:var(--purple);border-color:var(--purple);color:#fff6ee}
@@ -276,9 +272,9 @@ input[type=range]{width:100%;accent-color:var(--orange);margin:8px 0 0}
 dialog{border:0;border-radius:var(--radius);background-color:var(--card);background-image:var(--linen),linear-gradient(180deg,#fffaf4,#fdf0e4);color:var(--ink);width:min(560px,92%);max-height:80vh;padding:28px;box-shadow:0 40px 80px -30px #0d0420}
 dialog::backdrop{background:#1a0a36b8;backdrop-filter:blur(4px)}
 .dialog-heading{display:flex;justify-content:space-between;align-items:start;gap:20px}
-.dialog-heading h2{font-size:28px}
+.dialog-heading h2{font-size:24px}
 .dialog-heading button{border:0;background:none;font-size:27px}
-.saved-row{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:14px 0;border-bottom:1.5px dotted #ecc9b0;font-size:13px}
+.saved-row{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:14px 0;border-bottom:1px solid #efdfd2;font-size:13px}
 .saved-row button{padding:7px 12px;border:1.5px solid var(--lilac);border-radius:999px;background:transparent;color:var(--purple);font-size:12px}
 .saved-colours{display:flex;gap:5px}
 .saved-colours i{height:22px;width:22px;border-radius:50%}
@@ -302,17 +298,17 @@ dialog::backdrop{background:#1a0a36b8;backdrop-filter:blur(4px)}
   .tab-looks span{margin-left:2px;min-width:18px;padding:1px 5px;font-size:11px}
   #frame{left:0;right:0;top:54px;bottom:auto;height:calc(var(--stage-h) - 54px)}
   .sheet{width:auto;margin:var(--stage-h) 0 0;min-height:calc(100vh - var(--stage-h));padding:10px 12px 112px;border-radius:30px 30px 0 0;box-shadow:0 -30px 60px -30px #0d0420}
-  .stage-bar{position:static;max-width:none;padding:6px 2px 4px;border-radius:0;background:none;backdrop-filter:none;box-shadow:none}
+  .stage-bar{position:static;max-width:none;padding:0 2px 4px;border-radius:0;background:none;backdrop-filter:none;box-shadow:none}
   .looks{gap:7px}
   .look{padding:6px 5px 8px}
   .look-name{font-size:15px}
   .look-note{font-size:9px;letter-spacing:.6px}
-  .look-caption h2{font-size:24px}
+  .look-caption h2{font-size:26px}
   .hero{padding:4px 4px 0;margin-bottom:14px}
-  .hero h2{font-size:30px}
-  .temp{font-size:56px}
-  .wx{width:54px;height:54px}
-  .card{padding:24px 18px 26px}
+  .hero h2{font-size:22px}
+  .temp{font-size:28px}
+  .wx{width:40px;height:40px}
+  .card{padding:22px 16px 24px}
   .fields{grid-template-columns:minmax(0,1fr)}
   .today-slot{flex-basis:66px}
   .today-place-form input,select,.request-box textarea{font-size:16px}
