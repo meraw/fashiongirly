@@ -3,6 +3,7 @@ import * as T from 'three';
 import { BRONZE_TOP_ID, LILAC_TOP_ID, VANGOGH_TEE_ID, DESIGUAL_FRESCO_TEE_ID, DESIGUAL_MOUNTAIN_SHIRT_ID, BARREL_JEANS_ID, DAVINIA_JEANS_ID, LEVIS_94_ID, TOMMY_MOM_ID, STRADIVARIUS_RELAXED_ID, MANGO_BLACK_JEANS_ID, BERSHKA_GREY_ID, TOMMY_CARPENTER_ID, ZARA_CARGO_ID, CRYSTAL_JEANS_ID, NIKE_TRACK_ID, TOPSHOP_BLACK_CROP_ID, PLEATED_LINEN_ID, BUFFALO_ASPHA_ID, GARMENTS } from '../wardrobe/catalog.js';
 import { makeDoll, makeOutfit, disposeObject, fitDoll } from './model.js';
 import { canTuck, cleanRecipe } from './recipe.js';
+import { lightScene } from './light.js';
 // Each garment's texture module, by garment. Only the textures of what she wears are downloaded, when she wears it,
 // so the doll appears after a small download, and one texture that fails to arrive cannot stop her appearing.
 // Garments kept in their own files (src/wardrobe/garments) name theirs: `atlas: [path from this file, export name]`.
@@ -55,19 +56,29 @@ export async function createDollView(host, recipe) {
   renderer.toneMapping=T.ACESFilmicToneMapping;renderer.toneMappingExposure=1.2;renderer.shadowMap.enabled=true;renderer.shadowMap.type=T.PCFSoftShadowMap;
   renderer.domElement.setAttribute('aria-label','Dressable 3D doll. Drag to turn her, or use the view buttons.');renderer.domElement.setAttribute('role','img');
   renderer.domElement.style.touchAction='pan-y';host.append(renderer.domElement);
-  const scene=new T.Scene(),camera=new T.PerspectiveCamera(31,1,.1,30);camera.position.set(0,1.35,5.3);camera.lookAt(0,1.2,0);
-  scene.add(new T.HemisphereLight('#fff7e7','#b5a8aa',2.8));
-  const key=new T.DirectionalLight('#fff3de',3.5);key.position.set(-2,4,4);key.castShadow=true;key.shadow.mapSize.set(1024,1024);Object.assign(key.shadow.camera,{left:-2,right:2,top:3,bottom:-1,near:.1,far:10});key.shadow.normalBias=.022;key.shadow.bias=-.0002;scene.add(key);
-  const fill=new T.DirectionalLight('#e9e7ff',1.4);fill.position.set(3,2,2);scene.add(fill);
-  const rim=new T.DirectionalLight('#fff4df',2);rim.position.set(-1,3,-2);scene.add(rim);
-  const floor=new T.Mesh(new T.PlaneGeometry(20,20),new T.ShadowMaterial({opacity:.13}));floor.rotation.x=-Math.PI/2;floor.receiveShadow=true;floor.position.y=.004;scene.add(floor);
+  // The camera stands at her chest with a longer lens, a little below her middle, so she has air around her and her
+  // proportions are not stretched: the way a collectible doll is photographed. Her world's light is in light.js.
+  const scene=new T.Scene(),camera=new T.PerspectiveCamera(24,1,.1,40);camera.position.set(0,1.05,7.5);camera.lookAt(0,1.25,0);
+  const light=lightScene(scene,renderer);
   const model=new T.Group();scene.add(model);const doll=makeDoll();model.add(doll);const hair=createHairController(doll);hair.update(recipe.hairId);let outfit=makeOutfit(recipe,atlas),current=cleanRecipe(recipe);model.add(outfit);fitDoll(doll,outfit);
   const clothingKey=state=>JSON.stringify({...state,hairId:undefined});let lastClothing=clothingKey(recipe);
   let angle=-.12,target=angle,frame=null,drag=null,pending=0;
   const draw=()=>{frame=null;if(closed)return;model.rotation.y=angle;renderer.render(scene,camera);};
   const render=()=>{if(!closed&&frame==null)frame=requestAnimationFrame(draw);};
-  const resize=()=>{const width=Math.max(1,host.clientWidth),height=Math.max(1,host.clientHeight);renderer.setSize(width,height);camera.aspect=width/height;camera.position.z=camera.aspect<.65?6.2:5.3;camera.updateProjectionMatrix();render();};
-  const observer=new ResizeObserver(resize);observer.observe(host);resize();
+  // The canvas covers the page; she is framed within #frame, the part of the page that is hers (the layout moves it:
+  // above the sheet on a phone, left of the panel on a wider screen). The rest of the canvas shows what lies beyond
+  // the frame, as a window would. Where her feet and the ground behind her land on the page is told to the stylesheet
+  // (--feet-y, --horizon-y, --doll-x), so the painted meadow and mountains sit exactly where she stands.
+  const doc=host.ownerDocument,stageFrame=doc.getElementById('frame'),point=new T.Vector3();
+  const place=(width,height)=>{camera.updateMatrixWorld();const at=(x,y,z)=>{point.set(x,y,z).project(camera);return [(point.x+1)/2*width,(1-point.y)/2*height];};
+    const [dollX,feet]=at(0,0,0),[,horizon]=at(0,0,-2.4),style=doc.documentElement.style;
+    style.setProperty('--feet-y',`${feet.toFixed(1)}px`);style.setProperty('--horizon-y',`${horizon.toFixed(1)}px`);style.setProperty('--doll-x',`${dollX.toFixed(1)}px`);};
+  const resize=()=>{const width=Math.max(1,host.clientWidth),height=Math.max(1,host.clientHeight);renderer.setSize(width,height);
+    const h=host.getBoundingClientRect(),f=stageFrame?stageFrame.getBoundingClientRect():h,fw=Math.max(1,f.width),fh=Math.max(1,f.height);
+    camera.aspect=fw/fh;camera.position.z=camera.aspect<.65?8.8:7.5;camera.setViewOffset(fw,fh,h.left-f.left,h.top-f.top,width,height);camera.updateProjectionMatrix();place(width,height);render();};
+  const observer=new ResizeObserver(resize);observer.observe(host);if(stageFrame)observer.observe(stageFrame);resize();
+  // The lights follow the weather the scene shows (src/today/sky.js says when it changes).
+  const onWeather=e=>{if(light.setWeather(e.detail?.kind))render();};doc.addEventListener('weather-change',onWeather);light.setWeather(doc.getElementById('sky')?.dataset.kind||'none');
   // A tap (a press that barely moves) on what she wears tells the page which garment it was (its id: a layer's
   // `userData.garmentId`, else its name): the first thing the tap
   // meets, her body and hair included, so a closed coat over her top is the coat. Tapping her top tucks it in or out;
@@ -96,7 +107,7 @@ export async function createDollView(host, recipe) {
     // A new outfit is built once its textures have arrived (usually at once); only the latest request is built.
     update(next){hair.update(next.hairId);current=cleanRecipe(next);const key=clothingKey(next);if(key!==lastClothing){lastClothing=key;const ticket=++pending;texturesFor(next).then(()=>{if(closed||ticket!==pending)return;const replacement=makeOutfit(next,atlas);model.remove(outfit);disposeObject(outfit);outfit=replacement;model.add(outfit);fitDoll(doll,outfit);render();});}render();},
     turn(degrees){target=degrees*Math.PI/180;angle=target;render();},
-    dispose(){if(closed)return;closed=true;cancelAnimationFrame(frame);cancelAnimationFrame(hover);observer.disconnect();renderer.domElement.removeEventListener('pointerdown',down);renderer.domElement.removeEventListener('pointermove',move);renderer.domElement.removeEventListener('pointerup',up);renderer.domElement.removeEventListener('pointercancel',up);renderer.domElement.removeEventListener('webglcontextlost',lost);renderer.domElement.removeEventListener('webglcontextrestored',restored);hair.dispose();disposeObject(model);Object.values(atlas).forEach(t=>t.dispose());disposeObject(floor);key.shadow.map?.dispose();renderer.dispose();renderer.domElement.remove();},
+    dispose(){if(closed)return;closed=true;cancelAnimationFrame(frame);cancelAnimationFrame(hover);observer.disconnect();renderer.domElement.removeEventListener('pointerdown',down);renderer.domElement.removeEventListener('pointermove',move);renderer.domElement.removeEventListener('pointerup',up);renderer.domElement.removeEventListener('pointercancel',up);renderer.domElement.removeEventListener('webglcontextlost',lost);renderer.domElement.removeEventListener('webglcontextrestored',restored);doc.removeEventListener('weather-change',onWeather);hair.dispose();disposeObject(model);Object.values(atlas).forEach(t=>t.dispose());light.dispose();renderer.dispose();renderer.domElement.remove();},
   };
 }
 
