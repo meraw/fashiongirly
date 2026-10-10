@@ -7,7 +7,7 @@ import { makeOutfit, disposeObject } from '../src/doll/model.js';
 import { cleanRecipe, canTuck, tuckable, tuckedOverSkirt } from '../src/doll/recipe.js';
 import { startStudio } from '../src/doll/app.js';
 import { levelCaster } from '../src/doll/level-caster.js';
-import { GARMENTS, DESIGUAL_RUGBY_ID, TOMMY_CABLE_ID, MOTEL_TIE_DYE_SHIRT_ID, VANGOGH_TEE_ID, MANGO_DOT_SHIRT_ID, DESIGUAL_MOUNTAIN_SHIRT_ID, BARREL_JEANS_ID, ZIP_TRACK_DRESS_ID } from '../src/wardrobe/catalog.js';
+import { GARMENTS, MARIKOO_WINDBREAKER_ID, BOMBOOGIE_FUR_JACKET_ID, DESIGUAL_RUGBY_ID, TOMMY_CABLE_ID, MOTEL_TIE_DYE_SHIRT_ID, VANGOGH_TEE_ID, MANGO_DOT_SHIRT_ID, DESIGUAL_MOUNTAIN_SHIRT_ID, BARREL_JEANS_ID, ZIP_TRACK_DRESS_ID } from '../src/wardrobe/catalog.js';
 // Tucking her top in: which tops can be, how the recipe keeps it, how the outfit draws it, and tapping her top.
 const tops=Object.keys(GARMENTS).filter(id=>GARMENTS[id].slot==='top');
 const named=(root,name)=>{const found=[];root.traverse(o=>{if(o.name===name)found.push(o);});return found;};
@@ -93,5 +93,25 @@ test('tapping her top tucks it in and out; a top that cannot be tucked says why'
   tap(VANGOGH_TEE_ID);wear('top-select',DESIGUAL_RUGBY_ID);assert.equal(app.getRecipe().tucked,true);wear('top-select',MANGO_DOT_SHIRT_ID);assert.equal(app.getRecipe().tucked,false);
   wear('top-select',TOMMY_CABLE_ID);tap(TOMMY_CABLE_ID);assert.equal(app.getRecipe().tucked,false);assert.match(d.getElementById('message').textContent,/not one to tuck in/);
   assert.equal(d.getElementById('tuck').hidden,true);assert.equal(d.getElementById('drag-hint').textContent,'Drag to turn her');
+  app.dispose();dom.window.close();
+});
+
+test('tapping her jacket opens and closes it; under a closed jacket her top cannot be tucked',async()=>{
+  const dom=new JSDOM(readFileSync('index.html','utf8'),{url:'https://example.com/'}),d=dom.window.document,seen=[];
+  const app=await startStudio(d,()=>({update(r){seen.push(r);},turn(){},dispose(){}}));
+  const stage=d.getElementById('stage'),tap=id=>stage.dispatchEvent(new dom.window.CustomEvent('garment-tap',{detail:{id}}));
+  const wear=(id,value)=>{const s=d.getElementById(id);s.value=value;s.dispatchEvent(new dom.window.Event('change'));};
+  const hint=()=>d.getElementById('drag-hint').textContent;
+  wear('dress-select','none');wear('top-select',VANGOGH_TEE_ID);wear('outerwear-select',MARIKOO_WINDBREAKER_ID);
+  assert.equal(app.getRecipe().outerwearOpen,false);assert.equal(hint(),'Drag to turn her · tap her jacket to open it');
+  assert.equal(d.getElementById('tuck').hidden,true,'her top is under the closed jacket');assert.equal(d.getElementById('open-key').hidden,false);
+  tap(MARIKOO_WINDBREAKER_ID);assert.equal(app.getRecipe().outerwearOpen,true);assert.equal(seen.at(-1).outerwearOpen,true,'the view is told');
+  assert.equal(d.getElementById('outerwear-open').checked,true,'the Dress page agrees');assert.match(d.getElementById('message').textContent,/worn open/);
+  assert.equal(hint(),'Drag to turn her · tap her jacket to close it or her top to tuck it in');
+  tap(VANGOGH_TEE_ID);assert.equal(app.getRecipe().tucked,true,'open, her top can be tucked');assert.equal(app.getRecipe().outerwearOpen,true);
+  d.getElementById('open-key').click();assert.equal(app.getRecipe().outerwearOpen,false,'the keyboard button does the same');assert.match(d.getElementById('message').textContent,/is closed/);
+  // A jacket that cannot be shown open says so, and stays closed.
+  wear('outerwear-select',BOMBOOGIE_FUR_JACKET_ID);tap(BOMBOOGIE_FUR_JACKET_ID);assert.equal(app.getRecipe().outerwearOpen,false);
+  assert.match(d.getElementById('message').textContent,/cannot be shown open/);assert.equal(d.getElementById('open-key').hidden,true);assert.equal(hint(),'Drag to turn her');
   app.dispose();dom.window.close();
 });

@@ -68,20 +68,23 @@ export async function createDollView(host, recipe) {
   const render=()=>{if(!closed&&frame==null)frame=requestAnimationFrame(draw);};
   const resize=()=>{const width=Math.max(1,host.clientWidth),height=Math.max(1,host.clientHeight);renderer.setSize(width,height);camera.aspect=width/height;camera.position.z=camera.aspect<.65?6.2:5.3;camera.updateProjectionMatrix();render();};
   const observer=new ResizeObserver(resize);observer.observe(host);resize();
-  // A tap (a press that barely moves) on what she wears tells the page which garment it was: the first thing the tap
-  // meets, her body and hair included, so a closed coat over her top is the coat. Tapping her top tucks it in or out.
+  // A tap (a press that barely moves) on what she wears tells the page which garment it was (its id: a layer's
+  // `userData.garmentId`, else its name): the first thing the tap
+  // meets, her body and hair included, so a closed coat over her top is the coat. Tapping her top tucks it in or out;
+  // tapping her jacket opens or closes it.
   const ray=new T.Raycaster(),pointer=new T.Vector2();
   const garmentAt=e=>{const box=renderer.domElement.getBoundingClientRect();pointer.set((e.clientX-box.left)/box.width*2-1,-(e.clientY-box.top)/box.height*2+1);
     model.updateMatrixWorld(true);ray.setFromCamera(pointer,camera);
     // Only solid surfaces count: her felt's fibres and other lines and points would catch every tap near them.
     const shown=o=>{if(!o.isMesh)return false;for(let p=o;p;p=p.parent)if(!p.visible)return false;return true;};
     const hit=ray.intersectObject(model,true).find(h=>shown(h.object));if(!hit)return null;
-    let o=hit.object;while(o.parent&&o.parent!==outfit)o=o.parent;return o.parent===outfit?o.name:null;};
-  let hover=null;const tuckable=()=>canTuck(current.topId)&&current.dressId==='none';
+    let o=hit.object;while(o.parent&&o.parent!==outfit)o=o.parent;return o.parent===outfit?o.userData.garmentId??o.name:null;};
+  // What a tap can change: her top (tucked in or out) and her jacket (open or closed).
+  let hover=null;const tappable=id=>id&&(id===current.topId&&current.dressId==='none'&&canTuck(id)||id===current.outerwearId&&!!GARMENTS[id]?.layering?.canOpen);
   const down=e=>{if(e.button!==0)return;drag={x:e.clientX,y:e.clientY,angle,time:performance.now()};renderer.domElement.setPointerCapture(e.pointerId);};
   const move=e=>{
-    // Over a top that can be tucked, the pointer shows it can be tapped.
-    if(!drag&&e.pointerType==='mouse'&&tuckable()&&hover==null)hover=requestAnimationFrame(()=>{hover=null;renderer.domElement.style.cursor=garmentAt(e)===current.topId?'pointer':'';});
+    // Over a top that can be tucked or a jacket that can open, the pointer shows it can be tapped.
+    if(!drag&&e.pointerType==='mouse'&&(tappable(current.topId)||tappable(current.outerwearId))&&hover==null)hover=requestAnimationFrame(()=>{hover=null;renderer.domElement.style.cursor=tappable(garmentAt(e))?'pointer':'';});
     if(!drag)return;if(Math.abs(e.clientY-drag.y)>Math.abs(e.clientX-drag.x)+15)return;angle=drag.angle+(e.clientX-drag.x)*.012;target=angle;render();};
   const up=e=>{const start=drag;drag=null;
     if(e?.type==='pointerup'&&start&&Math.hypot(e.clientX-start.x,e.clientY-start.y)<8&&performance.now()-start.time<600){const id=garmentAt(e);if(id)host.dispatchEvent(new CustomEvent('garment-tap',{detail:{id}}));}};

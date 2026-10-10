@@ -53,9 +53,14 @@ export async function startStudio(doc=document, makeView, options={}) {
     $('under-field').hidden=$('under-select').disabled;
     $('outerwear-options').hidden=recipe.outerwearId==='none';$('outerwear-open-field').hidden=$('outerwear-open').disabled;$('outerwear-insert-field').hidden=$('outerwear-insert').disabled;
     $('classic-controls').hidden=dress||(recipe.topId!=='classic'&&recipe.bottomId!=='classic');
-    // Her top tucks in or out with a tap on it (or the tuck button, for the keyboard); the hint under her says so.
-    const tuck=tuckable(recipe);$('tuck').hidden=!tuck;$('tuck').textContent=recipe.tucked?'Untuck her top':'Tuck her top in';$('tuck').setAttribute('aria-pressed',String(recipe.tucked));
-    $('drag-hint').textContent=tuck?`Drag to turn her · tap her top to ${recipe.tucked?'untuck it':'tuck it in'}`:'Drag to turn her';
+    // Her top tucks in or out, and her jacket opens or closes, with a tap on it (or a button, for the keyboard); the hint
+    // under her says what a tap does. Under a closed jacket her top cannot be reached.
+    const outer=GARMENTS[recipe.outerwearId],opens=!!outer?.layering?.canOpen,coat=/coat|parka/.test(outer?.family||'')?'coat':'jacket';
+    const tuck=tuckable(recipe)&&(!outer||recipe.outerwearOpen);
+    $('tuck').hidden=!tuck;$('tuck').textContent=recipe.tucked?'Untuck her top':'Tuck her top in';$('tuck').setAttribute('aria-pressed',String(recipe.tucked));
+    $('open-key').hidden=!opens;$('open-key').textContent=recipe.outerwearOpen?`Close her ${coat}`:`Open her ${coat}`;$('open-key').setAttribute('aria-pressed',String(recipe.outerwearOpen));
+    const taps=[...(opens?[`her ${coat} to ${recipe.outerwearOpen?'close':'open'} it`]:[]),...(tuck?[`her top to ${recipe.tucked?'untuck it':'tuck it in'}`]:[])];
+    $('drag-hint').textContent=taps.length?`Drag to turn her · tap ${taps.join(' or ')}`:'Drag to turn her';
     wardrobe.sync(recipe);
     for(const button of $('outfit-ideas').children)button.setAttribute('aria-pressed',String(button.textContent===selected?.name));
     for(const key of ['sleeve','hem','barrel']){$(key).value=Math.round(recipe[key]*100);const value=recipe[key];$(`${key}-value`).textContent=key==='hem'?(value<.34?'Cropped':value>.66?'Longer':'At the waist'):value<.34?'A little':value>.66?'A lot':'In between';$(key).setAttribute('aria-valuetext',`${$(`${key}-value`).textContent}, ${Math.round(value*100)} percent`);}
@@ -85,8 +90,14 @@ export async function startStudio(doc=document, makeView, options={}) {
     if(!tuckable(recipe)){if(name)message(canTuck(recipe.topId)?`Over the skirt, the ${name} stays tucked in.`:`The ${name} is worn loose: it is not one to tuck in.`);return;}
     recipe=cleanRecipe({...recipe,tucked:!recipe.tucked});sync();apply();message(recipe.tucked?`The ${name} is tucked in.`:`The ${name} is worn loose.`);
   }
-  $('stage').addEventListener('garment-tap',e=>{if(e.detail.id===recipe.topId&&recipe.dressId==='none')toggleTuck();});
-  $('tuck').onclick=toggleTuck;
+  // Opening or closing her jacket, as the Dress page's "Wear it open" does. One that cannot be shown open says so.
+  function toggleOpen(){
+    const g=GARMENTS[recipe.outerwearId];if(!g)return;
+    if(!g.layering?.canOpen){message(`The ${g.name} is shown closed: it cannot be shown open yet.`);return;}
+    recipe=cleanRecipe({...recipe,outerwearOpen:!recipe.outerwearOpen});sync();apply();message(recipe.outerwearOpen?`The ${g.name} is worn open.`:`The ${g.name} is closed.`);
+  }
+  $('stage').addEventListener('garment-tap',e=>{const id=e.detail.id;if(id===recipe.outerwearId)toggleOpen();else if(id===recipe.topId&&recipe.dressId==='none')toggleTuck();});
+  $('tuck').onclick=toggleTuck;$('open-key').onclick=toggleOpen;
   $('reset').onclick=()=>{recipe=cleanRecipe(DEFAULT);sync();apply();message('Back to the original outfit.');};
   function storeLooks(next){try{if(!storage)throw new Error();storage.setItem(BOOK,JSON.stringify(next));looks=next;sync();return true;}catch{message('This browser could not save your look.');return false;}}
   $('save').onclick=()=>{if(looks.length>=24){message('Your lookbook is full. Remove a look to make room.');return;}if(storeLooks([cleanRecipe(recipe),...looks]))message('Saved in My looks.');};
