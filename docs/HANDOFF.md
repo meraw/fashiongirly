@@ -37,7 +37,7 @@ Since 9 October 2026 every garment, in every slot, has a `styling` record, check
 | `src/doll/model.js` | Procedural character and outfit geometry, materials, resource cleanup |
 | `src/doll/recipe.js` | Current flat recipe, validation, bounded parser, curated outfits |
 | `src/doll/app.js` | Controls, preset application, persistence and lookbook |
-| `src/doll/view.js` | Three.js rendering, camera, turn interaction and lifecycle |
+| `src/doll/view.js` | Three.js rendering, camera, turn interaction and lifecycle. Garment textures load lazily (10 October 2026, after the user saw "failed to fetch dynamically imported module" on their phone and no doll): only the textures of what she wears are downloaded, when she wears it; a failed download is retried once at a fresh address, and a texture that still fails leaves that garment plain instead of stopping the doll. A new texture module is listed in `TEXTURES` there, or named by the garment's own `atlas` |
 | `src/doll/boot.js` | Entry point and page lifecycle |
 | `src/doll/studio.css`, `index.html` | Studio interface |
 | `tests/doll.test.js` | Geometry bounds, layer edits, UI persistence and error handling, sleeves and cuffs of every top over her arms and hands |

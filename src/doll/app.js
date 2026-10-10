@@ -86,11 +86,18 @@ export async function startStudio(doc=document, makeView, options={}) {
   // Each morning she checks the weather and dresses herself (src/today/today.js); her pick is worn like any other recipe.
   const win=doc.defaultView;today=mountToday(doc,{storage,getRecipe:()=>cleanRecipe(recipe),wear:next=>{recipe=cleanRecipe(next);sync();apply();message('');},
     fetch:'fetch' in options?options.fetch:win?.fetch?.bind(win),geolocation:'geolocation' in options?options.geolocation:win?.navigator?.geolocation,now:options.now});
-  const showError=text=>{$('loading')?.remove();$('view-error').hidden=false;$('view-error').textContent=text;};
-  $('stage').addEventListener('view-error',e=>showError(e.detail));sync();
+  // If she cannot be shown, say why and offer to try again: reloading clears whatever failed to download.
+  const showError=text=>{$('loading')?.remove();const box=$('view-error'),retry=doc.createElement('button');box.hidden=false;
+    retry.type='button';retry.className='retry';retry.textContent='Try again';retry.onclick=()=>doc.defaultView.location.reload();box.replaceChildren(`${text} `,retry);};
+  $('stage').addEventListener('view-error',e=>showError(e.detail));
+  $('stage').addEventListener('view-restored',()=>{$('view-error').hidden=true;});
+  // A garment whose print could not be downloaded is shown without it; it is tried again the next time she wears it.
+  $('stage').addEventListener('texture-error',e=>message(`The print for the ${GARMENTS[e.detail.id]?.name??'garment'} did not load, so it is shown plain for now.`));sync();
   // If she dressed for the day while the view was loading, show that outfit once the view is ready.
-  try {const factory=makeView || (await import('./view.js')).createDollView,first=recipe;view=await factory($('stage'),recipe);if(recipe!==first)view.update(recipe);view.turn(-25);$('loading')?.remove();}
-  catch(error){showError(error.message||'The 3D view could not load. Please reload and try again.');}
+  // The 3D view is loaded separately; a download that fails is tried once more at a fresh address.
+  const loadView=async()=>{try{return (await import('./view.js')).createDollView;}catch{return (await import(`./view.js?retry=${Date.now()}`)).createDollView;}};
+  try {const factory=makeView || await loadView(),first=recipe;view=await factory($('stage'),recipe);if(recipe!==first)view.update(recipe);view.turn(-25);$('loading')?.remove();}
+  catch(error){showError(/fetch|import|load/i.test(error?.message||'')?'She could not be loaded: the connection dropped while the app was downloading.':error.message||'The 3D view could not load.');}
   return {getRecipe:()=>cleanRecipe(recipe),today,dispose(){clearTimeout(timer);persist();hairControls.dispose();today.dispose();pages.dispose();wardrobe.dispose();view?.dispose();}};
 }
 
