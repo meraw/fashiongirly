@@ -1,6 +1,6 @@
 # Project continuity
 
-Before changing Fashiongirly, read `docs/PRODUCT_BRIEF.md` and `docs/HANDOFF.md`, then `README.md` for setup. These preserve the user's decisions across chats.
+Before changing Fashiongirly, read `docs/PRODUCT_BRIEF.md` and `docs/HANDOFF.md`, then `README.md` for setup. For anything about how she or the app look, read `docs/DESIGN_DIRECTION.md` too: the agreed direction and the order of the remaining steps. These preserve the user's decisions across chats.
 
 - Keep the initial app local and free of required runtime API calls. AI integration is optional future work, not an implicit dependency.
 - Preserve the working doll identity: the user likes the face and preferred the revised compact body.
