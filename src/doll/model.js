@@ -1,5 +1,5 @@
 import * as T from 'three';
-import { cleanRecipe } from './recipe.js';
+import { cleanRecipe, tuckedOverSkirt } from './recipe.js';
 import { makePrintedTee } from './printed-tee.js';
 import { makePrintedLongTee } from './printed-long-tee.js';
 import { makeChenilleJumper } from './chenille-jumper.js';
@@ -9,6 +9,7 @@ import { makeHoodie } from './hoodie.js';
 import { TOP_TEMPLATES } from './top-templates.js';
 import { makeOuterwear } from './outerwear.js';
 import { levelCaster } from './level-caster.js';
+import { tuckTop } from './tuck.js';
 import { BRONZE_TOP_ID, LILAC_TOP_ID, CROCHET_TOP_ID, PLAID_JUMPER_ID, STRIPE_JUMPER_ID, POINTELLE_FLOWER_ID, SILVER_CABLE_ID, LACROIX_FLOWER_ID, TOMMY_CABLE_ID, PETIT_BATEAU_CARDIGAN_ID, ZIP_TRACK_DRESS_ID, TOMMY_STRIPE_POLO_ID, GARMENTS } from '../wardrobe/catalog.js';
 import { makeKnitPolo } from './polo.js';
 import { makeButtonShirt, SHIRT_IDS } from './shirts.js';
@@ -2008,7 +2009,7 @@ export function makeOutfit(raw, atlas=null) {
   const makeTop=id=>id===CROCHET_TOP_ID?makeCrochetTop():id===PLAID_JUMPER_ID?makePlaidJumper(id,state.skirt):id===STRIPE_JUMPER_ID?makeStripeJumper(id,state.skirt)
     :id===POINTELLE_FLOWER_ID?makePointelleJumper(id,state.skirt):id===SILVER_CABLE_ID?makeSilverCableJumper():id===LACROIX_FLOWER_ID?makeLacroixSweater(id,state.skirt)
     :id===TOMMY_CABLE_ID?makeTommyCableSweater(id,state.skirt):id===PETIT_BATEAU_CARDIGAN_ID?makeStripedCardigan(id,state.skirt)
-    :id===TOMMY_STRIPE_POLO_ID?makeKnitPolo(id):SHIRT_IDS.includes(id)?makeButtonShirt(id,atlas?.isTexture?atlas:atlas?.[id],state.skirt,trousers)
+    :id===TOMMY_STRIPE_POLO_ID?makeKnitPolo(id):SHIRT_IDS.includes(id)?makeButtonShirt(id,atlas?.isTexture?atlas:atlas?.[id],state.skirt,trousers,id===state.topId&&state.tucked)
     :GARMENTS[id]?.build?.template==='printed-raglan-tee'?makePrintedTee(id,GARMENTS[id].build,atlas?.isTexture?atlas:atlas?.[id])
     :GARMENTS[id]?.build?.template==='printed-long-tee'?makePrintedLongTee(id,GARMENTS[id].build,state.skirt)
     :GARMENTS[id]?.build?.template==='chenille-high-neck'?makeChenilleJumper(id,GARMENTS[id].build)
@@ -2017,7 +2018,7 @@ export function makeOutfit(raw, atlas=null) {
     // Templates registered in top-templates.js (new ones go there, not here).
     :TOP_TEMPLATES[GARMENTS[id]?.build?.template]?TOP_TEMPLATES[GARMENTS[id].build.template](id,GARMENTS[id].build,{skirt:state.skirt,atlas:atlas?.isTexture?atlas:atlas?.[id]})
     :makeReferenceTop(atlas?.isTexture?atlas:atlas?.[id],id);
-  if(!dress&&state.topId!=='classic')root.add(makeTop(state.topId));
+  const top=!dress&&state.topId!=='classic'?makeTop(state.topId):null;if(top)root.add(top);
   if(dress)root.add(GARMENTS[dress].build?.template==='lace-shift-dress'?makeLaceDress(dress,GARMENTS[dress].build):makeZipTrackDress(dress));
   // A top that can be worn over another top (layering.overTop, such as a cardigan) may have a slim top under it
   // (layering.underTop). The under top shows in the opening instead of her skin; its sleeves stay inside the outer
@@ -2049,8 +2050,9 @@ export function makeOutfit(raw, atlas=null) {
     const ribs=new T.Group();ribs.name='hem-ribs';sweater.add(ribs);
     for(let i=0;i<52;i++){const a=i/52*Math.PI*2;curve(ribs,[[Math.sin(a)*.29,hem-.004,Math.cos(a)*.212],[Math.sin(a)*.291,hem+.051,Math.cos(a)*.213]],.0027,knit,'rib');}
   }
+  const skirt=skirtOn?new T.Group():null;
   if(skirtOn){
-    const skirt=new T.Group();skirt.name='layered-skirt';root.add(skirt);
+    skirt.name='layered-skirt';root.add(skirt);
     const satin=cloth(state.skirtColour);satin.roughness=.7;satin.sheenRoughness=.6;
     const panel=shell(skirt,[[1.24,.292,.219],[1.17,.317,.23],[1.02,.356,.253],[.85,.39,.273],[.79,.395,.277]],satin,'pleated-skirt',96);
     const positions=panel.geometry.attributes.position;
@@ -2062,10 +2064,10 @@ export function makeOutfit(raw, atlas=null) {
     }
     positions.needsUpdate=true;panel.geometry.computeVertexNormals();
     ring(skirt,1.238,.294,.221,satin,'skirt-waistband',.04);
-    // A top that covers the waistband hides the bow, which would otherwise poke through its hem; one tucked into the skirt
-    // (layering.tucksIntoSkirt) leaves it showing.
+    // A top that covers the waistband hides the bow, which would otherwise poke through its hem; one tucked in leaves it
+    // showing.
     const topLayering=GARMENTS[state.topId]?.layering;
-    if(!(topLayering?.coversWaistband&&!topLayering.tucksIntoSkirt)&&!GARMENTS[state.outerwearId]?.layering?.coversWaistband){
+    if(!(topLayering?.coversWaistband&&!state.tucked)&&!GARMENTS[state.outerwearId]?.layering?.coversWaistband){
     const ribbon=cloth(state.skirtColour);
     for(const side of [-1,1]){
       const loop=oval(skirt,[.22+side*.042,1.208,.193],[.052,.026,.019],ribbon,'ribbon-loop');loop.rotation.z=side*.35;
@@ -2074,6 +2076,9 @@ export function makeOutfit(raw, atlas=null) {
     oval(skirt,[.22,1.208,.219],[.019,.021,.013],ribbon,'ribbon-knot');
     }
   }
+  // A top worn tucked in (state.tucked) goes into the skirt's waistband, or the trousers' without one, unless it was
+  // built tucked: a shirt tucked into trousers, or a top the skirt always takes tucked (its own rows tuck it in).
+  if(top&&state.tucked&&!top.userData.tucked&&!(skirtOn&&tuckedOverSkirt(state.topId)))tuckTop(top,skirtOn?skirt:trousers);
   // Outerwear goes over every other layer. A closed jacket's elastic cuffs gather tighter than the sleeves under it, so
   // those sleeves are hidden inside it rather than pushing through. Every top builds its sleeves in arm groups tilted with
   // her arms; only those groups are hidden.
