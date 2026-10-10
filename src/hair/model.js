@@ -61,6 +61,35 @@ function lock(group,points,radius,mat,thread,name){
 }
 function tie(group,p,r){const mat=new THREE.MeshStandardMaterial({color:'#59413a',roughness:.8});const m=mesh(group,new THREE.TorusGeometry(r,.014,8,32),mat,'hair-tie');m.position.set(...p);m.rotation.x=Math.PI/2;}
 function bun(group,p,scale,mat,thread){ball(group,p,scale,mat,'coiled-bun');const path=[];for(let i=0;i<=150;i++){const t=i/150,a=t*Math.PI*9,r=Math.sin(t*Math.PI)*.88;path.push([p[0]+Math.cos(a)*scale[0]*r,p[1]+Math.sin(a)*scale[1]*r,p[2]-scale[2]*Math.sqrt(1-r*r)-.004]);}line(group,path,.011,thread,'bun-twist');}
+// A three-strand plait brought over her left shoulder. The hair is gathered at the back and swept round behind her ear
+// to the plait's top. A plait shows as a chain of lobes, each strand crossing over the middle in turn: alternate lobes
+// lie to either side of the plait's centre line and slant towards it going down, so together they make the plait's
+// chevrons. A thin core fills the gaps between them; strand lines run along each lobe. It narrows a little to a hair
+// tie and a short loose tail.
+function sideBraid(group,mat,thread){
+  lock(group,[[.16,-.1,-.37],[.40,-.24,-.24],[.48,-.36,.02],[.42,-.46,.17]],.072,mat,thread,'braid-gather');
+  const path=new THREE.CatmullRomCurve3([[.42,-.44,.17],[.41,-.56,.235],[.37,-.72,.265],[.32,-.88,.275],[.29,-.98,.275]].map(point));
+  line(group,Array.from({length:21},(_,i)=>path.getPointAt(i/20).toArray()),.03,mat,'braid-core');
+  const count=12,lobe=new THREE.SphereGeometry(1,20,12),m=new THREE.Matrix4(),basis=new THREE.Matrix4(),q=new THREE.Vector3();
+  for(let i=0;i<count;i++){
+    const t=(i+.5)/count,c=path.getPointAt(t),along=path.getTangentAt(t).normalize();
+    // Out from her (towards the viewer at her shoulder), square to the plait; across it, the side the lobes alternate.
+    const out=new THREE.Vector3(c.x*.8,0,1).normalize(),across=new THREE.Vector3().crossVectors(along,out).normalize();out.crossVectors(across,along).normalize();
+    const side=i%2?1:-1,width=.1*(1-.3*t),slant=side*.6;
+    const axis=along.clone().multiplyScalar(Math.cos(slant)).addScaledVector(across,Math.sin(slant)),wide=new THREE.Vector3().crossVectors(out,axis).normalize();
+    const centre=c.clone().addScaledVector(across,side*width*.24).addScaledVector(out,.012);
+    const step=path.getLength()/count;
+    basis.makeBasis(axis,wide,out);m.makeScale(step*.95,width*.36,width*.32).premultiply(basis).setPosition(centre);
+    const piece=mesh(group,lobe.clone().applyMatrix4(m),mat,'braid-lobe');piece.userData.side=side;
+    // Strand lines along the lobe, following its curve.
+    for(const k of [-.45,0,.45]){const pts=[];for(let j=0;j<=8;j++){const u=j/8*2-1,bulge=Math.sqrt(Math.max(0,1-u*u-k*k*.6));
+      q.set(u*.92,k,bulge*.98+.04).applyMatrix4(m);pts.push(q.toArray());}line(group,pts,.0022,thread,'braid-strand');}
+  }
+  lobe.dispose();
+  const end=path.getPointAt(1),down=path.getTangentAt(1);
+  tie(group,end.toArray(),.03);
+  lock(group,[end.toArray(),end.clone().addScaledVector(down,.06).add(new THREE.Vector3(.008,0,.01)).toArray(),end.clone().addScaledVector(down,.13).add(new THREE.Vector3(-.006,0,.015)).toArray()],.05,mat,thread,'braid-tail');
+}
 export function makeHair(raw){
   const id=cleanHairId(raw),group=new THREE.Group();group.name='outfit-hair';group.userData.hairId=id;
   if(id==='bob')return group;
@@ -71,10 +100,7 @@ export function makeHair(raw){
   if(id==='high-bun')bun(group,[0,.53,-.26],[.215,.185,.19],mat,thread);
   if(id==='low-bun')bun(group,[0,-.28,-.47],[.205,.16,.16],mat,thread);
   if(id==='half-up'){bun(group,[0,-.04,-.49],[.115,.085,.075],mat,thread);for(const side of [-1,1])line(group,[[side*.49,.06,-.08],[side*.35,.01,-.35],[0,-.035,-.51]],.025,mat,'half-up-twist');}
-  if(id==='side-braid'){
-    lock(group,[[.2,-.18,-.34],[.43,-.32,-.24],[.48,-.43,.04],[.40,-.55,.25]],.083,mat,thread,'braid-gather');
-    for(let strand=0;strand<3;strand++){const points=[];for(let i=0;i<=30;i++){const t=i/30,a=t*Math.PI*8+strand*Math.PI*2/3,r=.043*(1-t*.4);points.push([.40-.13*t+Math.sin(a)*r,-.48-.37*t,.24+Math.cos(a)*r]);}lock(group,points,.041,mat,thread,'braid-strand');}tie(group,[.275,-.85,.24],.035);
-  }
+  if(id==='side-braid')sideBraid(group,mat,thread);
   return group;
 }
 export function disposeHair(group){const mats=new Set();group.traverse(o=>{o.geometry?.dispose();if(o.material)for(const m of Array.isArray(o.material)?o.material:[o.material])mats.add(m);});for(const m of mats)m.dispose();}
