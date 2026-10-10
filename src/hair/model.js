@@ -15,26 +15,26 @@ function scalp(group,mat,thread){
   const pos=[],index=[],cols=64,rows=24;
   // Follow the actual felt-head ellipsoid. The edge sits almost on the skin;
   // volume grows inward from the hairline instead of leaving a raised cap rim.
-  const surface=(u,v,extra=0)=>{
+  // Sections of hair combed from the crown are sculpted into the surface: seven soft swells around the head, each
+  // drifting a little as it comes down, fading out at the crown and at the hairline, so light and shadow pick them
+  // out the way they do on a molded doll's hair, with nothing lying on top of it.
+  const surface=(u,v)=>{
     const a=u*Math.PI*2,back=(1-Math.cos(a))/2;
     const edge=1.02+1.62*back+.025*Math.sin(a*5)*Math.sin(a)**2;
-    const phi=v*edge,root=Math.min(1,(1-v)/.22),lift=.0015+.022*root*root+extra;
+    const phi=v*edge,root=Math.min(1,(1-v)/.22);
+    const swell=.007*Math.sin(Math.PI*Math.min(1,v/.9))**1.2*(.5+.5*Math.cos(a*7+.9*v+.4*Math.sin(a*3)));
+    const lift=.0015+.022*root*root+swell;
     const x=.5*Math.sin(phi)*Math.sin(a),y=.47*Math.cos(phi),z=.405*Math.sin(phi)*Math.cos(a);
     return offHead(x,y,z,lift);
   };
   for(let j=0;j<=rows;j++)for(let i=0;i<=cols;i++)pos.push(...surface(i/cols,j/rows));
   for(let j=0;j<rows;j++)for(let i=0;i<cols;i++){const a=j*(cols+1)+i,b=a+cols+1;index.push(a,b,a+1,a+1,b,b+1);}
   const geo=new THREE.BufferGeometry();geo.setAttribute('position',new THREE.Float32BufferAttribute(pos,3));geo.setIndex(index);geo.computeVertexNormals();mesh(group,geo,mat,'styled-scalp');
-  // Sculpted sections: nine wide, low locks combed from the crown towards the hairline, unevenly spaced, half sunk
-  // into the hair and stopping short of her brow: sections of molded hair, not evenly spaced grooves.
-  for(let i=0;i<9;i++){
-    const u0=(i+.5)/9+(i%2?.018:-.012),front=Math.abs(((u0%1)+1)%1-.5)>.3,path=[];
-    for(let j=1;j<=12;j++){const v=.08+(front?.68:.86)*j/12,u=((u0+.006*Math.sin(j*1.3+i))%1+1)%1;path.push(surface(u,v,.004));}
-    lock(group,path,.02+.005*(i%3),mat,thread,'combed-lock',{strands:false,ends:'soft',flat:.5});
-  }
 }
 function curtain(group,mat,thread,wavy=false){
   const cols=48,rows=36,pos=[],index=[];
+  // Sections sculpted into the lengths: six soft swells across the back, fading at the roots and the tips.
+  const swellAt=(s,t)=>.006*Math.sin(Math.PI*t)**.8*Math.max(0,1-s*s*s*s)*(.5+.5*Math.cos(s*Math.PI*5.5+1.4*t));
   const surface=(s,t,offset=0)=>{
     const end=wavy?-.78+.30*(Math.sqrt(s*s+.016)-Math.sqrt(.016))/(Math.sqrt(1.016)-Math.sqrt(.016)):-.48-.30*(1-Math.abs(s));
     // A small mirrored S bend through the lengths; no sideways kick at the tips.
@@ -51,20 +51,14 @@ function curtain(group,mat,thread,wavy=false){
       const fall=Math.max(0,Math.min(1,(t-.26)/.74)),ease=fall*fall*(3-2*fall);
       const back=-.30+.065*s*s;
       const ripple=.007*Math.sin(t*Math.PI*2)*Math.sin(t*Math.PI)*(1-s*s);
-      return [x,y,headZ*(1-ease)+back*ease+ripple-offset];
+      return [x,y,headZ*(1-ease)+back*ease+ripple-offset-swellAt(s,t)];
     }
     const drape=-.41+.025*s*s;
-    return [x,y,rootZ*(1-smooth)+drape*smooth-offset];
+    return [x,y,rootZ*(1-smooth)+drape*smooth-offset-swellAt(s,t)];
   };
   for(let j=0;j<=rows;j++)for(let i=0;i<=cols;i++)pos.push(...surface(i/cols*2-1,j/rows));
   for(let j=0;j<rows;j++)for(let i=0;i<cols;i++){const a=j*(cols+1)+i,b=a+cols+1;index.push(a,b,a+1,a+1,b,b+1);}
   const geo=new THREE.BufferGeometry();geo.setAttribute('position',new THREE.Float32BufferAttribute(pos,3));geo.setIndex(index);geo.computeVertexNormals();mesh(group,geo,mat,'v-shaped-lengths');
-  // Seven sculpted lengths down the back, unevenly spaced, each a wide, low ridge of hair rather than a thread.
-  for(let i=0;i<7;i++){
-    const s0=-.86+i*.29+(i%2?.05:-.04),path=[];
-    for(let j=0;j<=16;j++)path.push(surface(Math.max(-.98,Math.min(.98,s0+.008*Math.sin(j*.9+i))),.02+.96*j/16,.004));
-    lock(group,path,.014+.004*(i%2),mat,thread,'length-lock',{strands:false,ends:'soft',flat:.5});
-  }
   for(const side of [-1,1])lock(group,[[side*.47,.14,.10],[side*.49,-.18,.025],[side*.46,-.45,-.16],[side*.39,-.62,-.32]],.056,mat,thread,'face-framing-lock',{strands:false,ends:'soft'});
 }
 // A lock of hair along a path: fuller in the middle, and ending in a point (a lock that is combed to its tip), softly
