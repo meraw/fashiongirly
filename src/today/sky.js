@@ -30,6 +30,8 @@ export function paintSky(el, conditions) {
   if (el.dataset.kind === kind && (el.dataset.windy === 'true') === windy && el.childElementCount) return kind;
   el.dataset.kind = kind; el.dataset.windy = String(windy);
   const doc = el.ownerDocument, parts = [];
+  // The 3D view lights her for this weather (src/doll/light.js).
+  const Event = doc.defaultView?.CustomEvent; if (Event) el.dispatchEvent(new Event('weather-change', { bubbles: true, detail: { kind } }));
   const add = (cls, vars = {}) => { const s = doc.createElement('span'); s.className = cls; for (const [k, v] of Object.entries(vars)) s.style.setProperty(k, v); parts.push(s); };
   if (kind === 'sun' || kind === 'partly') add('sun');
   if (kind === 'fog') for (let i = 0; i < 4; i++) add('fog-band', { '--y': `${18 + i * 18}%`, '--d': `${26 + i * 7}s`, '--delay': `${-i * 6}s` });

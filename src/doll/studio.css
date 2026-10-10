@@ -20,8 +20,6 @@
 *{box-sizing:border-box}
 html{background:var(--night)}
 body{margin:0;min-height:100vh;color:var(--ink)}
-/* The painted sunset, fixed behind everything. */
-body::before{content:"";position:fixed;inset:0;z-index:-2;background:var(--night) url("../art/sky.webp") center 38% / cover no-repeat}
 /* A little paper grain over everything, so the colour has texture. */
 body::after{content:"";position:fixed;inset:0;pointer-events:none;z-index:50;opacity:.06;mix-blend-mode:multiply;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E")}
 button,textarea,input,select{font:inherit;color:inherit}
@@ -40,17 +38,24 @@ h3{font-size:14px;margin:0}
 .tag::before{content:"";width:7px;height:7px;border-radius:50%;background:var(--apricot);box-shadow:0 0 0 2px #ffffff26}
 .small-tag{padding:4px 9px 4px 7px;font-size:9px;margin-bottom:6px}
 
-/* The painted mountains along the bottom of the screen, a breathing glow where the sun sets, and a few stars. */
-.scenery{position:fixed;inset:0;z-index:-1;pointer-events:none;overflow:hidden}
-.scenery .range{position:absolute;left:0;right:0;bottom:0;height:44vh;min-height:220px;background:url("../art/mountains.webp") center bottom / cover no-repeat}
-.scenery .glow{position:absolute;left:60%;top:42%;width:46vw;height:46vw;margin:-23vw 0 0 -23vw;border-radius:50%;background:radial-gradient(circle,#ffb36b55,#ff8a5a22 45%,transparent 70%);animation:breathe 9s ease-in-out infinite alternate}
-.stars{position:absolute;top:0;left:0;width:3px;height:3px;border-radius:50%;background:#fff;box-shadow:
-  9vw 7vh #fff,27vw 4vh #fffd,44vw 10vh #fff,63vw 6vh #fffd,79vw 12vh #fff,93vw 5vh #fffc,18vw 18vh #fffa,71vw 21vh #fffa;animation:twinkle 4s ease-in-out infinite alternate}
-@keyframes twinkle{to{opacity:.3}}
+/* The world, fixed behind everything: the painted sunset (src/art/sky.webp), the weather drawn over it by
+   src/today/sky.js (the sun's glow, clouds, rain, snow, fog, gusts), the painted mountains and the meadow she stands
+   on. The doll's view tells the stylesheet where her feet and the ground behind her fall on the page (--feet-y,
+   --horizon-y), so the meadow and the mountains sit exactly where she stands, whatever the screen. */
+.scenery{position:fixed;inset:0;z-index:0;pointer-events:none}
+.sky{position:absolute;inset:0;overflow:hidden;container-type:size;background:var(--night) url("../art/sky.webp") center 38% / cover no-repeat}
+/* The weather lies over the painting as a wash: grey-violet cloud, plum rain, pale snow, milk fog. */
+.sky::before{content:"";position:absolute;inset:0;z-index:1;opacity:0;transition:opacity 1.2s;background:linear-gradient(180deg,#8f80ad,#cdbfd6 60%,#efe6ec)}
+.sky[data-kind=partly]::before{background:linear-gradient(180deg,#7d66a8,#dcb3ae 55%,#f7d9c2);opacity:.22}
+.sky[data-kind=cloud]::before{opacity:.58}
+.sky[data-kind=rain]::before{background:linear-gradient(180deg,#4b3a6c,#8f7fae 55%,#c9bdd6);opacity:.72}
+.sky[data-kind=heavy-rain]::before{background:linear-gradient(180deg,#241740,#4e3d6f 55%,#8c7ca6);opacity:.84}
+.sky[data-kind=snow]::before{background:linear-gradient(180deg,#a79ccb,#dcd5ec 55%,#f6f3f9);opacity:.78}
+.sky[data-kind=fog]::before{background:linear-gradient(180deg,#b9aec6,#e2d9e4 55%,#efe8ec);opacity:.82}
 @keyframes breathe{to{transform:scale(1.15);opacity:.7}}
 
 /* Header and page tabs on the sunset. On a phone the tabs sit at the bottom, like an app. */
-.topbar{position:sticky;top:0;z-index:20;display:flex;align-items:center;justify-content:space-between;gap:16px;padding:16px max(20px,4vw);background:linear-gradient(180deg,#1a0a36f0,#1a0a3600)}
+.topbar{position:fixed;left:0;right:0;top:0;z-index:20;display:flex;align-items:center;justify-content:space-between;gap:16px;padding:16px max(20px,4vw);background:linear-gradient(180deg,#1a0a36f0,#1a0a3600)}
 .logo{display:inline-flex;align-items:center;gap:10px;font:500 34px/1 var(--display);font-variation-settings:"SOFT" 100,"WONK" 1;letter-spacing:-1.2px;text-decoration:none;color:var(--cream);text-shadow:0 2px 14px #ef7b3c55}
 .logo-flower{width:34px;height:34px;background:var(--flower) center/contain no-repeat;filter:drop-shadow(0 2px 6px #00000044);animation:sway-flower 6s ease-in-out infinite alternate}
 @keyframes sway-flower{to{transform:rotate(18deg)}}
@@ -60,94 +65,82 @@ h3{font-size:14px;margin:0}
 .tabs a:not([aria-current=page]):hover,.tabs button:hover{background:#ffffff22}
 .tab-looks span{display:inline-block;min-width:22px;margin-left:4px;padding:2px 6px;border-radius:999px;background:var(--orange);color:#2b1424;font-size:12px;font-weight:700;text-align:center}
 
-/* The doll in her own little world, framed like a stitched picture. */
-.app{position:relative;display:grid;grid-template-columns:minmax(0,1.05fr) minmax(0,1fr);gap:34px;max-width:1260px;margin:0 auto;padding:10px max(20px,4vw) 70px;align-items:start}
-.stage-panel{position:sticky;top:90px;padding:10px;border-radius:32px;background-color:#fff8f0;background-image:var(--linen),linear-gradient(180deg,#fff9f2,#fbeee2);box-shadow:0 40px 80px -36px #0d0420dd,0 0 0 1px #ffffff88,0 0 0 8px #ffffff1a}
-.stage-panel::before{content:"";position:absolute;inset:5px;border:1.5px dashed #e8a57c;border-radius:28px;pointer-events:none;z-index:3}
-#stage{position:relative;height:clamp(420px,calc(100vh - 320px),700px);border-radius:24px;overflow:hidden;container-type:size;box-shadow:inset 0 0 0 1px #00000014}
-#stage canvas{position:relative;z-index:1;display:block;width:100%;height:100%}
-#loading{position:absolute;z-index:2;top:46%;width:100%;text-align:center;color:#fff;font:italic 20px var(--display);text-shadow:0 2px 10px #0006}
-.drag-hint{position:absolute;z-index:2;left:0;right:0;bottom:10px;margin:0;text-align:center;font-size:11px;letter-spacing:.4px;color:#fff3e4cc;text-shadow:0 1px 4px #0008;pointer-events:none}
+/* The doll stands in the world: her canvas covers the page, over the scenery and under the sheet, and #frame is the
+   part of the page that is hers (src/doll/view.js frames her in it). On a wide screen she has the left of the page
+   and the sheet is a panel on the right; on a phone she has the top and the sheet scrolls up over her. */
+:root{--panel-w:min(600px,44vw);--cloud-scale:1.5}
+#stage{position:fixed;inset:0;z-index:1}
+#stage canvas{position:absolute;left:0;top:0;display:block}
+#frame{position:absolute;left:0;right:calc(var(--panel-w) + 24px);top:72px;bottom:204px;pointer-events:none;z-index:2}
+#loading{position:absolute;top:46%;left:0;right:0;margin:0;text-align:center;color:#fff;font:italic 20px var(--display);text-shadow:0 2px 10px #0006}
+.drag-hint{position:absolute;left:0;right:0;bottom:8px;margin:0;text-align:center;font-size:11px;letter-spacing:.4px;color:#fff3e4cc;text-shadow:0 1px 4px #0008}
 /* The tuck and open buttons are for the keyboard: a tap on her top or jacket does the same, so they only show when focused. */
-.tuck-key{position:absolute;z-index:3;left:50%;bottom:30px;transform:translateX(-50%);border:1.5px solid var(--purple);background:var(--purple);color:#fff6ee;border-radius:999px;padding:6px 14px;font-size:12px;opacity:0;pointer-events:none}
+.tuck-key{position:absolute;left:50%;bottom:34px;transform:translateX(-50%);border:1.5px solid var(--purple);background:var(--purple);color:#fff6ee;border-radius:999px;padding:6px 14px;font-size:12px;opacity:0;pointer-events:none}
 .tuck-key:focus-visible{opacity:1;pointer-events:auto}
-#view-error{margin:10px 6px;line-height:1.6;background:#fff3e8;padding:14px;border-radius:12px;font-size:12px}
+#view-error{position:absolute;left:16px;right:16px;bottom:48px;margin:0;pointer-events:auto;line-height:1.6;background:#fff3e8;padding:14px;border-radius:12px;font-size:12px}
 #view-error .retry{margin-left:6px;border:1.5px solid var(--purple);background:var(--purple);color:#fff6ee;border-radius:999px;padding:6px 14px;font-size:12px}
 
-/* Today's three looks: three swatch cards under the doll, compared at a glance. */
-.looks{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:9px;padding:12px 6px 6px}
-.look{position:relative;display:flex;flex-direction:column;align-items:stretch;gap:5px;border:1.5px solid #e6d2c3;background:#fffdf9;border-radius:18px;padding:8px 8px 10px;color:var(--ink);text-align:center;transition:transform .18s,box-shadow .18s,border-color .18s;box-shadow:0 6px 14px -10px #3b1f5c66}
+/* The sheet: dusk over the world, holding the pages. The stage bar (today's three looks, what she wears and the
+   heart) sits under her on a wide screen and at the top of the sheet on a phone. */
+.sheet{position:relative;z-index:2;margin-left:auto;width:var(--panel-w);min-height:100vh;padding:92px 26px 48px;background:linear-gradient(180deg,#1a0a36f2,#2b1352f8);box-shadow:-30px 0 60px -40px #0d0420}
+.stage-bar{position:fixed;left:24px;right:calc(var(--panel-w) + 24px);bottom:20px;z-index:3;max-width:760px;margin:0 auto;padding:12px 14px 10px;border-radius:22px;background:#1a0a36b0;backdrop-filter:blur(10px);box-shadow:inset 0 1px 0 #ffffff1f}
+
+/* Today's three looks: three fabric tabs, each a strip of its pieces' cloth, compared at a glance. */
+.looks{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
+.look{position:relative;display:flex;flex-direction:column;align-items:stretch;gap:4px;border:0;background:#fff8f0;border-radius:14px;padding:6px 6px 8px;color:var(--ink);text-align:center;transition:transform .18s,box-shadow .18s;box-shadow:0 8px 18px -12px #000}
 .look:hover:not(:disabled){transform:translateY(-2px)}
-.look:disabled{opacity:.55;cursor:default}
-.look-name{font:500 17px/1.05 var(--display);font-variation-settings:"SOFT" 100,"WONK" 1;margin-top:3px}
-.look-note{font-size:10px;letter-spacing:1px;text-transform:uppercase;color:var(--muted)}
-.outfit-swatch{display:flex;height:34px;border-radius:11px;overflow:hidden;box-shadow:inset 0 0 0 1px #0000001a,0 1px 0 #ffffff}
+.look:disabled{opacity:.65;cursor:default}
+.look-name{font:500 16px/1.05 var(--display);font-variation-settings:"SOFT" 100,"WONK" 1;margin-top:3px}
+.look-note{font-size:9.5px;letter-spacing:1px;text-transform:uppercase;color:var(--muted)}
+.outfit-swatch{display:flex;height:30px;border-radius:9px;overflow:hidden;box-shadow:inset 0 0 0 1px #0000001a;background:repeating-linear-gradient(45deg,#efe2d6 0 6px,#f8efe7 6px 12px)}
 .outfit-swatch-piece{display:block;min-width:6px;border-right:1.5px dashed #ffffffaa}
 .outfit-swatch-piece:last-child{border-right:0}
-.look[aria-pressed=true]{transform:translateY(-3px);box-shadow:0 14px 24px -14px #3b1f5caa}
-#look-pick[aria-pressed=true]{border-color:var(--orange);background:linear-gradient(180deg,#fff1e6,#ffe2cc)}
-#look-bolder[aria-pressed=true]{border-color:var(--purple);background:linear-gradient(180deg,#f4ecfd,#e6d9f7)}
-#look-easier[aria-pressed=true]{border-color:#c49a74;background:linear-gradient(180deg,#fffaf2,#f6e8d6)}
+.look[aria-pressed=true]{transform:translateY(-3px)}
+#look-pick[aria-pressed=true]{background:linear-gradient(180deg,#fff1e6,#ffe2cc);box-shadow:0 0 0 2px var(--orange),0 14px 24px -12px #000}
+#look-bolder[aria-pressed=true]{background:linear-gradient(180deg,#f4ecfd,#e6d9f7);box-shadow:0 0 0 2px var(--violet),0 14px 24px -12px #000}
+#look-easier[aria-pressed=true]{background:linear-gradient(180deg,#fffaf2,#f6e8d6);box-shadow:0 0 0 2px #c49a74,0 14px 24px -12px #000}
 .look[aria-pressed=true]::after{content:"";position:absolute;top:-9px;right:-7px;width:24px;height:24px;background:var(--flower) center/contain no-repeat;filter:drop-shadow(0 2px 3px #0003)}
-.look-caption{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:10px 12px 8px}
-.look-caption h2{font-size:24px}
-.save{flex-shrink:0;width:48px;height:48px;border-radius:50%;border:1.5px dashed var(--orange);background:radial-gradient(circle at 35% 30%,#fff7ef,#ffe1cc);color:var(--orange-deep);font-size:24px;line-height:1;box-shadow:0 6px 14px -8px #b8501f99}
-#message{font-size:12px;line-height:1.5;color:var(--purple);margin:0;padding:0 12px 10px}
+.look-caption{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:12px 4px 2px;color:var(--cream)}
+.look-caption h2{font-size:26px;color:var(--cream);text-shadow:0 2px 14px #0d042088}
+.save{flex-shrink:0;width:46px;height:46px;border-radius:50%;border:1.5px dashed var(--apricot);background:radial-gradient(circle at 35% 30%,#fff7ef,#ffe1cc);color:var(--orange-deep);font-size:23px;line-height:1;box-shadow:0 6px 14px -8px #000}
+#message{font-size:12px;line-height:1.5;color:#f3d9ff;margin:0;padding:4px 4px 2px}
 #message:empty{display:none}
 
-/* The scene: drawn from the weather by src/today/sky.js. Sky, painted brushwork, sun and clouds, the mountains,
-   her hill, then rain or snow in front. */
-.sky{position:absolute;inset:0;z-index:0;overflow:hidden;background:linear-gradient(180deg,#f2ab7a,#fde2c8 70%);transition:background 1.2s}
-.sky[data-kind=sun]{background:linear-gradient(180deg,#e98f6e 0%,#f6b886 38%,#fde1c2 70%,#fff0de 100%)}
-.sky[data-kind=partly]{background:linear-gradient(180deg,#c99ac4 0%,#f0b393 42%,#fbdcc4 72%,#fff0e2 100%)}
-.sky[data-kind=cloud]{background:linear-gradient(180deg,#b5a3cf 0%,#d9cbe0 52%,#f4e9ea 100%)}
-.sky[data-kind=rain]{background:linear-gradient(180deg,#8e7cb0 0%,#c3b4d4 52%,#e9dfe8 100%)}
-.sky[data-kind=heavy-rain]{background:linear-gradient(180deg,#4b3a6c 0%,#8a78a6 48%,#cbbfd2 100%)}
-.sky[data-kind=snow]{background:linear-gradient(180deg,#b9b0d9 0%,#e2dcef 52%,#fbf8fb 100%)}
-.sky[data-kind=fog]{background:linear-gradient(180deg,#cfc4d8,#ece4ea)}
-.sky span{position:absolute;display:block;pointer-events:none}
-.sky .brush{inset:0;background:url("../art/brush.webp") center / 640px auto repeat;mix-blend-mode:soft-light;opacity:.5}
-.sky .sun{top:7%;right:9%;width:120px;height:120px;border-radius:50%;background:radial-gradient(circle,#fff3cf 0 26%,#ffc77d 44%,#f0904a 60%,#f0904a00 70%);animation:glow 5s ease-in-out infinite}
-.sky .sun::before{content:"";position:absolute;inset:-55%;border-radius:50%;background:repeating-conic-gradient(#ffd09a66 0 5deg,#0000 5deg 15deg);-webkit-mask:radial-gradient(circle,#0000 34%,#000 36%,#0000 70%);mask:radial-gradient(circle,#0000 34%,#000 36%,#0000 70%);animation:spin 70s linear infinite}
-.sky[data-kind=partly] .sun{width:96px;height:96px;top:9%}
-.sky .cloud{top:var(--y);left:-35%;width:150px;height:44px;border-radius:40px;background:#fff8f3;opacity:.92;transform:scale(var(--s));animation:drift var(--d) linear infinite;animation-delay:var(--delay);box-shadow:0 10px 16px -12px #5b3f7a66}
+/* The weather, drawn by src/today/sky.js: the sun's glow, clouds, the mountains, the meadow, brushwork, then rain,
+   snow, fog or gusts in front. */
+.sky span{position:absolute;display:block;pointer-events:none;z-index:2}
+.sky .brush{inset:0;background:url("../art/brush.webp") center / 640px auto repeat;mix-blend-mode:soft-light;opacity:.45}
+/* The sun is in the painting; this is its breathing glow. */
+.sky .sun{inset:0;background:radial-gradient(circle at var(--sun-x,60%) 36%,#ffc78a66,#ff8a5a22 22%,transparent 46%);animation:breathe 9s ease-in-out infinite alternate}
+.sky[data-kind=partly] .sun{opacity:.7}
+.sky .cloud{top:var(--y);left:-35%;width:150px;height:44px;border-radius:40px;background:#fff8f3;opacity:.92;transform:scale(calc(var(--s) * var(--cloud-scale)));animation:drift var(--d) linear infinite;animation-delay:var(--delay);box-shadow:0 10px 16px -12px #5b3f7a66}
 .sky .cloud::before,.sky .cloud::after{content:"";position:absolute;border-radius:50%;background:inherit}
 .sky .cloud::before{left:22px;top:-26px;width:62px;height:62px}
 .sky .cloud::after{left:62px;top:-38px;width:78px;height:78px}
-.sky[data-kind=cloud] .cloud,.sky[data-kind=rain] .cloud,.sky[data-kind=snow] .cloud{background:#f1ebf3}
+.sky[data-kind=cloud] .cloud,.sky[data-kind=snow] .cloud{background:#f1ebf3}
+.sky[data-kind=rain] .cloud{background:#cfc4dc}
 .sky .cloud.dark{background:#6f5f8a;opacity:.95}
 /* The painted range, lit by the weather: warm in sun, cooler and darker under rain, pale under snow. */
-.sky .land{left:-30%;right:-30%;bottom:12%;height:44%;background:url("../art/mountains.webp") center bottom / auto 100% no-repeat;transition:filter 1.2s}
+.sky .land{left:0;right:0;bottom:calc(100% - var(--horizon-y,60vh));height:max(22vh,25vw);background:url("../art/mountains.webp") center bottom / auto 100% no-repeat;transition:filter 1.2s}
 .sky[data-kind=cloud] .land{filter:saturate(.75) brightness(.95)}
 .sky[data-kind=rain] .land{filter:saturate(.55) brightness(.8) hue-rotate(-14deg)}
 .sky[data-kind=heavy-rain] .land{filter:saturate(.45) brightness(.62) hue-rotate(-22deg)}
 .sky[data-kind=snow] .land{filter:saturate(.3) brightness(1.18) contrast(.85)}
 .sky[data-kind=fog] .land{filter:saturate(.45) brightness(1.08) contrast(.7);opacity:.85}
-/* Her hill: a rounded rise of ochre scattered with cream flecks, wet and shining under rain, white under snow.
-   The flecks repeat on uneven tiles (37, 53 and 71 pixels), so they scatter instead of lining up. */
-.sky .ground{left:-25%;right:-25%;bottom:-14%;height:33%;border-radius:50% 50% 0 0 / 34% 34% 0 0;--fleck:#f6dcb688;background:
-  radial-gradient(ellipse 2px 1.4px at 23% 41%,var(--fleck) 98%,transparent) 0 0 / 37px 29px,
-  radial-gradient(ellipse 1.6px 1.1px at 71% 17%,var(--fleck) 98%,transparent) 11px 5px / 53px 41px,
-  radial-gradient(ellipse 2.4px 1.5px at 44% 77%,var(--fleck) 98%,transparent) 23px 13px / 71px 59px,
-  radial-gradient(120% 90% at 50% 0%,#e7a46a 0%,#c8713f 46%,#934629 100%);box-shadow:inset 0 14px 16px -12px #ffe0b388,0 -2px 0 #ffd9a666}
+/* The meadow (src/art/meadow.webp), from just behind her feet to the bottom of the page; its far edge fades into the
+   mist at the mountains' feet. Wet and dim under rain, pale under snow. */
+.sky .ground{left:0;right:0;top:calc(var(--horizon-y,60vh) - 6vh);bottom:-1px;background:url("../art/meadow.webp") center top / cover no-repeat;transition:filter 1.2s}
 .sky[data-kind=cloud] .ground{filter:saturate(.75) brightness(.95)}
-.sky[data-kind=rain] .ground,.sky[data-kind=heavy-rain] .ground{background:
-  radial-gradient(34% 9% at 50% 22%,#ffffff55,transparent 72%),
-  radial-gradient(70% 26% at 46% 18%,#d9c6ef40,transparent 70%),
-  radial-gradient(120% 90% at 50% 0%,#a67069 0%,#7e4a4a 50%,#55303a 100%)}
-.sky[data-kind=heavy-rain] .ground{filter:brightness(.8)}
-.sky[data-kind=snow] .ground{--fleck:#ffffff;background:
-  radial-gradient(ellipse 2px 1.4px at 23% 41%,var(--fleck) 98%,transparent) 0 0 / 37px 29px,
-  radial-gradient(ellipse 1.6px 1.1px at 71% 17%,#cfc2e6 98%,transparent) 11px 5px / 53px 41px,
-  radial-gradient(120% 90% at 50% 0%,#ffffff 0%,#eee7f7 50%,#cfc2e6 100%)}
-.sky[data-kind=fog] .ground{filter:saturate(.5) brightness(1.1)}
+.sky[data-kind=rain] .ground{filter:saturate(.5) brightness(.72) hue-rotate(-18deg)}
+.sky[data-kind=heavy-rain] .ground{filter:saturate(.4) brightness(.55) hue-rotate(-26deg)}
+.sky[data-kind=snow] .ground{filter:saturate(.12) brightness(1.55) contrast(.75)}
+.sky[data-kind=fog] .ground{filter:saturate(.5) brightness(1.08) contrast(.8)}
 .sky .drop{left:var(--x);top:0;width:2px;height:15px;border-radius:2px;background:linear-gradient(#0000,#5f3d8a);opacity:.55;animation:fall var(--d) linear infinite;animation-delay:var(--delay)}
 .sky[data-kind=heavy-rain] .drop{height:26px;opacity:.7;background:linear-gradient(#0000,#e6dcff)}
 .sky[data-windy=true] .drop{--slant:-18cqw;rotate:12deg}
 .sky .flake{left:var(--x);top:0;width:7px;height:7px;border-radius:50%;background:#fff;opacity:.95;scale:var(--s);animation:snow var(--d) linear infinite;animation-delay:var(--delay);box-shadow:0 0 4px #fff}
 .sky .fog-band{left:-20%;top:var(--y);width:140%;height:16%;border-radius:50%;background:#fffaf8;opacity:.5;filter:blur(14px);animation:sway var(--d) ease-in-out infinite alternate;animation-delay:var(--delay)}
 .sky .gust{left:0;top:var(--y);width:90px;height:2px;border-radius:2px;background:linear-gradient(90deg,#fff0,#fffaf6,#fff0);opacity:.8;animation:gust var(--d) ease-in infinite;animation-delay:var(--delay)}
-@keyframes glow{50%{transform:scale(1.06);filter:brightness(1.06)}}
 @keyframes spin{to{transform:rotate(360deg)}}
 @keyframes drift{from{left:-35%}to{left:110%}}
 @keyframes fall{from{transform:translate(0,-10cqh)}to{transform:translate(var(--slant,0),110cqh)}}
@@ -181,9 +174,9 @@ h3{font-size:14px;margin:0}
 /* Pages: a heading on a pane of dusk over the sunset, trimmed with rickrack, then a card of stitched cloth. */
 .pages{min-width:0}
 .page[hidden]{display:none}
-.hero{position:relative;color:var(--cream);padding:20px 24px 20px;margin-bottom:18px;border-radius:24px;background:linear-gradient(160deg,#1a0a36c4,#3b1a5ab0);backdrop-filter:blur(8px);box-shadow:inset 0 1px 0 #ffffff1f,0 24px 50px -30px #0d0420}
+.hero{position:relative;color:var(--cream);padding:6px 6px 0;margin-bottom:18px}
 .hero .eyebrow{color:#f3d9ff;opacity:.9}
-.hero h2{font-size:40px;line-height:1.04;color:var(--cream);text-shadow:0 3px 22px #2c154688}
+.hero h2{font-size:34px;line-height:1.04;color:var(--cream);text-shadow:0 3px 22px #2c154688}
 .hero h2 em{color:var(--apricot)}
 .hero .lede{color:#fbe7ff}
 .hero::after{content:"";display:block;height:12px;margin-top:18px;background:var(--rickrack) left center / 24px 12px repeat-x;opacity:.95}
@@ -194,7 +187,7 @@ h3{font-size:14px;margin:0}
 /* Today. */
 .hero-weather{display:flex;align-items:center;gap:14px;margin:6px 0 12px}
 .today-icon:empty{display:none}
-.temp{font:300 86px/.9 var(--display);font-variation-settings:"SOFT" 100,"WONK" 0;letter-spacing:-3px;color:#fff;text-shadow:0 6px 30px #ef7b3c99}
+.temp{font:300 64px/.9 var(--display);font-variation-settings:"SOFT" 100,"WONK" 0;letter-spacing:-3px;color:#fff;text-shadow:0 6px 30px #ef7b3c99}
 .temp:empty{display:none}
 .today-weather{font:italic 17px/1.4 var(--display);color:#fde8d8;margin:0;max-width:320px}
 .today-weather:empty{display:none}
@@ -205,8 +198,10 @@ h3{font-size:14px;margin:0}
 .hour-temp{font:500 15px var(--display)}
 .today-status{font-size:13px;line-height:1.5;color:#fff;background:#ffffff22;border-radius:12px;padding:8px 12px;margin:14px 0 0}
 .today-status:empty{display:none}
-.today-look{font:400 28px/1.15 var(--display);font-variation-settings:"SOFT" 100,"WONK" 1;margin:0}
-.today-pieces{list-style:none;padding:0;margin:14px 0 0}
+/* What she chose is said once, under her (the stage bar's title), so here it is a quiet line. */
+#today-heading{font:italic 400 16px/1.45 var(--display);font-variation-settings:"SOFT" 100;color:#f3d9ff;margin:10px 0 0;text-shadow:none}
+.today-look{display:none}
+.today-pieces{list-style:none;padding:0;margin:0}
 .today-pieces li{display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:1.5px dotted #ecc9b0;font-size:14px}
 .today-pieces li>span:last-child{flex:1;min-width:0}
 .piece-cloth{display:block;flex-shrink:0;width:30px;height:30px;border-radius:9px;box-shadow:inset 0 0 0 1px #0000001f,0 2px 4px -2px #0004;outline:1.5px dashed #ffffffb0;outline-offset:-5px}
@@ -294,28 +289,31 @@ dialog::backdrop{background:#1a0a36b8;backdrop-filter:blur(4px)}
   .sky .cloud{left:var(--x)}.sky .drop,.sky .flake{top:var(--y)}
 }
 
-/* Phone: the doll and her three looks on top, the page below, the tabs at the bottom. */
+/* Phone: she has the top of the screen; the sheet, with her three looks at its top, scrolls up over her; the tabs sit
+   at the bottom, like an app. */
 @media(max-width:820px){
+  :root{--stage-h:58vh;--cloud-scale:1;--sun-x:82%}
+  @supports(height:1dvh){:root{--stage-h:58dvh}}
   /* No blur on the header: a backdrop filter would trap the fixed tab bar inside it. */
-  .topbar{position:relative;padding:14px 16px 8px;background:none}
+  .topbar{position:absolute;padding:12px 16px 8px;background:none}
   .logo{font-size:30px}.logo-flower{width:30px;height:30px}
   .tabs{position:fixed;left:10px;right:10px;bottom:calc(10px + env(safe-area-inset-bottom));z-index:30;justify-content:space-around;gap:0;padding:6px;background:#1a0a36eb;border:1px solid #ffffff33;box-shadow:0 12px 30px -10px #000c}
   .tabs a,.tabs button{flex:1;text-align:center;padding:10px 4px;font-size:13px;white-space:nowrap}
   .tab-looks span{margin-left:2px;min-width:18px;padding:1px 5px;font-size:11px}
-  .app{grid-template-columns:minmax(0,1fr);gap:20px;padding:4px 12px 112px}
-  .stage-panel{position:relative;top:auto;padding:8px;border-radius:28px}
-  #stage{height:min(56vh,520px);min-height:360px;border-radius:21px}
-  .looks{gap:7px;padding:10px 2px 4px}
-  .look{padding:7px 6px 9px}
+  #frame{left:0;right:0;top:54px;bottom:auto;height:calc(var(--stage-h) - 54px)}
+  .sheet{width:auto;margin:var(--stage-h) 0 0;min-height:calc(100vh - var(--stage-h));padding:10px 12px 112px;border-radius:30px 30px 0 0;box-shadow:0 -30px 60px -30px #0d0420}
+  .stage-bar{position:static;max-width:none;padding:6px 2px 4px;border-radius:0;background:none;backdrop-filter:none;box-shadow:none}
+  .looks{gap:7px}
+  .look{padding:6px 5px 8px}
   .look-name{font-size:15px}
   .look-note{font-size:9px;letter-spacing:.6px}
-  .hero{padding:18px 18px 18px;margin-bottom:16px;border-radius:22px}
-  .hero h2{font-size:32px}
-  .temp{font-size:72px}
-  .wx{width:58px;height:58px}
-  .card{padding:26px 20px 28px}
+  .look-caption h2{font-size:24px}
+  .hero{padding:4px 4px 0;margin-bottom:14px}
+  .hero h2{font-size:30px}
+  .temp{font-size:56px}
+  .wx{width:54px;height:54px}
+  .card{padding:24px 18px 26px}
   .fields{grid-template-columns:minmax(0,1fr)}
   .today-slot{flex-basis:66px}
-  .scenery .range{height:34vh}
   .today-place-form input,select,.request-box textarea{font-size:16px}
 }

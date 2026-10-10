@@ -2,7 +2,7 @@
 """Paint the app's scenery: a sunset sky and a mountain range in the colours of the Desigual mountain landscape shirt.
 
 An authoring tool, like the garment texture scripts: the app only loads its output, `src/art/sky.webp`,
-`src/art/mountains.webp` and `src/art/brush.webp`. Everything is drawn here from noise, gradients and shapes; no photographs are used.
+`src/art/mountains.webp`, `src/art/meadow.webp` and `src/art/brush.webp`. Everything is drawn here from noise, gradients and shapes; no photographs are used.
 Requires Python 3 with numpy and Pillow (with WebP support). Run from the repository root:
 
     python3 scripts/art/paint-scenery.py
@@ -96,13 +96,15 @@ def grain(h, w, seed, amount):
 
 # ---------------------------------------------------------------------------------------------------------------
 # The sky: deep purple at the top through plum and rose to orange and apricot at the horizon, laid on in broad
-# sideways strokes, with a low sun glowing over the mountains, a few lilac and pink cloud streaks, and stars.
-def paint_sky(w=1800, h=1200, sun=(.6, .62)):
+# sideways strokes, with a low sun glowing over the mountains, a few lilac and pink cloud streaks, and stars. The
+# horizon's apricot is reached at `horizon` of the height (the painted mountains hide the rest), so the warm band and
+# the sun sit above the ridges on a phone's tall screen as well as on a wide one.
+def paint_sky(w=1800, h=1200, sun=(.6, .36), horizon=.66):
     y = np.linspace(0, 1, h, dtype=np.float32)[:, None] * np.ones((1, w), np.float32)
     x = np.linspace(0, 1, w, dtype=np.float32)[None, :] * np.ones((h, 1), np.float32)
     # Broad brushwork: the gradient position wobbles along wide, soft horizontal strokes.
     wob = (stretched(h, w, 260, 40, SEED + 1) - .5) * .06 + (stretched(h, w, 90, 16, SEED + 2) - .5) * .02
-    t = y + wob
+    t = (y + wob) / horizon
     sky = ramp([(0, '#1a0a36'), (.14, '#2b1352'), (.3, '#46206e'), (.44, '#6e2f82'), (.55, '#9c4482'),
                 (.64, '#c95a76'), (.72, '#e8775a'), (.8, '#f59a62'), (.9, '#f8bd84'), (1, '#fbd5a6')], t)
     # Colour drifts across the width too: a little more violet to the left, warmer under the sun.
@@ -122,6 +124,7 @@ def paint_sky(w=1800, h=1200, sun=(.6, .62)):
               (.47, .7, .45, .006, '#eba3a8', .5), (.52, .35, .5, .008, '#f2ad98', .55), (.56, .85, .3, .005, '#f8bf92', .5),
               (.27, .8, .3, .004, '#8d6cc2', .45), (.6, .1, .3, .005, '#fbc993', .45)]
     for i, (cy, cx, length, thick, col, alpha) in enumerate(clouds):
+        cy = cy * horizon
         u = (x - cx) / length
         taper = np.clip(1 - u ** 2, 0, 1) ** 1.5
         off = (stretched(h, w, 220, 60, SEED + 10 + i) - .5) * .03
@@ -139,7 +142,7 @@ def paint_sky(w=1800, h=1200, sun=(.6, .62)):
     stars[ys, xs] = r.random(n) ** 2 * .85 + .15
     for yy, xx in zip(ys[r.random(n) > .94], xs[r.random(n) > .94]):
         stars[max(0, yy - 1):yy + 2, max(0, xx - 1):xx + 2] = np.maximum(stars[max(0, yy - 1):yy + 2, max(0, xx - 1):xx + 2], .55)
-    stars = np.clip(blur(stars, .8) * 2.4, 0, 1) * np.clip(1.15 - y * 2.1, 0, 1)
+    stars = np.clip(blur(stars, .8) * 2.4, 0, 1) * np.clip(1.15 - y * 2.1 / horizon, 0, 1)
     sky = sky + stars[..., None] * (rgb('#fff6ea') - sky)
     sky = sky + grain(h, w, SEED + 31, .03)[..., None]
     return np.clip(sky, 0, 1)
@@ -294,12 +297,72 @@ def paint_mountains(w=3600, h=900):
 
 
 # ---------------------------------------------------------------------------------------------------------------
-# Brushwork on its own, in grey: broad sideways strokes laid over the doll's weather skies (CSS blends it softly),
-# so every sky looks painted whatever its colour. It tiles side to side.
+# The meadow she stands on: ochre and rust grass laid on in sideways strokes, hazy and warm towards the mountains,
+# darker and coarser near the viewer, flecked with cream and dotted with lilac and cream flowers that grow larger
+# towards the viewer, so she reads as small. Its top edge fades out, so it meets the mist at the mountains' feet
+# wherever the page puts it. Lit from the right, like the mountains.
+def paint_meadow(w=2400, h=800):
+    y = np.linspace(0, 1, h, dtype=np.float32)[:, None] * np.ones((1, w), np.float32)
+    x = np.linspace(0, 1, w, dtype=np.float32)[None, :] * np.ones((h, 1), np.float32)
+    base = ramp([(0, '#eaa883'), (.18, '#dd8f55'), (.45, '#c9733c'), (.75, '#9c4d2a'), (1, '#5a2a19')], y)
+    # Strokes get longer and broader towards the bottom, as the ground comes closer.
+    st = strokes(h, w, 0, 140, 5, SEED + 700) * (1 - y) + strokes(h, w, 0, 320, 14, SEED + 701) * y
+    tone = 1 + (st - .5) * (.16 + .2 * y)
+    light = 1 + (x - .5) * .12 * (1 - y)
+    pool = np.exp(-(((x - .5) * 2.4) ** 2 + ((y - .22) * 3) ** 2)) * .14
+    img = base * tone[..., None] * light[..., None] + pool[..., None] * rgb('#ffd9a8')
+    # Blades of grass: short slanting strokes, denser and darker near the viewer.
+    blades = strokes(h, w, 80, 26, 2, SEED + 702) * .5 + strokes(h, w, 100, 26, 2, SEED + 703) * .5
+    blade = np.clip((blades - .6) * 4, 0, 1) * np.clip((y - .25) / .5, 0, 1)
+    img = img * (1 - blade[..., None] * .18)
+    # Cream flecks, more and larger near the viewer.
+    r = np.random.default_rng(SEED + 704)
+    fl = np.zeros((h, w), np.float32)
+    n = 9000
+    ys = (r.random(n) ** .7 * (h - 1)).astype(int)
+    xs = (r.random(n) * (w - 1)).astype(int)
+    for dx in range(-2, 3):
+        fl[ys, np.clip(xs + dx, 0, w - 1)] = np.maximum(fl[ys, np.clip(xs + dx, 0, w - 1)], (r.random(n) * .6 + .4) * (1 - abs(dx) / 3))
+    fl = np.clip(blur(fl, .7) * 2, 0, 1) * (.35 + .65 * y)
+    img = img * (1 - fl[..., None] * .8) + rgb('#f6dcb6') * fl[..., None] * .8
+    # Flowers: lilac and cream discs with a tiny dark centre, in the lower two thirds, bigger near the viewer.
+    m = 260
+    fx = (r.random(m) * (w - 12)).astype(int) + 6
+    fy = np.clip((h * (.3 + r.random(m) ** .8 * .68)).astype(int), 6, h - 7)
+    kinds = r.random(m)
+    for i in range(m):
+        col = rgb('#cdb4ee') if kinds[i] < .55 else rgb('#fff1dc')
+        s = 2 + int(fy[i] / h * 3)
+        yy, xx = fy[i], fx[i]
+        dy, dx = np.mgrid[-s:s + 1, -s:s + 1]
+        disc = (dy * dy + dx * dx <= s * s)[..., None]
+        patch = img[yy - s:yy + s + 1, xx - s:xx + s + 1]
+        img[yy - s:yy + s + 1, xx - s:xx + s + 1] = np.where(disc, patch * .15 + col * .85, patch)
+        img[yy, xx] = rgb('#b8612f')
+    # Mist where the meadow meets the mountains' feet, and the far edge fades out.
+    mist = np.clip(1 - y / .22, 0, 1) ** 1.5
+    img = img * (1 - mist[..., None] * .55) + rgb('#f0a9a8') * mist[..., None] * .55
+    alpha = np.clip(y / .12, 0, 1) ** .8
+    img = img + grain(h, w, SEED + 705, .03)[..., None]
+    return np.clip(img, 0, 1), alpha
+
+
+# ---------------------------------------------------------------------------------------------------------------
+# Brushwork on its own, in grey: broad sideways strokes laid over the whole painted sky (CSS blends it softly), so
+# every weather looks painted whatever its colour. It tiles both ways without a seam: each axis is blended with a
+# copy of itself shifted by half, weighted so that both edges end on the same strokes.
+def seamless(a):
+    for axis in (1, 0):
+        n = a.shape[axis]
+        t = np.abs(np.linspace(-1, 1, n, dtype=np.float32))
+        t = t[None, :] if axis == 1 else t[:, None]
+        a = a * (1 - t) + np.roll(a, n // 2, axis=axis) * t
+    return a
+
+
 def paint_brush(w=1024, h=1024):
-    a = (stretched(h, w * 2, 220, 34, SEED + 600) - .5) * .9 + (stretched(h, w * 2, 70, 9, SEED + 601) - .5) * .45
-    a = a[:, :w] * np.linspace(1, 0, w)[None, :] + a[:, w:] * np.linspace(0, 1, w)[None, :]
-    a = a + grain(h, w, SEED + 602, .12)
+    a = (stretched(h, w, 220, 34, SEED + 600) - .5) * .9 + (stretched(h, w, 70, 9, SEED + 601) - .5) * .45
+    a = seamless(a) + grain(h, w, SEED + 602, .12)
     return np.clip(.5 + a * .5, 0, 1)
 
 
@@ -317,5 +380,7 @@ if __name__ == '__main__':
     save(OUT / 'sky.webp', paint_sky())
     img, alpha = paint_mountains()
     save(OUT / 'mountains.webp', img, alpha)
+    img, alpha = paint_meadow()
+    save(OUT / 'meadow.webp', img, alpha)
     b = paint_brush()
     save(OUT / 'brush.webp', np.repeat(b[..., None], 3, -1), quality=70)
