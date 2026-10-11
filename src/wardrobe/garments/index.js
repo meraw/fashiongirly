@@ -80,6 +80,7 @@ export { default as replayCreamRoseEmbroideredSweatshirtV1 } from './replay-crea
 // slot 54
 // slot 55
 // slot 56
+export { default as blackYokeHenleyBlouseV1 } from './black-yoke-henley-blouse-v1.js';
 // slot 57
 // slot 58
 // slot 59
