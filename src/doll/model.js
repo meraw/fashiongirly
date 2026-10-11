@@ -4,6 +4,7 @@ import { makePrintedTee } from './printed-tee.js';
 import { makePrintedLongTee } from './printed-long-tee.js';
 import { makeChenilleJumper } from './chenille-jumper.js';
 import { makeLaceDress } from './lace-dress.js';
+import { makeMiniSkirt } from './mini-skirt.js';
 import { makeSweatshirt } from './sweatshirt.js';
 import { makeHoodie } from './hoodie.js';
 import { TOP_TEMPLATES } from './top-templates.js';
@@ -2060,6 +2061,7 @@ export function makeOutfit(raw, atlas=null) {
   // A dress is worn instead of the top, any top under it, the classic layers, the bottoms and the skirt.
   const dress=GARMENTS[state.dressId]?.slot==='dress'?state.dressId:null,skirtOn=state.skirt&&!dress;
   const bottom=dress?null:GARMENTS[state.bottomId],trousers=bottom?.build?.template==='jeans'?makeJeans(state.bottomId,bottom.build,atlas?.isTexture?null:atlas?.[state.bottomId],shoes.userData.rest):new T.Group();trousers.name='trousers';root.add(trousers);
+  if(bottom?.build?.template==='mini-skirt'){const mini=makeMiniSkirt(state.bottomId,bottom.build,atlas?.isTexture?null:atlas?.[state.bottomId]);trousers.add(...mini.children);trousers.userData.garmentId=state.bottomId;}
   if(!dress&&state.bottomId==='classic'){
   // One pelvis shell overlaps leg roots; both are separate from the doll.
   shell(trousers,[[1.23,.252,.177],[1.15,.272,.194],[1.05,.267,.19],[.96,.235,.176]],denim,'jeans-hips');

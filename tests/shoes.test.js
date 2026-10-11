@@ -61,6 +61,9 @@ test('jeans drape over every shoe or sit on a boot collar, and the classic jeans
     const outfit=makeOutfit({bottomId,shoesId});outfit.updateMatrixWorld(true);
     const build=GARMENTS[shoesId].build,boots=outfit.getObjectByName('shoes'),trousers=outfit.getObjectByName('trousers');let checked=0;
     const hem=GARMENTS[bottomId]?.build?.hem,boot=build.template==='lug-boot',low=boot?Math.min(...Object.values(build.collar)):0;
+    // A skirt (`layering.skirt`) has no trouser legs to come down over open shoes: her legs are bare there, as under the
+    // dresses. Over boots her bare legs go into the shafts, checked below like the classic jeans.
+    if(!boot&&GARMENTS[bottomId]?.layering?.skirt){disposeObject(outfit);continue;}
     if(!boot){
       // Open shoes: wherever the trousers come down over the shoe, no part of it (straps, buckle, her bare ankle) pokes
       // through them, and a full-length hem still reaches down to the footbed.

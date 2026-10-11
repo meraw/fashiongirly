@@ -48,6 +48,8 @@ export async function startStudio(doc=document, makeView, options={}) {
     // Outerwear with a detachable part (a zip-in hood and bib) can be worn with it or without; the label names the part.
     const detachable=GARMENTS[recipe.outerwearId]?.layering?.detachable;$('outerwear-insert').checked=recipe.outerwearInsert;$('outerwear-insert').disabled=!detachable;$('outerwear-insert-label').textContent=detachable?.label??'Wear its detachable part';
     for(const key of ['knit','shirt'])$(key).disabled=dress||recipe.topId!=='classic';$('skirt').disabled=dress;$('under-select').disabled||=dress;
+    // A skirt in the bottom slot is worn on its own, without the layered skirt.
+    if(GARMENTS[recipe.bottomId]?.layering?.skirt)$('skirt').disabled=true;
     const selected=CLEAN_OUTFITS.find(look=>Object.keys(DEFAULT).filter(key=>key!=='hairId').every(key=>look.recipe[key]===recipe[key]));
     // One of today's looks, or Another idea, is named as such until she is dressed differently.
     const day=today?.getState(),look=day&&(day.choice==='idea'?day.idea:day.trio?.[day.choice]),same=look&&JSON.stringify({...cleanRecipe(look.recipe),tucked:null})===JSON.stringify({...cleanRecipe(recipe),tucked:null});
@@ -83,7 +85,7 @@ export async function startStudio(doc=document, makeView, options={}) {
   for(const key of ['knit','shirt','skirt'])$(key).onchange=()=>{recipe[key]=$(key).checked;sync();apply();};
   $('top-select').onchange=()=>{recipe=cleanRecipe({...recipe,dressId:'none',tucked:undefined,topId:$('top-select').value,underTopId:recipe.underTopId,knit:$('top-select').value==='classic',shirt:$('top-select').value==='classic'});sync();apply();message(recipe.topId==='classic'?'Classic layers restored.':'Reference top selected. Its fit and print are fixed for this first review.');};
   $('under-select').onchange=()=>{recipe=cleanRecipe({...recipe,underTopId:$('under-select').value});sync();apply();message(recipe.underTopId==='none'?'Worn on its own, over her skin.':'A top underneath: it shows in the opening, and its sleeves stay inside.');};
-  $('bottom-select').onchange=()=>{recipe=cleanRecipe({...recipe,dressId:'none',bottomId:$('bottom-select').value});sync();apply();message(recipe.bottomId==='classic'?'Classic jeans restored.':'Reference jeans selected. Their fit and wash are fixed for this first review.');};
+  $('bottom-select').onchange=()=>{recipe=cleanRecipe({...recipe,dressId:'none',bottomId:$('bottom-select').value});sync();apply();message(recipe.bottomId==='classic'?'Classic jeans restored.':GARMENTS[recipe.bottomId]?.layering?.skirt?'Skirt selected, worn with bare legs. Its fit is fixed for this first review.':'Reference jeans selected. Their fit and wash are fixed for this first review.');};
   $('dress-select').onchange=()=>{recipe=cleanRecipe({...recipe,dressId:$('dress-select').value});sync();apply();message(recipe.dressId==='none'?'Dress off: her top and bottoms are back.':'Dress on, worn instead of the top and bottoms. Shoes and outerwear still go with it.');};
   $('shoes-select').onchange=()=>{recipe=cleanRecipe({...recipe,shoesId:$('shoes-select').value});sync();apply();message(recipe.shoesId==='classic'?'Classic loafers restored.':'Reference shoes selected. Their fit and colour are fixed for this first review.');};
   // Each piece of outerwear starts the way it is usually worn: open only if it is designed to be worn open.
