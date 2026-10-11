@@ -517,7 +517,7 @@ function makeShirtCollar(top,mat,facing,stitch,style){
   if(style.collarTopstitch)curve(top,Array.from({length:97},(_,i)=>at(i/96,1,.16)),.0016,stitch,'shirt-collar-topstitch');
   return fall;
 }
-function makeShirt(id,style,atlas=null,skirt=false,trousers=null,tucked=style.tuckIn){
+export function makeShirt(id,style,atlas=null,skirt=false,trousers=null,tucked=style.tuckIn){
   const top=new T.Group();top.name=id;
   const stitch=solid(style.stitch,.6),facing=style.facing&&solid(style.facing,.85);
   // The body's rows: the style's own (rows, or tucked over the skirt), else the cropped or longer standard rows.

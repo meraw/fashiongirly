@@ -14,6 +14,7 @@ export { default as lapisBlueLinenButtonDownShirtV1 } from './lapis-blue-linen-b
 export { default as bomboogieBlackTeddyHoodJacketV1 } from './bomboogie-black-teddy-hood-jacket-v1.js';
 export { default as levisColourblockHalfZipAnorakV1 } from './levis-colourblock-half-zip-anorak-v1.js';
 // slot 06
+export { default as bershkaLowRiseBalloonJeansV1 } from './bershka-low-rise-balloon-jeans-v1.js';
 export { default as mangoClaudiaSlimCropJeansV1 } from './mango-claudia-slim-crop-jeans-v1.js';
 // slot 07
 // slot 08
@@ -63,6 +64,7 @@ export { default as mangoSiennaFlareCropJeansV1 } from './mango-sienna-flare-cro
 // slot 45
 // slot 46
 // slot 47
+export { default as creamDitsyRoseFittedShirtV1 } from './cream-ditsy-rose-fitted-shirt-v1.js';
 // slot 48
 export { default as lacedFlamePrintMockneckTopV1 } from './laced-flame-print-mockneck-top-v1.js';
 export { default as poloRalphLaurenUsrlRacingHoodieV1 } from './polo-ralph-lauren-usrl-racing-hoodie-v1.js';

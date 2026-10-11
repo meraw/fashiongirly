@@ -2,6 +2,7 @@
 // outfit's options ({ skirt, atlas }). makeOutfit() looks a template up here, so a new template adds its module and one
 // line in each list below, both kept in alphabetical order: two chats adding templates edit different lines.
 import { makeCheckShirt } from './shirts.js';
+import { makeDitsyPrintShirt } from './ditsy-print-shirt.js';
 import { makeEmbroideredSweatshirt } from './embroidered-sweatshirt.js';
 import { makeLacedPrintTop } from './laced-print-top.js';
 import { makeLinenShirt } from './shirts.js';
@@ -11,6 +12,7 @@ import { makeSnapCollarJumper } from './snap-collar-jumper.js';
 
 export const TOP_TEMPLATES = {
   'check-shirt': (id, build, { skirt }) => makeCheckShirt(id, build, skirt),
+  'ditsy-print-shirt': (id, build, { skirt }) => makeDitsyPrintShirt(id, build, skirt),
   'embroidered-sweatshirt': (id, build, { skirt }) => makeEmbroideredSweatshirt(id, build, skirt),
   'laced-print-top': (id, build, { atlas }) => makeLacedPrintTop(id, build, atlas),
   'linen-shirt': (id, build, { skirt }) => makeLinenShirt(id, build, skirt),

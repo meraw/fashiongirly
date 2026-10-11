@@ -2047,6 +2047,19 @@ function makeJeans(id,spec,swatch=null,rest=LOAFER_REST){
   }
   // A stitched hem: a ring of topstitching just above the hem edge of each leg.
   if(spec.hemStitch)for(const side of [-1,1]){const pts=[];for(let k=0;k<=64;k++)pts.push(legPoint(side,hemTop+spec.hemStitch,k/64*Math.PI*2,.002));curve(jeans,pts,.0018*sw,thread,'hem-stitch');}
+  if(spec.ankleTies){
+    // Ankle ties (optional): each hem is gathered on a drawcord, tied in a small bow on the outside of the ankle, its
+    // two loops lying flat against the leg and its ends hanging down past the hem.
+    const at=spec.ankleTies,cord=solid(at.colour??spec.thread,.8);
+    // `forward`: how far round toward the front of the leg from the outseam the bow sits.
+    for(const side of [-1,1]){const y=hemTop+(at.above??.012),a=outAngle(side,y)-side*(at.forward??.25),[x,ky,z]=legPoint(side,y,a,.009),out=new T.Vector3(x-lerpRows(legRows(side),y)[3],0,z).normalize(),along=new T.Vector3(-out.z,0,out.x);
+      oval(jeans,[x+out.x*.003,ky,z+out.z*.003],[.009,.007,.005],cord,'ankle-tie-knot',12);
+      const at3=(u,v,w=.003)=>[x+along.x*u+out.x*w,ky+v,z+along.z*u+out.z*w];
+      // The bow's two loops, either side of the knot, and its two ends hanging down.
+      for(const s of [-1,1]){curve(jeans,Array.from({length:13},(_,k)=>{const t=k/12*Math.PI*2;return at3(s*(.019+.016*Math.cos(t+Math.PI)),.01*Math.sin(t));}),.0024,cord,'ankle-tie-loop');
+        curve(jeans,[at3(s*.004,-.003),at3(s*.01,-(at.length??.05)*.5,.006),at3(s*.016,-(at.length??.05),.009)],.0024,cord,'ankle-tie-end');
+        oval(jeans,at3(s*.016,-(at.length??.05),.009),[.004,.004,.004],cord,'ankle-tie-tip',8);}}
+  }
   if(spec.hem==='raw-crop'){
     // Cropped raw hem: a pale frayed edge around each ankle.
     const fray=solid(spec.frayColour||'#cdd7df',1),r=random(23);
