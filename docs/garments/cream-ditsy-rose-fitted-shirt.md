@@ -41,17 +41,17 @@ Its catalog entry and study preset are in their own file, `src/wardrobe/garments
 The only change to shared code is that `makeShirt()` in `src/doll/shirts.js` is now exported. That is one word on its own line, and every other shirt is built exactly as before.
 
 **The print** is drawn in code, not copied:
-- Sprays are scattered over a seamless 512-pixel tile, kept clear of each other.
-- Each spray is two to five round roses on fine stems from its centre, with small pointed leaves along the stems and beside each rose.
+- About 180 sprays are scattered over a seamless 512-pixel tile, packed closely but not overlapping (`gap`, how far apart they keep, in roses' radii).
+- Each spray is two to five round roses on fine stems from its centre, with three to six small pointed leaves along the stems and one beside each rose.
 - Each rose is shaded darker in a spiral of petals and toward one side.
 - The roses are drawn about one and a half times their real size, so they still read as roses at her scale.
 - Four tiles go round her body, two round each sleeve.
 
-**Colour.** The print's colours are a little deeper than measured, because the studio lifts them. A back render measures:
+**Colour and density.** The print's colours are a little deeper than measured, because the studio lifts them. The roses cover more of the fabric than measured on the photo. The photo's many small sprays read as denser than their measured share, and the first version, at about the measured share, looked sparse. A back render measures:
 
 | | Ground | Roses | Rose coverage |
 | --- | --- | --- | --- |
-| Render | (232, 227, 221) | (188, 171, 104) | 17 % |
+| Render | (230, 226, 220) | (184, 167, 98) | 29 % |
 | Back photo | (229, 225, 220) | (178, 163, 95) | 19 % |
 
 **Shape.**
@@ -106,3 +106,11 @@ The only change to shared code is that `makeShirt()` in `src/doll/shirts.js` is 
 - The print's sprays are laid out at random, not in the real repeat, and the roses are larger than on the shirt.
 - The darts are stitched lines; the waist is only slightly nipped, so it clears every waistband.
 - The collar is mostly hidden under her head, as on the other shirts.
+
+## Revision 1 (after review)
+
+The user's feedback on the first version: “Kinda sparse?”.
+
+- The first version had about 110 sprays on a tile, spaced well apart, covering about 17 % of the fabric with roses. That matched the measured share, but it looked sparse beside the photos, whose many small sprays read as a dense print.
+- The sprays now keep closer together (the new optional `gap` in the template's `print`), and there are about 180 on a tile. The roses now cover about 29 %.
+- The leaves are a little bigger and there are more of them, so their dark teal flecks show between the roses, as on the shirt.

@@ -1,7 +1,7 @@
 // Ditsy print shirt: the button-down shirt (makeShirt() in src/doll/shirts.js) in a small all-over print of flower sprays,
 // drawn in code from the catalog `build`. Each spray is a few round roses on fine stems with small pointed leaves.
-//   print: { ground, rose, shade, leaf, sprays, size, seed }: the colours (as [r, g, b]), how many sprays on a tile, the
-//     roses' radius in tile pixels and the layout's seed;
+//   print: { ground, rose, shade, leaf, sprays, size, gap, seed }: the colours (as [r, g, b]), how many sprays on a tile,
+//     the roses' radius in tile pixels, how far apart sprays keep (in roses' radii; 2.2 by default) and the layout's seed;
 //   around, high, sleeveAround, collarAround: how many tiles go round her, a sleeve and the collar, and a tile's height;
 //   sheen, roughness and the shirt's own style fields (stitch, button, buttons, open, collar, rows, tucked, shirttail,
 //     sleeve, cuff; see shirts.js);
@@ -34,16 +34,16 @@ function ditsyRoseData(P){
   const stem=(x0,y0,x1,y1)=>{const n=Math.ceil(Math.hypot(x1-x0,y1-y0));for(let k=0;k<=n;k++){const t=k/n;paint(x0+(x1-x0)*t,y0+(y1-y0)*t,1.5,(dx,dy)=>.55-Math.hypot(dx,dy),P.leaf);}};
   // Sprays scattered without crowding, each keeping clear of those already placed (wrapping round the tile).
   const placed=[];
-  for(let n=0,tries=0;n<P.sprays&&tries<P.sprays*80;tries++){const x=rand()*size,y=rand()*size,reach=P.size*2.2;
+  for(let n=0,tries=0;n<P.sprays&&tries<P.sprays*80;tries++){const x=rand()*size,y=rand()*size,reach=P.size*(P.gap??2.2);
     if(!placed.every(([px2,py2])=>{let dx=Math.abs(x-px2),dy=Math.abs(y-py2);dx=Math.min(dx,size-dx);dy=Math.min(dy,size-dy);return Math.hypot(dx,dy)>reach;}))continue;
     placed.push([x,y]);n++;
     // Two to five roses round the spray's centre, joined to it by stems, with leaves on the stems and round the edge.
     const count=2+Math.floor(rand()*4),blooms=[];
     for(let k=0;k<count;k++){const a=k/count*Math.PI*2+rand()*.9,d=P.size*(.7+rand()*1.1);blooms.push([x+Math.cos(a)*d,y+Math.sin(a)*d,P.size*(.7+rand()*.45),a]);}
     for(const [bx,by] of blooms)stem(x,y,bx,by);
-    for(let k=0;k<2+Math.floor(rand()*4);k++){const a=rand()*Math.PI*2,d=P.size*(1.6+rand()*1.1);
-      stem(x,y,x+Math.cos(a)*d*.7,y+Math.sin(a)*d*.7);leaf(x+Math.cos(a)*d*.7,y+Math.sin(a)*d*.7,P.size*(.9+rand()*.5),P.size*.32,a+(rand()-.5)*.8);}
-    for(const [bx,by,r,a] of blooms){leaf(bx,by,r*1.2,r*.38,a+(rand()<.5?-1:1)*(.6+rand()*.6));rose(bx,by,r);}}
+    for(let k=0;k<3+Math.floor(rand()*4);k++){const a=rand()*Math.PI*2,d=P.size*(1.5+rand()*1.1);
+      stem(x,y,x+Math.cos(a)*d*.7,y+Math.sin(a)*d*.7);leaf(x+Math.cos(a)*d*.7,y+Math.sin(a)*d*.7,P.size*(1+rand()*.5),P.size*.4,a+(rand()-.5)*.8);}
+    for(const [bx,by,r,a] of blooms){leaf(bx,by,r*1.3,r*.45,a+(rand()<.5?-1:1)*(.6+rand()*.6));rose(bx,by,r);}}
   const data=new Uint8Array(size*size*4);
   for(let i=0;i<size*size;i++){for(let k=0;k<3;k++)data[i*4+k]=Math.max(0,Math.min(255,Math.round(px[i*3+k])));data[i*4+3]=255;}
   return tiles[key]={data,w:size,h:size};

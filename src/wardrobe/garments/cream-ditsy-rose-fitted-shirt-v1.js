@@ -21,7 +21,7 @@ export default {
   // studio lifts them; a tile holds `sprays` sprays of roses `size` pixels across, four tiles round her.
   build: {
     template: 'ditsy-print-shirt',
-    print: { ground: [208, 202, 192], rose: [134, 122, 50], shade: [88, 80, 28], leaf: [34, 46, 47], sprays: 110, size: 9, seed: 211 },
+    print: { ground: [208, 202, 192], rose: [134, 122, 50], shade: [88, 80, 28], leaf: [34, 46, 47], sprays: 180, size: 9, gap: 1.5, seed: 211 },
     around: 4, high: .52, sleeveAround: 2, collarAround: 2, sheen: '#fffbea', roughness: .58,
     stitch: '#ddd6c8', button: ['#f7f5ef', .2], buttons: [1.745, 1.64, 1.535, 1.43, 1.325, 1.22],
     // Worn open at the neck, under a big 1970s point collar.

@@ -12,10 +12,10 @@ test('Ditsy rose shirt: printed in small olive roses on cream, big open collar, 
   const outfit=makeOutfit({topId:ID}),top=outfit.getObjectByName(ID);
   for(const [name,count] of [['mesh-shirt-body',1],['mesh-shirt-sleeve',2],['shirt-cuff',2],['cuff-button',2],['shirt-button',6],['front-dart',2],['back-dart',2],['shirt-collar-fall',1]])
     assert.equal(named(top,name).length,count,name);
-  // The print: mostly cream ground, with olive roses and dark teal leaves.
+  // The print: dense olive roses and dark teal leaves, the cream ground showing between them.
   const img=named(top,'mesh-shirt-body')[0].material.map.image,d=img.data;let cream=0,rose=0,leaf=0;
   for(let i=0;i<d.length;i+=4){const [r,gr,b]=[d[i],d[i+1],d[i+2]];if(r>190&&b>170)cream++;else if(r-b>45&&gr>70)rose++;else if(r<70&&b>=r-5)leaf++;}
-  const n=d.length/4;assert.ok(cream/n>.5&&rose/n>.12&&leaf/n>.01,`cream ${(cream/n).toFixed(2)}, roses ${(rose/n).toFixed(2)}, leaves ${(leaf/n).toFixed(3)}`);
+  const n=d.length/4;assert.ok(cream/n>.35&&rose/n>.25&&leaf/n>.03,`cream ${(cream/n).toFixed(2)}, roses ${(rose/n).toFixed(2)}, leaves ${(leaf/n).toFixed(3)}`);
   // Darts run down the front and the back either side of the centre, on the body.
   for(const [name,front] of [['front-dart',true],['back-dart',false]])for(const dart of named(top,name)){const p=dart.geometry.attributes.position;
     let lo=Infinity,hi=-Infinity;for(let i=0;i<p.count;i++){lo=Math.min(lo,p.getY(i));hi=Math.max(hi,p.getY(i));assert.ok(front?p.getZ(i)>0:p.getZ(i)<0,`${name} on its side`);}
