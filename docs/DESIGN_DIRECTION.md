@@ -172,3 +172,14 @@ The interface:
   or pieces on top, ponytails with a gathered bunch, a soft fall and rounded tips. Head: a small chin and jaw in `makeHead`, the face untouched. Pose: `src/doll/pose.js`,
   one deformation applied to the doll once, to each hairstyle and to every fitted outfit. Steps 7 and 8 (worlds and
   time of day; look portraits) are open.
+- 11 October 2026, third pull request (the user chose nine further improvements and asked for a third to a half of
+  them now): a collection of worlds, the time of day, a foreground, and her face following the weather. Four worlds
+  (apricot mountains, the original; lilac hills; rain garden; winter wood), each painted by
+  `scripts/art/paint-scenery.py` into `src/art/worlds/<id>/` as three skies (golden, day, night), the land, the ground
+  and a foreground, with `src/art/worlds/palettes.js` for the light on her. One world a day (`src/today/world.js`): the
+  winter wood when it is cold, otherwise one of the others by the day's seed. The skies cross-fade with the sun, from
+  the forecast's sunrise and sunset; her 3D light, its reflections and the land's tint follow the world and the hour
+  (`src/doll/light.js`). Her expression (`src/doll/face.js`, `setExpression` in `src/doll/model.js`): a wide smile in
+  warm sun, rosy cheeks in the cold, a soft smile with lifted brows in the rain, a small dreamy smile in fog. Still to
+  do from the user's choice: a twirl when she changes clothes, an attitude for each of the three looks, hair moving in
+  the wind, Dress her as a visual picker, and wardrobe filters. Look portraits and look names remain open from step 8.
