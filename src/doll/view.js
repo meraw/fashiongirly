@@ -1,7 +1,8 @@
 import { createHairController } from '../hair/model.js';
 import * as T from 'three';
 import { BRONZE_TOP_ID, LILAC_TOP_ID, VANGOGH_TEE_ID, DESIGUAL_FRESCO_TEE_ID, DESIGUAL_MOUNTAIN_SHIRT_ID, BARREL_JEANS_ID, DAVINIA_JEANS_ID, LEVIS_94_ID, TOMMY_MOM_ID, STRADIVARIUS_RELAXED_ID, MANGO_BLACK_JEANS_ID, BERSHKA_GREY_ID, TOMMY_CARPENTER_ID, ZARA_CARGO_ID, CRYSTAL_JEANS_ID, NIKE_TRACK_ID, TOPSHOP_BLACK_CROP_ID, PLEATED_LINEN_ID, BUFFALO_ASPHA_ID, GARMENTS } from '../wardrobe/catalog.js';
-import { makeDoll, makeOutfit, disposeObject, fitDoll } from './model.js';
+import { makeDoll, makeOutfit, disposeObject, fitDoll, setExpression } from './model.js';
+import { expressionFor } from './face.js';
 import { canTuck, cleanRecipe } from './recipe.js';
 import { lightScene } from './light.js';
 import { pose } from './pose.js';
@@ -80,13 +81,25 @@ export async function createDollView(host, recipe) {
   const doc=host.ownerDocument,stageFrame=doc.getElementById('frame'),point=new T.Vector3();
   const place=(width,height)=>{camera.updateMatrixWorld();const at=(x,y,z)=>{point.set(x,y,z).project(camera);return [(point.x+1)/2*width,(1-point.y)/2*height];};
     const [dollX,feet]=at(0,0,0),[,horizon]=at(0,0,-2.4),style=doc.documentElement.style;
-    style.setProperty('--feet-y',`${feet.toFixed(1)}px`);style.setProperty('--horizon-y',`${horizon.toFixed(1)}px`);style.setProperty('--doll-x',`${dollX.toFixed(1)}px`);};
+    style.setProperty('--feet-y',`${feet.toFixed(1)}px`);style.setProperty('--horizon-y',`${horizon.toFixed(1)}px`);style.setProperty('--doll-x',`${dollX.toFixed(1)}px`);
+    // The foreground in front of her is sized to her part of the page.
+    style.setProperty('--frame-w',`${(stageFrame?stageFrame.getBoundingClientRect().width:width).toFixed(1)}px`);};
   const resize=()=>{const width=Math.max(1,host.clientWidth),height=Math.max(1,host.clientHeight);renderer.setSize(width,height);
     const h=host.getBoundingClientRect(),f=stageFrame?stageFrame.getBoundingClientRect():h,fw=Math.max(1,f.width),fh=Math.max(1,f.height);
     camera.aspect=fw/fh;camera.position.z=camera.aspect<.65?8.8:7.5;camera.setViewOffset(fw,fh,h.left-f.left,h.top-f.top,width,height);camera.updateProjectionMatrix();place(width,height);render();};
   const observer=new ResizeObserver(resize);observer.observe(host);if(stageFrame)observer.observe(stageFrame);resize();
   // The lights follow the weather the scene shows (src/today/sky.js says when it changes).
-  const onWeather=e=>{if(light.setWeather(e.detail?.kind))render();};doc.addEventListener('weather-change',onWeather);light.setWeather(doc.getElementById('sky')?.dataset.kind||'none');
+  // Her face follows the weather too (face.js). Her world and its hour come from src/today/world.js.
+  const onWeather=e=>{const lit=light.setWeather(e.detail?.kind),face=setExpression(doll,expressionFor(e.detail||{}));if(lit||face)render();};doc.addEventListener('weather-change',onWeather);
+  // Her felt's fibres are drawn unlit, so they are dimmed with the light, or they would speckle her face at night.
+  const fibres=[];doll.traverse(o=>{if(o.name==='felt-fibres')fibres.push([o.material,o.material.opacity]);});
+  const dimFibres=w=>{for(const [m,o] of fibres)m.opacity=o*(1-.8*(w?.night??0));};
+  const onWorld=e=>{dimFibres(e.detail?.weights);if(light.setWorld(e.detail?.world,e.detail?.weights))render();};doc.addEventListener('world-change',onWorld);
+  const root=doc.documentElement,shown=root.dataset.weights?.split(',').map(Number);
+  if(root.dataset.world&&shown?.length===3){const w={golden:shown[0],day:shown[1],night:shown[2],dawn:root.dataset.dawn==='true'};light.setWorld(root.dataset.world,w);dimFibres(w);}
+  // The weather may have been painted before she was: take it, and her face, from the sky.
+  const sky=doc.getElementById('sky');light.setWeather(sky?.dataset.kind||'none');
+  setExpression(doll,expressionFor({kind:sky?.dataset.kind,feels:sky?.dataset.feels?Number(sky.dataset.feels):null}));
   // A tap (a press that barely moves) on what she wears tells the page which garment it was (its id: a layer's
   // `userData.garmentId`, else its name): the first thing the tap
   // meets, her body and hair included, so a closed coat over her top is the coat. Tapping her top tucks it in or out;
@@ -115,7 +128,7 @@ export async function createDollView(host, recipe) {
     // A new outfit is built once its textures have arrived (usually at once); only the latest request is built.
     update(next){hair.update(next.hairId);poseHair();current=cleanRecipe(next);const key=clothingKey(next);if(key!==lastClothing){lastClothing=key;const ticket=++pending;texturesFor(next).then(()=>{if(closed||ticket!==pending)return;const replacement=dress(next);model.remove(outfit);disposeObject(outfit);outfit=replacement;render();});}render();},
     turn(degrees){target=degrees*Math.PI/180;angle=target;render();},
-    dispose(){if(closed)return;closed=true;cancelAnimationFrame(frame);cancelAnimationFrame(hover);observer.disconnect();renderer.domElement.removeEventListener('pointerdown',down);renderer.domElement.removeEventListener('pointermove',move);renderer.domElement.removeEventListener('pointerup',up);renderer.domElement.removeEventListener('pointercancel',up);renderer.domElement.removeEventListener('webglcontextlost',lost);renderer.domElement.removeEventListener('webglcontextrestored',restored);doc.removeEventListener('weather-change',onWeather);hair.dispose();disposeObject(model);Object.values(atlas).forEach(t=>t.dispose());light.dispose();renderer.dispose();renderer.domElement.remove();},
+    dispose(){if(closed)return;closed=true;cancelAnimationFrame(frame);cancelAnimationFrame(hover);observer.disconnect();renderer.domElement.removeEventListener('pointerdown',down);renderer.domElement.removeEventListener('pointermove',move);renderer.domElement.removeEventListener('pointerup',up);renderer.domElement.removeEventListener('pointercancel',up);renderer.domElement.removeEventListener('webglcontextlost',lost);renderer.domElement.removeEventListener('webglcontextrestored',restored);doc.removeEventListener('weather-change',onWeather);doc.removeEventListener('world-change',onWorld);hair.dispose();disposeObject(model);Object.values(atlas).forEach(t=>t.dispose());light.dispose();renderer.dispose();renderer.domElement.remove();},
   };
 }
 

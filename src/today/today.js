@@ -11,6 +11,7 @@ import { fetchConditions, findPlace } from '../weather/open-meteo.js';
 import { cleanRecipe } from '../doll/recipe.js';
 import { hairName, HAIR_COLOUR } from '../hair/catalog.js';
 import { paintSky, skyKind, codeKind, weatherIcon } from './sky.js';
+import { worldFor, skyWeights, paintWorld, WORLD_IDS } from './world.js';
 
 export const TODAY_KEY = 'fashiongirly.today.v2', HISTORY_KEY = 'fashiongirly.days.v1', PLACE_KEY = 'fashiongirly.place.v1', WEATHER_KEY = 'fashiongirly.weather.v1';
 export const LOOKS = [['pick', 'Her pick'], ['bolder', 'Bolder'], ['easier', 'Easier']];
@@ -25,6 +26,9 @@ export function mountToday(doc, { storage = null, getRecipe, wear, fetch: fetchI
   const read = (key, fallback) => { try { const v = JSON.parse(storage?.getItem(key) || 'null'); return v ?? fallback; } catch { return fallback; } };
   const write = (key, value) => { try { storage?.setItem(key, JSON.stringify(value)); } catch {} };
   let state = read(TODAY_KEY, null), busy = false, disposed = false;
+  // A preview of any world at any hour, for review: ?world=rain-garden&at=21:30 in the address.
+  const ask = new URLSearchParams(doc.defaultView?.location?.search || ''), askWorld = WORLD_IDS.includes(ask.get('world')) ? ask.get('world') : null;
+  const askAt = /^([01]\d|2[0-3]):[0-5]\d$/.test(ask.get('at') || '') ? ask.get('at') : null;
   if (!state || typeof state !== 'object' || typeof state.day !== 'string') state = null;
 
   // The page can go away while the weather is on its way; then there is nothing left to update.
@@ -53,6 +57,7 @@ export function mountToday(doc, { storage = null, getRecipe, wear, fetch: fetchI
     $('today-temp').textContent = c ? `${Math.round(c.feels)}°` : '';
     $('today-weather').textContent = c ? describe(c) : '';
     paintSky($('sky'), c);
+    world();
     $('today-icon').replaceChildren(...(c ? [weatherIcon(doc, skyKind(c))] : []));
     // A few moments of her day, when the forecast gives them.
     $('today-hours').replaceChildren(...(c?.hours || []).map(x => {
@@ -87,6 +92,13 @@ export function mountToday(doc, { storage = null, getRecipe, wear, fetch: fetchI
     }
     $('today-reasons').replaceChildren(...(result?.reasons || []).map(r => { const li = doc.createElement('li'); li.textContent = sentence(r); return li; }));
     setBusy(busy);
+  }
+
+  // Her world for the day and the hour in it (src/today/world.js): the sun's times come with the forecast.
+  function world() {
+    if (gone()) return;
+    const c = state?.conditions, d = new Date(now()), at = askAt ? +askAt.slice(0, 2) * 60 + +askAt.slice(3) : d.getHours() * 60 + d.getMinutes();
+    paintWorld(doc, { world: askWorld ?? worldFor(state?.day ?? dayKey(now()), c), weights: skyWeights(at, c?.sunrise, c?.sunset) });
   }
 
   const recent = () => read(HISTORY_KEY, []).filter(h => h?.day && h.day < state.day).map(h => h.recipe).slice(0, 7);
@@ -184,13 +196,17 @@ export function mountToday(doc, { storage = null, getRecipe, wear, fetch: fetchI
   const onSave = () => { const r = cleanRecipe(getRecipe()); const ids = [r.dressId, ...(r.dressId === 'none' ? [r.topId, r.underTopId, r.bottomId] : []), r.shoesId, r.outerwearId].filter(id => id && id !== 'none' && id !== 'classic'); write(LEARNED_KEY, learn(read(LEARNED_KEY, null), 'saved', ids)); };
   $('save')?.addEventListener('click', onSave);
   // A phone left open overnight: on coming back after 5:00 she dresses for the new day.
-  const onVisible = () => { if (doc.visibilityState !== 'hidden' && state?.day !== dayKey(now()) && !busy) dressForToday(); };
+  const onVisible = () => { world(); if (doc.visibilityState !== 'hidden' && state?.day !== dayKey(now()) && !busy) dressForToday(); };
   doc.addEventListener('visibilitychange', onVisible);
+  // The light moves on through the day: the skies are looked at again every few minutes, and when the screen changes
+  // size (the painted sun's place on the page moves with it).
+  const win = doc.defaultView, clock = win?.setInterval ? win.setInterval(world, 5 * 60e3) : null;
+  win?.addEventListener('resize', world);
 
   render();
   const ready = state?.day === dayKey(now()) && state.trio ? Promise.resolve() : dressForToday();
   return {
     ready, getState: () => state && copy(state), title: () => state?.choice ? TITLES[state.choice] : null,
-    dispose() { disposed = true; doc.removeEventListener('visibilitychange', onVisible); $('save')?.removeEventListener('click', onSave); },
+    dispose() { disposed = true; doc.removeEventListener('visibilitychange', onVisible); if (clock != null) win.clearInterval(clock); win?.removeEventListener('resize', world); $('save')?.removeEventListener('click', onSave); },
   };
 }
