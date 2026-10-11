@@ -5,7 +5,9 @@ import { makeDoll, makeOutfit, disposeObject, fitDoll, setExpression } from './m
 import { expressionFor } from './face.js';
 import { canTuck, cleanRecipe } from './recipe.js';
 import { lightScene } from './light.js';
-import { pose } from './pose.js';
+import { pose, attitudeOf, headPose } from './pose.js';
+import { wantsTwirl, spinAt, TWIRL_MS } from './twirl.js';
+import { createWind } from '../hair/wind.js';
 // Each garment's texture module, by garment. Only the textures of what she wears are downloaded, when she wears it,
 // so the doll appears after a small download, and one texture that fails to arrive cannot stop her appearing.
 // Garments kept in their own files (src/wardrobe/garments) name theirs: `atlas: [path from this file, export name]`.
@@ -62,23 +64,53 @@ export async function createDollView(host, recipe) {
   // proportions are not stretched: the way a collectible doll is photographed. Her world's light is in light.js.
   const scene=new T.Scene(),camera=new T.PerspectiveCamera(24,1,.1,40);camera.position.set(0,1.05,7.5);camera.lookAt(0,1.25,0);
   const light=lightScene(scene,renderer);
-  // She stands in a resting pose (pose.js): her body is posed once, each hairstyle when it is put on, and every
-  // outfit after it is fitted, all by the same field, so clothes and hair stay with the body.
-  // All of it is posed in the model group's space, her world's units (the wardrobe's own group is scaled to her toy
-  // proportions, so its local space would stretch the field), less the lift her shoes give her.
-  const model=new T.Group();scene.add(model);const doll=makeDoll();model.add(doll);pose(doll,model);const hair=createHairController(doll);
-  const poseHair=()=>{const h=doll.getObjectByName('outfit-hair');if(h&&!h.userData.posed){h.userData.posed=true;pose(h,model,doll.position.y);}};
-  const dress=next=>{const worn=makeOutfit(next,atlas);model.add(worn);fitDoll(doll,worn);pose(worn,model,doll.position.y);return worn;};
-  hair.update(recipe.hairId);poseHair();let outfit=dress(recipe),current=cleanRecipe(recipe);
+  // She stands in an attitude (pose.js): the resting pose for her pick, a bolder stance for the bolder look, an easy
+  // one for the easier look. Her body, her hair and every outfit after it is fitted are posed by the same field, so
+  // clothes and hair stay with the body, and her head turns as a whole. All of it is posed in the model group's space,
+  // her world's units (the wardrobe's own group is scaled to her toy proportions, so its local space would stretch the
+  // field), less the lift her shoes give her. Each part keeps its unposed shape, so she can change attitude.
+  const doc=host.ownerDocument;
+  const model=new T.Group();scene.add(model);const doll=makeDoll();model.add(doll);const hair=createHairController(doll),head=doll.getObjectByName('doll-head');
+  let attitude=attitudeOf(doc.documentElement.dataset.attitude),attitudeNext=attitude,wind=createWind(null);
+  // Pose her body and hair in the attitude, her head turned for it; the wind takes the hair as posed.
+  const settle=()=>{wind.calm();const r=headPose(attitude);head.rotation.set(r.x,r.y,r.z);pose(doll,model,doll.position.y,attitude);wind=createWind(doll.getObjectByName('outfit-hair'));};
+  // A new outfit, posed for the shoes it brings and the attitude it will be worn in, hidden until it is put on.
+  let outfit=null;
+  const prepare=(next,a)=>{const worn=makeOutfit(next,atlas);worn.visible=false;model.add(worn);fitDoll(doll,worn);pose(worn,model,doll.position.y,a);if(outfit)fitDoll(doll,outfit);return worn;};
+  hair.update(recipe.hairId);outfit=prepare(recipe,attitude);outfit.visible=true;fitDoll(doll,outfit);settle();let current=cleanRecipe(recipe);
   const clothingKey=state=>JSON.stringify({...state,hairId:undefined});let lastClothing=clothingKey(recipe);
-  let angle=-.12,target=angle,frame=null,drag=null,pending=0;
-  const draw=()=>{frame=null;if(closed)return;model.rotation.y=angle;renderer.render(scene,camera);};
+  let angle=-.12,target=angle,frame=null,drag=null,pending=0,spin=0;
+  // On a windy day her loose hair moves (src/hair/wind.js) with the wind across the page, whichever way she faces.
+  let windy=false,windStrength=1,windFrame=null,windLast=0;const windStart=performance.now(),windDir=new T.Vector3(),headTurn=new T.Quaternion();
+  const still=()=>!!doc.defaultView?.matchMedia?.('(prefers-reduced-motion: reduce)')?.matches;
+  const draw=()=>{frame=null;if(closed)return;model.rotation.y=angle+spin;
+    if(windy&&wind.active&&!still()){model.updateMatrixWorld(true);head.getWorldQuaternion(headTurn).invert();windDir.set(1,0,0).applyQuaternion(headTurn);windDir.y=0;windDir.normalize();wind.update((performance.now()-windStart)/1000,windDir,windStrength);}
+    renderer.render(scene,camera);};
   const render=()=>{if(!closed&&frame==null)frame=requestAnimationFrame(draw);};
+  // While it is windy she is drawn about thirty times a second; otherwise only when something changes.
+  const blow=now=>{windFrame=null;if(closed||!windy||still())return;if(now-windLast>=32){windLast=now;render();}windFrame=requestAnimationFrame(blow);};
+  const setWind=(on,kmh)=>{windStrength=Math.max(.55,Math.min(1,((kmh||30)-15)/35));if(on===windy)return;windy=on;if(windy){if(windFrame==null)windFrame=requestAnimationFrame(blow);}else{wind.calm();render();}};
+  // She twirls when she changes (twirl.js): the change is put on halfway round, with her back to us.
+  let twirl=null,twirlFrame=null;
+  const spinAround=(change)=>{
+    if(twirl){if(!twirl.swapped){twirl.change.drop?.();twirl.change=change;}else change.apply();return;}
+    twirl={start:performance.now(),change,swapped:false};
+    const tick=now=>{twirlFrame=null;if(closed)return;const t=(now-twirl.start)/TWIRL_MS;spin=spinAt(t);
+      if(!twirl.swapped&&t>=.5){twirl.swapped=true;twirl.change.apply();}
+      if(t>=1){spin=0;twirl=null;if(!inFlight&&attitudeNext!==attitude)swap(null);}render();if(twirl)twirlFrame=requestAnimationFrame(tick);};
+    twirlFrame=requestAnimationFrame(tick);};
+  // Put on a change: a new outfit (posed in `posedIn`) or none, for a change of hair or attitude alone, her hair, and
+  // the latest attitude (it may have changed again while the outfit was on its way).
+  let inFlight=false;
+  const swap=(worn,hairId,posedIn)=>{inFlight=false;
+    if(worn){model.remove(outfit);disposeObject(outfit);outfit=worn;outfit.visible=true;fitDoll(doll,outfit);}else posedIn=attitude;
+    attitude=attitudeNext;if(hairId!==undefined)hair.update(hairId);settle();
+    if(posedIn!==attitude)pose(outfit,model,doll.position.y,attitude);render();};
   // The canvas covers the page; she is framed within #frame, the part of the page that is hers (the layout moves it:
   // above the sheet on a phone, left of the panel on a wider screen). The rest of the canvas shows what lies beyond
   // the frame, as a window would. Where her feet and the ground behind her land on the page is told to the stylesheet
   // (--feet-y, --horizon-y, --doll-x), so the painted meadow and mountains sit exactly where she stands.
-  const doc=host.ownerDocument,stageFrame=doc.getElementById('frame'),point=new T.Vector3();
+  const stageFrame=doc.getElementById('frame'),point=new T.Vector3();
   const place=(width,height)=>{camera.updateMatrixWorld();const at=(x,y,z)=>{point.set(x,y,z).project(camera);return [(point.x+1)/2*width,(1-point.y)/2*height];};
     const [dollX,feet]=at(0,0,0),[,horizon]=at(0,0,-2.4),style=doc.documentElement.style;
     style.setProperty('--feet-y',`${feet.toFixed(1)}px`);style.setProperty('--horizon-y',`${horizon.toFixed(1)}px`);style.setProperty('--doll-x',`${dollX.toFixed(1)}px`);
@@ -89,8 +121,11 @@ export async function createDollView(host, recipe) {
     camera.aspect=fw/fh;camera.position.z=camera.aspect<.65?8.8:7.5;camera.setViewOffset(fw,fh,h.left-f.left,h.top-f.top,width,height);camera.updateProjectionMatrix();place(width,height);render();};
   const observer=new ResizeObserver(resize);observer.observe(host);if(stageFrame)observer.observe(stageFrame);resize();
   // The lights follow the weather the scene shows (src/today/sky.js says when it changes).
-  // Her face follows the weather too (face.js). Her world and its hour come from src/today/world.js.
-  const onWeather=e=>{const lit=light.setWeather(e.detail?.kind),face=setExpression(doll,expressionFor(e.detail||{}));if(lit||face)render();};doc.addEventListener('weather-change',onWeather);
+  // Her face and her hair follow the weather too (face.js, wind.js). Her world and its hour come from src/today/world.js.
+  const onWeather=e=>{const lit=light.setWeather(e.detail?.kind),face=setExpression(doll,expressionFor(e.detail||{}));setWind(!!e.detail?.windy,e.detail?.wind);if(lit||face)render();};doc.addEventListener('weather-change',onWeather);
+  // Her attitude for the look she wears (src/doll/app.js says which). It changes with the look: when new clothes come
+  // with it, halfway through her twirl; on its own, at once.
+  const onAttitude=e=>{attitudeNext=attitudeOf(e.detail?.attitude);queueMicrotask(()=>{if(!closed&&!inFlight&&!twirl&&attitudeNext!==attitude)swap(null);});};doc.addEventListener('attitude-change',onAttitude);
   // Her felt's fibres are drawn unlit, so they are dimmed with the light, or they would speckle her face at night.
   const fibres=[];doll.traverse(o=>{if(o.name==='felt-fibres')fibres.push([o.material,o.material.opacity]);});
   const dimFibres=w=>{for(const [m,o] of fibres)m.opacity=o*(1-.8*(w?.night??0));};
@@ -98,7 +133,7 @@ export async function createDollView(host, recipe) {
   const root=doc.documentElement,shown=root.dataset.weights?.split(',').map(Number);
   if(root.dataset.world&&shown?.length===3){const w={golden:shown[0],day:shown[1],night:shown[2],dawn:root.dataset.dawn==='true'};light.setWorld(root.dataset.world,w);dimFibres(w);}
   // The weather may have been painted before she was: take it, and her face, from the sky.
-  const sky=doc.getElementById('sky');light.setWeather(sky?.dataset.kind||'none');
+  const sky=doc.getElementById('sky');light.setWeather(sky?.dataset.kind||'none');setWind(sky?.dataset.windy==='true',Number(sky?.dataset.wind)||0);
   setExpression(doll,expressionFor({kind:sky?.dataset.kind,feels:sky?.dataset.feels?Number(sky.dataset.feels):null}));
   // A tap (a press that barely moves) on what she wears tells the page which garment it was (its id: a layer's
   // `userData.garmentId`, else its name): the first thing the tap
@@ -125,10 +160,18 @@ export async function createDollView(host, recipe) {
   // Phones can take the 3D context away while the app is in the background; when it comes back, draw her again.
   const restored=()=>{host.dispatchEvent(new CustomEvent('view-restored'));render();};renderer.domElement.addEventListener('webglcontextrestored',restored);
   return {
-    // A new outfit is built once its textures have arrived (usually at once); only the latest request is built.
-    update(next){hair.update(next.hairId);poseHair();current=cleanRecipe(next);const key=clothingKey(next);if(key!==lastClothing){lastClothing=key;const ticket=++pending;texturesFor(next).then(()=>{if(closed||ticket!==pending)return;const replacement=dress(next);model.remove(outfit);disposeObject(outfit);outfit=replacement;render();});}render();},
+    // A new outfit is built once its textures have arrived (usually at once); only the latest request is built. A change
+    // of clothes or hair is put on with a twirl; a tuck, an open jacket or a slider at once.
+    update(next){
+      const before=current;current=cleanRecipe(next);const key=clothingKey(next),turning=wantsTwirl(before,current)&&!still();
+      if(key!==lastClothing){lastClothing=key;inFlight=true;const ticket=++pending,a=attitudeNext;
+        texturesFor(next).then(()=>{if(closed||ticket!==pending)return;const worn=prepare(next,a);
+          const change={apply:()=>swap(worn,current.hairId,a),drop:()=>{model.remove(worn);disposeObject(worn);}};
+          if(turning)spinAround(change);else change.apply();});}
+      else if(before.hairId!==current.hairId){const change={apply:()=>swap(null,current.hairId)};if(turning)spinAround(change);else change.apply();}
+      render();},
     turn(degrees){target=degrees*Math.PI/180;angle=target;render();},
-    dispose(){if(closed)return;closed=true;cancelAnimationFrame(frame);cancelAnimationFrame(hover);observer.disconnect();renderer.domElement.removeEventListener('pointerdown',down);renderer.domElement.removeEventListener('pointermove',move);renderer.domElement.removeEventListener('pointerup',up);renderer.domElement.removeEventListener('pointercancel',up);renderer.domElement.removeEventListener('webglcontextlost',lost);renderer.domElement.removeEventListener('webglcontextrestored',restored);doc.removeEventListener('weather-change',onWeather);doc.removeEventListener('world-change',onWorld);hair.dispose();disposeObject(model);Object.values(atlas).forEach(t=>t.dispose());light.dispose();renderer.dispose();renderer.domElement.remove();},
+    dispose(){if(closed)return;closed=true;cancelAnimationFrame(frame);cancelAnimationFrame(hover);observer.disconnect();renderer.domElement.removeEventListener('pointerdown',down);renderer.domElement.removeEventListener('pointermove',move);renderer.domElement.removeEventListener('pointerup',up);renderer.domElement.removeEventListener('pointercancel',up);renderer.domElement.removeEventListener('webglcontextlost',lost);renderer.domElement.removeEventListener('webglcontextrestored',restored);doc.removeEventListener('weather-change',onWeather);doc.removeEventListener('world-change',onWorld);doc.removeEventListener('attitude-change',onAttitude);cancelAnimationFrame(twirlFrame);cancelAnimationFrame(windFrame);hair.dispose();disposeObject(model);Object.values(atlas).forEach(t=>t.dispose());light.dispose();renderer.dispose();renderer.domElement.remove();},
   };
 }
 

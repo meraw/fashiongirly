@@ -93,7 +93,7 @@ test('the sky is drawn over her world: three skies, then the weather, the land, 
   assert.deepEqual(order.slice(0, 3), ['sky-night', 'sky-day', 'sky-golden']);
   assert.ok(order.indexOf('ground') < order.indexOf('night-veil') && order.indexOf('night-veil') < order.indexOf('drop'));
   assert.equal(d.documentElement.dataset.sky, 'rain', 'the land and the foreground take the weather through :root');
-  assert.deepEqual(heard.at(-1), { kind: 'rain', feels: 12 }, 'her face hears how warm it feels');
+  assert.deepEqual(heard.at(-1), { kind: 'rain', feels: 12, windy: false, wind: 0 }, 'her face hears how warm it feels, her hair the wind');
   // A colder day under the same sky still tells her face; the same weather again does not.
   paintSky(el, presetConditions('chilly')); const n = heard.length;
   paintSky(el, presetConditions('cold'));

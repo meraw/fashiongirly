@@ -148,9 +148,7 @@ function finish(o, needs, s, rng, { keep = {}, recent = [], current = DEFAULT, h
  */
 export function composeOutfit(conditions, options = {}) {
   const c = context(conditions, options), { needs, rng, daring } = c;
-  const bases = [];
-  for (const d of c.dresses) bases.push({ dress: d });
-  if (!c.keep.dress) for (const top of c.tops) for (const under of top.layering.overTop ? [null, ...c.underTops.filter(u => u.id !== top.id)] : [null]) for (const bottom of c.bottoms) bases.push({ top, under, bottom });
+  const bases = outfitBases(c);
   const extras = new Set();
   for (const o of c.outerOptions) for (const s of c.shoes) extras.add((o ? warmthOf(o) - (c.openFor(o) ? .5 : 0) : 0) + (s ? (warmthOf(s) - 2) * .5 : 0));
   const beam = (list, size) => {
@@ -176,6 +174,32 @@ export function composeOutfit(conditions, options = {}) {
     return finish(chosen.o, needs, chosen.s, rng, options);
   }
   return null;
+}
+
+// The dresses, and the tops (with a top under a cardigan) and bottoms, she builds outfits from, in the order she weighs them.
+function outfitBases(c) {
+  const bases = [];
+  for (const d of c.dresses) bases.push({ dress: d });
+  if (!c.keep.dress) for (const top of c.tops) for (const under of top.layering.overTop ? [null, ...c.underTops.filter(u => u.id !== top.id)] : [null]) for (const bottom of c.bottoms) bases.push({ top, under, bottom });
+  return bases;
+}
+
+// The pieces that suit a day's weather, for the Wardrobe page's filter: every piece she would consider for the weather
+// that is in at least one outfit within a point and a quarter of the warmth the day asks (or as close as any outfit
+// comes). The same candidates and warmth as composeOutfit, a little stricter than her first try, so it hides what she
+// would not wear today: no jacket on a hot day, no open shoes in the cold, a wool knit only when it is cool enough.
+export function suitedToday(conditions, options = {}) {
+  const c = context(conditions, options), bases = outfitBases(c), ends = [];
+  for (const outer of c.outerOptions) for (const shoes of c.shoes) ends.push([(outer ? warmthOf(outer) - (c.openFor(outer) ? .5 : 0) : 0) + (shoes ? (warmthOf(shoes) - 2) * .5 : 0), outer, shoes]);
+  for (const tolerance of [1.25, 1.5, 2.5, Infinity]) {
+    const ids = new Set();
+    for (const o of bases) {
+      const base = outfitWarmth({ ...o, outer: null, shoes: null });
+      for (const [extra, outer, shoes] of ends) if (Math.abs(base + extra - c.needs.target) <= tolerance) for (const p of [o.dress, o.top, o.under, o.bottom, outer, shoes]) if (p) ids.add(p.id);
+    }
+    if (ids.size) return ids;
+  }
+  return new Set();
 }
 
 // The outfit a recipe describes, as styling facts.
