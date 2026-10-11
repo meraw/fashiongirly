@@ -82,6 +82,7 @@ export { default as blackYokeHenleyBlouseV1 } from './black-yoke-henley-blouse-v
 // slot 57
 // slot 58
 // slot 59
+export { default as levisWildflowerPrintShirtV1 } from './levis-wildflower-print-shirt-v1.js';
 // slot 60
 // slot 61
 export { default as bomboogieGreenTeddyHoodJacketV1 } from './bomboogie-green-teddy-hood-jacket-v1.js';
