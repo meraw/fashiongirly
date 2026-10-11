@@ -1,6 +1,7 @@
-// The scene behind her, from the day's weather: a sky (sun, a few clouds, overcast, rain, heavy rain, snow or fog,
-// with gusts in wind), the painted mountains from src/art/mountains.webp, and the hill she stands on. Rain and snow
-// fall in front of the mountains. Plain elements animated by CSS (studio.css); with reduced motion they hold still.
+// The scene behind her, from the day's weather: her world's three painted skies (src/today/world.js says which world
+// and how much of each sky shows at this hour), the sun's glow, a few clouds, the land, the ground she stands on and
+// a blue veil by night, then rain, heavy rain, snow, fog or gusts in front. Plain elements animated by CSS
+// (studio.css); with reduced motion they hold still.
 // weatherIcon() draws the same weather small, for the Today page.
 const RAINY = new Set([51, 53, 55, 56, 57, 61, 63, 66, 80, 81]), HEAVY = new Set([65, 67, 82, 95, 96, 99]);
 const SNOWY = new Set([71, 73, 75, 77, 85, 86]);
@@ -26,19 +27,23 @@ const scatter = i => { const x = Math.sin(i * 12.9898) * 43758.5453; return x - 
 
 export function paintSky(el, conditions) {
   if (!el) return 'none';
-  const kind = skyKind(conditions), windy = (conditions?.windKmh ?? 0) >= 30;
-  if (el.dataset.kind === kind && (el.dataset.windy === 'true') === windy && el.childElementCount) return kind;
-  el.dataset.kind = kind; el.dataset.windy = String(windy);
+  const kind = skyKind(conditions), windy = (conditions?.windKmh ?? 0) >= 30, feels = Number.isFinite(conditions?.feels) ? String(Math.round(conditions.feels)) : '';
+  // How warm it feels changes her face (src/doll/face.js) even when the sky stays the same.
+  if (el.dataset.kind === kind && (el.dataset.windy === 'true') === windy && (el.dataset.feels ?? '') === feels && el.childElementCount) return kind;
+  el.dataset.kind = kind; el.dataset.windy = String(windy); el.dataset.feels = feels;
   const doc = el.ownerDocument, parts = [];
-  // The 3D view lights her for this weather (src/doll/light.js).
-  const Event = doc.defaultView?.CustomEvent; if (Event) el.dispatchEvent(new Event('weather-change', { bubbles: true, detail: { kind } }));
+  // The land, ground and foreground take the weather's tint through :root (studio.css).
+  doc.documentElement.dataset.sky = kind;
+  // The 3D view lights her for this weather (src/doll/light.js), and her face follows it (src/doll/face.js).
+  const Event = doc.defaultView?.CustomEvent; if (Event) el.dispatchEvent(new Event('weather-change', { bubbles: true, detail: { kind, feels: conditions?.feels ?? null } }));
   const add = (cls, vars = {}) => { const s = doc.createElement('span'); s.className = cls; for (const [k, v] of Object.entries(vars)) s.style.setProperty(k, v); parts.push(s); };
+  add('sky-night'); add('sky-day'); add('sky-golden');
   if (kind === 'sun' || kind === 'partly') add('sun');
   if (kind === 'fog') for (let i = 0; i < 4; i++) add('fog-band', { '--y': `${18 + i * 18}%`, '--d': `${26 + i * 7}s`, '--delay': `${-i * 6}s` });
   const [clouds, drops, flakes] = COUNTS[kind];
   for (let i = 0; i < clouds; i++) add(`cloud${kind === 'heavy-rain' ? ' dark' : ''}`, { '--x': `${(scatter(i + 9) * 80).toFixed(1)}%`, '--y': `${4 + scatter(i + 1) * 26}%`, '--s': (.7 + scatter(i + 7) * .7).toFixed(2), '--d': `${70 + scatter(i + 3) * 60}s`, '--delay': `${-scatter(i + 5) * 90}s` });
   // The mountains and her hill, painted over with brushwork, then whatever falls in front of them.
-  add('land'); add('ground'); add('brush');
+  add('land'); add('ground'); add('night-veil'); add('brush');
   for (let i = 0; i < drops; i++) add('drop', { '--x': `${(scatter(i + 11) * 112 - 6).toFixed(1)}%`, '--y': `${(scatter(i + 13) * 100).toFixed(1)}%`, '--d': `${((kind === 'heavy-rain' ? .45 : .8) + scatter(i + 17) * .4).toFixed(2)}s`, '--delay': `${(-scatter(i + 19) * 2).toFixed(2)}s` });
   for (let i = 0; i < flakes; i++) add('flake', { '--x': `${(scatter(i + 23) * 100).toFixed(1)}%`, '--y': `${(scatter(i + 29) * 100).toFixed(1)}%`, '--s': (.5 + scatter(i + 31)).toFixed(2), '--d': `${(6 + scatter(i + 37) * 6).toFixed(1)}s`, '--delay': `${(-scatter(i + 41) * 12).toFixed(1)}s` });
   if (windy && kind !== 'rain' && kind !== 'heavy-rain') for (let i = 0; i < 5; i++) add('gust', { '--y': `${20 + scatter(i + 43) * 55}%`, '--d': `${2.5 + scatter(i + 47) * 2}s`, '--delay': `${-scatter(i + 53) * 4}s` });

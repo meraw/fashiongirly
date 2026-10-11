@@ -36,25 +36,39 @@ h3{font-size:14px;margin:0}
 .lede{font-size:14px;line-height:1.6;margin:10px 0 0}
 /* A woven label, as sewn into clothes. */
 
-/* The world, fixed behind everything: the painted sunset (src/art/sky.webp), the weather drawn over it by
-   src/today/sky.js (the sun's glow, clouds, rain, snow, fog, gusts), the painted mountains and the meadow she stands
-   on. The doll's view tells the stylesheet where her feet and the ground behind her fall on the page (--feet-y,
-   --horizon-y), so the meadow and the mountains sit exactly where she stands, whatever the screen. */
+/* Her world, fixed behind everything: the day's painted world (src/today/world.js chooses it and the hour in it), the
+   weather drawn over it by src/today/sky.js (the sun's glow, clouds, rain, snow, fog, gusts), the land behind her and
+   the ground she stands on. The doll's view tells the stylesheet where her feet and the ground behind her fall on the
+   page (--feet-y, --horizon-y), so the ground and the land sit exactly where she stands, whatever the screen. */
 .scenery{position:fixed;inset:0;z-index:0;pointer-events:none}
-.sky{position:absolute;inset:0;overflow:hidden;container-type:size;background:var(--night) url("../art/sky.webp") center 38% / cover no-repeat}
+/* Her worlds (src/today/world.js), painted by scripts/art/paint-scenery.py: each world's pictures, by :root[data-world]. */
+:root{--w-golden:url("../art/worlds/apricot-mountains/sky-golden.webp");--w-day:url("../art/worlds/apricot-mountains/sky-day.webp");--w-night:url("../art/worlds/apricot-mountains/sky-night.webp");--w-land:url("../art/worlds/apricot-mountains/land.webp");--w-ground:url("../art/worlds/apricot-mountains/ground.webp");--w-front:url("../art/worlds/apricot-mountains/front.webp")}
+:root[data-world=lilac-hills]{--w-golden:url("../art/worlds/lilac-hills/sky-golden.webp");--w-day:url("../art/worlds/lilac-hills/sky-day.webp");--w-night:url("../art/worlds/lilac-hills/sky-night.webp");--w-land:url("../art/worlds/lilac-hills/land.webp");--w-ground:url("../art/worlds/lilac-hills/ground.webp");--w-front:url("../art/worlds/lilac-hills/front.webp")}
+:root[data-world=rain-garden]{--w-golden:url("../art/worlds/rain-garden/sky-golden.webp");--w-day:url("../art/worlds/rain-garden/sky-day.webp");--w-night:url("../art/worlds/rain-garden/sky-night.webp");--w-land:url("../art/worlds/rain-garden/land.webp");--w-ground:url("../art/worlds/rain-garden/ground.webp");--w-front:url("../art/worlds/rain-garden/front.webp")}
+:root[data-world=winter-wood]{--w-golden:url("../art/worlds/winter-wood/sky-golden.webp");--w-day:url("../art/worlds/winter-wood/sky-day.webp");--w-night:url("../art/worlds/winter-wood/sky-night.webp");--w-land:url("../art/worlds/winter-wood/land.webp");--w-ground:url("../art/worlds/winter-wood/ground.webp");--w-front:url("../art/worlds/winter-wood/front.webp")}
+.sky{position:absolute;inset:0;overflow:hidden;container-type:size;background:var(--night)}
+/* Three skies, cross-faded through the day (paintWorld sets each one's share): the night sky underneath, the day sky
+   and the golden sky over it. At dawn the golden sky is a little cooler and pinker than in the evening. */
+.sky .sky-night,.sky .sky-day,.sky .sky-golden{inset:0;z-index:0;background:center 38% / cover no-repeat;transition:opacity 2s}
+.sky .sky-night{background-image:var(--w-night)}
+.sky .sky-day{background-image:var(--w-day);opacity:var(--day-a,0)}
+.sky .sky-golden{background-image:var(--w-golden);opacity:var(--golden-a,1)}
+:root[data-dawn=true] .sky .sky-golden{filter:hue-rotate(-14deg) saturate(.9) brightness(1.04)}
 /* The weather lies over the painting as a wash: grey-violet cloud, plum rain, pale snow, milk fog. */
-.sky::before{content:"";position:absolute;inset:0;z-index:1;opacity:0;transition:opacity 1.2s;background:linear-gradient(180deg,#8f80ad,#cdbfd6 60%,#efe6ec)}
-.sky[data-kind=partly]::before{background:linear-gradient(180deg,#7d66a8,#dcb3ae 55%,#f7d9c2);opacity:.22}
-.sky[data-kind=cloud]::before{opacity:.58}
-.sky[data-kind=rain]::before{background:linear-gradient(180deg,#4b3a6c,#8f7fae 55%,#c9bdd6);opacity:.72}
-.sky[data-kind=heavy-rain]::before{background:linear-gradient(180deg,#241740,#4e3d6f 55%,#8c7ca6);opacity:.84}
-.sky[data-kind=snow]::before{background:linear-gradient(180deg,#a79ccb,#dcd5ec 55%,#f6f3f9);opacity:.78}
-.sky[data-kind=fog]::before{background:linear-gradient(180deg,#b9aec6,#e2d9e4 55%,#efe8ec);opacity:.82}
+/* The weather's wash over the sky; lighter by night, so the night sky stays dark. */
+.sky::before{content:"";position:absolute;inset:0;z-index:1;--wash:0;opacity:calc(var(--wash) * (1 - var(--night,0) * .6));transition:opacity 1.2s;background:linear-gradient(180deg,#8f80ad,#cdbfd6 60%,#efe6ec)}
+.sky[data-kind=partly]::before{background:linear-gradient(180deg,#7d66a8,#dcb3ae 55%,#f7d9c2);--wash:.22}
+.sky[data-kind=cloud]::before{--wash:.58}
+.sky[data-kind=rain]::before{background:linear-gradient(180deg,#4b3a6c,#8f7fae 55%,#c9bdd6);--wash:.72}
+.sky[data-kind=heavy-rain]::before{background:linear-gradient(180deg,#241740,#4e3d6f 55%,#8c7ca6);--wash:.84}
+.sky[data-kind=snow]::before{background:linear-gradient(180deg,#a79ccb,#dcd5ec 55%,#f6f3f9);--wash:.78}
+.sky[data-kind=fog]::before{background:linear-gradient(180deg,#b9aec6,#e2d9e4 55%,#efe8ec);--wash:.82}
 @keyframes breathe{to{transform:scale(1.15);opacity:.7}}
 
 /* Header and page tabs on the sunset. On a phone the tabs sit at the bottom, like an app. */
 .topbar{position:fixed;left:0;right:0;top:0;z-index:20;display:flex;align-items:center;justify-content:space-between;gap:16px;padding:16px max(20px,4vw);background:linear-gradient(180deg,#1a0a36f0,#1a0a3600)}
 .logo{display:inline-flex;align-items:center;gap:10px;font:500 34px/1 var(--display);font-variation-settings:"SOFT" 100,"WONK" 1;letter-spacing:-1.2px;text-decoration:none;color:var(--cream);text-shadow:0 2px 14px #ef7b3c55}
+:root[data-daylight=true] .logo{color:#3b1f5c;text-shadow:0 1px 12px #ffffffaa}
 .logo-flower{width:34px;height:34px;background:var(--flower) center/contain no-repeat;filter:drop-shadow(0 2px 6px #00000044);animation:sway-flower 6s ease-in-out infinite alternate}
 @keyframes sway-flower{to{transform:rotate(18deg)}}
 .tabs{display:flex;gap:4px;align-items:center;padding:5px;border-radius:999px;background:#ffffff17;border:1px solid #ffffff33;backdrop-filter:blur(8px);box-shadow:inset 0 1px 0 #ffffff22}
@@ -71,7 +85,7 @@ h3{font-size:14px;margin:0}
 #stage canvas{position:absolute;left:0;top:0;display:block}
 #frame{position:absolute;left:0;right:calc(var(--panel-w) + 24px);top:72px;bottom:204px;pointer-events:none;z-index:2}
 #loading{position:absolute;top:46%;left:0;right:0;margin:0;text-align:center;color:#fff;font:italic 20px var(--display);text-shadow:0 2px 10px #0006}
-.drag-hint{position:absolute;left:0;right:0;bottom:8px;margin:0;text-align:center;font-size:11px;letter-spacing:.4px;color:#fff3e4cc;text-shadow:0 1px 4px #0008}
+.drag-hint{position:absolute;left:50%;bottom:8px;transform:translateX(-50%);width:max-content;max-width:92%;margin:0;padding:3px 11px;border-radius:999px;background:#1a0a3680;text-align:center;font-size:11px;letter-spacing:.4px;color:#fff3e4e6}
 /* The tuck and open buttons are for the keyboard: a tap on her top or jacket does the same, so they only show when focused. */
 .tuck-key{position:absolute;left:50%;bottom:34px;transform:translateX(-50%);border:1.5px solid var(--purple);background:var(--purple);color:#fff6ee;border-radius:999px;padding:6px 14px;font-size:12px;opacity:0;pointer-events:none}
 .tuck-key:focus-visible{opacity:1;pointer-events:auto}
@@ -110,7 +124,7 @@ h3{font-size:14px;margin:0}
 .sky span{position:absolute;display:block;pointer-events:none;z-index:2}
 .sky .brush{inset:0;background:url("../art/brush.webp") center / 640px auto repeat;mix-blend-mode:soft-light;opacity:.45}
 /* The sun is in the painting; this is its breathing glow. */
-.sky .sun{inset:0;background:radial-gradient(circle at var(--sun-x,60%) 36%,#ffc78a66,#ff8a5a22 22%,transparent 46%);animation:breathe 9s ease-in-out infinite alternate}
+.sky .sun{inset:0;background:radial-gradient(circle at var(--sun-px,60%) var(--sun-py,36%),#ffc78a66,#ff8a5a22 22%,transparent 46%);filter:opacity(var(--sun-glow,1));animation:breathe 9s ease-in-out infinite alternate}
 .sky[data-kind=partly] .sun{opacity:.7}
 .sky .cloud{top:var(--y);left:-35%;width:150px;height:44px;border-radius:40px;background:#fff8f3;opacity:.92;transform:scale(calc(var(--s) * var(--cloud-scale)));animation:drift var(--d) linear infinite;animation-delay:var(--delay);box-shadow:0 10px 16px -12px #5b3f7a66}
 .sky .cloud::before,.sky .cloud::after{content:"";position:absolute;border-radius:50%;background:inherit}
@@ -119,21 +133,26 @@ h3{font-size:14px;margin:0}
 .sky[data-kind=cloud] .cloud,.sky[data-kind=snow] .cloud{background:#f1ebf3}
 .sky[data-kind=rain] .cloud{background:#cfc4dc}
 .sky .cloud.dark{background:#6f5f8a;opacity:.95}
+/* By night the clouds are dim and thin, lit only by the moon. */
+.sky .cloud{filter:brightness(calc(1 - var(--night,0) * .5)) opacity(calc(1 - var(--night,0) * .55))}
 /* The painted range, lit by the weather: warm in sun, cooler and darker under rain, pale under snow. */
-.sky .land{left:0;right:0;bottom:calc(100% - var(--horizon-y,60vh));height:max(22vh,25vw);background:url("../art/mountains.webp") center bottom / auto 100% no-repeat;transition:filter 1.2s}
-.sky[data-kind=cloud] .land{filter:saturate(.75) brightness(.95)}
-.sky[data-kind=rain] .land{filter:saturate(.55) brightness(.8) hue-rotate(-14deg)}
-.sky[data-kind=heavy-rain] .land{filter:saturate(.45) brightness(.62) hue-rotate(-22deg)}
-.sky[data-kind=snow] .land{filter:saturate(.3) brightness(1.18) contrast(.85)}
-.sky[data-kind=fog] .land{filter:saturate(.45) brightness(1.08) contrast(.7);opacity:.85}
-/* The meadow (src/art/meadow.webp), from just behind her feet to the bottom of the page; its far edge fades into the
-   mist at the mountains' feet. Wet and dim under rain, pale under snow. */
-.sky .ground{left:0;right:0;top:calc(var(--horizon-y,60vh) - 6vh);bottom:-1px;background:url("../art/meadow.webp") center top / cover no-repeat;transition:filter 1.2s}
-.sky[data-kind=cloud] .ground{filter:saturate(.75) brightness(.95)}
-.sky[data-kind=rain] .ground{filter:saturate(.5) brightness(.72) hue-rotate(-18deg)}
-.sky[data-kind=heavy-rain] .ground{filter:saturate(.4) brightness(.55) hue-rotate(-26deg)}
-.sky[data-kind=snow] .ground{filter:saturate(.12) brightness(1.55) contrast(.75)}
-.sky[data-kind=fog] .ground{filter:saturate(.5) brightness(1.08) contrast(.8)}
+/* The land behind her, the ground she stands on and the foreground in front of her are tinted twice: by the weather
+   (--wx-land, --wx-ground, set below by the sky's kind on :root) and by the hour (--tod-bright, --tod-sat). */
+.sky .land{left:0;right:0;bottom:calc(100% - var(--horizon-y,60vh));height:max(22vh,25vw);background:var(--w-land) center bottom / auto 100% no-repeat;filter:var(--wx-land,saturate(1)) brightness(var(--tod-bright,1)) saturate(var(--tod-sat,1));transition:filter 1.2s}
+:root[data-sky=cloud]{--wx-land:saturate(.75) brightness(.95);--wx-ground:saturate(.75) brightness(.95)}
+:root[data-sky=rain]{--wx-land:saturate(.55) brightness(.8) hue-rotate(-14deg);--wx-ground:saturate(.5) brightness(.72) hue-rotate(-18deg)}
+:root[data-sky=heavy-rain]{--wx-land:saturate(.45) brightness(.62) hue-rotate(-22deg);--wx-ground:saturate(.4) brightness(.55) hue-rotate(-26deg)}
+:root[data-sky=snow]{--wx-land:saturate(.3) brightness(1.18) contrast(.85);--wx-ground:saturate(.12) brightness(1.55) contrast(.75)}
+:root[data-sky=fog]{--wx-land:saturate(.45) brightness(1.08) contrast(.7);--wx-ground:saturate(.5) brightness(1.08) contrast(.8)}
+.sky[data-kind=fog] .land{opacity:.85}
+/* The ground (a meadow, a terrace or snow), from just behind her feet to the bottom of the page; its far edge fades
+   into the mist at the land's feet. Wet and dim under rain, pale under snow. */
+.sky .ground{left:0;right:0;top:calc(var(--horizon-y,60vh) - 6vh);bottom:-1px;background:var(--w-ground) center top / cover no-repeat;filter:var(--wx-ground,saturate(1)) brightness(var(--tod-bright,1)) saturate(var(--tod-sat,1));transition:filter 1.2s}
+/* By night a blue dusk lies over the land and the ground. */
+.sky .night-veil{left:0;right:0;top:calc(var(--horizon-y,60vh) - max(22vh,25vw));bottom:0;background:linear-gradient(180deg,#2a2f6e00,#2a2f6e 40%);mix-blend-mode:multiply;opacity:calc(var(--night,0) * .55);transition:opacity 2s}
+/* The foreground: grass, flowers, leaves or snow in front of her, larger than life and a little soft, flanking her and
+   low under her feet. It stands over her canvas and under the sheet, and lets every tap through to her. */
+.foreground{position:fixed;z-index:1;pointer-events:none;--fw:calc(var(--frame-w,400px) * 1.15);left:calc(var(--doll-x,50vw) - var(--fw) / 2);width:var(--fw);height:calc(var(--fw) * .2667);top:calc(var(--feet-y,70vh) - var(--fw) * .12);background:var(--w-front) center bottom / 100% 100% no-repeat;filter:var(--wx-ground,saturate(1)) brightness(var(--tod-bright,1)) saturate(var(--tod-sat,1));transition:filter 1.2s}
 .sky .drop{left:var(--x);top:0;width:2px;height:15px;border-radius:2px;background:linear-gradient(#0000,#5f3d8a);opacity:.55;animation:fall var(--d) linear infinite;animation-delay:var(--delay)}
 .sky[data-kind=heavy-rain] .drop{height:26px;opacity:.7;background:linear-gradient(#0000,#e6dcff)}
 .sky[data-windy=true] .drop{--slant:-18cqw;rotate:12deg}

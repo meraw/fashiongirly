@@ -14,6 +14,7 @@ import { BRONZE_TOP_ID, LILAC_TOP_ID, CROCHET_TOP_ID, PLAID_JUMPER_ID, STRIPE_JU
 import { makeKnitPolo } from './polo.js';
 import { makeButtonShirt, SHIRT_IDS } from './shirts.js';
 import { hairMaterial } from '../hair/model.js';
+import { SMILES, EXPRESSIONS } from './face.js';
 // Body and wardrobe share one toy proportion system; the face stays unscaled.
 const BODY_HEIGHT = .76;
 const BODY_WIDTH = 1.06;
@@ -94,10 +95,10 @@ function makeHead() {
     star(head,side*.183+.003,.035,.02,.027,cream);star(head,side*.183+.047,-.014,.02,.013,cream);
     faceCurve(head,[[side*.183-.12,.025],[side*.183-.06,.09],[side*.183+.04,.104],[side*.183+.119,.045]],.008,dark,'stitched-eyelid');
     for(let i=0;i<3;i++) {const x=side*(.263+i*.014);faceCurve(head,[[x,.068-i*.016],[x+side*.035,.09-i*.012]],.005,dark,'eyelash');}
-    faceCurve(head,[[side*.11,.172],[side*.19,.192],[side*.267,.17]],.01,dark,'eyebrow');
+    faceCurve(head,browPoints(side,false),.01,dark,'eyebrow').userData.side=side;
   }
   oval(head,[.01,-.087,.403],[.037,.028,.04],skin,'little-nose');
-  faceCurve(head,[[-.055,-.205],[.003,-.223],[.064,-.194]],.007,cloth('#8b5150'),'stitched-smile');
+  faceCurve(head,SMILES.usual,.007,cloth('#8b5150'),'stitched-smile');head.userData.expression='smile';
   // Sculpted bob: full back volume, a crown, and overlapping swept locks, in the molded hair material every style shares.
   const hair=hairMaterial(), shine=solid('#58413b',1);
   oval(head,[0,.035,-.16],[.555,.505,.34],hair,'bob-back',40);
@@ -117,6 +118,21 @@ function makeHead() {
   for(let i=0;i<5;i++){const a=i*Math.PI*2/5;oval(head,[.365+Math.cos(a)*.042,.31+Math.sin(a)*.042,.365],[.025,.033,.01],gold,'flower-petal');}
   oval(head,[.365,.31,.381],[.018,.018,.009],solid('#f3d997'),'flower-centre');
   return head;
+}
+// Her brows: lifted, the inner ends rise a little, as when something is a pity.
+function browPoints(side,lift){return [[side*.11,lift?.19:.172],[side*.19,lift?.2:.192],[side*.267,.17]];}
+// Change her expression (src/doll/face.js): the stitched smile, the blush and the brows. The usual expression rebuilds
+// exactly the face makeHead made. Returns whether anything changed.
+export function setExpression(doll,mood){
+  const head=doll.getObjectByName('doll-head'),e=EXPRESSIONS[mood]?mood:'smile',x=EXPRESSIONS[e];
+  if(!head||head.userData.expression===e)return false;head.userData.expression=e;
+  const scratch=new T.Group(),swap=(mesh,fresh)=>{mesh.geometry.dispose();mesh.geometry=fresh.geometry;};
+  const smile=head.getObjectByName('stitched-smile');if(smile)swap(smile,faceCurve(scratch,SMILES[x.smile],.007,smile.material,''));
+  const [opacity,colour,size]=x.blush;
+  head.children.filter(o=>o.name==='cheek').forEach((cheek,i)=>{cheek.material.opacity=opacity;cheek.material.color.set(colour);
+    const side=i===0?-1:1;swap(cheek,facePatch(scratch,side*.265,-.155+(size-1)*.02,.092*size,.047*size,.005,cheek.material,''));});
+  for(const brow of head.children.filter(o=>o.name==='eyebrow'))swap(brow,faceCurve(scratch,browPoints(brow.userData.side,x.lift),.01,brow.material,''));
+  return true;
 }
 export function makeDoll() {
   const root=new T.Group();root.name='living-doll';

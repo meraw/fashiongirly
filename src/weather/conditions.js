@@ -22,6 +22,8 @@ export function presetConditions(id, day = dayKey()) {
 }
 
 const num = (v, lo, hi, fallback = null) => Number.isFinite(v) ? Math.max(lo, Math.min(hi, v)) : fallback;
+// A local time of day, "HH:MM", or null.
+const clock = v => typeof v === 'string' && /^([01]\d|2[0-3]):[0-5]\d$/.test(v) ? v : null;
 export function cleanConditions(v) {
   if (!v || typeof v !== 'object' || !Number.isFinite(v.feels)) return null;
   return {
@@ -31,6 +33,7 @@ export function cleanConditions(v) {
     tempMin: num(v.tempMin, -40, 50), tempMax: num(v.tempMax, -40, 50),
     rainChance: num(v.rainChance, 0, 100, 0), rainMm: num(v.rainMm, 0, 500, 0), windKmh: num(v.windKmh, 0, 300, 0),
     snow: v.snow === true, code: num(v.code, 0, 99),
+    sunrise: clock(v.sunrise), sunset: clock(v.sunset),
     hours: (Array.isArray(v.hours) ? v.hours : []).filter(x => x && Number.isInteger(x.hour) && Number.isFinite(x.feels)).slice(0, 6).map(x => ({
       hour: Math.max(0, Math.min(23, x.hour)), temp: num(x.temp, -40, 50), feels: num(x.feels, -40, 50), rain: num(x.rain, 0, 100, 0), snow: x.snow === true, code: num(x.code, 0, 99),
     })),
