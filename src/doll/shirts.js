@@ -517,8 +517,8 @@ function makeShirtCollar(top,mat,facing,stitch,style){
   if(style.collarTopstitch)curve(top,Array.from({length:97},(_,i)=>at(i/96,1,.16)),.0016,stitch,'shirt-collar-topstitch');
   return fall;
 }
-// Exported for shirt templates kept in their own files (such as src/doll/wildflower-shirt.js), which build a style from
-// their catalog `build` and pass it here.
+// Exported for shirt templates kept in their own files (such as src/doll/ditsy-print-shirt.js and
+// src/doll/wildflower-shirt.js), which build a style from their catalog `build` and pass it here.
 export function makeShirt(id,style,atlas=null,skirt=false,trousers=null,tucked=style.tuckIn){
   const top=new T.Group();top.name=id;
   const stitch=solid(style.stitch,.6),facing=style.facing&&solid(style.facing,.85);
