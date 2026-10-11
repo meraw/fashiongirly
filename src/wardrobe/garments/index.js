@@ -63,6 +63,7 @@ export { default as mangoSiennaFlareCropJeansV1 } from './mango-sienna-flare-cro
 // slot 45
 // slot 46
 // slot 47
+export { default as creamDitsyRoseFittedShirtV1 } from './cream-ditsy-rose-fitted-shirt-v1.js';
 // slot 48
 export { default as poloRalphLaurenUsrlRacingHoodieV1 } from './polo-ralph-lauren-usrl-racing-hoodie-v1.js';
 // slot 49
