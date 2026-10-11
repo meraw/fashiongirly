@@ -164,4 +164,11 @@ The interface:
 - 10 October 2026: steps 1 and 2 implemented together in one pull request (the light cannot be judged apart from the
   world it is meant to match): shared light, environment, shadow and camera in `src/doll/view.js`; the scene moved to
   the page in `index.html`, `src/doll/studio.css` and `src/today/sky.js`; the painted meadow added to the scenery
-  script. Steps 3 to 8 are open.
+  script.
+- 10 October 2026, second pull request (the user asked for the interface and the doll together, faster): steps 3 to 6.
+  The decoration diet and hierarchy in `src/doll/studio.css` (the generated look names are not done: they need a short
+  name per garment, which the catalog does not hold yet). Hair: one molded material (`hairMaterial()` in
+  `src/hair/model.js`, shared by the bob), sections sculpted into the hair surface as soft swells instead of strands
+  or pieces on top, ponytails with a gathered bunch, a soft fall and rounded tips. Head: a small chin and jaw in `makeHead`, the face untouched. Pose: `src/doll/pose.js`,
+  one deformation applied to the doll once, to each hairstyle and to every fitted outfit. Steps 7 and 8 (worlds and
+  time of day; look portraits) are open.

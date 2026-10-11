@@ -4,6 +4,7 @@ import { BRONZE_TOP_ID, LILAC_TOP_ID, VANGOGH_TEE_ID, DESIGUAL_FRESCO_TEE_ID, DE
 import { makeDoll, makeOutfit, disposeObject, fitDoll } from './model.js';
 import { canTuck, cleanRecipe } from './recipe.js';
 import { lightScene } from './light.js';
+import { pose } from './pose.js';
 // Each garment's texture module, by garment. Only the textures of what she wears are downloaded, when she wears it,
 // so the doll appears after a small download, and one texture that fails to arrive cannot stop her appearing.
 // Garments kept in their own files (src/wardrobe/garments) name theirs: `atlas: [path from this file, export name]`.
@@ -60,7 +61,14 @@ export async function createDollView(host, recipe) {
   // proportions are not stretched: the way a collectible doll is photographed. Her world's light is in light.js.
   const scene=new T.Scene(),camera=new T.PerspectiveCamera(24,1,.1,40);camera.position.set(0,1.05,7.5);camera.lookAt(0,1.25,0);
   const light=lightScene(scene,renderer);
-  const model=new T.Group();scene.add(model);const doll=makeDoll();model.add(doll);const hair=createHairController(doll);hair.update(recipe.hairId);let outfit=makeOutfit(recipe,atlas),current=cleanRecipe(recipe);model.add(outfit);fitDoll(doll,outfit);
+  // She stands in a resting pose (pose.js): her body is posed once, each hairstyle when it is put on, and every
+  // outfit after it is fitted, all by the same field, so clothes and hair stay with the body.
+  // All of it is posed in the model group's space, her world's units (the wardrobe's own group is scaled to her toy
+  // proportions, so its local space would stretch the field), less the lift her shoes give her.
+  const model=new T.Group();scene.add(model);const doll=makeDoll();model.add(doll);pose(doll,model);const hair=createHairController(doll);
+  const poseHair=()=>{const h=doll.getObjectByName('outfit-hair');if(h&&!h.userData.posed){h.userData.posed=true;pose(h,model,doll.position.y);}};
+  const dress=next=>{const worn=makeOutfit(next,atlas);model.add(worn);fitDoll(doll,worn);pose(worn,model,doll.position.y);return worn;};
+  hair.update(recipe.hairId);poseHair();let outfit=dress(recipe),current=cleanRecipe(recipe);
   const clothingKey=state=>JSON.stringify({...state,hairId:undefined});let lastClothing=clothingKey(recipe);
   let angle=-.12,target=angle,frame=null,drag=null,pending=0;
   const draw=()=>{frame=null;if(closed)return;model.rotation.y=angle;renderer.render(scene,camera);};
@@ -105,7 +113,7 @@ export async function createDollView(host, recipe) {
   const restored=()=>{host.dispatchEvent(new CustomEvent('view-restored'));render();};renderer.domElement.addEventListener('webglcontextrestored',restored);
   return {
     // A new outfit is built once its textures have arrived (usually at once); only the latest request is built.
-    update(next){hair.update(next.hairId);current=cleanRecipe(next);const key=clothingKey(next);if(key!==lastClothing){lastClothing=key;const ticket=++pending;texturesFor(next).then(()=>{if(closed||ticket!==pending)return;const replacement=makeOutfit(next,atlas);model.remove(outfit);disposeObject(outfit);outfit=replacement;model.add(outfit);fitDoll(doll,outfit);render();});}render();},
+    update(next){hair.update(next.hairId);poseHair();current=cleanRecipe(next);const key=clothingKey(next);if(key!==lastClothing){lastClothing=key;const ticket=++pending;texturesFor(next).then(()=>{if(closed||ticket!==pending)return;const replacement=dress(next);model.remove(outfit);disposeObject(outfit);outfit=replacement;render();});}render();},
     turn(degrees){target=degrees*Math.PI/180;angle=target;render();},
     dispose(){if(closed)return;closed=true;cancelAnimationFrame(frame);cancelAnimationFrame(hover);observer.disconnect();renderer.domElement.removeEventListener('pointerdown',down);renderer.domElement.removeEventListener('pointermove',move);renderer.domElement.removeEventListener('pointerup',up);renderer.domElement.removeEventListener('pointercancel',up);renderer.domElement.removeEventListener('webglcontextlost',lost);renderer.domElement.removeEventListener('webglcontextrestored',restored);doc.removeEventListener('weather-change',onWeather);hair.dispose();disposeObject(model);Object.values(atlas).forEach(t=>t.dispose());light.dispose();renderer.dispose();renderer.domElement.remove();},
   };

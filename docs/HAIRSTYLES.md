@@ -31,4 +31,15 @@ Root fit revision: the scalp surface now follows the actual felt-head ellipsoid,
 
 Soft-wave revision: only the wavy back panel now wraps around the head and eases inward below the nape. Small mirrored S waves fade at the roots and tips, and the V point is rounded. This replaces the abrupt flat rear-panel transition and sideways tip kick reported by the user. Other styles are unchanged; visual review pending.
 
+Molded sections (10 October 2026, the design direction's hair step): every style now shares one molded hair material
+(`hairMaterial()`, soft sheen and a light clearcoat, so the world's light gives it a highlight band; the bob in
+`makeHead` uses it too). The evenly spaced scalp strands and the thin lengths down the back, which read as grooves, are
+gone: sections of hair are sculpted into the scalp and the lengths themselves as soft swells (seven around the head,
+six across the back), fading out at the crown, the hairline and the tips, so light and shadow pick them out with
+nothing lying on top of the hair (a first try with low locks laid on the surface read as branches on her head). Ponytails (`ponytail()`) have the hair
+gathered into a bunch over the crown or the nape, the tie behind it, a tail that falls with gravity in a soft S with
+two thinner sections alongside, and an end split into three rounded tips of different lengths. The bun twist is
+thicker. Strand lines remain only on the plait, whose texture they are. She also stands in a resting pose
+(`src/doll/pose.js`), applied to each hairstyle when it is put on.
+
 Side braid (10 October 2026): the user said the first side braid looked like a side ponytail with a pinecone attached (three tight spiral strands under a thick lock). It is now a three-strand plait: the hair is gathered at the back and swept behind her left ear to the plait's top, and the plait is a chain of lobes that alternate either side of its centre line and slant towards it, making its chevrons, over a thin core, narrowing to a tie and a short tail in front of her shoulder (`sideBraid()` in `src/hair/model.js`).

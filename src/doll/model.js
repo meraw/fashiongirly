@@ -13,6 +13,7 @@ import { tuckTop } from './tuck.js';
 import { BRONZE_TOP_ID, LILAC_TOP_ID, CROCHET_TOP_ID, PLAID_JUMPER_ID, STRIPE_JUMPER_ID, POINTELLE_FLOWER_ID, SILVER_CABLE_ID, LACROIX_FLOWER_ID, TOMMY_CABLE_ID, PETIT_BATEAU_CARDIGAN_ID, ZIP_TRACK_DRESS_ID, TOMMY_STRIPE_POLO_ID, GARMENTS } from '../wardrobe/catalog.js';
 import { makeKnitPolo } from './polo.js';
 import { makeButtonShirt, SHIRT_IDS } from './shirts.js';
+import { hairMaterial } from '../hair/model.js';
 // Body and wardrobe share one toy proportion system; the face stays unscaled.
 const BODY_HEIGHT = .76;
 const BODY_WIDTH = 1.06;
@@ -76,7 +77,14 @@ function star(group,x,y,offset,r,mat) {
 function makeHead() {
   const head=new T.Group();head.name='doll-head';head.position.set(0,2.34,0);head.rotation.z=-.105;
   const skin=cloth('#e2b698'), dark=cloth('#392625'), cream=solid('#fff2d7'), iris=cloth('#51372d'), blush=new T.MeshStandardMaterial({color:'#d7888a',transparent:true,opacity:.42,roughness:1});
-  oval(head,[0,0,0],[.5,.47,.405],skin,'felt-head',48);
+  // A doll's head rather than a ball: a small chin brought forward under the smile, low enough to stay behind a
+  // stand-up collar, and fuller cheeks at the jaw, both outside the face's features, which keep their places on the
+  // plain ellipsoid (faceZ).
+  const headGeo=new T.SphereGeometry(1,48,36),hp=headGeo.attributes.position;
+  for(let i=0;i<hp.count;i++){const x=hp.getX(i),y=hp.getY(i),z=hp.getZ(i);
+    const chin=Math.max(0,-y-.7)/.3*Math.max(0,z+.2)*.06,jaw=Math.max(0,Math.abs(x)-.72)/.28*Math.max(0,1-Math.abs(y+.25)/.45)*.05,s=1+jaw;
+    hp.setXYZ(i,x*s,y*s,z*s+chin);}
+  headGeo.computeVertexNormals();put(head,headGeo,skin,'felt-head').scale.set(.5,.47,.405);
   for(const side of [-1,1]) {
     oval(head,[side*.473,-.04,0],[.08,.12,.075],skin,'ear');
     facePatch(head,side*.265,-.155,.092,.047,.005,blush,'cheek');
@@ -90,8 +98,8 @@ function makeHead() {
   }
   oval(head,[.01,-.087,.403],[.037,.028,.04],skin,'little-nose');
   faceCurve(head,[[-.055,-.205],[.003,-.223],[.064,-.194]],.007,cloth('#8b5150'),'stitched-smile');
-  // Sculpted bob: full back volume, a crown, and overlapping swept locks.
-  const hair=cloth('#362725'), shine=solid('#58413b',1);
+  // Sculpted bob: full back volume, a crown, and overlapping swept locks, in the molded hair material every style shares.
+  const hair=hairMaterial(), shine=solid('#58413b',1);
   oval(head,[0,.035,-.16],[.555,.505,.34],hair,'bob-back',40);
   const cap=put(head,new T.SphereGeometry(1,48,30,0,Math.PI*2,0,1.12),hair,'hair-crown');cap.scale.set(.542,.506,.455);cap.position.y=.035;
   for(const side of [-1,1]) {
