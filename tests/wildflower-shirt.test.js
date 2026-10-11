@@ -15,7 +15,7 @@ test("Levi's wildflower shirt: a watercolour meadow print on peach cream, a long
   const outfit=makeOutfit({topId:ID}),top=outfit.getObjectByName(ID);outfit.updateMatrixWorld(true);
   assert.ok(top,'built by the wildflower-shirt template');
   for(const [name,count] of [['mesh-shirt-body',1],['mesh-shirt-sleeve',2],['shirt-cuff',2]])assert.equal(named(top,name).length,count,name);
-  // Buttoned to the top, as the user wears their shirts: every button, the highest just under the collar.
+  // Buttoned to the top, as the user wears her shirts: every button, the highest just under the collar.
   const buttons=named(top,'shirt-button');assert.equal(buttons.length,B.buttons.length);
   assert.ok(Math.max(...buttons.map(b=>b.getWorldPosition(new T.Vector3()).y/.76))>1.84,'the top button is done up');
   // The print: mostly the peach-cream ground, with plenty of orange, red, lilac and green among it.

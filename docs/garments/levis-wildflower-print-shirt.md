@@ -34,7 +34,7 @@ Colours measured on the back photo:
 
 ## How the user wears it
 
-Buttoned to the top, as the user wears their shirts (on the model the top button is open). The model tucks it into high-rise jeans; on the doll it hangs over the waistband and is tucked into the skirt.
+Buttoned to the top, as the user wears her shirts (on the model the top button is open). The model tucks it into high-rise jeans; on the doll it hangs over the waistband and is tucked into the skirt.
 
 ## For styling later
 
