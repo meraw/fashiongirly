@@ -42,4 +42,11 @@ two thinner sections alongside, and an end split into three rounded tips of diff
 thicker. Strand lines remain only on the plait, whose texture they are. She also stands in a resting pose
 (`src/doll/pose.js`), applied to each hairstyle when it is put on.
 
+Hair in the wind (the user's choice, 11 October 2026): on a windy day the loose parts of a style (a ponytail, the
+long lengths, the locks framing her face, the plait and its tie) lean and flutter with the wind across the page
+(`src/hair/wind.js`). The hair nearest where it is tied or grows stays still and the ends move most; nothing is
+pushed in towards her, so hair down her back stays there in a wind from behind. The scalp, the buns and
+the original bob do not move, and the hair is set back exactly when the wind drops. Name new loose parts so the
+`LOOSE` pattern in `wind.js` finds them.
+
 Side braid (10 October 2026): the user said the first side braid looked like a side ponytail with a pinecone attached (three tight spiral strands under a thick lock). It is now a three-strand plait: the hair is gathered at the back and swept behind her left ear to the plait's top, and the plait is a chain of lobes that alternate either side of its centre line and slant towards it, making its chevrons, over a thin core, narrowing to a tie and a short tail in front of her shoulder (`sideBraid()` in `src/hair/model.js`).

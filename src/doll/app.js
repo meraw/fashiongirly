@@ -49,6 +49,10 @@ export async function startStudio(doc=document, makeView, options={}) {
     // One of today's looks, or Another idea, is named as such until she is dressed differently.
     const day=today?.getState(),look=day&&(day.choice==='idea'?day.idea:day.trio?.[day.choice]),same=look&&JSON.stringify({...cleanRecipe(look.recipe),tucked:null})===JSON.stringify({...cleanRecipe(recipe),tucked:null});
     $('outfit-title').textContent=selected?.name||(same?today.title():'Her own little experiment.');
+    // Her attitude (src/doll/pose.js) is the look's while she wears one of the day's three looks: bolder or easier;
+    // otherwise her resting pose. The 3D view hears of a change.
+    const attitude=same&&['bolder','easier'].includes(day?.choice)?day.choice:'pick',html=doc.documentElement;
+    if(html.dataset.attitude!==attitude){html.dataset.attitude=attitude;const Event=doc.defaultView?.CustomEvent;if(Event)doc.dispatchEvent(new Event('attitude-change',{detail:{attitude}}));}
     // Controls that do not apply to what she is wearing are put away rather than greyed out.
     $('under-field').hidden=$('under-select').disabled;
     $('outerwear-options').hidden=recipe.outerwearId==='none';$('outerwear-open-field').hidden=$('outerwear-open').disabled;$('outerwear-insert-field').hidden=$('outerwear-insert').disabled;

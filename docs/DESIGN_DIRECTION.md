@@ -183,3 +183,16 @@ The interface:
   warm sun, rosy cheeks in the cold, a soft smile with lifted brows in the rain, a small dreamy smile in fog. Still to
   do from the user's choice: a twirl when she changes clothes, an attitude for each of the three looks, hair moving in
   the wind, Dress her as a visual picker, and wardrobe filters. Look portraits and look names remain open from step 8.
+- 11 October 2026, fourth pull request (the user asked for the rest of the list, split further if too many; split in
+  two, her movement first): she twirls when she changes clothes or hair (`src/doll/twirl.js`), one eased turn of just
+  under a second with the new clothes put on halfway, while her back is to us. A tuck, an open jacket or a slider
+  changes at once, and with reduced motion she does not twirl. An attitude for each look (`ATTITUDES` in
+  `src/doll/pose.js`): her pick keeps the resting pose; the bolder look pops her hip, sets her feet apart, lifts her
+  left shoulder and raises her chin; the easier look rests her weight the other way, her feet together, her hands
+  softly forward and her head tilted gently. The page names the attitude of the look she wears (`:root[data-attitude]`
+  and an `attitude-change` event from `src/doll/app.js`), and dressing her by hand puts her back at rest. Every
+  geometry is posed again from its unposed shape, so attitudes never add up, and her head turns as a whole, so her
+  face is never bent. Hair in the wind (`src/hair/wind.js`): on a windy day (30 km/h or more) her loose hair, the
+  ponytails, long lengths, the locks framing her face and the plait, leans and flutters with the wind across the page,
+  the ends most, and is never pushed in towards her; buns and the bob stay still, and so does all of it with reduced
+  motion. Still to do: Dress her as a visual picker and wardrobe filters, the second half.
