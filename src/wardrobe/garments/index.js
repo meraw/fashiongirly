@@ -24,6 +24,7 @@ export { default as mangoClaudiaSlimCropJeansV1 } from './mango-claudia-slim-cro
 // slot 12
 // slot 13
 // slot 14
+export { default as lacedFlamePrintMiniSkirtV1 } from './laced-flame-print-mini-skirt-v1.js';
 // slot 15
 // slot 16
 // slot 17
@@ -65,6 +66,7 @@ export { default as mangoSiennaFlareCropJeansV1 } from './mango-sienna-flare-cro
 // slot 47
 export { default as creamDitsyRoseFittedShirtV1 } from './cream-ditsy-rose-fitted-shirt-v1.js';
 // slot 48
+export { default as lacedFlamePrintMockneckTopV1 } from './laced-flame-print-mockneck-top-v1.js';
 export { default as poloRalphLaurenUsrlRacingHoodieV1 } from './polo-ralph-lauren-usrl-racing-hoodie-v1.js';
 // slot 49
 export { default as desigualPaintedFloralKnitJumperV1 } from './desigual-painted-floral-knit-jumper-v1.js';

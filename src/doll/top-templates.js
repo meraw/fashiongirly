@@ -4,6 +4,7 @@
 import { makeCheckShirt } from './shirts.js';
 import { makeDitsyPrintShirt } from './ditsy-print-shirt.js';
 import { makeEmbroideredSweatshirt } from './embroidered-sweatshirt.js';
+import { makeLacedPrintTop } from './laced-print-top.js';
 import { makeLinenShirt } from './shirts.js';
 import { makeMeshPrintTee } from './mesh-print-tee.js';
 import { makeRacingHoodie } from './racing-hoodie.js';
@@ -15,6 +16,7 @@ export const TOP_TEMPLATES = {
   'check-shirt': (id, build, { skirt }) => makeCheckShirt(id, build, skirt),
   'ditsy-print-shirt': (id, build, { skirt }) => makeDitsyPrintShirt(id, build, skirt),
   'embroidered-sweatshirt': (id, build, { skirt }) => makeEmbroideredSweatshirt(id, build, skirt),
+  'laced-print-top': (id, build, { atlas }) => makeLacedPrintTop(id, build, atlas),
   'linen-shirt': (id, build, { skirt }) => makeLinenShirt(id, build, skirt),
   'mesh-print-tee': (id, build, { atlas }) => makeMeshPrintTee(id, build, atlas),
   'racing-hoodie': (id, build) => makeRacingHoodie(id, build),

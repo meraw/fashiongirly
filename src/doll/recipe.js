@@ -33,6 +33,8 @@ export function cleanRecipe(value = {}) {
   // Each catalog garment fills one slot; an ID from the wrong slot falls back to the built-in piece.
   if (GARMENTS[v.topId]?.slot==='top') result.topId=v.topId;
   if (GARMENTS[v.bottomId]?.slot==='bottom') result.bottomId=v.bottomId;
+  // A skirt in the bottom slot (`layering.skirt`) is worn on its own: the built-in layered skirt never goes over it.
+  if (GARMENTS[result.bottomId]?.layering?.skirt) result.skirt=false;
   if (GARMENTS[v.shoesId]?.slot==='shoes') result.shoesId=v.shoesId;
   if (GARMENTS[v.outerwearId]?.slot==='outerwear') result.outerwearId=v.outerwearId;
   // A dress is worn instead of the top and the bottoms. They stay in the recipe, so taking the dress off restores them.
