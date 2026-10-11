@@ -24,9 +24,9 @@ const NECK=1.905,HEM=1.26;
 const BODY_ROWS=[[NECK,.112,.104],[1.875,.17,.124],[1.83,.228,.154],[1.775,.265,.177],[1.65,.278,.184],[1.5,.282,.19],[1.4,.288,.2],[1.335,.29,.205],[HEM,.29,.205]];
 // Relaxed and hip-length (the Mango shirt): wider from the chest down, easing out over the hips like the lilac top, to a
 // shirt-tail hem that dips at the centre front and back (shirttail in the style) and clears every pair of trousers.
-const RELAXED_ROWS=[[NECK,.112,.104],[1.875,.172,.126],[1.83,.232,.157],[1.775,.272,.181],[1.65,.286,.19],[1.5,.29,.197],[1.4,.295,.205],[1.3,.302,.215],[1.2,.314,.228],[1.12,.322,.234],[1.03,.328,.24]];
+export const RELAXED_ROWS=[[NECK,.112,.104],[1.875,.172,.126],[1.83,.232,.157],[1.775,.272,.181],[1.65,.286,.19],[1.5,.29,.197],[1.4,.295,.205],[1.3,.302,.215],[1.2,.314,.228],[1.12,.322,.234],[1.03,.328,.24]];
 // Over the skirt, the same shirt is tucked in: it narrows below 1.4 to end inside the skirt's waistband.
-const TUCKED_ROWS=[...RELAXED_ROWS.slice(0,7),[1.33,.292,.205],[1.26,.29,.205]];
+export const TUCKED_ROWS=[...RELAXED_ROWS.slice(0,7),[1.33,.292,.205],[1.26,.29,.205]];
 // Boxy and gathered below a yoke (the pink yoke shirt): as relaxed as the Mango shirt through the body and as long, to the
 // top of her thigh, with a gentler shirt-tail curve (shirttail in its style); tucked into the skirt the same way.
 const YOKE_ROWS=[...RELAXED_ROWS.slice(0,4),[1.65,.29,.193],[1.5,.294,.202],[1.4,.3,.21],[1.3,.307,.219],[1.2,.314,.229],[1.12,.322,.234],[1.02,.328,.24]];
@@ -200,7 +200,7 @@ function ditsyFloralData(){
   return {data,w:size,h:size};
   });
 }
-function crepeData(){
+export function crepeData(){
   // Crepe: a fine, irregular pebbled crinkle, as on the close-up of the collar.
   return cached('crepe',()=>{
   const size=64,data=new Uint8Array(size*size*4),fine=periodicNoise(71,16),finer=periodicNoise(72,32);
@@ -517,7 +517,9 @@ function makeShirtCollar(top,mat,facing,stitch,style){
   if(style.collarTopstitch)curve(top,Array.from({length:97},(_,i)=>at(i/96,1,.16)),.0016,stitch,'shirt-collar-topstitch');
   return fall;
 }
-function makeShirt(id,style,atlas=null,skirt=false,trousers=null,tucked=style.tuckIn){
+// Exported for shirt templates kept in their own files (such as src/doll/wildflower-shirt.js), which build a style from
+// their catalog `build` and pass it here.
+export function makeShirt(id,style,atlas=null,skirt=false,trousers=null,tucked=style.tuckIn){
   const top=new T.Group();top.name=id;
   const stitch=solid(style.stitch,.6),facing=style.facing&&solid(style.facing,.85);
   // The body's rows: the style's own (rows, or tucked over the skirt), else the cropped or longer standard rows.
