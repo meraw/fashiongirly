@@ -126,12 +126,9 @@ export async function createDollView(host, recipe) {
   // Her attitude for the look she wears (src/doll/app.js says which). It changes with the look: when new clothes come
   // with it, halfway through her twirl; on its own, at once.
   const onAttitude=e=>{attitudeNext=attitudeOf(e.detail?.attitude);queueMicrotask(()=>{if(!closed&&!inFlight&&!twirl&&attitudeNext!==attitude)swap(null);});};doc.addEventListener('attitude-change',onAttitude);
-  // Her felt's fibres are drawn unlit, so they are dimmed with the light, or they would speckle her face at night.
-  const fibres=[];doll.traverse(o=>{if(o.name==='felt-fibres')fibres.push([o.material,o.material.opacity]);});
-  const dimFibres=w=>{for(const [m,o] of fibres)m.opacity=o*(1-.8*(w?.night??0));};
-  const onWorld=e=>{dimFibres(e.detail?.weights);if(light.setWorld(e.detail?.world,e.detail?.weights))render();};doc.addEventListener('world-change',onWorld);
+  const onWorld=e=>{if(light.setWorld(e.detail?.world,e.detail?.weights))render();};doc.addEventListener('world-change',onWorld);
   const root=doc.documentElement,shown=root.dataset.weights?.split(',').map(Number);
-  if(root.dataset.world&&shown?.length===3){const w={golden:shown[0],day:shown[1],night:shown[2],dawn:root.dataset.dawn==='true'};light.setWorld(root.dataset.world,w);dimFibres(w);}
+  if(root.dataset.world&&shown?.length===3){const w={golden:shown[0],day:shown[1],night:shown[2],dawn:root.dataset.dawn==='true'};light.setWorld(root.dataset.world,w);}
   // The weather may have been painted before she was: take it, and her face, from the sky.
   const sky=doc.getElementById('sky');light.setWeather(sky?.dataset.kind||'none');setWind(sky?.dataset.windy==='true',Number(sky?.dataset.wind)||0);
   setExpression(doll,expressionFor({kind:sky?.dataset.kind,feels:sky?.dataset.feels?Number(sky.dataset.feels):null}));
@@ -142,7 +139,7 @@ export async function createDollView(host, recipe) {
   const ray=new T.Raycaster(),pointer=new T.Vector2();
   const garmentAt=e=>{const box=renderer.domElement.getBoundingClientRect();pointer.set((e.clientX-box.left)/box.width*2-1,-(e.clientY-box.top)/box.height*2+1);
     model.updateMatrixWorld(true);ray.setFromCamera(pointer,camera);
-    // Only solid surfaces count: her felt's fibres and other lines and points would catch every tap near them.
+    // Only solid surfaces count: lines and points would catch every tap near them.
     const shown=o=>{if(!o.isMesh)return false;for(let p=o;p;p=p.parent)if(!p.visible)return false;return true;};
     const hit=ray.intersectObject(model,true).find(h=>shown(h.object));if(!hit)return null;
     let o=hit.object;while(o.parent&&o.parent!==outfit)o=o.parent;return o.parent===outfit?o.userData.garmentId??o.name:null;};

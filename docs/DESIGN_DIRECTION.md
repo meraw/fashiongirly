@@ -62,8 +62,9 @@ and scenery, with few borders and containers. Keep the cute doll, the rich sunse
 ### The doll, in an order that does not break the wardrobe
 
 1. **Hair first.** Rebuild each style from sculpted chunks: a cap with a parting and six to ten overlapping locks
-   instead of combed strands. Ponytails get a gathered bunch above the tie and a tail that drops with gravity in a soft
-   S and splits into a few tips. One molded hair material with a soft highlight band, not felt and not threads.
+   instead of combed strands. Ponytails are drawn from her head into the tie, with a tail that drops with gravity in a
+   soft S and splits into a few tips. One matte plush hair material, with no highlight band (since 11 October 2026: she
+   is a plush doll; the first molded material read as a shiny curve, and a ball above the tie read as a bun).
 2. **Head second.** Keep the face untouched. Soften the ball with a touch of cheek and a small chin, and shape the back
    of the hair. The eyes, blush, smile and flower are her identity.
 3. **Pose third, as a post-process.** Every garment is fitted to the fixed body, so moving limbs breaks the wardrobe.
@@ -71,7 +72,7 @@ and scenery, with few borders and containers. Keep the cute doll, the rich sunse
    foot turned out, hands a little forward, a small head tilt. The clothes come along and no garment builder changes.
 4. **Body last, if ever.** The torso's depth is the one expensive fix, because every top is fitted to it. It is a
    shared foundation under [AGENTS.md](../AGENTS.md): one owner, agreed with the user first.
-5. **A material bible.** Flocked matte skin, molded hair, knits and cottons with sheen and a normal map, leather with
+5. **A material bible.** Flocked matte skin, plush hair, an embroidered face, knits and cottons with sheen and a normal map, leather with
    clearcoat, metal fully reflective. The shoes set the detail level; the rest rises to meet them.
 
 ### The interface: hierarchy and a decoration diet
@@ -144,7 +145,7 @@ The doll:
 
 > Refine the doll without changing her face or the body the garments are fitted to. Hair: replace the evenly spaced
 > scalp strands with a sculpted cap of a few chunky overlapping locks; rebuild the ponytails with a gathered bunch
-> above the tie and a tail that falls with gravity in a soft S and splits into several tips; one molded hair material
+> above the tie and a tail that falls with gravity in a soft S and splits into several tips; one matte plush hair material
 > with a soft highlight band. Head: soften the ball with a little cheek and chin shaping and a shaped back of the hair,
 > keeping eyes, blush, smile and flower exactly where they are. Pose: add a resting pose as one smooth deformation
 > applied to the assembled doll and outfit together after fitting, so garment builders stay untouched. Render front,
@@ -208,3 +209,17 @@ The interface:
   (light, mid or warm, on the catalog's scale) and by colour family (the families of a piece's two main colours; navy
   counts as blue, cream as white). Filters combine, a kind with nothing to show is put away, and what she wears stays
   marked. With these, the user's nine choices are done; look portraits and look names remain open from step 8.
+- 11 October 2026, her visual direction (the user said the doll still looked like a mess: the ponytail was a round bun
+  with a tail coming out of it, the hair was a shiny curve rather than a texture, her features did not belong to one
+  kind of doll, and the daisy floated in front of her face). The user chose a **plush doll**: a soft fabric toy, which
+  she already resembles. A crocheted doll was considered and set aside, as crochet all over could look creepy; only
+  the flower is crocheted. A first try with hair of individual yarn strands was rejected ("horrible"), so the hair keeps
+  its sculpted shapes. Now: every style is matte plush fabric (`hairMaterial()` in `src/hair/model.js`: no clearcoat
+  or highlight band, a soft sheen at the edges and a fine filtered nap), with sunken sewn seams between the panels of
+  the cap; ponytails are drawn from her head into the tie (`gathered()`, a short pleated cone) instead of a ball; the
+  plait is three stuffed lobes, without the strand lines, and the bob without its stray thread lines. Her face is
+  embroidered: satin-stitch eyes and twisted-floss lids, lashes, brows and smile (`satin()` and `floss()` in
+  `src/doll/model.js`); the speckled fibres on her face are gone. The daisy is crocheted (`makeDaisy()`: stitched
+  petal edges and a knotted golden centre) and is pinned onto whichever hair she wears (`seatFlower()`), so it no
+  longer floats. A pose fix came with it: posing kept each shape's rest in its geometry's `userData`, which cloned
+  geometries share, so the plait's twelve lobes were posed into one; `src/doll/pose.js` now keeps rests by geometry.

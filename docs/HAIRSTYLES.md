@@ -50,3 +50,16 @@ the original bob do not move, and the hair is set back exactly when the wind dro
 `LOOSE` pattern in `wind.js` finds them.
 
 Side braid (10 October 2026): the user said the first side braid looked like a side ponytail with a pinecone attached (three tight spiral strands under a thick lock). It is now a three-strand plait: the hair is gathered at the back and swept behind her left ear to the plait's top, and the plait is a chain of lobes that alternate either side of its centre line and slant towards it, making its chevrons, over a thin core, narrowing to a tie and a short tail in front of her shoulder (`sideBraid()` in `src/hair/model.js`).
+
+Plush (11 October 2026, the user's direction: she is a plush doll, and the molded hair looked like a shiny curve).
+Every style, and the bob, is one matte plush fabric (`hairMaterial()`): no clearcoat or highlight band, a soft sheen
+where the pile catches the light, and a fine nap as a filtered bump map, with texture coordinates on every piece so the
+pile is the same size everywhere. The sections of the cap and the lengths are sewn panels, softly stuffed, with a sunken
+seam between them. A ponytail no longer sits on a ball (the user saw a round bun with a ponytail coming out of it): the
+hair is drawn from her head into the tie as a short pleated cone (`gathered()`, named `gathered-hair`, so the wind
+leaves it still). The plait has no strand lines and its lobes are stuffed and overlapping, so it reads as three plaited
+fabric tubes; its lobes had been collapsing into one when she was posed (see `src/doll/pose.js`). The long lengths face
+outwards like the rest of the hair (they were lit from inside, and looked black from behind). The bob lost its thin
+thread lines, which stood off the hair as black wires, and its side pieces now cover her ears. Her daisy is crocheted
+and pinned onto whichever style she wears (`seatFlower()`); a first attempt at yarn hair, strand by strand, was
+rejected.
