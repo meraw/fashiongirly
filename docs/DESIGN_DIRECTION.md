@@ -196,3 +196,15 @@ The interface:
   ponytails, long lengths, the locks framing her face and the plait, leans and flutters with the wind across the page,
   the ends most, and is never pushed in towards her; buns and the bob stay still, and so does all of it with reduced
   motion. Still to do: Dress her as a visual picker and wardrobe filters, the second half.
+- 11 October 2026, the second half: Dress her as a visual picker and wardrobe filters. On Dress her each slot (her
+  hair, top, what goes under it, bottoms, shoes, outerwear, a dress) is a chip with the cloth and name of what she
+  wears there (`src/doll/picker.js`). A tap opens the slot's pieces as cloth swatches, as on the Wardrobe page: nothing
+  first, the user's own pieces by name, the built-in study piece last; her hair is chosen from little drawings of each
+  style. A tap on one puts it on, with her twirl; on a phone the picker rises from the bottom of the screen. The
+  dropdowns are put away but stay in the page, hidden: they hold the choice, and the page's own handlers do the
+  dressing, so choosing a swatch is exactly choosing from the dropdown. The Wardrobe page filters
+  (`src/doll/wardrobe-page.js`) by what suits today's weather (`suitedToday()` in `src/style/stylist.js`: every piece
+  she would consider for the weather that is in at least one outfit close to the warmth the day asks), by warmth
+  (light, mid or warm, on the catalog's scale) and by colour family (the families of a piece's two main colours; navy
+  counts as blue, cream as white). Filters combine, a kind with nothing to show is put away, and what she wears stays
+  marked. With these, the user's nine choices are done; look portraits and look names remain open from step 8.

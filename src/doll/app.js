@@ -5,6 +5,7 @@ import { GARMENTS } from '../wardrobe/catalog.js';
 import { mountToday } from '../today/today.js';
 import { mountPages } from './pages.js';
 import { mountWardrobe } from './wardrobe-page.js';
+import { mountPicker } from './picker.js';
 const KEY='fashiongirly.plush-draft.v1', BOOK='fashiongirly.plush-looks.v1';
 export async function startStudio(doc=document, makeView, options={}) {
   const $=id=>doc.getElementById(id);let storage;
@@ -24,8 +25,10 @@ export async function startStudio(doc=document, makeView, options={}) {
   function swatches(id,choices,key){$(id).replaceChildren(...choices.map(([name,color])=>{const b=doc.createElement('button');b.type='button';b.style.background=color;b.setAttribute('aria-label',name);b.dataset.color=color;b.onclick=()=>{recipe[key]=color;sync();apply();};return b;}));}
   swatches('sweater-colours',SWATCHES,'sweater');swatches('denim-colours',[['Indigo','#283c59'],['Washed blue','#71899b'],['Charcoal','#39363b'],['Ecru','#d9cbb2']],'trousers');
   const hairControls=mountHairControls(doc,id=>{recipe.hairId=id;sync();apply();message(`${hairName(id)} — saved with this outfit.`);});
-  const pages=mountPages(doc),wardrobe=mountWardrobe(doc,{wear:(patch,g)=>{recipe=cleanRecipe({...recipe,...patch,...(patch.topId&&patch.topId!==recipe.topId?{tucked:undefined}:{})});sync();apply();message(`Wearing the ${g.name}.`);}});
   let today=null;
+  const pages=mountPages(doc),wardrobe=mountWardrobe(doc,{getConditions:()=>today?.getState()?.conditions??null,wear:(patch,g)=>{recipe=cleanRecipe({...recipe,...patch,...(patch.topId&&patch.topId!==recipe.topId?{tucked:undefined}:{})});sync();apply();message(`Wearing the ${g.name}.`);}});
+  // Dress her as a visual picker (picker.js): a chip for each slot, opening its pieces as swatches.
+  const picker=mountPicker(doc,{getRecipe:()=>recipe});
   // The studies and authored looks as she would wear them, to recognise one when she wears it.
   const CLEAN_OUTFITS=OUTFITS.map(look=>({...look,recipe:cleanRecipe(look.recipe)}));
   $('outfit-ideas').replaceChildren(...OUTFITS.map(look=>{
@@ -65,7 +68,7 @@ export async function startStudio(doc=document, makeView, options={}) {
     $('open-key').hidden=!opens;$('open-key').textContent=recipe.outerwearOpen?`Close her ${coat}`:`Open her ${coat}`;$('open-key').setAttribute('aria-pressed',String(recipe.outerwearOpen));
     const taps=[...(opens?[`her ${coat} to ${recipe.outerwearOpen?'close':'open'} it`]:[]),...(tuck?[`her top to ${recipe.tucked?'untuck it':'tuck it in'}`]:[])];
     $('drag-hint').textContent=taps.length?`Drag to turn her · tap ${taps.join(' or ')}`:'Drag to turn her';
-    wardrobe.sync(recipe);
+    wardrobe.sync(recipe);picker.sync();
     for(const button of $('outfit-ideas').children)button.setAttribute('aria-pressed',String(button.textContent===selected?.name));
     for(const key of ['sleeve','hem','barrel']){$(key).value=Math.round(recipe[key]*100);const value=recipe[key];$(`${key}-value`).textContent=key==='hem'?(value<.34?'Cropped':value>.66?'Longer':'At the waist'):value<.34?'A little':value>.66?'A lot':'In between';$(key).setAttribute('aria-valuetext',`${$(`${key}-value`).textContent}, ${Math.round(value*100)} percent`);}
     for(const key of ['knit','shirt','skirt'])$(key).checked=recipe[key];
@@ -126,6 +129,6 @@ export async function startStudio(doc=document, makeView, options={}) {
   const loadView=async()=>{try{return (await import('./view.js')).createDollView;}catch{return (await import(`./view.js?retry=${Date.now()}`)).createDollView;}};
   try {const factory=makeView || await loadView(),first=recipe;view=await factory($('stage'),recipe);if(recipe!==first)view.update(recipe);view.turn(-25);$('loading')?.remove();}
   catch(error){showError(/fetch|import|load/i.test(error?.message||'')?'She could not be loaded: the connection dropped while the app was downloading.':error.message||'The 3D view could not load.');}
-  return {getRecipe:()=>cleanRecipe(recipe),today,dispose(){clearTimeout(timer);persist();hairControls.dispose();today.dispose();pages.dispose();wardrobe.dispose();view?.dispose();}};
+  return {getRecipe:()=>cleanRecipe(recipe),today,dispose(){clearTimeout(timer);persist();hairControls.dispose();today.dispose();pages.dispose();wardrobe.dispose();picker.dispose();view?.dispose();}};
 }
 
