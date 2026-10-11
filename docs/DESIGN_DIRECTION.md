@@ -223,3 +223,39 @@ The interface:
   petal edges and a knotted golden centre) and is pinned onto whichever hair she wears (`seatFlower()`), so it no
   longer floats. A pose fix came with it: posing kept each shape's rest in its geometry's `userData`, which cloned
   geometries share, so the plait's twelve lobes were posed into one; `src/doll/pose.js` now keeps rests by geometry.
+- 11 October 2026, definition and physical believability (the user: she looked like a fuzzy digital approximation, and
+  some garments' sharper construction made her look less finished; a controlled proof of concept on one outfit, keeping
+  her identity, expression, proportions, hair colour, fitted body and the app as they are; "soft materials, precise
+  construction, not soft focus"). Judged on renders of the Rose sweatshirt study (the Replay sweatshirt's satin-stitched
+  roses are the quality reference), before and after, at phone size and close up. What made her soft, and the fix:
+  - Real image blur: the renderer capped the pixel ratio at two, so on a phone of three she was drawn at two thirds of
+    the screen's resolution and stretched. She is now drawn at the screen's own ratio, up to three, within the pixels
+    the view was always allowed on a large screen (`view.js`). Sharper pixels alone only sharpened the noise below.
+  - Noise passing for detail: her skin's bump was an unfiltered noise texture (three.js data textures default to
+    nearest filtering and no mipmaps), which sparkles into grain when it shrinks; her hair's nap bump was strong; the eye
+    satin a small striped tile. Now one fine combed nap, a filtered and mipmapped normal map, for her skin, body and
+    (longer, combed down each piece) her hair (`src/doll/plush.js`); her socks a filtered rib knit.
+  - Features floating on her face: five-sided tubes and flat discs a hair above the fabric, brows poking out between
+    the fringe's locks. Now her face is embroidered into a panel of her head (`src/doll/embroidery.js`), drawn in code
+    at the garments' embroidery density: padded satin stitch whose rows run differently in each layer (the whites up and
+    down, the irises outward, the pupils across, the stars along their points), twisted floss for the lids, lashes,
+    brows and smile, the fabric drawn down round every stitch, and an airbrushed blush with a soft but defined edge.
+    Every feature keeps its place, size and colour; the expressions restitch the panel.
+  - Hair that was intersecting ellipsoids, with the crown cap's open edge showing as a ledge over the fringe. Now a
+    sewn bob in the old silhouette (`src/doll/bob.js`): one quilted shell from a whorl on her crown, sunken seams down
+    the back, the swept fringe as seven stuffed locks ending in a rolled, scalloped hem (the locks still cover the outer
+    ends of her brows), a stuffed sweep over the top of her forehead as before, and two quilted side pillows sewn round
+    the rim, which press the shell beneath them. Every edge is a rolled hem with thickness, not a cut sheet.
+  - No contact: a large shadow bias removed the small shadows where parts meet. Shadows are finer and closer to what
+    casts them, and a little open as under a soft key light (`light.js`; her shadow on the ground is unchanged); where
+    pieces meet or seams go in, and on her face under the fringe, the plush is shaded. The daisy is cupped to the hair,
+    seated on the hair's own surface (sampled round the seat, not the head's ellipsoid), pressed slightly into the pile,
+    with a soft contact shadow; it sits so on every style. The ground's bounce under her face is softened like a bounce
+    card, so her lower face is warm rather than muddy.
+  - Her nose, ears and mittens are sewn pieces in their old size and place: the nose a slightly less proud stuffed bump,
+    the ears with a hollow, a rim seam and a crease (they show with the other styles), the mittens with a seam where palm
+    and back meet and a crease at the thumb. The body's dimensions, every garment and the app's mechanics are unchanged;
+    the doll is 58.6k triangles (was 54.6k), within the tests' budget for the heaviest outfit.
+  - Not changed: ACES tone mapping (a neutral tone mapper was tried; it shifted every approved garment's colour). Open:
+    the other hairstyles share the cleaner plush and the seated daisy but not yet the sewn construction; garments that
+    still use the unfiltered noise bump could take the filtered nap in their own pull requests.

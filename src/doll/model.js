@@ -15,7 +15,10 @@ import { BRONZE_TOP_ID, LILAC_TOP_ID, CROCHET_TOP_ID, PLAID_JUMPER_ID, STRIPE_JU
 import { makeKnitPolo } from './polo.js';
 import { makeButtonShirt, SHIRT_IDS } from './shirts.js';
 import { hairMaterial, seatFlower } from '../hair/model.js';
-import { SMILES, EXPRESSIONS } from './face.js';
+import { EXPRESSIONS } from './face.js';
+import { faceMaps, faceUv, restitch, SKIN } from './embroidery.js';
+import { plush, ribKnit } from './plush.js';
+import { makeBob, shadeFace, headDistance } from './bob.js';
 // Body and wardrobe share one toy proportion system; the face stays unscaled.
 const BODY_HEIGHT = .76;
 const BODY_WIDTH = 1.06;
@@ -65,29 +68,6 @@ function ringShell(group,rings,mat,name){
   const geo=new T.BufferGeometry();geo.setAttribute('position',new T.Float32BufferAttribute(positions,3));geo.setAttribute('uv',new T.Float32BufferAttribute(uv,2));geo.setIndex(indices);geo.computeVertexNormals();return put(group,geo,mat,name);
 }
 function ring(group,y,rx,rz,mat,name,height=.05,cx=0) {return shell(group,[[y+height/2,rx,rz,cx],[y-height/2,rx,rz,cx]],mat,name);}
-const faceZ=(x,y)=>.405*Math.sqrt(Math.max(.01,1-(x/.5)**2-(y/.47)**2));
-function facePatch(group,x,y,rx,ry,offset,mat,name){
-  const pos=[],uv=[],idx=[],segments=48,rings=5;
-  for(let j=0;j<=rings;j++)for(let i=0;i<=segments;i++){const a=i/segments*Math.PI*2,r=j/rings,px=x+Math.cos(a)*rx*r,py=y+Math.sin(a)*ry*r;pos.push(px,py,faceZ(px,py)+offset);uv.push(.5+Math.cos(a)*r*.5,.5+Math.sin(a)*r*.5);}
-  for(let j=0;j<rings;j++)for(let i=0;i<segments;i++){const a=j*(segments+1)+i,b=a+segments+1;idx.push(a,b,b+1,a,b+1,a+1);}
-  const geo=new T.BufferGeometry();geo.setAttribute('position',new T.Float32BufferAttribute(pos,3));geo.setAttribute('uv',new T.Float32BufferAttribute(uv,2));geo.setIndex(idx);geo.computeVertexNormals();return put(group,geo,mat,name);
-}
-function faceCurve(group,points,radius,mat,name,offset=.009){return curve(group,points.map(([x,y])=>[x,y,faceZ(x,y)+offset]),radius,mat,name);}
-function star(group,x,y,offset,r,mat) {
-  const s=new T.Shape();for(let i=0;i<10;i++){const a=i*Math.PI/5+Math.PI/2,rr=i%2?r*.44:r;const px=x+Math.cos(a)*rr,py=y+Math.sin(a)*rr;i?s.lineTo(px,py):s.moveTo(px,py);}s.closePath();const geo=new T.ShapeGeometry(s),p=geo.attributes.position;for(let i=0;i<p.count;i++)p.setZ(i,faceZ(p.getX(i),p.getY(i))+offset);geo.computeVertexNormals();return put(group,geo,mat,'embroidered-eye-star');
-}
-// She is a plush doll: her face is embroidered onto the fabric. The eyes are satin stitch (close rows of floss with a
-// soft sheen), the lids, lashes, brows and smile twisted floss.
-function stitchTexture(kind,repeat){
-  const size=64,data=cachedPixels('stitch:'+kind,()=>{const data=new Uint8Array(size*size*4),rand=random(5);
-    for(let y=0;y<size;y++)for(let x=0;x<size;x++){const phase=kind==='satin'?x/size*4+y/size*.5:(x+y)/size*2,f=phase-Math.floor(phase);
-      const v=Math.round(60+170*Math.sin(Math.PI*f)**.6+(rand()-.5)*24),i=(y*size+x)*4;data[i]=data[i+1]=data[i+2]=Math.max(0,Math.min(255,v));data[i+3]=255;}
-    return data;});
-  const texture=new T.DataTexture(data,size,size,T.RGBAFormat);texture.wrapS=texture.wrapT=T.RepeatWrapping;texture.repeat.set(...repeat);texture.magFilter=T.LinearFilter;texture.minFilter=T.LinearMipmapLinearFilter;texture.generateMipmaps=true;texture.needsUpdate=true;return texture;
-}
-const thread=(color,bumpMap)=>new T.MeshPhysicalMaterial({color,roughness:.6,sheen:.8,sheenColor:new T.Color(color).lerp(new T.Color('#ffffff'),.35),sheenRoughness:.45,bumpMap,bumpScale:.6});
-const satin=color=>thread(color,stitchTexture('satin',[5,5]));
-const floss=color=>thread(color,stitchTexture('floss',[40,1]));
 // Crocheted cotton: rows of little V stitches as a bump map, matte with a soft sheen.
 function crochetTexture(repeat){
   const size=64,data=cachedPixels('crochet',()=>{const data=new Uint8Array(size*size*4);
@@ -103,11 +83,14 @@ const cotton=(color,repeat=[2,2])=>new T.MeshPhysicalMaterial({color,roughness:.
 function makeDaisy(){
   const daisy=new T.Group();daisy.name='hair-flower';
   const petal=cotton('#fbf4e6',[1.5,1]),edge=cotton('#f6ecd9',[1,1]),gold=cotton('#e0ad3d',[1,1]);
+  // Pinned onto her hair, it bends with it: every stitch is lowered as far as a head-sized curve falls away beneath it,
+  // so the petals lie on the plush to their tips instead of standing off it.
+  const cup=v=>{v.z-=(v.x*v.x+v.y*v.y)/(2*.5);return v;};
   // Many small stitches as one light mesh: each a little ellipsoid at [position, size, turn about z].
-  const bead=new T.SphereGeometry(1,6,4),m=new T.Matrix4(),q=new T.Quaternion(),z=new T.Vector3(0,0,1);
-  const beads=(list,mat,name)=>{const pos=[],nor=[],uv=[],idx=[],p=bead.attributes.position,n=bead.attributes.normal,u=bead.attributes.uv,v=new T.Vector3();
+  const m=new T.Matrix4(),q=new T.Quaternion(),z=new T.Vector3(0,0,1);
+  const beads=(list,mat,name,bead)=>{const pos=[],nor=[],uv=[],idx=[],p=bead.attributes.position,n=bead.attributes.normal,u=bead.attributes.uv,v=new T.Vector3();
     for(const [at,size,turn=0] of list){const base=pos.length/3;m.compose(new T.Vector3(...at),q.setFromAxisAngle(z,turn),new T.Vector3(...size));const nm=new T.Matrix3().getNormalMatrix(m);
-      for(let i=0;i<p.count;i++){v.fromBufferAttribute(p,i).applyMatrix4(m);pos.push(v.x,v.y,v.z);v.fromBufferAttribute(n,i).applyMatrix3(nm).normalize();nor.push(v.x,v.y,v.z);uv.push(u.getX(i),u.getY(i));}
+      for(let i=0;i<p.count;i++){cup(v.fromBufferAttribute(p,i).applyMatrix4(m));pos.push(v.x,v.y,v.z);v.fromBufferAttribute(n,i).applyMatrix3(nm).normalize();nor.push(v.x,v.y,v.z);uv.push(u.getX(i),u.getY(i));}
       for(let i=0;i<bead.index.count;i++)idx.push(base+bead.index.getX(i));}
     const g=new T.BufferGeometry();g.setAttribute('position',new T.Float32BufferAttribute(pos,3));g.setAttribute('normal',new T.Float32BufferAttribute(nor,3));g.setAttribute('uv',new T.Float32BufferAttribute(uv,2));g.setIndex(idx);return put(daisy,g,mat,name);};
   const petals=[],stitches=[];
@@ -117,80 +100,101 @@ function makeDaisy(){
     // The stitched edge round the petal.
     for(let k=0;k<16;k++){const t=k/16*Math.PI*2;stitches.push([at(.05+Math.cos(t)*.036,Math.sin(t)*.016,.009+Math.cos(t)*.004),[.006,.0055,.005],a+t]);}
   }
-  beads(petals,petal,'flower-petal');beads(stitches,edge,'flower-stitch');
+  const smooth=new T.SphereGeometry(1,12,8),small=new T.SphereGeometry(1,6,4);
+  beads(petals,petal,'flower-petal',smooth);beads(stitches,edge,'flower-stitch',small);
   oval(daisy,[0,0,.012],[.03,.03,.013],gold,'flower-centre',16);
   // Rounds of stitches over the centre.
   const knots=[];for(const [r,n,zz] of [[.024,13,.017],[.014,8,.022],[0,1,.025]])for(let k=0;k<n;k++){const t=k/n*Math.PI*2;knots.push([[Math.cos(t)*r,Math.sin(t)*r,zz],[.0065,.0065,.005],t]);}
-  beads(knots,gold,'flower-knot');bead.dispose();
+  beads(knots,gold,'flower-knot',small);smooth.dispose();small.dispose();
+  // Where it presses into the pile, the plush round and under it is in a soft shadow.
+  const n=64,data=new Uint8Array(n*n*4);
+  for(let y=0;y<n;y++)for(let x=0;x<n;x++){const r=Math.hypot((x+.5)/n*2-1,(y+.5)/n*2-1),i=(y*n+x)*4,a=Math.max(0,Math.min(1,(1-r)/.45));data[i]=34;data[i+1]=18;data[i+2]=26;data[i+3]=Math.round(255*a*a*(3-2*a));}
+  const tex=new T.DataTexture(data,n,n,T.RGBAFormat);tex.colorSpace=T.SRGBColorSpace;tex.magFilter=T.LinearFilter;tex.minFilter=T.LinearMipmapLinearFilter;tex.generateMipmaps=true;tex.needsUpdate=true;
+  const disc=new T.CircleGeometry(.112,48),dp=disc.attributes.position,dv=new T.Vector3();for(let i=0;i<dp.count;i++){cup(dv.fromBufferAttribute(dp,i));dp.setXYZ(i,dv.x,dv.y,dv.z-.0012);}
+  const shadow=new T.Mesh(disc,new T.MeshBasicMaterial({map:tex,transparent:true,opacity:.62,depthWrite:false,polygonOffset:true,polygonOffsetFactor:-2,toneMapped:false}));shadow.name='flower-shadow';shadow.renderOrder=1;daisy.add(shadow);
   return daisy;
 }
+// The bob's shadow on her face is the same on every doll: worked out once.
+let faceShade=null;
 function makeHead() {
   const head=new T.Group();head.name='doll-head';head.position.set(0,2.34,0);head.rotation.z=-.105;
-  const skin=cloth('#e2b698'), dark=floss('#392625'), cream=satin('#fff2d7'), iris=satin('#51372d'), pupil=satin('#392625'), blush=new T.MeshStandardMaterial({color:'#d7888a',transparent:true,opacity:.42,roughness:1});
+  // Her head is sewn from her plush. The front is a face panel with her features embroidered into it (embroidery.js:
+  // her eyes, stars, lids, lashes, brows, smile and blush, each where it always was); the rest of her head, her ears
+  // and her little nose are the same plush, plain. The panel's maps read the head's second uv set, laid straight along
+  // z over the front, as the features always were.
+  const skin=plush(SKIN),maps=faceMaps('smile');head.userData.faceMaps=maps;head.userData.expression='smile';
+  const face=new T.MeshPhysicalMaterial({color:'#ffffff',map:maps.map,normalMap:maps.normalMap,roughnessMap:maps.orm,aoMap:maps.orm,roughness:1,sheen:1,sheenColor:skin.sheenColor.clone(),sheenRoughness:skin.sheenRoughness});
   // A doll's head rather than a ball: a small chin brought forward under the smile, low enough to stay behind a
   // stand-up collar, and fuller cheeks at the jaw, both outside the face's features, which keep their places on the
-  // plain ellipsoid (faceZ).
-  const headGeo=new T.SphereGeometry(1,48,36),hp=headGeo.attributes.position;
+  // plain ellipsoid. Finely divided, so its outline stays round close up.
+  const headGeo=new T.SphereGeometry(1,72,54),hp=headGeo.attributes.position;
   for(let i=0;i<hp.count;i++){const x=hp.getX(i),y=hp.getY(i),z=hp.getZ(i);
     const chin=Math.max(0,-y-.7)/.3*Math.max(0,z+.2)*.06,jaw=Math.max(0,Math.abs(x)-.72)/.28*Math.max(0,1-Math.abs(y+.25)/.45)*.05,s=1+jaw;
     hp.setXYZ(i,x*s,y*s,z*s+chin);}
-  headGeo.computeVertexNormals();put(head,headGeo,skin,'felt-head').scale.set(.5,.47,.405);
-  for(const side of [-1,1]) {
-    oval(head,[side*.473,-.04,0],[.08,.12,.075],skin,'ear');
-    facePatch(head,side*.265,-.155,.092,.047,.005,blush,'cheek');
-    facePatch(head,side*.183,.005,.126,.095,.007,cream,'eye-white');
-    facePatch(head,side*.183+.017,.005,.077,.085,.011,iris,'embroidered-iris');
-    facePatch(head,side*.183+.021,.006,.048,.064,.015,pupil,'embroidered-pupil');
-    star(head,side*.183+.003,.035,.02,.027,cream);star(head,side*.183+.047,-.014,.02,.013,cream);
-    faceCurve(head,[[side*.183-.12,.025],[side*.183-.06,.09],[side*.183+.04,.104],[side*.183+.119,.045]],.008,dark,'stitched-eyelid');
-    for(let i=0;i<3;i++) {const x=side*(.263+i*.014);faceCurve(head,[[x,.068-i*.016],[x+side*.035,.09-i*.012]],.005,dark,'eyelash');}
-    faceCurve(head,browPoints(side,false),.01,dark,'eyebrow').userData.side=side;
-  }
-  oval(head,[.01,-.087,.403],[.037,.028,.04],skin,'little-nose');
-  faceCurve(head,SMILES.usual,.007,floss('#8b5150'),'stitched-smile');head.userData.expression='smile';
-  // Plush bob: full back volume, a crown, and overlapping swept locks, sewn from the plush every style shares. Its pieces
-  // are spheres a head round, so the pile is repeated more often to stay the size it is on the other styles.
-  const hair=hairMaterial();hair.bumpMap.repeat.set(16,9);
-  oval(head,[0,.035,-.16],[.555,.505,.34],hair,'bob-back',40);
-  const cap=put(head,new T.SphereGeometry(1,48,30,0,Math.PI*2,0,1.12),hair,'hair-crown');cap.scale.set(.542,.506,.455);cap.position.y=.035;
-  for(const side of [-1,1]) {
-    const lock=oval(head,[side*.44,-.02,.072],[.13,.39,.245],hair,'side-bob');lock.rotation.z=side*.13;
-  }
-  for(let j=0;j<7;j++){
-    const p=oval(head,[-.23+j*.066,.28+Math.sin(j*.45)*.075,.276],[.083,.23,.11],hair,'swept-fringe');p.rotation.z=-.7+j*.13;
-  }
+  headGeo.computeVertexNormals();
+  const uv1=new Float32Array(hp.count*2);for(let i=0;i<hp.count;i++){const [u,v]=faceUv(hp.getX(i)*.5,hp.getY(i)*.47);uv1[i*2]=u;uv1[i*2+1]=v;}
+  headGeo.setAttribute('uv1',new T.BufferAttribute(uv1,2));
+  // The face panel is every triangle wholly on the front half; the rest is plain plush.
+  const index=headGeo.index.array,front=[],back=[];
+  for(let t=0;t<index.length;t+=3)(hp.getZ(index[t])>0&&hp.getZ(index[t+1])>0&&hp.getZ(index[t+2])>0?front:back).push(index[t],index[t+1],index[t+2]);
+  headGeo.setIndex([...front,...back]);headGeo.clearGroups();headGeo.addGroup(0,front.length,0);headGeo.addGroup(front.length,back.length,1);
+  const headSkin=skin.clone();put(head,headGeo,[face,headSkin],'felt-head').scale.set(.5,.47,.405);
+  // Her ears, in their old size and place: each a little stuffed piece sewn on, with a shallow hollow in its outer
+  // face, a seam round its rim and a crease where it meets her head (under the bob; they show with other styles).
+  const ears=plush(SKIN);ears.vertexColors=true;
+  for(const side of [-1,1]){const ear=put(head,new T.SphereGeometry(1,28,20),ears,'ear');ear.position.set(side*.473,-.04,0);ear.scale.set(.08,.12,.075);ear.updateMatrix();
+    const p=ear.geometry.attributes.position,c=new Float32Array(p.count*3),v=new T.Vector3(),w=new T.Vector3();
+    for(let i=0;i<p.count;i++){v.fromBufferAttribute(p,i);const out=v.x*side,rim=Math.exp(-((v.x/.12)**2)),hollow=out>0?Math.max(0,1-(v.y*v.y+v.z*v.z)/.62):0;
+      v.x-=side*.32*hollow*out;v.y*=1-.05*rim;v.z*=1-.05*rim;p.setXYZ(i,v.x,v.y,v.z);
+      w.copy(v).applyMatrix4(ear.matrix);const a=(1-.28*rim)*(1-.3*hollow)*(1-.5*Math.exp(-Math.max(0,headDistance(w))/.02));c[i*3]=c[i*3+1]=c[i*3+2]=a;}
+    ear.geometry.setAttribute('color',new T.BufferAttribute(c,3));ear.geometry.computeVertexNormals();}
+  // Her little nose: a small stuffed bump sewn onto the face, its footprint as it always was, standing a little less
+  // proud than a bead would, in a softer sheen; the face's maps shade the seam round it.
+  oval(head,[.01,-.087,.4],[.037,.028,.033],plush(SKIN,{roughness:.97,sheenRoughness:.9}),'little-nose');
+  // Her bob, sewn from the plush every style shares (bob.js): a quilted shell from a whorl on her crown, coming down over
+  // her forehead as the swept fringe, and two stuffed side pillows. Its shadow on her face is a vertex colour on her
+  // head, put away while she wears another style (src/hair/model.js says when).
+  const bob=makeBob(head,hairMaterial()),shade=(faceShade??=shadeFace(hp,new T.Vector3(.5,.47,.405),bob)),plain=new Float32Array(hp.count*3).fill(1);
+  headGeo.setAttribute('color',new T.BufferAttribute(shade.slice(),3));face.vertexColors=headSkin.vertexColors=true;
+  head.userData.hairShade=on=>{headGeo.attributes.color.array.set(on?shade:plain);headGeo.attributes.color.needsUpdate=true;};
   // Her daisy, pinned onto her hair.
   head.add(makeDaisy());seatFlower(head);
   return head;
 }
-// Her brows: lifted, the inner ends rise a little, as when something is a pity.
-function browPoints(side,lift){return [[side*.11,lift?.19:.172],[side*.19,lift?.2:.192],[side*.267,.17]];}
-// Change her expression (src/doll/face.js): the stitched smile, the blush and the brows. The usual expression rebuilds
-// exactly the face makeHead made. Returns whether anything changed.
+// Change her expression (src/doll/face.js): the stitched smile, the blush and the brows are restitched into her face
+// panel. The usual expression restores exactly the face makeHead made. Returns whether anything changed.
 export function setExpression(doll,mood){
-  const head=doll.getObjectByName('doll-head'),e=EXPRESSIONS[mood]?mood:'smile',x=EXPRESSIONS[e];
-  if(!head||head.userData.expression===e)return false;head.userData.expression=e;
-  const scratch=new T.Group(),swap=(mesh,fresh)=>{mesh.geometry.dispose();mesh.geometry=fresh.geometry;};
-  const smile=head.getObjectByName('stitched-smile');if(smile)swap(smile,faceCurve(scratch,SMILES[x.smile],.007,smile.material,''));
-  const [opacity,colour,size]=x.blush;
-  head.children.filter(o=>o.name==='cheek').forEach((cheek,i)=>{cheek.material.opacity=opacity;cheek.material.color.set(colour);
-    const side=i===0?-1:1;swap(cheek,facePatch(scratch,side*.265,-.155+(size-1)*.02,.092*size,.047*size,.005,cheek.material,''));});
-  for(const brow of head.children.filter(o=>o.name==='eyebrow'))swap(brow,faceCurve(scratch,browPoints(brow.userData.side,x.lift),.01,brow.material,''));
-  return true;
+  const head=doll.getObjectByName('doll-head'),e=EXPRESSIONS[mood]?mood:'smile';
+  if(!head?.userData.faceMaps||head.userData.expression===e)return false;head.userData.expression=e;
+  restitch(head.userData.faceMaps,e);return true;
 }
+// Her mittens are sewn: a palm and a back joined round the edge (a soft groove down the front of the hand, round its tip
+// and up the back) and a little thumb sewn on, with a crease where it meets the hand. Their size and place are those
+// the garments' cuffs are fitted to (HAND_PARTS); the groove only ever goes in.
+function mittens(root,side,material){
+  const [[hp,hs,hr],[tp,ts]]=HAND_PARTS(side),hand=put(root,new T.SphereGeometry(1,36,26),material,'tiny-mitten'),thumb=put(root,new T.SphereGeometry(1,18,12),material,'mitten-thumb');
+  hand.position.set(...hp);hand.scale.set(...hs);hand.rotation.z=hr;thumb.position.set(...tp);thumb.scale.set(...ts);hand.updateMatrix();thumb.updateMatrix();
+  const toHand=hand.matrix.clone().invert(),v=new T.Vector3(),w=new T.Vector3(),k=(o,c,r)=>Math.hypot((o.x-c[0])/r[0],(o.y-c[1])/r[1],(o.z-c[2])/r[2]);
+  const shade=(geo,inside)=>{const p=geo.attributes.position,c=new Float32Array(p.count*3);for(let i=0;i<p.count;i++){const a=inside(i,p);c[i*3]=c[i*3+1]=c[i*3+2]=a;}geo.setAttribute('color',new T.BufferAttribute(c,3));};
+  shade(hand.geometry,(i,p)=>{v.fromBufferAttribute(p,i);const seam=Math.exp(-((v.x/.075)**2));p.setXYZ(i,v.x,v.y*(1-.05*seam),v.z*(1-.05*seam));
+    w.copy(v).applyMatrix4(hand.matrix);const near=k(w,tp,ts);return (1-.3*seam)*(1-.5*(1-smooth(1,1.45,near)));});
+  shade(thumb.geometry,(i,p)=>{w.fromBufferAttribute(p,i).applyMatrix4(thumb.matrix).applyMatrix4(toHand);return 1-.5*(1-smooth(1,1.35,w.length()));});
+  hand.geometry.computeVertexNormals();
+}
+const smooth=(a,b,t)=>{const x=Math.max(0,Math.min(1,(t-a)/(b-a)));return x*x*(3-2*x);};
 export function makeDoll() {
   const root=new T.Group();root.name='living-doll';
-  const skin=cloth('#dfb195'), under=cloth('#f0e3d1');
+  // Her body is sewn from the same plush as her head: skin where it shows, cream under her clothes.
+  const skin=plush('#dfb195'), under=plush('#f0e3d1'), hands=plush('#dfb195');hands.vertexColors=true;
   oval(root,[0,1.45,0],[.27,.43,.165],under,'cloth-body');
   oval(root,[0,1.9,0],[.1,.17,.09],skin,'neck');
   for(const side of [-1,1]){
     oval(root,[side*.16,.69,0],[.092,.49,.094],under,'leg');
     // The arm starts below the top of the body so the shoulder slopes into it.
     const arm=oval(root,[side*.307,1.51,0],[.09,.25,.09],skin,'arm');arm.rotation.z=side*.22;
-    const hand=oval(root,[side*.37,1.245,.025],[.077,.093,.068],skin,'tiny-mitten');hand.rotation.z=side*.16;
-    oval(root,[side*.322,1.265,.07],[.031,.042,.032],skin,'mitten-thumb',20);
+    mittens(root,side,hands);
     // Her shoes are worn from the shoe slot (makeShoes); the socks stay part of her.
-    const sock=cloth('#ecdcac','knit');oval(root,[side*.16,.25,.02],[.106,.14,.107],sock,'sock');
+    const sock=ribKnit('#ecdcac');oval(root,[side*.16,.25,.02],[.106,.14,.107],sock,'sock');
   }
   root.name='plush-body';root.scale.set(BODY_WIDTH,BODY_HEIGHT,1);
   const doll=new T.Group();doll.name='living-doll';
