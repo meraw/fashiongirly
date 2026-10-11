@@ -10,8 +10,9 @@
 // her clothes, so a sleeve and the arm inside it move together and nothing new shows through. Her head is left out of
 // the field (her face and hair stay as made) and is tilted and turned as a whole instead (headPose).
 //
-// Each geometry keeps its unposed shape (userData.rest), so she can be posed again in another attitude without the
-// poses adding up.
+// Each geometry keeps its unposed shape (REST, by geometry), so she can be posed again in another attitude without the
+// poses adding up. It is kept by geometry rather than in the geometry's userData, which a cloned geometry shares with its
+// original: twelve lobes of a plait cloned from one sphere would otherwise all be posed back into the first lobe.
 import * as T from 'three';
 
 const smooth = (a, b, t) => { const x = Math.max(0, Math.min(1, (t - a) / (b - a))); return x * x * (3 - 2 * x); };
@@ -71,6 +72,7 @@ function ownHead(o) {
 // her clothes, in her world's units: not the wardrobe's own group, which is scaled to her toy proportions), less
 // `offsetY` (the lift her shoes give her, so the field sees her body where it stands). Each geometry is posed from its
 // unposed shape; a geometry shared by two objects is copied for the second, so each is posed in its own place.
+const REST = new WeakMap();
 export function pose(object, frame = object, offsetY = 0, attitude = ATTITUDES.pick) {
   frame.updateMatrixWorld(true);
   const base = new T.Matrix4().copy(frame.matrixWorld).invert(), rel = new T.Matrix4(), back = new T.Matrix4(), normals = new T.Matrix3(), normalsBack = new T.Matrix3();
@@ -88,13 +90,14 @@ export function pose(object, frame = object, offsetY = 0, attitude = ATTITUDES.p
       o.instanceMatrix.needsUpdate = true; return;
     }
     if (seen.has(g)) {
-      const copy = g.clone(); copy.userData = {};
-      if (g.userData.rest) { copy.attributes.position.array.set(g.userData.rest.p); if (g.userData.rest.n) copy.attributes.normal?.array.set(g.userData.rest.n); }
+      const copy = g.clone(), was = REST.get(g); copy.userData = {};
+      if (was) { copy.attributes.position.array.set(was.p); if (was.n) copy.attributes.normal?.array.set(was.n); }
       o.geometry = copy;
     }
     seen.add(o.geometry);
     const position = o.geometry.attributes.position, normal = o.geometry.attributes.normal;
-    const rest = o.geometry.userData.rest ??= { p: Float32Array.from(position.array), n: normal ? Float32Array.from(normal.array) : null };
+    let rest = REST.get(o.geometry);
+    if (!rest) REST.set(o.geometry, rest = { p: Float32Array.from(position.array), n: normal ? Float32Array.from(normal.array) : null });
     if (normal) { normals.getNormalMatrix(rel); normalsBack.getNormalMatrix(back); }
     for (let i = 0; i < position.count; i++) {
       v.fromArray(rest.p, i * 3).applyMatrix4(rel); v.y -= offsetY;

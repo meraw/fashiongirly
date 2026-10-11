@@ -13,7 +13,7 @@ import { tuckTop } from './tuck.js';
 import { BRONZE_TOP_ID, LILAC_TOP_ID, CROCHET_TOP_ID, PLAID_JUMPER_ID, STRIPE_JUMPER_ID, POINTELLE_FLOWER_ID, SILVER_CABLE_ID, LACROIX_FLOWER_ID, TOMMY_CABLE_ID, PETIT_BATEAU_CARDIGAN_ID, ZIP_TRACK_DRESS_ID, TOMMY_STRIPE_POLO_ID, GARMENTS } from '../wardrobe/catalog.js';
 import { makeKnitPolo } from './polo.js';
 import { makeButtonShirt, SHIRT_IDS } from './shirts.js';
-import { hairMaterial } from '../hair/model.js';
+import { hairMaterial, seatFlower } from '../hair/model.js';
 import { SMILES, EXPRESSIONS } from './face.js';
 // Body and wardrobe share one toy proportion system; the face stays unscaled.
 const BODY_HEIGHT = .76;
@@ -75,9 +75,57 @@ function faceCurve(group,points,radius,mat,name,offset=.009){return curve(group,
 function star(group,x,y,offset,r,mat) {
   const s=new T.Shape();for(let i=0;i<10;i++){const a=i*Math.PI/5+Math.PI/2,rr=i%2?r*.44:r;const px=x+Math.cos(a)*rr,py=y+Math.sin(a)*rr;i?s.lineTo(px,py):s.moveTo(px,py);}s.closePath();const geo=new T.ShapeGeometry(s),p=geo.attributes.position;for(let i=0;i<p.count;i++)p.setZ(i,faceZ(p.getX(i),p.getY(i))+offset);geo.computeVertexNormals();return put(group,geo,mat,'embroidered-eye-star');
 }
+// She is a plush doll: her face is embroidered onto the fabric. The eyes are satin stitch (close rows of floss with a
+// soft sheen), the lids, lashes, brows and smile twisted floss.
+function stitchTexture(kind,repeat){
+  const size=64,data=cachedPixels('stitch:'+kind,()=>{const data=new Uint8Array(size*size*4),rand=random(5);
+    for(let y=0;y<size;y++)for(let x=0;x<size;x++){const phase=kind==='satin'?x/size*4+y/size*.5:(x+y)/size*2,f=phase-Math.floor(phase);
+      const v=Math.round(60+170*Math.sin(Math.PI*f)**.6+(rand()-.5)*24),i=(y*size+x)*4;data[i]=data[i+1]=data[i+2]=Math.max(0,Math.min(255,v));data[i+3]=255;}
+    return data;});
+  const texture=new T.DataTexture(data,size,size,T.RGBAFormat);texture.wrapS=texture.wrapT=T.RepeatWrapping;texture.repeat.set(...repeat);texture.magFilter=T.LinearFilter;texture.minFilter=T.LinearMipmapLinearFilter;texture.generateMipmaps=true;texture.needsUpdate=true;return texture;
+}
+const thread=(color,bumpMap)=>new T.MeshPhysicalMaterial({color,roughness:.6,sheen:.8,sheenColor:new T.Color(color).lerp(new T.Color('#ffffff'),.35),sheenRoughness:.45,bumpMap,bumpScale:.6});
+const satin=color=>thread(color,stitchTexture('satin',[5,5]));
+const floss=color=>thread(color,stitchTexture('floss',[40,1]));
+// Crocheted cotton: rows of little V stitches as a bump map, matte with a soft sheen.
+function crochetTexture(repeat){
+  const size=64,data=cachedPixels('crochet',()=>{const data=new Uint8Array(size*size*4);
+    for(let y=0;y<size;y++)for(let x=0;x<size;x++){const cx=(x%16)/16,cy=(y%16)/16,arm=Math.abs(cx-.5)*2,v=Math.max(0,1-Math.abs(cy-(.15+.7*(1-arm)))/.22)*(arm<.92?1:0);
+      const i=(y*size+x)*4,c=Math.round(50+190*Math.sqrt(v));data[i]=data[i+1]=data[i+2]=c;data[i+3]=255;}
+    return data;});
+  const texture=new T.DataTexture(data,size,size,T.RGBAFormat);texture.wrapS=texture.wrapT=T.RepeatWrapping;texture.repeat.set(...repeat);texture.magFilter=T.LinearFilter;texture.minFilter=T.LinearMipmapLinearFilter;texture.generateMipmaps=true;texture.needsUpdate=true;return texture;
+}
+const cotton=(color,repeat=[2,2])=>new T.MeshPhysicalMaterial({color,roughness:.95,sheen:.7,sheenColor:new T.Color(color).lerp(new T.Color('#ffffff'),.4),sheenRoughness:.7,bumpMap:crochetTexture(repeat),bumpScale:1.4});
+// A crocheted daisy (the user's idea, 11 October 2026): a domed golden centre worked in rounds of stitches, and nine
+// cream petals, each a little worked oval edged with a row of stitches. It faces along its own +z; seatFlower (in
+// src/hair/model.js) pins it onto whichever hair she wears.
+function makeDaisy(){
+  const daisy=new T.Group();daisy.name='hair-flower';
+  const petal=cotton('#fbf4e6',[1.5,1]),edge=cotton('#f6ecd9',[1,1]),gold=cotton('#e0ad3d',[1,1]);
+  // Many small stitches as one light mesh: each a little ellipsoid at [position, size, turn about z].
+  const bead=new T.SphereGeometry(1,6,4),m=new T.Matrix4(),q=new T.Quaternion(),z=new T.Vector3(0,0,1);
+  const beads=(list,mat,name)=>{const pos=[],nor=[],uv=[],idx=[],p=bead.attributes.position,n=bead.attributes.normal,u=bead.attributes.uv,v=new T.Vector3();
+    for(const [at,size,turn=0] of list){const base=pos.length/3;m.compose(new T.Vector3(...at),q.setFromAxisAngle(z,turn),new T.Vector3(...size));const nm=new T.Matrix3().getNormalMatrix(m);
+      for(let i=0;i<p.count;i++){v.fromBufferAttribute(p,i).applyMatrix4(m);pos.push(v.x,v.y,v.z);v.fromBufferAttribute(n,i).applyMatrix3(nm).normalize();nor.push(v.x,v.y,v.z);uv.push(u.getX(i),u.getY(i));}
+      for(let i=0;i<bead.index.count;i++)idx.push(base+bead.index.getX(i));}
+    const g=new T.BufferGeometry();g.setAttribute('position',new T.Float32BufferAttribute(pos,3));g.setAttribute('normal',new T.Float32BufferAttribute(nor,3));g.setAttribute('uv',new T.Float32BufferAttribute(uv,2));g.setIndex(idx);return put(daisy,g,mat,name);};
+  const petals=[],stitches=[];
+  for(let i=0;i<9;i++){
+    const a=i*Math.PI*2/9,c=Math.cos(a),s=Math.sin(a),at=(x,y,z)=>[x*c-y*s,x*s+y*c,z];
+    petals.push([at(.05,0,.006),[.035,.015,.006],a]);
+    // The stitched edge round the petal.
+    for(let k=0;k<16;k++){const t=k/16*Math.PI*2;stitches.push([at(.05+Math.cos(t)*.036,Math.sin(t)*.016,.009+Math.cos(t)*.004),[.006,.0055,.005],a+t]);}
+  }
+  beads(petals,petal,'flower-petal');beads(stitches,edge,'flower-stitch');
+  oval(daisy,[0,0,.012],[.03,.03,.013],gold,'flower-centre',16);
+  // Rounds of stitches over the centre.
+  const knots=[];for(const [r,n,zz] of [[.024,13,.017],[.014,8,.022],[0,1,.025]])for(let k=0;k<n;k++){const t=k/n*Math.PI*2;knots.push([[Math.cos(t)*r,Math.sin(t)*r,zz],[.0065,.0065,.005],t]);}
+  beads(knots,gold,'flower-knot');bead.dispose();
+  return daisy;
+}
 function makeHead() {
   const head=new T.Group();head.name='doll-head';head.position.set(0,2.34,0);head.rotation.z=-.105;
-  const skin=cloth('#e2b698'), dark=cloth('#392625'), cream=solid('#fff2d7'), iris=cloth('#51372d'), blush=new T.MeshStandardMaterial({color:'#d7888a',transparent:true,opacity:.42,roughness:1});
+  const skin=cloth('#e2b698'), dark=floss('#392625'), cream=satin('#fff2d7'), iris=satin('#51372d'), pupil=satin('#392625'), blush=new T.MeshStandardMaterial({color:'#d7888a',transparent:true,opacity:.42,roughness:1});
   // A doll's head rather than a ball: a small chin brought forward under the smile, low enough to stay behind a
   // stand-up collar, and fuller cheeks at the jaw, both outside the face's features, which keep their places on the
   // plain ellipsoid (faceZ).
@@ -91,32 +139,27 @@ function makeHead() {
     facePatch(head,side*.265,-.155,.092,.047,.005,blush,'cheek');
     facePatch(head,side*.183,.005,.126,.095,.007,cream,'eye-white');
     facePatch(head,side*.183+.017,.005,.077,.085,.011,iris,'embroidered-iris');
-    facePatch(head,side*.183+.021,.006,.048,.064,.015,dark,'embroidered-pupil');
+    facePatch(head,side*.183+.021,.006,.048,.064,.015,pupil,'embroidered-pupil');
     star(head,side*.183+.003,.035,.02,.027,cream);star(head,side*.183+.047,-.014,.02,.013,cream);
     faceCurve(head,[[side*.183-.12,.025],[side*.183-.06,.09],[side*.183+.04,.104],[side*.183+.119,.045]],.008,dark,'stitched-eyelid');
     for(let i=0;i<3;i++) {const x=side*(.263+i*.014);faceCurve(head,[[x,.068-i*.016],[x+side*.035,.09-i*.012]],.005,dark,'eyelash');}
     faceCurve(head,browPoints(side,false),.01,dark,'eyebrow').userData.side=side;
   }
   oval(head,[.01,-.087,.403],[.037,.028,.04],skin,'little-nose');
-  faceCurve(head,SMILES.usual,.007,cloth('#8b5150'),'stitched-smile');head.userData.expression='smile';
-  // Sculpted bob: full back volume, a crown, and overlapping swept locks, in the molded hair material every style shares.
-  const hair=hairMaterial(), shine=solid('#58413b',1);
+  faceCurve(head,SMILES.usual,.007,floss('#8b5150'),'stitched-smile');head.userData.expression='smile';
+  // Plush bob: full back volume, a crown, and overlapping swept locks, sewn from the plush every style shares. Its pieces
+  // are spheres a head round, so the pile is repeated more often to stay the size it is on the other styles.
+  const hair=hairMaterial();hair.bumpMap.repeat.set(16,9);
   oval(head,[0,.035,-.16],[.555,.505,.34],hair,'bob-back',40);
   const cap=put(head,new T.SphereGeometry(1,48,30,0,Math.PI*2,0,1.12),hair,'hair-crown');cap.scale.set(.542,.506,.455);cap.position.y=.035;
   for(const side of [-1,1]) {
-    const lock=oval(head,[side*.432,-.02,.072],[.122,.39,.245],hair,'side-bob');lock.rotation.z=side*.13;
-    for(let j=0;j<6;j++){const x=side*(.36+j*.027);curve(head,[[x*.72,.405,.17],[x,.2,.24],[x*1.045,-.04,.22],[x*.99,-.32,.17]],.007,shine,'hair-yarn');}
+    const lock=oval(head,[side*.44,-.02,.072],[.13,.39,.245],hair,'side-bob');lock.rotation.z=side*.13;
   }
   for(let j=0;j<7;j++){
     const p=oval(head,[-.23+j*.066,.28+Math.sin(j*.45)*.075,.276],[.083,.23,.11],hair,'swept-fringe');p.rotation.z=-.7+j*.13;
   }
-  for(let j=0;j<14;j++){const t=j/13;curve(head,[[-.4+t*.4,.29+t*.17,.26],[ -.29+t*.62,.39,.3],[-.08+t*.52,.25,.38]],.0045,shine,'fringe-thread');}
-  const rand=random(42), points=[];
-  for(let i=0;i<1000;i++){const a=rand()*Math.PI*2,z=rand()*2-1,r=Math.sqrt(1-z*z);const x=Math.cos(a)*r*.506,y=z*.476,depth=Math.sin(a)*r*.413;if(depth>.12&&y<.25)points.push(x,y,depth);}
-  const fuzzGeo=new T.BufferGeometry();fuzzGeo.setAttribute('position',new T.Float32BufferAttribute(points,3));const fuzz=new T.Points(fuzzGeo,new T.PointsMaterial({color:'#eac8ad',size:.006,transparent:true,opacity:.36,depthWrite:false}));fuzz.name='felt-fibres';head.add(fuzz);
-  const gold=solid('#d1ae61',.48);
-  for(let i=0;i<5;i++){const a=i*Math.PI*2/5;oval(head,[.365+Math.cos(a)*.042,.31+Math.sin(a)*.042,.365],[.025,.033,.01],gold,'flower-petal');}
-  oval(head,[.365,.31,.381],[.018,.018,.009],solid('#f3d997'),'flower-centre');
+  // Her daisy, pinned onto her hair.
+  head.add(makeDaisy());seatFlower(head);
   return head;
 }
 // Her brows: lifted, the inner ends rise a little, as when something is a pity.
