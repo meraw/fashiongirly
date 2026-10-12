@@ -46,6 +46,16 @@ Deploy `dist/` to a static host. All runtime dependencies are copied into the bu
 
 For GitHub Pages: select **Settings → Pages → Source → GitHub Actions**, then run **Deploy Pages** from Actions. Committing code alone does not publish it.
 
+## Android app
+
+Since 12 October 2026 the app also comes as an Android APK, which the user installs on their phone (Android only; they chose an APK over an installable web app). `android/` is a small native shell: a full-screen WebView showing the built web app from inside the APK, at `https://appassets.androidplatform.net/assets/` (a secure origin, so modules, saved looks and the phone's location work as in a browser). It asks for the phone's location the first time the forecast needs it, and opens outside links in the browser.
+
+- `npm run android` builds `dist/fashiongirly.apk`. It needs a JDK (17 or newer) and the Android SDK, found from `ANDROID_HOME` or `sdk.dir` in `android/local.properties` (not committed).
+- The version number is the commit count, so every new APK installs over the last one.
+- Every APK is signed with the same key, `android/fashiongirly.keystore`, kept in the repository on purpose (password `fashiongirly`). An APK signed with any other key will not install over the user's app without uninstalling it, which loses their saved looks.
+- Run **Android app** from Actions to build the APK on GitHub and put it on the `android-latest` release, where the phone can download it.
+- Installing: open the APK on the phone and allow installing from that app when Android asks.
+
 ## Source map
 
 - `src/doll/model.js`: doll identity and separately constructed outfit, procedural fabric textures, and resource disposal.

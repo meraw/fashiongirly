@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Dusk plum, as the app's sheet, behind her while the page loads and under the system bars. -->
+    <color name="dusk">#2E1A35</color>
+    <style name="Theme.Fashiongirly" parent="android:Theme.Material.NoActionBar">
+        <item name="android:windowBackground">@color/dusk</item>
+        <item name="android:statusBarColor">@color/dusk</item>
+        <item name="android:navigationBarColor">@color/dusk</item>
+    </style>
+</resources>

@@ -1,0 +1,30 @@
+name: Android app
+# Run by hand from the Actions tab: builds the APK and puts it on the "Android app" release (tag android-latest), so the
+# newest version can be downloaded on the phone from the repository's Releases page.
+on:
+  workflow_dispatch:
+permissions:
+  contents: write
+jobs:
+  apk:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 21
+      - run: npm ci
+      - run: npm test
+      - run: npm run android
+      - name: Publish the APK
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release view android-latest >/dev/null 2>&1 || gh release create android-latest --title "Android app" --notes "The newest Fashiongirly APK. Download fashiongirly.apk on your phone and open it to install or update."
+          gh release upload android-latest dist/fashiongirly.apk --clobber
