@@ -223,3 +223,70 @@ The interface:
   petal edges and a knotted golden centre) and is pinned onto whichever hair she wears (`seatFlower()`), so it no
   longer floats. A pose fix came with it: posing kept each shape's rest in its geometry's `userData`, which cloned
   geometries share, so the plait's twelve lobes were posed into one; `src/doll/pose.js` now keeps rests by geometry.
+- 11 October 2026, definition and physical believability (the user: she looked like a fuzzy digital approximation, and
+  some garments' sharper construction made her look less finished; a controlled proof of concept on one outfit, keeping
+  her identity, expression, proportions, hair colour, fitted body and the app as they are; "soft materials, precise
+  construction, not soft focus"). Judged on renders of the Rose sweatshirt study (the Replay sweatshirt's satin-stitched
+  roses are the quality reference), before and after, at phone size and close up. What made her soft, and the fix:
+  - Real image blur: the renderer capped the pixel ratio at two, so on a phone of three she was drawn at two thirds of
+    the screen's resolution and stretched. She is now drawn at the screen's own ratio, up to three, within the pixels
+    the view was always allowed on a large screen (`view.js`). Sharper pixels alone only sharpened the noise below.
+  - Noise passing for detail: her skin's bump was an unfiltered noise texture (three.js data textures default to
+    nearest filtering and no mipmaps), which sparkles into grain when it shrinks; her hair's nap bump was strong; the eye
+    satin a small striped tile. Now one fine combed nap, a filtered and mipmapped normal map, for her skin, body and
+    (longer, combed down each piece) her hair (`src/doll/plush.js`); her socks a filtered rib knit.
+  - Features floating on her face: five-sided tubes and flat discs a hair above the fabric, brows poking out between
+    the fringe's locks. Now her face is embroidered into a panel of her head (`src/doll/embroidery.js`), drawn in code
+    at the garments' embroidery density: padded satin stitch whose rows run differently in each layer (the whites up and
+    down, the irises outward, the pupils across, the stars along their points), twisted floss for the lids, lashes,
+    brows and smile, the fabric drawn down round every stitch, and an airbrushed blush with a soft but defined edge.
+    Every feature keeps its place, size and colour; the expressions restitch the panel.
+  - Hair that was intersecting ellipsoids, with the crown cap's open edge showing as a ledge over the fringe. Now a
+    sewn bob in the old silhouette (`src/doll/bob.js`): one quilted shell from a whorl on her crown, sunken seams down
+    the back, the swept fringe as seven stuffed locks ending in a rolled, scalloped hem (the locks still cover the outer
+    ends of her brows), a stuffed sweep over the top of her forehead as before, and two quilted side pillows sewn round
+    the rim, which press the shell beneath them. Every edge is a rolled hem with thickness, not a cut sheet.
+  - No contact: a large shadow bias removed the small shadows where parts meet. Shadows are finer and closer to what
+    casts them, and a little open as under a soft key light (`light.js`; her shadow on the ground is unchanged); where
+    pieces meet or seams go in, and on her face under the fringe, the plush is shaded. The daisy is cupped to the hair,
+    seated on the hair's own surface (sampled round the seat, not the head's ellipsoid), pressed slightly into the pile,
+    with a soft contact shadow; it sits so on every style. The ground's bounce under her face is softened like a bounce
+    card, so her lower face is warm rather than muddy.
+  - Her nose, ears and mittens are sewn pieces in their old size and place: the nose a slightly less proud stuffed bump,
+    the ears with a hollow, a rim seam and a crease (they show with the other styles), the mittens with a seam where palm
+    and back meet and a crease at the thumb. The body's dimensions, every garment and the app's mechanics are unchanged;
+    the doll is 58.6k triangles (was 54.6k), within the tests' budget for the heaviest outfit.
+  - Not changed: ACES tone mapping (a neutral tone mapper was tried; it shifted every approved garment's colour). Open:
+    the other hairstyles share the cleaner plush and the seated daisy but not yet the sewn construction; garments that
+    still use the unfiltered noise bump could take the filtered nap in their own pull requests.
+- 12 October 2026, her head as stuffed fabric (the user, on the proof of concept above: keep the improved clothing;
+  work only on the head, close up, with her original eye colour and expression; a softly shaped, smoothly contoured
+  head, subtle fabric tension, surface texture at the right scale and embroidery integrated into the fabric; hair whose
+  shapes and surfaces belong to a sewn plush toy; shown first under neutral light, then in the app's coloured light;
+  and no more grain, stronger outlines or extra decorative seams to make up for it). Judged on studio renders of her
+  head alone in neutral light (`scripts/render-doll.mjs` studio views: the app's renderer and lights in white and
+  greys), then in the app. What was wrong, and the change:
+  - Her eyes had gone lighter and greyer (iris #907162 against the original #715147 in the same neutral light, pupil
+    #7f665d against #503d3c, lids #7b635a against #453837): the face panel laid the pile's peach sheen over the thread
+    too. The thread now has its own sheen and roughness, those of the old floss, through a sheen map
+    (`embroidery.js`), and measures as the original: iris #715147, pupil #503d3c, whites #eae8e1, lids #534342.
+  - The satin read as embossed plastic: each fill rose from the fabric rather than from the stitching under it, which
+    cut a groove round every iris and pupil, and its edges and seat drew a light rim and a dark line. Fills now lie on
+    what they are stitched over, a thread's thickness or less, with a soft rolled edge, the faintest ripple across the
+    threads and the pile pressed down softly beside them; the floss is mostly sunk into the pile.
+  - Her face's nap was projected straight along z, so where her cheeks turn away it stretched into diagonal streaks,
+    and it was drawn as fibres. Her head's fabric is now the pile seen as a whole, a soft unevenness about a millimetre
+    across at her size and about a degree deep (`pileHeight()`, `SKIN_PILE` in `plush.js`), sampled on the head's surface
+    in the face panel and laid on by position everywhere else (`triplanarPile()`), so it is one size on every piece.
+  - Her head: the chin and jaw swell in smoothly instead of from creases; the fabric is drawn in a little round her
+    sewn-on nose.
+  - Her hair read as sculpted: grooves from a whorl over the whole crown, five seams down the back, strand-like streaks.
+    Now the shell is one padded piece, smooth over the crown and back; the fringe ends in seven puffed scallops, each
+    lock's padding held by a short line of stitching at the edge, and above them falls in a few broad soft folds the way
+    it sweeps; the side pillows have no quilting, are a little fuller at the bottom where the stuffing settles, and
+    their fabric is eased into the rim seam in small irregular puckers. The pile is the same, a little coarser, on every
+    style, with a little more sheen at the turning edges; the colour is unchanged (its average tone at phone size is as
+    in the proof of concept, about a tenth darker than main's).
+  - Not changed: the clothing, the body, the app, her proportions, features and colours. Open: her hands and body
+    still use the nap; under the side pillows' top edge the shell meets the pillow along a jagged line seen only from
+    above, which the app never shows.

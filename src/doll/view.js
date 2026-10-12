@@ -39,6 +39,11 @@ async function importWithRetry(path) {
   catch { return import(`${path}?retry=${Date.now()}`); }
 }
 const worn = r => [r.topId, r.underTopId, r.bottomId, r.dressId, r.shoesId, r.outerwearId].filter(id => id && id !== 'none' && id !== 'classic');
+// She is drawn at the screen's own resolution, up to three device pixels to a CSS pixel (a phone's): drawn at fewer and
+// stretched to fit, as at the old cap of two on a phone of three, every edge of her softens. A very large screen stays
+// within the pixels the view has always been allowed (a 4K screen at two to one), so a big display is asked for no more.
+const MAX_PIXELS = 3840 * 2160;
+const pixelRatio = (width, height) => Math.max(1, Math.min(globalThis.devicePixelRatio || 1, 3, Math.sqrt(MAX_PIXELS / (width * height))));
 export async function createDollView(host, recipe) {
   const atlas={},loading=new Map();let closed=false;
   // Load one garment's texture once; if it cannot be had, the garment is drawn without it and tried again next time.
@@ -56,7 +61,7 @@ export async function createDollView(host, recipe) {
   let renderer;
   try { renderer=new T.WebGLRenderer({antialias:true,alpha:true}); }
   catch { Object.values(atlas).forEach(t=>t.dispose());throw new Error('This device could not start the 3D view. Try a browser with WebGL 2 enabled.'); }
-  renderer.setPixelRatio(Math.min(devicePixelRatio || 1,2));renderer.setClearColor(0x000000,0);renderer.outputColorSpace=T.SRGBColorSpace;
+  renderer.setClearColor(0x000000,0);renderer.outputColorSpace=T.SRGBColorSpace;
   renderer.toneMapping=T.ACESFilmicToneMapping;renderer.toneMappingExposure=1.2;renderer.shadowMap.enabled=true;renderer.shadowMap.type=T.PCFSoftShadowMap;
   renderer.domElement.setAttribute('aria-label','Dressable 3D doll. Drag to turn her, or use the view buttons.');renderer.domElement.setAttribute('role','img');
   renderer.domElement.style.touchAction='pan-y';host.append(renderer.domElement);
@@ -116,7 +121,7 @@ export async function createDollView(host, recipe) {
     style.setProperty('--feet-y',`${feet.toFixed(1)}px`);style.setProperty('--horizon-y',`${horizon.toFixed(1)}px`);style.setProperty('--doll-x',`${dollX.toFixed(1)}px`);
     // The foreground in front of her is sized to her part of the page.
     style.setProperty('--frame-w',`${(stageFrame?stageFrame.getBoundingClientRect().width:width).toFixed(1)}px`);};
-  const resize=()=>{const width=Math.max(1,host.clientWidth),height=Math.max(1,host.clientHeight);renderer.setSize(width,height);
+  const resize=()=>{const width=Math.max(1,host.clientWidth),height=Math.max(1,host.clientHeight);renderer.setPixelRatio(pixelRatio(width,height));renderer.setSize(width,height);
     const h=host.getBoundingClientRect(),f=stageFrame?stageFrame.getBoundingClientRect():h,fw=Math.max(1,f.width),fh=Math.max(1,f.height);
     camera.aspect=fw/fh;camera.position.z=camera.aspect<.65?8.8:7.5;camera.setViewOffset(fw,fh,h.left-f.left,h.top-f.top,width,height);camera.updateProjectionMatrix();place(width,height);render();};
   const observer=new ResizeObserver(resize);observer.observe(host);if(stageFrame)observer.observe(stageFrame);resize();

@@ -22,6 +22,7 @@ export const MOODS = {
 MOODS.none = MOODS.sun;
 export const moodFor = kind => MOODS[kind] || MOODS.none;
 const NOON = { golden: 0, day: 1, night: 0, dawn: false };
+const BOUNCE = new T.Color('#f4e4d6');
 // Full strength of each light: by day, at the golden hours and by night (moonlight is dim and blue).
 const STRENGTH = { key: [2.8, 3, .9], fill: [1.1, 1, .7], rim: [1.2, 1.6, .8], hemi: [1.5, 1.4, .75], env: [.55, .55, .32] };
 
@@ -66,12 +67,16 @@ function contactShadow() {
 // and the weather, and disposal.
 export function lightScene(scene, renderer) {
   const hemi = new T.HemisphereLight(), key = new T.DirectionalLight(), fill = new T.DirectionalLight(), rim = new T.DirectionalLight();
-  key.position.set(2.6, 3.4, 2.6); key.castShadow = true; key.shadow.mapSize.set(1024, 1024);
-  Object.assign(key.shadow.camera, { left: -2, right: 2, top: 3, bottom: -1, near: .1, far: 12 }); key.shadow.normalBias = .022; key.shadow.bias = -.0002;
+  // Her shadows are finely resolved and barely lifted off the surfaces that cast them (a small normal bias), so a
+  // flower, a fringe or a nose shades what it touches; and a little open, as under a soft key light with a fill,
+  // so the plush in shadow keeps its colour instead of going black.
+  key.position.set(2.6, 3.4, 2.6); key.castShadow = true; key.shadow.mapSize.set(2048, 2048);
+  Object.assign(key.shadow.camera, { left: -2, right: 2, top: 3, bottom: -1, near: .1, far: 12 }); key.shadow.normalBias = .006; key.shadow.bias = -.0004; key.shadow.intensity = .75;
   fill.position.set(-3.2, 1.6, 2.4); rim.position.set(-1.2, 2.6, -3);
   scene.add(hemi, key, fill, rim);
   // Her shadow on the ground, in the plum of the painting's shadows, and the pool under her feet.
-  const floor = new T.Mesh(new T.PlaneGeometry(20, 20), new T.ShadowMaterial({ opacity: .32, color: '#3b1a3a' }));
+  // (as dark as it always was on the ground: its opacity makes up for the open shadow above).
+  const floor = new T.Mesh(new T.PlaneGeometry(20, 20), new T.ShadowMaterial({ opacity: .32 / .75, color: '#3b1a3a' }));
   floor.rotation.x = -Math.PI / 2; floor.receiveShadow = true; floor.position.y = .003; floor.name = 'floor';
   const pool = contactShadow(); scene.add(floor, pool);
   const pmrem = new T.PMREMGenerator(renderer);
@@ -96,7 +101,9 @@ export function lightScene(scene, renderer) {
     fill.color.copy(grey(new T.Color(colours.fill))); fill.intensity = blend(STRENGTH.fill) * mood.fill;
     rim.color.copy(grey(new T.Color(colours.rim).lerp(new T.Color(colours.night), w.night))); rim.intensity = blend(STRENGTH.rim) * mood.rim;
     hemi.color.copy(grey(new T.Color().setRGB(...skyColour(world, .55, w), T.SRGBColorSpace)));
-    hemi.groundColor.copy(grey(new T.Color().setRGB(...groundColour(world, .3), T.SRGBColorSpace).multiplyScalar(.5 + .5 * (1 - w.night))));
+    // The ground's warmth bounces up under her, softened as a photographer's bounce card would soften it, so the
+    // underside of her face and clothes is warm and open rather than muddy.
+    hemi.groundColor.copy(grey(new T.Color().setRGB(...groundColour(world, .3), T.SRGBColorSpace).lerp(BOUNCE, .35).multiplyScalar(.5 + .5 * (1 - w.night))));
     hemi.intensity = blend(STRENGTH.hemi) * mood.hemi;
     scene.environmentIntensity = blend(STRENGTH.env) * mood.env;
     reflect();

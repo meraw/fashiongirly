@@ -1,24 +1,19 @@
 import * as THREE from 'three';
 import { HAIR_COLOUR, cleanHairId } from './catalog.js';
+import { pileNormalTexture, triplanarPile } from '../doll/plush.js';
 const point=p=>new THREE.Vector3(...p);
 function mesh(group,geometry,material,name){const m=new THREE.Mesh(geometry,material);m.name=name;m.castShadow=true;m.receiveShadow=true;group.add(m);return m;}
 function ball(group,position,scale,material,name){const m=mesh(group,new THREE.SphereGeometry(1,32,20),material,name);m.position.set(...position);m.scale.set(...scale);return m;}
 function line(group,points,radius,material,name='hair-thread'){return mesh(group,new THREE.TubeGeometry(new THREE.CatmullRomCurve3(points.map(point)),40,radius,5,false),material,name);}
 // She is a plush doll (the user's direction, 11 October 2026), and her hair is sewn from soft plush fabric: fully matte,
-// no gloss or highlight band, with a short pile that catches the light softly at its edges (sheen) and a fine nap in
-// the bump map. The bob in makeDoll uses it too.
-let napPixels=null;
-function nap(){
-  if(!napPixels){const size=128,data=new Uint8Array(size*size*4);let seed=11;const rand=()=>{seed=(1664525*seed+1013904223)>>>0;return seed/4294967296;};
-    const field=new Float32Array(size*size);for(let i=0;i<field.length;i++)field[i]=rand();
-    // Short fibres lying mostly one way: noise smeared along the pile, plus a little fine grain.
-    for(let y=0;y<size;y++)for(let x=0;x<size;x++){let v=0;for(let k=-3;k<=3;k++)v+=field[((y+k+size)%size)*size+(x+Math.round(k*.3)+size)%size];v=v/7*.75+field[y*size+x]*.25;
-      const i=(y*size+x)*4;data[i]=data[i+1]=data[i+2]=Math.round(40+190*v);data[i+3]=255;}
-    napPixels=data;}
-  const tex=new THREE.DataTexture(napPixels,128,128,THREE.RGBAFormat);tex.wrapS=tex.wrapT=THREE.RepeatWrapping;tex.repeat.set(6,6);
-  tex.magFilter=THREE.LinearFilter;tex.minFilter=THREE.LinearMipmapLinearFilter;tex.generateMipmaps=true;tex.needsUpdate=true;return tex;
+// no gloss or highlight band, with a short pile that catches the light softly at its edges (sheen). The pile is seen as
+// a whole, not as strands: a soft unevenness a millimetre or so across at her size (pileNormalTexture in
+// src/doll/plush.js), laid on by position so it is the same size on every piece of every style, filtered, so it reads
+// as fabric close up and averages to a smooth surface at phone size. The bob in makeDoll uses it too.
+export function hairMaterial(colour=HAIR_COLOUR){
+  const normalMap=pileNormalTexture({blob:12,seed:11});
+  return triplanarPile(new THREE.MeshPhysicalMaterial({color:colour,roughness:1,sheen:1,sheenColor:new THREE.Color(colour).lerp(new THREE.Color('#c9a596'),.78),sheenRoughness:.7,normalMap,normalScale:new THREE.Vector2(.07,.07),side:THREE.DoubleSide}));
 }
-export function hairMaterial(colour=HAIR_COLOUR){return new THREE.MeshPhysicalMaterial({color:colour,roughness:1,sheen:1,sheenColor:new THREE.Color(colour).lerp(new THREE.Color('#c9a596'),.5),sheenRoughness:.8,bumpMap:nap(),bumpScale:1.2,side:THREE.DoubleSide});}
 const material=hairMaterial;
 // The felt head's ellipsoid, and a point lifted off it along its normal.
 const HEAD=[.5,.47,.405];
@@ -180,7 +175,7 @@ export function makeHair(raw){
   if(id==='side-braid')sideBraid(group,mat);
   return group;
 }
-export function disposeHair(group){const mats=new Set();group.traverse(o=>{o.geometry?.dispose();if(o.material)for(const m of Array.isArray(o.material)?o.material:[o.material])mats.add(m);});for(const m of mats)m.dispose();}
+export function disposeHair(group){const mats=new Set();group.traverse(o=>{o.geometry?.dispose();if(o.material)for(const m of Array.isArray(o.material)?o.material:[o.material])mats.add(m);});for(const m of mats){for(const v of Object.values(m))if(v?.isTexture)v.dispose();m.dispose();}}
 // Her daisy is pinned into her hair at her left temple, whatever she wears: it sits on the outside of the hair there,
 // facing out from it, rather than at a fixed point in front of her head (where it floated off the tied-back styles).
 const FLOWER=new THREE.Vector3(.6,.5,.56).normalize(),HAIR_PART=/hair|bob|fringe|scalp|bun|twist|ponytail|braid|lengths|lock|crown/;
@@ -189,16 +184,26 @@ export function seatFlower(head){
   const inFlower=o=>{for(let p=o;p;p=p.parent)if(p===flower)return true;return false;},shown=o=>{for(let p=o;p;p=p.parent)if(!p.visible)return false;return true;};
   const hair=[];head.traverse(o=>{if(o.isMesh&&HAIR_PART.test(o.name)&&!/tie/.test(o.name)&&shown(o)&&!inFlower(o))hair.push(o);});
   head.updateMatrixWorld(true);
-  const origin=head.localToWorld(FLOWER.clone().multiplyScalar(1.5)),target=head.localToWorld(new THREE.Vector3());
-  const hit=new THREE.Raycaster(origin,target.sub(origin).normalize()).intersectObjects(hair,false)[0];
-  const at=hit?head.worldToLocal(hit.point.clone()):new THREE.Vector3(...offHead(...onEllipsoid(FLOWER),.03));
-  const normal=at.clone().divide(new THREE.Vector3(HEAD[0]**2,HEAD[1]**2,HEAD[2]**2)).normalize().lerp(FLOWER,.3).normalize();
-  flower.position.copy(at).addScaledVector(normal,.003);flower.quaternion.setFromUnitVectors(new THREE.Vector3(0,0,1),normal);
+  // Where a ray from outside her temple, aimed at her head's centre, meets her hair.
+  const ray=new THREE.Raycaster(),hitAt=dir=>{const origin=head.localToWorld(dir.clone().multiplyScalar(1.5)),target=head.localToWorld(new THREE.Vector3());ray.set(origin,target.sub(origin).normalize());const hit=ray.intersectObjects(hair,false)[0];return hit?head.worldToLocal(hit.point.clone()):null;};
+  const at=hitAt(FLOWER)??new THREE.Vector3(...offHead(...onEllipsoid(FLOWER),.03));
+  // The hair's own surface there, from points round the seat (not the head's ellipsoid, nor one triangle's slope
+  // across a seam), so the flower lies flat on it rather than tipping off one side.
+  const across=new THREE.Vector3().crossVectors(FLOWER,new THREE.Vector3(0,1,0)).normalize(),up=new THREE.Vector3().crossVectors(across,FLOWER).normalize(),ring=[];
+  for(let k=0;k<8;k++){const a=k/8*Math.PI*2,p=hitAt(FLOWER.clone().addScaledVector(across,Math.cos(a)*.075).addScaledVector(up,Math.sin(a)*.075).normalize());if(p)ring.push(p);}
+  let normal;
+  if(ring.length===8){normal=new THREE.Vector3();for(let k=0;k<8;k++)normal.add(new THREE.Vector3().crossVectors(ring[k].clone().sub(at),ring[(k+1)%8].clone().sub(at)));normal.normalize();}
+  else normal=at.clone().divide(new THREE.Vector3(HEAD[0]**2,HEAD[1]**2,HEAD[2]**2)).normalize();
+  if(normal.dot(at)<0)normal.negate();
+  // Lifted just enough that no bump of the hair under it (a stuffed lock, a hem) stands over its cupped petals, then
+  // pressed a little into the pile, as a pinned flower is.
+  let lift=0;for(const p of ring){const r2=p.clone().sub(at).projectOnPlane(normal).lengthSq();lift=Math.max(lift,p.clone().sub(at).dot(normal)+r2/(2*.5));}
+  flower.position.copy(at).addScaledVector(normal,lift-.0015);flower.quaternion.setFromUnitVectors(new THREE.Vector3(0,0,1),normal);
 }
 // Adapter: leave makeDoll, its body, and all garment builders untouched.
 export function createHairController(doll){
   const head=doll.getObjectByName('doll-head');if(!head)throw new Error('Hair requires the doll-head attachment point.');
   const names=new Set(['bob-back','hair-crown','side-bob','swept-fringe']);const originals=head.children.filter(o=>names.has(o.name)).map(o=>[o,o.visible]);
   let current=null,selected=null;
-  return {update(raw){const id=cleanHairId(raw);if(id===selected)return;const next=id==='bob'?null:makeHair(id);if(current){head.remove(current);disposeHair(current);}current=next;selected=id;for(const [o,visible] of originals)o.visible=id==='bob'?visible:false;if(current)head.add(current);seatFlower(head);},dispose(){if(current){head.remove(current);disposeHair(current);current=null;}for(const [o,visible] of originals)o.visible=visible;selected=null;seatFlower(head);}};
+  return {update(raw){const id=cleanHairId(raw);if(id===selected)return;const next=id==='bob'?null:makeHair(id);if(current){head.remove(current);disposeHair(current);}current=next;selected=id;for(const [o,visible] of originals)o.visible=id==='bob'?visible:false;head.userData.hairShade?.(id==='bob');if(current)head.add(current);seatFlower(head);},dispose(){if(current){head.remove(current);disposeHair(current);current=null;}for(const [o,visible] of originals)o.visible=visible;head.userData.hairShade?.(true);selected=null;seatFlower(head);}};
 }

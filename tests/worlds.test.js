@@ -9,6 +9,7 @@ import { presetConditions, cleanConditions } from '../src/weather/conditions.js'
 import { toConditions, forecastUrl } from '../src/weather/open-meteo.js';
 import { expressionFor, EXPRESSIONS } from '../src/doll/face.js';
 import { makeDoll, setExpression } from '../src/doll/model.js';
+import { FACE, faceUv } from '../src/doll/embroidery.js';
 import { startStudio } from '../src/doll/app.js';
 
 const LONDON = JSON.parse(readFileSync('tests/fixtures/open-meteo-london-2026-10-09.json', 'utf8'));
@@ -110,19 +111,24 @@ test('her face follows the weather and comes back to her usual smile', () => {
   assert.equal(expressionFor({ kind: 'rain', feels: 12 }), 'wistful');
   assert.equal(expressionFor({ kind: 'fog', feels: 9 }), 'dreamy');
   assert.equal(expressionFor({}), 'smile');
-  const doll = makeDoll(), head = doll.getObjectByName('doll-head');
-  const face = () => JSON.stringify(head.children.filter(o => ['stitched-smile', 'cheek', 'eyebrow'].includes(o.name)).map(o => [...o.geometry.attributes.position.array]));
-  const usual = face(), blush = head.getObjectByName('cheek').material.opacity;
+  // Her face is embroidered into one panel of her head (src/doll/embroidery.js): an expression restitches its maps.
+  const doll = makeDoll(), head = doll.getObjectByName('doll-head'), maps = head.userData.faceMaps;
+  const face = () => { let h = 0; for (const t of [maps.map, maps.normalMap, maps.orm]) { const d = t.image.data; for (let i = 0; i < d.length; i += 3) h = (h * 33 + d[i]) >>> 0; } return h; };
+  // How rosy the middle of her right cheek is: how much redder than green the fabric is there.
+  const [u, v] = faceUv(-.265, -.155), at = (Math.round(v * (FACE.h - 1)) * FACE.w + Math.round(u * (FACE.w - 1))) * 4;
+  const rosy = () => maps.map.image.data[at] - maps.map.image.data[at + 1];
+  const usual = face(), blush = rosy();
   assert.equal(setExpression(doll, 'smile'), false, 'already smiling');
   for (const mood of Object.keys(EXPRESSIONS).filter(m => m !== 'smile')) {
     assert.equal(setExpression(doll, mood), true);
     assert.notEqual(face(), usual, `${mood} changes her face`);
     for (const o of head.children) if (o.geometry) for (const v of o.geometry.attributes.position.array) assert.ok(Number.isFinite(v));
   }
-  assert.ok(head.getObjectByName('cheek').material.opacity !== blush);
+  setExpression(doll, 'rosy');
+  assert.ok(rosy() > blush, 'rosier cheeks in the cold');
   setExpression(doll, 'smile');
   assert.equal(face(), usual, 'exactly her usual face again');
-  assert.equal(head.getObjectByName('cheek').material.opacity, blush);
+  assert.equal(rosy(), blush);
   assert.equal(setExpression(doll, 'no-such-mood'), false, 'an unknown mood is her usual smile');
 });
 
