@@ -1,6 +1,10 @@
 // The day's weather as the stylist reads it, wherever it came from: a forecast or the user's own choice.
-// { day, place, source: 'forecast' | 'manual', feels, feelsMin, feelsMax, tempMin, tempMax, rainChance, rainMm,
-//   windKmh, snow, code }. Temperatures are °C; `feels` is how warm her day (8:00 to 20:00) feels on average.
+// { day, place, source: 'forecast' | 'manual', feels, feelsMin, feelsMax, shade, sun, tempMin, tempMax, rainChance,
+//   rainMm, windKmh, snow, code }. Temperatures are °C. `feels` is what she dresses for: how warm the warm part of her
+// day (11:00 to 17:00, when she is out in it) feels, in the sun when the forecast says how sunny it is (the user,
+// 12 October 2026: the old average of 8:00 to 20:00 in the shade dressed her for a day cooler than the one she had).
+// `shade` and `sun` are those hours in the shade and in the sun; feelsMin and feelsMax span her whole day, 8:00 to
+// 20:00, in the shade.
 
 // Her day starts at 5:00 (the user's choice, 9 October 2026): before then it is still yesterday's look.
 export const DAY_STARTS_AT = 5;
@@ -21,6 +25,26 @@ export function presetConditions(id, day = dayKey()) {
   return cleanConditions({ ...p, day, source: 'manual', place: null, label: p.label });
 }
 
+// How much warmer it feels in the sun than in the shade (°C), from the sunshine reaching the ground (shortwave
+// radiation, W/m²) and the wind (km/h): the sun's term in Steadman's apparent temperature, 0.7·Q / (wind + 10) with
+// the wind in m/s, where Q is what a body standing in the sun takes in per square metre of it, about an eighth of the
+// sunshine on the ground (the sun falls on roughly a quarter of a standing body, which absorbs about half of it). In
+// strong summer sun with little wind that is five or six degrees; when it is overcast or blowing, a degree or less.
+// Open-Meteo's apparent temperature is the one in the shade: it follows Steadman's formula without the sun.
+export function sunAllowance(radiation, windKmh = 0) {
+  return Number.isFinite(radiation) && radiation > 0 ? .7 * (.12 * radiation) / (Math.max(0, windKmh || 0) / 3.6 + 10) : 0;
+}
+// The day as she dresses for one person: `offset` degrees warmer for someone her outfits keep too warm, cooler for
+// someone they keep too cool (Today's "Too warm" and "Too cool"). The weather itself is unchanged.
+export const PERSONAL_LIMIT = 8;
+export function forPerson(c, offset = 0) {
+  const o = Number.isFinite(offset) ? Math.max(-PERSONAL_LIMIT, Math.min(PERSONAL_LIMIT, offset)) : 0;
+  return c && o ? { ...c, feels: c.feels + o, feelsMin: c.feelsMin + o, feelsMax: c.feelsMax + o } : c;
+}
+
+// Whether the sun makes the warm part of the day feel at least a degree warmer than the shade: she dressed for it in the sun.
+export const inTheSun = c => Number.isFinite(c?.sun) && Number.isFinite(c?.shade) && Math.round(c.sun) - Math.round(c.shade) >= 1;
+
 const num = (v, lo, hi, fallback = null) => Number.isFinite(v) ? Math.max(lo, Math.min(hi, v)) : fallback;
 // A local time of day, "HH:MM", or null.
 const clock = v => typeof v === 'string' && /^([01]\d|2[0-3]):[0-5]\d$/.test(v) ? v : null;
@@ -30,6 +54,7 @@ export function cleanConditions(v) {
     day: typeof v.day === 'string' ? v.day : dayKey(), place: typeof v.place === 'string' ? v.place : null,
     source: v.source === 'forecast' ? 'forecast' : 'manual', label: typeof v.label === 'string' ? v.label : null,
     feels: num(v.feels, -40, 50), feelsMin: num(v.feelsMin, -40, 50, v.feels), feelsMax: num(v.feelsMax, -40, 50, v.feels),
+    shade: num(v.shade, -40, 50), sun: num(v.sun, -40, 50),
     tempMin: num(v.tempMin, -40, 50), tempMax: num(v.tempMax, -40, 50),
     rainChance: num(v.rainChance, 0, 100, 0), rainMm: num(v.rainMm, 0, 500, 0), windKmh: num(v.windKmh, 0, 300, 0),
     snow: v.snow === true, code: num(v.code, 0, 99),
@@ -47,14 +72,18 @@ const CODES = [[0, 'Clear'], [1, 'Mostly clear'], [2, 'Partly cloudy'], [3, 'Ove
   [85, 'Snow showers'], [86, 'Snow showers'], [95, 'Thunderstorms'], [96, 'Thunderstorms with hail'], [99, 'Thunderstorms with hail']];
 export const codeLabel = code => CODES.find(([c]) => c === code)?.[1] ?? null;
 
-// One line for the Today panel, e.g. "Dublin · Light rain · 9–14° (feels like 11°) · rain likely · breezy".
+// One line for the Today panel, e.g. "Dublin · Light rain · 9–14° (feels like 11°) · rain likely · breezy", or on a
+// sunny day "Rome · Partly cloudy · 17–24° · this afternoon 22° in the shade, about 25° in the sun".
 export function describe(c) {
   if (!c) return '';
   const parts = [];
   if (c.place) parts.push(c.place);
   const sky = c.source === 'forecast' ? codeLabel(c.code) : c.label;
   if (sky) parts.push(sky);
-  if (Number.isFinite(c.tempMin) && Number.isFinite(c.tempMax)) parts.push(`${Math.round(c.tempMin)}–${Math.round(c.tempMax)}° (feels like ${Math.round(c.feels)}°)`);
+  const sunny = inTheSun(c);
+  const range = Number.isFinite(c.tempMin) && Number.isFinite(c.tempMax) ? `${Math.round(c.tempMin)}–${Math.round(c.tempMax)}°` : null;
+  if (sunny) parts.push(...(range ? [range] : []), `this afternoon ${Math.round(c.shade)}° in the shade, about ${Math.round(c.sun)}° in the sun`);
+  else if (range) parts.push(`${range} (feels like ${Math.round(c.feels)}°)`);
   else parts.push(`about ${Math.round(c.feels)}°`);
   if (c.snow) parts.push('snow');
   else if (c.rainChance >= 50 || c.rainMm >= 1) parts.push(`rain likely (${Math.round(c.rainChance)}%)`);

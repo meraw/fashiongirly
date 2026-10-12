@@ -290,3 +290,8 @@ The interface:
   - Not changed: the clothing, the body, the app, her proportions, features and colours. Open: her hands and body
     still use the nap; under the side pillows' top edge the shell meets the pillow along a jagged line seen only from
     above, which the app never shows.
+- 12 October 2026 (the user's request): on Dress her, today's three looks (Her pick, Bolder, Easier) are put away; she
+  is dressed there piece by piece, and the look she wears carries over. The Today card starts with what she dressed
+  for ("Dressed for 25° · this afternoon, in the sun"), in the card's quiet type with the temperature in Fraunces; the
+  "too warm" / "too cool" buttons are outlined pills like Undo. See [DAILY_STYLING_PLAN.md](DAILY_STYLING_PLAN.md),
+  "Decisions, 12 October 2026".

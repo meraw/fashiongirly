@@ -1,5 +1,7 @@
 // The studio's pages: Today, Dress her and Wardrobe share the doll and switch by the address's #hash, so the browser's
-// back button and a bookmark both work. The page in view is marked in the tabs.
+// back button and a bookmark both work. The page in view is marked in the tabs. Anything outside the pages that only
+// some pages use names them in data-pages and is put away on the others: today's three looks have no place on Dress
+// her, where she is dressed piece by piece (the user's request, 12 October 2026); the look she wears carries over.
 const PAGES = ['today', 'dress', 'wardrobe'];
 export function mountPages(doc) {
   const win = doc.defaultView;
@@ -9,6 +11,7 @@ export function mountPages(doc) {
     for (const tab of doc.querySelectorAll('.tabs [data-page]')) {
       if (tab.dataset.page === name) tab.setAttribute('aria-current', 'page'); else tab.removeAttribute('aria-current');
     }
+    for (const el of doc.querySelectorAll('[data-pages]')) el.hidden = !el.dataset.pages.split(' ').includes(name);
     doc.body.dataset.page = name;
   };
   win.addEventListener('hashchange', show);

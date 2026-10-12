@@ -1,15 +1,16 @@
 // The day's forecast from Open-Meteo (https://open-meteo.com): free, with no key or account, and callable from the
 // browser. Its free tier is for non-commercial use, which suits this personal app (the user's answer, 9 October 2026).
 // Its data is CC BY 4.0, so the Today panel credits it. This module is the app's only network request.
-import { cleanConditions } from './conditions.js';
+import { cleanConditions, sunAllowance } from './conditions.js';
 
 export const FORECAST = 'https://api.open-meteo.com/v1/forecast';
 export const GEOCODING = 'https://geocoding-api.open-meteo.com/v1/search';
-const HOURLY = 'temperature_2m,apparent_temperature,precipitation_probability,precipitation,snowfall,wind_speed_10m,weather_code';
+// How sunny each hour is (shortwave radiation) makes the warmth in the sun (sunAllowance in conditions.js).
+const HOURLY = 'temperature_2m,apparent_temperature,precipitation_probability,precipitation,snowfall,wind_speed_10m,weather_code,shortwave_radiation';
 // Sunrise and sunset, so her world's light follows the day (src/today/world.js).
 const DAILY = 'sunrise,sunset';
-// Her day, in local hours: what she dresses for.
-const FROM = 8, TO = 20, HOURS = [9, 12, 15, 18];
+// Her day, in local hours, and its warm part, when she is out in it: what she dresses for.
+const FROM = 8, TO = 20, WARM_FROM = 11, WARM_TO = 17, HOURS = [9, 12, 15, 18];
 
 export function forecastUrl({ lat, lon }, day) {
   const q = new URLSearchParams({ latitude: lat.toFixed(2), longitude: lon.toFixed(2), hourly: HOURLY, daily: DAILY, timezone: 'auto', start_date: day, end_date: day });
@@ -31,8 +32,9 @@ async function getJson(url, fetchImpl, timeoutMs) {
   } finally { clearTimeout(timer); }
 }
 
-// Reduce the hourly forecast to her day: the range and average of how warm it feels, the chance and amount of rain,
-// the strongest wind, and the most common sky (rain wins if it falls for two hours or more).
+// Reduce the hourly forecast to her day: how warm its warm part feels in the shade and in the sun (she dresses for the
+// sun when the forecast says how sunny it is), the range of how warm the whole day feels, the chance and amount of
+// rain, the strongest wind, and the most common sky (rain wins if it falls for two hours or more).
 export function toConditions(json, day, place = null) {
   const h = json?.hourly;
   if (!h || !Array.isArray(h.time)) throw new Error('The forecast was not in the expected form.');
@@ -41,13 +43,17 @@ export function toConditions(json, day, place = null) {
   const vals = key => idx.map(i => h[key]?.[i]).filter(Number.isFinite);
   const feels = vals('apparent_temperature'), temp = vals('temperature_2m');
   if (!feels.length) throw new Error('The forecast had no temperatures.');
+  const hourOf = i => +h.time[i].slice(11, 13), warmIdx = idx.filter(i => hourOf(i) >= WARM_FROM && hourOf(i) <= WARM_TO && Number.isFinite(h.apparent_temperature?.[i]));
+  const warm = warmIdx.length ? warmIdx : idx.filter(i => Number.isFinite(h.apparent_temperature?.[i])), mean = a => a.reduce((s, v) => s + v, 0) / a.length;
+  const shade = mean(warm.map(i => h.apparent_temperature[i])), sunny = Array.isArray(h.shortwave_radiation);
+  const sun = sunny ? mean(warm.map(i => h.apparent_temperature[i] + sunAllowance(h.shortwave_radiation[i], h.wind_speed_10m?.[i]))) : null;
   const sum = a => a.reduce((s, v) => s + v, 0), codes = vals('weather_code'), count = {};
   for (const c of codes) count[c] = (count[c] || 0) + 1;
   const common = list => list.sort((a, b) => count[b] - count[a] || b - a)[0];
   const wet = Object.keys(count).map(Number).filter(c => c >= 51 && count[c] >= 2);
   return cleanConditions({
     day, place, source: 'forecast',
-    feels: sum(feels) / feels.length, feelsMin: Math.min(...feels), feelsMax: Math.max(...feels),
+    feels: sun ?? shade, shade, sun, feelsMin: Math.min(...feels), feelsMax: Math.max(...feels),
     tempMin: temp.length ? Math.min(...temp) : null, tempMax: temp.length ? Math.max(...temp) : null,
     rainChance: Math.max(0, ...vals('precipitation_probability')), rainMm: sum(vals('precipitation')),
     windKmh: Math.max(0, ...vals('wind_speed_10m')), snow: sum(vals('snowfall')) > 0,

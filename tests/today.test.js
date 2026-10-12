@@ -3,13 +3,15 @@ import assert from 'node:assert/strict';
 import { JSDOM } from 'jsdom';
 import { readFileSync } from 'node:fs';
 import { startStudio } from '../src/doll/app.js';
-import { TODAY_KEY, HISTORY_KEY, PLACE_KEY } from '../src/today/today.js';
+import { TODAY_KEY, HISTORY_KEY, PLACE_KEY, WEATHER_KEY, WARMTH_KEY } from '../src/today/today.js';
 import { LEARNED_KEY } from '../src/style/taste.js';
 import { GARMENTS } from '../src/wardrobe/catalog.js';
 
 const LONDON = JSON.parse(readFileSync('tests/fixtures/open-meteo-london-2026-10-09.json', 'utf8'));
 const DUBLIN = JSON.parse(readFileSync('tests/fixtures/open-meteo-geocoding-dublin.json', 'utf8'));
-const MORNING = new Date(2026, 9, 9, 7, 30).getTime();
+const ROME = JSON.parse(readFileSync('tests/fixtures/open-meteo-rome-2026-10-12.json', 'utf8'));
+const MORNING = new Date(2026, 9, 9, 7, 30).getTime(), ROME_MORNING = new Date(2026, 9, 12, 9, 0).getTime();
+const rome = async () => ({ ok: true, status: 200, json: async () => ROME });
 const here = { getCurrentPosition(ok) { ok({ coords: { latitude: 51.51, longitude: -.13 } }); } };
 
 // A studio page with a stand-in 3D view, a recorded forecast and a fixed clock. `storage` copies an earlier visit.
@@ -130,6 +132,67 @@ test('when the weather service refuses, she says so and the user can choose the 
   assert.match(p.d.getElementById('today-status').textContent, /limit exceeded.*Choose today's weather/);
   assert.equal(p.d.getElementById('today-manual').open, true);
   p.close();
+});
+
+test('she says what she dressed for: the warm part of the day, in the sun when it shines', async () => {
+  const sunny = await open({ now: ROME_MORNING, fetch: rome }), dressed = p => p.d.getElementById('today-dressed').textContent;
+  assert.equal(dressed(sunny), 'Dressed for 25° · this afternoon, in the sun');
+  assert.match(sunny.d.getElementById('today-weather').textContent, /this afternoon 22° in the shade, about 25° in the sun/);
+  sunny.close();
+  const p = await open();
+  assert.equal(dressed(p), 'Dressed for 17° · this afternoon', 'an overcast day, in the shade');
+  click(p.d, 'today-another');
+  assert.equal(dressed(p), 'Dressed for 17° · this afternoon', 'another idea is for the same day');
+  [...p.d.querySelectorAll('#today-presets button')].find(b => b.textContent === 'Cold').click();
+  assert.equal(dressed(p), 'Dressed for 3° · the weather you chose');
+  p.close();
+});
+
+test('too warm dresses her lighter and is remembered on the days after; too cool and Reset take it back', async () => {
+  const p = await open(), d = p.d, before = p.read(TODAY_KEY).trio.pick, forecast = () => p.read(TODAY_KEY).conditions.feels;
+  assert.equal(d.getElementById('today-offset').hidden, true);
+  click(d, 'today-too-warm');
+  const offset = p.read(WARMTH_KEY), after = p.read(TODAY_KEY).trio.pick;
+  assert.ok(offset > 0, 'she remembers it');
+  assert.ok(after.warmth.total < before.warmth.total, `a lighter look (${after.warmth.total} after ${before.warmth.total})`);
+  assert.deepEqual(p.app.getRecipe(), after.recipe, 'and wears it');
+  assert.equal(d.getElementById('today-status').textContent, `Lighter. From now on she dresses as if it were ${offset}° warmer than the forecast.`);
+  assert.equal(d.getElementById('today-offset').hidden, false);
+  assert.equal(d.getElementById('today-dressed').textContent, `Dressed for ${Math.round(forecast() + offset)}° · this afternoon · ${offset}° warmer for you`);
+  const storage = p.saved(); p.close();
+  const next = await open({ now: new Date(2026, 9, 10, 7, 0).getTime(), storage }), day = () => next.read(TODAY_KEY);
+  assert.equal(day().day, '2026-10-10');
+  assert.equal(day().trio.pick.warmth.feels, day().conditions.feels + offset, 'the next day she dresses for it too');
+  assert.equal(next.d.getElementById('today-offset').hidden, false);
+  const was = day().trio.pick.warmth.total;
+  click(next.d, 'today-too-cool');
+  assert.ok(next.read(WARMTH_KEY) < offset, 'too cool takes some back');
+  assert.ok(day().trio.pick.warmth.total > was, 'a warmer look');
+  click(next.d, 'today-offset-reset');
+  assert.equal(next.read(WARMTH_KEY), 0);
+  assert.equal(next.d.getElementById('today-offset').hidden, true);
+  assert.equal(day().trio.pick.warmth.feels, day().conditions.feels, 'Reset: the forecast as it is');
+  assert.equal(next.d.getElementById('today-status').textContent, 'She dresses for the forecast as it is again.');
+  next.close();
+});
+
+test('when she is already dressed as lightly as the weather allows, too warm says so and changes nothing', async () => {
+  const p = await open({ now: ROME_MORNING, fetch: rome }), look = p.app.getRecipe();
+  click(p.d, 'today-too-warm');
+  assert.equal(p.d.getElementById('today-status').textContent, 'This is already as light as she dresses for this weather.');
+  assert.equal(p.read(WARMTH_KEY), null, 'nothing to remember');
+  assert.deepEqual(p.app.getRecipe(), look);
+  p.close();
+});
+
+test('a look chosen from a forecast read the old way is chosen again for the warm part of the day', async () => {
+  const first = await open(), storage = first.saved(); first.close();
+  const old = json => { const v = JSON.parse(json); delete v.conditions.shade; delete v.conditions.sun; return JSON.stringify(v); };
+  const again = await open({ now: MORNING + 3600e3, storage: { ...storage, [TODAY_KEY]: old(storage[TODAY_KEY]), [WEATHER_KEY]: old(storage[WEATHER_KEY]) } });
+  assert.equal(again.asked.length, 1, 'the forecast is read again');
+  assert.ok(Number.isFinite(again.read(TODAY_KEY).conditions.shade));
+  assert.ok(Number.isFinite(again.read(TODAY_KEY).trio.pick.warmth.feels));
+  again.close();
 });
 
 test('saving a look with the heart teaches her what the user likes', async () => {

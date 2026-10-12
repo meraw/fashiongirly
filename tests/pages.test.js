@@ -25,6 +25,18 @@ test('the studio has three pages, chosen by the address and marked in the tabs',
   s.close();
 });
 
+test("today's three looks are put away on the Dress her page, and the look she wears carries over", async () => {
+  const s = await studio('#today'), looks = s.d.querySelector('.looks'), go = hash => { s.dom.window.location.hash = hash; s.dom.window.dispatchEvent(new s.dom.window.HashChangeEvent('hashchange')); };
+  assert.equal(looks.hidden, false);
+  const before = JSON.stringify(s.app.getRecipe());
+  go('#dress');
+  assert.equal(looks.hidden, true, 'no Her pick, Bolder or Easier while dressing her piece by piece');
+  assert.equal(JSON.stringify(s.app.getRecipe()), before, 'she still wears the same look');
+  go('#wardrobe'); assert.equal(looks.hidden, false);
+  go('#today'); assert.equal(looks.hidden, false);
+  s.close();
+});
+
 test('the wardrobe page lists every garment by kind and puts a piece on her without changing the rest', async () => {
   const s = await studio('#wardrobe'), d = s.d;
   const pieces = [...d.querySelectorAll('#wardrobe-groups .piece')];
