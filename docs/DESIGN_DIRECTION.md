@@ -295,3 +295,6 @@ The interface:
   for ("Dressed for 25° · this afternoon, in the sun"), in the card's quiet type with the temperature in Fraunces; the
   "too warm" / "too cool" buttons are outlined pills like Undo. See [DAILY_STYLING_PLAN.md](DAILY_STYLING_PLAN.md),
   "Decisions, 12 October 2026".
+- 12 October 2026: her hands and body are sewn from her head's pile too (`plush(…, { pile: SKIN_PILE })` in
+  `makeDoll`), which closes the open point about the nap above. The nap had drawn faint streaks along each piece's uv,
+  crowding at the tip of a mitten; the difference shows only very close up, so nothing changes at phone size.
