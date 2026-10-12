@@ -81,7 +81,8 @@ export function pose(object, frame = object, offsetY = 0, attitude = ATTITUDES.p
     const g = o.geometry; if (!g?.attributes?.position || ownHead(o)) return;
     rel.multiplyMatrices(base, o.matrixWorld); back.copy(rel).invert();
     if (o.isInstancedMesh) {
-      const rest = o.userData.restMatrices ??= Array.from({ length: o.count }, (_, i) => o.getMatrixAt(i, new T.Matrix4()));
+      // getMatrixAt fills the matrix it is given and returns nothing.
+      const rest = o.userData.restMatrices ??= Array.from({ length: o.count }, (_, i) => { const r = new T.Matrix4(); o.getMatrixAt(i, r); return r; });
       for (let i = 0; i < o.count; i++) {
         m.copy(rest[i]).decompose(v, q, s);
         v.applyMatrix4(rel); v.y -= offsetY; posePoint(v, null, attitude); v.y += offsetY; v.applyMatrix4(back);
