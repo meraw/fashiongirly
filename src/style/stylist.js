@@ -15,15 +15,19 @@ export function random(seed) {
   return () => { a = (a + 0x6d2b79f5) >>> 0; let t = a; t = Math.imul(t ^ (t >>> 15), t | 1); t ^= t + Math.imul(t ^ (t >>> 7), t | 61); return ((t ^ (t >>> 14)) >>> 0) / 4294967296; };
 }
 
-// What the weather asks of an outfit. `feels` is how warm her day feels (°C); the thresholds are a starting point to
-// tune with the user. Warmth adds up on the scale in facts.js: a tee (1) and jeans (2) make 3, right for about 21 °C.
+// What the weather asks of an outfit. `feels` is how warm the part of her day she dresses for feels (°C; see
+// src/weather/conditions.js); the thresholds are a starting point to tune with the user. Warmth adds up on the scale
+// in facts.js: a tee (1) and jeans (2) make 3, right for about 21 °C. A warm day that starts or ends much cooler
+// (`cool`, the coolest of her day) asks for a light jacket to take off later: outer is 'layer', and the jacket is not
+// counted in how warm she is once it is off.
 export function needsFor(c) {
   const feels = Number.isFinite(c?.feels) ? c.feels : 16, rain = c?.rainChance ?? 0;
   const rainy = rain >= 50 || (c?.rainMm ?? 0) >= 1 || !!c?.snow, windy = (c?.windKmh ?? 0) >= 30;
+  const cool = Number.isFinite(c?.feelsMin) ? Math.min(c.feelsMin, feels) : feels, layer = !rainy && feels >= 13 && feels - cool >= 6 && cool < 16;
   return {
-    feels, rainy, windy, snow: !!c?.snow,
+    feels, cool, rainy, windy, snow: !!c?.snow,
     target: clamp(3 + (21 - feels) / 3, 2, 10),
-    outer: feels < 13 || (rainy && feels < 20) ? 'required' : feels >= 21 && !rainy ? 'none' : 'optional',
+    outer: feels < 13 || (rainy && feels < 20) ? 'required' : layer ? 'layer' : feels >= 21 && !rainy ? 'none' : 'optional',
     bareLegs: feels >= 15 && !c?.snow,
     openShoes: feels >= 19 && rain < 40,
     boots: feels < 22,
@@ -31,14 +35,16 @@ export function needsFor(c) {
 }
 
 const warmthOf = p => p?.warmth ?? 2;
+// How warm an outfit is; a jacket carried for the cool of the day (o.carried) is off for the warm part she dresses for.
 function outfitWarmth(o) {
   const body = o.dress ? warmthOf(o.dress) + .5 : warmthOf(o.top) + (o.under ? .5 * warmthOf(o.under) : 0) + warmthOf(o.bottom);
-  return body + (o.outer ? warmthOf(o.outer) - (o.open ? .5 : 0) : 0) + (o.shoes ? (warmthOf(o.shoes) - 2) * .5 : 0);
+  return body + (o.outer && !o.carried ? warmthOf(o.outer) - (o.open ? .5 : 0) : 0) + (o.shoes ? (warmthOf(o.shoes) - 2) * .5 : 0);
 }
 
 function weatherReasons(o, needs) {
   const out = [];
   if (needs.outer === 'required' && o.outer) out.push(needs.rainy && o.outer.rain === 'ok' ? `rain is likely, so the ${o.outer.name} goes on` : `it's ${Math.round(needs.feels)}° out, so the ${o.outer.name} goes on`);
+  else if (needs.outer === 'layer' && o.outer) out.push(`${Math.round(needs.feels)}° at its warmest but ${Math.round(needs.cool)}° in the cool of the day, so the ${o.outer.name} comes along to take off`);
   else if (needs.outer === 'none') out.push(`warm enough at ${Math.round(needs.feels)}° to skip a jacket`);
   if (needs.rainy && o.shoes?.rain === 'ok') out.push(`the ${o.shoes.name} can take the wet`);
   if (needs.openShoes && o.shoes?.open) out.push('warm and dry: open shoes');
@@ -94,19 +100,28 @@ function context(conditions, options) {
   };
   const shoes = pick('shoes', w.shoes, s => (!s.open || needs.openShoes) && (!needs.rainy || s.rain !== 'avoid') && (!s.shape.boot || needs.boots));
   const outerOptions = keep.outerwear ? pick('outerwear', w.outerwear) : needs.outer === 'none' ? [null]
+    : needs.outer === 'layer' ? pick('outerwear', w.outerwear, o => warmthOf(o) <= 2)
     : [...(needs.outer === 'optional' ? [null] : []), ...pick('outerwear', w.outerwear, o => (!needs.rainy || o.rain !== 'avoid') && (needs.feels >= 5 || warmthOf(o) >= 3) && (needs.feels < 16 || warmthOf(o) <= 2))];
   const tops = pick('top', w.top, () => true), bottoms = pick('bottom', w.bottom, b => !needs.rainy || b.rain !== 'avoid');
   const dresses = keep.top || keep.bottom ? [] : pick('dress', w.dress, d => !d.bareLegs || needs.bareLegs).filter(d => keep.dress || !d.bareLegs || needs.bareLegs);
   const underTops = w.top.filter(p => p.layering.underTop && !banned.has(p.id));
   const openFor = outer => !!outer?.layering.openByDefault && needs.feels >= 12 && !needs.windy && !needs.rainy;
+  // What a jacket adds to how warm she is: nothing when it is carried for the cool of the day.
+  const carried = needs.outer === 'layer', outerWarmth = outer => outer && !carried ? warmthOf(outer) - (openFor(outer) ? .5 : 0) : 0;
+  // How well an outfit's warmth suits the day. On a warm day an outfit too warm is worse than one a little cool (a
+  // jumper cannot come off; the user, 12 October 2026, found every look too warm): it may be only half as much warmer
+  // than the day asks as it may be cooler, and what it has too much counts more than what it has too little.
+  const warmDay = needs.feels >= 18;
+  const fits = (warmth, tolerance) => { const d = warmth - needs.target; return d <= (warmDay ? tolerance / 2 : tolerance) && -d <= tolerance; };
+  const misfit = warmth => { const d = warmth - needs.target; return warmDay && d > 0 ? 1.25 * d : .5 * Math.abs(d); };
   const recentRecipes = recent.map(r => ({ ...r })), shown = shownToday.map(r => ({ ...r }));
   const score = (o, final) => {
     const taste = scoreTaste(o, daring);
     let total = taste.total - novelty(o, recentRecipes, shown) + learnedBonus(learned, piecesOf(o).map(p => p.id));
-    if (final) total -= .5 * Math.abs(outfitWarmth(o) - needs.target);
+    if (final) total -= misfit(outfitWarmth(o));
     return { total, reasons: taste.reasons };
   };
-  return { seed, daring, keep, recent, needs, rng, shoes, outerOptions, tops, bottoms, dresses, underTops, openFor, score, w };
+  return { seed, daring, keep, recent, needs, rng, shoes, outerOptions, tops, bottoms, dresses, underTops, openFor, carried, outerWarmth, fits, score, w };
 }
 
 // Daring sets how bold she goes, measured on the outfits themselves: among the outfits that suit the weather, an easy
@@ -130,7 +145,7 @@ function finish(o, needs, s, rng, { keep = {}, recent = [], current = DEFAULT, h
   return {
     recipe, reasons,
     pieces: [['dress', o.dress], ['top', o.top], ['under', o.under], ['bottom', o.bottom], ['shoes', o.shoes], ['outerwear', o.outer]].filter(([, p]) => p).map(([slot, p]) => ({ slot, id: p.id, name: p.name })),
-    warmth: { total: outfitWarmth(o), target: needs.target }, score: s.total, boldness: boldness(o),
+    warmth: { total: outfitWarmth(o), target: needs.target, feels: needs.feels }, score: s.total, boldness: boldness(o),
   };
 }
 
@@ -145,12 +160,14 @@ function finish(o, needs, s, rng, { keep = {}, recent = [], current = DEFAULT, h
  *   shownToday recipes already suggested today
  *   learned    what the user's reactions taught her (taste.js)
  *   current    the recipe she is wearing (keeps its top and bottoms under a dress)
+ * Returns { recipe, reasons, pieces, warmth: { total, target, feels }, score, boldness }, or null; warmth.feels is
+ * the temperature she dressed for (Today shows it).
  */
 export function composeOutfit(conditions, options = {}) {
   const c = context(conditions, options), { needs, rng, daring } = c;
   const bases = outfitBases(c);
   const extras = new Set();
-  for (const o of c.outerOptions) for (const s of c.shoes) extras.add((o ? warmthOf(o) - (c.openFor(o) ? .5 : 0) : 0) + (s ? (warmthOf(s) - 2) * .5 : 0));
+  for (const o of c.outerOptions) for (const s of c.shoes) extras.add(c.outerWarmth(o) + (s ? (warmthOf(s) - 2) * .5 : 0));
   const beam = (list, size) => {
     pullToDaring(list, daring).sort((a, b) => b.s.total - a.s.total);
     const best = list.slice(0, size), rest = list.slice(size);
@@ -158,11 +175,11 @@ export function composeOutfit(conditions, options = {}) {
     return best;
   };
   for (const tolerance of [1.5, 2.5, Infinity]) {
-    const feasible = o => { const base = outfitWarmth({ ...o, outer: null, shoes: null }); return [...extras].some(x => Math.abs(base + x - needs.target) <= tolerance); };
+    const feasible = o => { const base = outfitWarmth({ ...o, outer: null, shoes: null }); return [...extras].some(x => c.fits(base + x, tolerance)); };
     let stage = bases.filter(feasible).map(o => ({ o, s: c.score(o) }));
     stage = beam(stage, 60).flatMap(({ o }) => c.shoes.map(s => ({ ...o, shoes: s }))).map(o => ({ o, s: c.score(o) }));
-    stage = beam(stage, 60).flatMap(({ o }) => c.outerOptions.map(outer => ({ ...o, outer, open: c.openFor(outer) })))
-      .filter(o => Math.abs(outfitWarmth(o) - needs.target) <= tolerance).map(o => ({ o, s: c.score(o, true) }));
+    stage = beam(stage, 60).flatMap(({ o }) => c.outerOptions.map(outer => ({ ...o, outer, open: c.openFor(outer), carried: c.carried })))
+      .filter(o => c.fits(outfitWarmth(o), tolerance)).map(o => ({ o, s: c.score(o, true) }));
     if (!stage.length) continue;
     pullToDaring(stage, daring).sort((a, b) => b.s.total - a.s.total);
     // Choose among the best few, favouring the higher scores, so she is not the same every morning. Only the best
@@ -190,12 +207,12 @@ function outfitBases(c) {
 // would not wear today: no jacket on a hot day, no open shoes in the cold, a wool knit only when it is cool enough.
 export function suitedToday(conditions, options = {}) {
   const c = context(conditions, options), bases = outfitBases(c), ends = [];
-  for (const outer of c.outerOptions) for (const shoes of c.shoes) ends.push([(outer ? warmthOf(outer) - (c.openFor(outer) ? .5 : 0) : 0) + (shoes ? (warmthOf(shoes) - 2) * .5 : 0), outer, shoes]);
+  for (const outer of c.outerOptions) for (const shoes of c.shoes) ends.push([c.outerWarmth(outer) + (shoes ? (warmthOf(shoes) - 2) * .5 : 0), outer, shoes]);
   for (const tolerance of [1.25, 1.5, 2.5, Infinity]) {
     const ids = new Set();
     for (const o of bases) {
       const base = outfitWarmth({ ...o, outer: null, shoes: null });
-      for (const [extra, outer, shoes] of ends) if (Math.abs(base + extra - c.needs.target) <= tolerance) for (const p of [o.dress, o.top, o.under, o.bottom, outer, shoes]) if (p) ids.add(p.id);
+      for (const [extra, outer, shoes] of ends) if (c.fits(base + extra, tolerance)) for (const p of [o.dress, o.top, o.under, o.bottom, outer, shoes]) if (p) ids.add(p.id);
     }
     if (ids.size) return ids;
   }
@@ -214,7 +231,7 @@ export function outfitOf(recipe) {
 // The smallest change to the look she is wearing: swap one piece, or two if one is not enough. Kept pieces stay.
 // `want(candidate)` says whether a change is acceptable; the best-scoring acceptable change wins.
 function smallestChange(conditions, recipe, options, slots, want) {
-  const c = context(conditions, options), { needs } = c, now = outfitOf(recipe);
+  const c = context(conditions, options), { needs } = c, now = { ...outfitOf(recipe), carried: c.carried };
   const swaps = slot => {
     if (c.keep[slot === 'outer' ? 'outerwear' : slot]) return [];
     const list = { top: now.dress ? [] : c.tops, under: now.top?.layering.overTop ? [null, ...c.underTops.filter(u => u.id !== now.top.id)] : [], bottom: now.dress ? [] : c.bottoms, dress: now.dress ? c.dresses : [], shoes: c.shoes, outer: c.outerOptions }[slot] || [];
@@ -225,7 +242,8 @@ function smallestChange(conditions, recipe, options, slots, want) {
       return o;
     });
   };
-  const fits = o => Math.abs(outfitWarmth(o) - needs.target) <= Math.max(1.5, Math.abs(outfitWarmth(now) - needs.target));
+  // A change suits the day as a new look would (c.fits), or at least no worse than the look she is wearing.
+  const off = Math.abs(outfitWarmth(now) - needs.target), fits = o => c.fits(outfitWarmth(o), 1.5) || Math.abs(outfitWarmth(o) - needs.target) <= off;
   let found = [];
   const one = slots.flatMap(swaps).filter(fits);
   found = one.filter(want);

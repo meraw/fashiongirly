@@ -6,7 +6,7 @@ import { makeOutfit, disposeObject } from '../src/doll/model.js';
 import { stylingFacts, wardrobe, readColour } from '../src/style/facts.js';
 import { composeOutfit, needsFor, adjustOutfit, composeTrio, outfitOf } from '../src/style/stylist.js';
 import { learn, cleanLearned, learnedBonus, boldness } from '../src/style/taste.js';
-import { PRESETS, presetConditions } from '../src/weather/conditions.js';
+import { PRESETS, presetConditions, cleanConditions } from '../src/weather/conditions.js';
 
 test('every garment gives the stylist readable facts on one warmth scale', () => {
   for (const g of Object.values(GARMENTS)) {
@@ -53,6 +53,30 @@ test('she dresses for every kind of weather with a recipe the studio accepts unc
     if (needs.windy || needs.rainy) assert.match(r.recipe.hairId, /ponytail|bun|braid/, `${label}: hair tied back`);
     if (r.recipe.outerwearOpen) assert.ok(GARMENTS[r.recipe.outerwearId].layering.openByDefault && !needs.windy && !needs.rainy, `${label}: open only when worn open and calm`);
   }
+});
+
+test('on a warm day she dresses light: a little cooler than the day asks rather than warmer', () => {
+  // The user, 12 October 2026: the looks ran too warm. A jumper cannot come off on a warm afternoon.
+  for (const feels of [19, 22, 25, 28]) for (const seed of [1, 2, 3, 4]) {
+    const t = composeTrio(cleanConditions({ day: '2026-10-12', source: 'manual', feels }), { seed });
+    for (const [k, r] of Object.entries(t)) assert.ok(r.warmth.total - r.warmth.target <= .75, `${feels}° seed ${seed}, ${k}: ${r.warmth.total} for ${r.warmth.target.toFixed(2)}`);
+    assert.equal(t.pick.warmth.feels, feels, 'each look says what it was dressed for');
+  }
+});
+
+test('a warm afternoon after a cool morning: a light jacket comes along, to take off', () => {
+  const c = cleanConditions({ day: '2026-10-12', source: 'forecast', feels: 24, feelsMin: 12, feelsMax: 22, shade: 21, sun: 24 }), w = id => facts(id).warmth;
+  assert.equal(needsFor(c).outer, 'layer');
+  for (const seed of [1, 2, 3, 4]) {
+    const r = composeOutfit(c, { seed }), { recipe } = r;
+    assert.notEqual(recipe.outerwearId, 'none', `seed ${seed}: a jacket comes along`);
+    assert.ok(w(recipe.outerwearId) <= 2, `seed ${seed}: a light one`);
+    assert.ok(r.reasons.some(x => /12° in the cool of the day.*to take off/.test(x)), `seed ${seed}: she says why`);
+    const body = recipe.dressId !== 'none' ? w(recipe.dressId) + .5 : w(recipe.topId) + (recipe.underTopId !== 'none' ? .5 * w(recipe.underTopId) : 0) + w(recipe.bottomId);
+    assert.equal(r.warmth.total, body + (w(recipe.shoesId) - 2) * .5, `seed ${seed}: the jacket she carries does not count once it is off`);
+  }
+  assert.equal(needsFor({ ...c, feelsMin: 20 }).outer, 'none', 'warm from morning to evening: nothing to carry');
+  assert.notEqual(needsFor({ ...c, rainChance: 80 }).outer, 'layer', 'in the rain a jacket is for the rain');
 });
 
 test('the same seed gives the same look; another seed or idea gives a new one', () => {

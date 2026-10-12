@@ -64,6 +64,21 @@ test('her clothes are posed with her in each attitude, and stay finite', () => {
   assert.ok(same(positions(outfit), bolder), 'clothes pose from their unposed shape too');
 });
 
+test('clothes with instanced parts, the crystals on the jeans and the fur on the bomber, are posed with her too', () => {
+  const matrices = root => { const out = []; root.traverse(o => { if (o.isInstancedMesh) out.push([...o.instanceMatrix.array]); }); return out; };
+  for (const r of [{ bottomId: 'crystal-straight-jeans-v1' }, { outerwearId: 'woolrich-cream-fur-hood-bomber-v1' }]) {
+    const model = new T.Group(), doll = makeDoll(), outfit = makeOutfit(cleanRecipe({ ...r, knit: false, shirt: false })), id = Object.values(r)[0];
+    model.add(doll, outfit); fitDoll(doll, outfit);
+    const raw = matrices(outfit);
+    assert.ok(raw.length, `${id} has instanced parts`);
+    pose(outfit, model, doll.position.y, ATTITUDES.bolder); const bolder = matrices(outfit);
+    assert.ok(!same(bolder, raw), `${id}: they move with her`);
+    for (const m of bolder) for (const v of m) assert.ok(Number.isFinite(v));
+    pose(outfit, model, doll.position.y, ATTITUDES.easier); pose(outfit, model, doll.position.y, ATTITUDES.bolder);
+    assert.ok(same(matrices(outfit), bolder), `${id}: posed from where they were made`);
+  }
+});
+
 test('on a windy day her loose hair moves with the wind and is set back exactly when it drops', () => {
   const across = new T.Vector3(1, 0, 0);
   assert.equal(windOffset(0, 1, .2, across).length(), 0, 'still at the root');

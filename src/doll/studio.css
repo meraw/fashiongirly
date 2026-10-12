@@ -100,6 +100,7 @@ h3{font-size:14px;margin:0}
 
 /* Today's three looks: three fabric tabs, each a strip of its pieces' cloth, compared at a glance. */
 .looks{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
+.looks[hidden]{display:none}
 .look{position:relative;display:flex;flex-direction:column;align-items:stretch;gap:4px;border:0;background:#fff8f0;border-radius:14px;padding:6px 6px 8px;color:var(--ink);text-align:center;transition:transform .18s,box-shadow .18s;box-shadow:0 8px 18px -12px #000}
 .look:hover:not(:disabled){transform:translateY(-2px)}
 .look:disabled{opacity:.65;cursor:default}
@@ -216,6 +217,10 @@ h3{font-size:14px;margin:0}
 /* What she chose is said once, under her (the stage bar's title), so here it is a quiet line. */
 #today-heading{position:absolute;width:1px;height:1px;margin:-1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
 .today-look{display:none}
+/* What she dressed for, e.g. "Dressed for 25° · this afternoon, in the sun", so a day unlike its forecast shows. */
+.today-dressed{margin:0 0 6px;font-size:13px;line-height:1.5;color:var(--muted)}
+.today-dressed strong{font:500 17px var(--display);font-variation-settings:"SOFT" 100;color:var(--ink)}
+.today-dressed:empty{display:none}
 .today-pieces{list-style:none;padding:0;margin:0}
 .today-pieces li{display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid #efdfd2;font-size:14px}
 .today-pieces li>span:last-child{flex:1;min-width:0}
@@ -231,6 +236,13 @@ h3{font-size:14px;margin:0}
 .today-actions #today-another{background:linear-gradient(180deg,#7b58a8,#5f3d8a);border-color:#5f3d8a;color:#fff6ee;font-weight:650;box-shadow:0 10px 18px -10px #5f3d8acc,inset 0 1px 0 #ffffff33}
 .today-actions button:disabled{opacity:.4;cursor:default}
 .today-note{font-size:12px;line-height:1.6;color:var(--muted);margin:16px 0 0}
+/* "Her looks feel too warm / too cool": she dresses a step lighter or warmer and remembers it. */
+.today-feel{display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin-top:14px;font-size:13px;color:var(--muted)}
+.today-feel button{border:1.5px solid var(--lilac);background:#fffdf9;border-radius:999px;padding:8px 14px;font-size:13px;color:var(--purple)}
+.today-feel button:disabled{opacity:.4;cursor:default}
+.today-offset{font-size:12px;line-height:1.6;color:var(--muted);margin:8px 0 0}
+.today-offset[hidden]{display:none}
+.today-offset button{border:0;background:none;padding:0;font-size:12px;color:var(--purple);text-decoration:underline}
 .today-manual{margin-top:16px;font-size:13px}
 .today-manual summary{cursor:pointer;color:var(--purple);text-decoration:underline dotted;text-underline-offset:4px}
 .today-place-form{margin-top:12px}

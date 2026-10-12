@@ -186,8 +186,8 @@ function mittens(root,side,material){
 const smooth=(a,b,t)=>{const x=Math.max(0,Math.min(1,(t-a)/(b-a)));return x*x*(3-2*x);};
 export function makeDoll() {
   const root=new T.Group();root.name='living-doll';
-  // Her body is sewn from the same plush as her head: skin where it shows, cream under her clothes.
-  const skin=plush('#dfb195'), under=plush('#f0e3d1'), hands=plush('#dfb195');hands.vertexColors=true;
+  // Her body is sewn from the same plush as her head, with the same pile: skin where it shows, cream under her clothes.
+  const skin=plush('#dfb195',{pile:SKIN_PILE}), under=plush('#f0e3d1',{pile:SKIN_PILE}), hands=plush('#dfb195',{pile:SKIN_PILE});hands.vertexColors=true;
   oval(root,[0,1.45,0],[.27,.43,.165],under,'cloth-body');
   oval(root,[0,1.9,0],[.1,.17,.09],skin,'neck');
   for(const side of [-1,1]){
