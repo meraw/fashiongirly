@@ -1,17 +1,18 @@
 import * as THREE from 'three';
 import { HAIR_COLOUR, cleanHairId } from './catalog.js';
-import { napNormalTexture } from '../doll/plush.js';
+import { pileNormalTexture, triplanarPile } from '../doll/plush.js';
 const point=p=>new THREE.Vector3(...p);
 function mesh(group,geometry,material,name){const m=new THREE.Mesh(geometry,material);m.name=name;m.castShadow=true;m.receiveShadow=true;group.add(m);return m;}
 function ball(group,position,scale,material,name){const m=mesh(group,new THREE.SphereGeometry(1,32,20),material,name);m.position.set(...position);m.scale.set(...scale);return m;}
 function line(group,points,radius,material,name='hair-thread'){return mesh(group,new THREE.TubeGeometry(new THREE.CatmullRomCurve3(points.map(point)),40,radius,5,false),material,name);}
 // She is a plush doll (the user's direction, 11 October 2026), and her hair is sewn from soft plush fabric: fully matte,
-// no gloss or highlight band, with a short pile that catches the light softly at its edges (sheen) and a nap combed
-// along each piece. The nap is a filtered normal map (src/doll/plush.js), so it reads as a fine pile close up and
-// averages to a smooth surface at phone size instead of a speckle. The bob in makeDoll uses it too.
+// no gloss or highlight band, with a short pile that catches the light softly at its edges (sheen). The pile is seen as
+// a whole, not as strands: a soft unevenness a millimetre or so across at her size (pileNormalTexture in
+// src/doll/plush.js), laid on by position so it is the same size on every piece of every style, filtered, so it reads
+// as fabric close up and averages to a smooth surface at phone size. The bob in makeDoll uses it too.
 export function hairMaterial(colour=HAIR_COLOUR){
-  const normalMap=napNormalTexture({along:12,across:1.4,seed:11,strength:2.4});normalMap.repeat.set(6,6);
-  return new THREE.MeshPhysicalMaterial({color:colour,roughness:1,sheen:1,sheenColor:new THREE.Color(colour).lerp(new THREE.Color('#c9a596'),.62),sheenRoughness:.8,normalMap,normalScale:new THREE.Vector2(.14,.14),side:THREE.DoubleSide});
+  const normalMap=pileNormalTexture({blob:12,seed:11});
+  return triplanarPile(new THREE.MeshPhysicalMaterial({color:colour,roughness:1,sheen:1,sheenColor:new THREE.Color(colour).lerp(new THREE.Color('#c9a596'),.78),sheenRoughness:.7,normalMap,normalScale:new THREE.Vector2(.07,.07),side:THREE.DoubleSide}));
 }
 const material=hairMaterial;
 // The felt head's ellipsoid, and a point lifted off it along its normal.

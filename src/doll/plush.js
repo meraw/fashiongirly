@@ -59,11 +59,73 @@ export function napNormalTexture({ size = 256, along = 9, across = 1.2, seed = 7
   return filtered(t);
 }
 
+// Her pile seen as a whole rather than as fibres: a soft, even unevenness about a millimetre across at her size (her
+// head is about nine centimetres wide), where the short pile clumps and leans, with a finer, fainter unevenness within
+// it. `blob` is the unevenness's size in pixels of the tile. Heights in [-1, 1].
+const piles = new Map();
+export function pileHeight({ size = 256, blob = 9, seed = 3 } = {}) {
+  const key = `${size}|${blob}|${seed}`;
+  if (piles.has(key)) return piles.get(key);
+  const coarse = napHeight(size, 2.5 * blob, blob, seed), fine = napHeight(size, 2.5 * blob * .3, blob * .3, seed + 17), h = new Float32Array(size * size);
+  let lo = Infinity, hi = -Infinity;
+  for (let i = 0; i < h.length; i++) { h[i] = coarse[i] + .3 * fine[i]; lo = Math.min(lo, h[i]); hi = Math.max(hi, h[i]); }
+  for (let i = 0; i < h.length; i++) h[i] = (h[i] - lo) / (hi - lo) * 2 - 1;
+  piles.set(key, h);
+  return h;
+}
+// The pile as a tangent-space normal map, encoded strongly for precision; the material's normalScale brings it down.
+const pileNormals = new Map();
+export function pileNormalTexture(options = {}) {
+  const { size = 256 } = options, key = JSON.stringify(options);
+  if (!pileNormals.has(key)) {
+    const h = pileHeight(options), data = new Uint8Array(size * size * 4), k = 9;
+    for (let y = 0; y < size; y++) for (let x = 0; x < size; x++) {
+      const dx = (h[y * size + (x + 1) % size] - h[y * size + (x + size - 1) % size]) / 2 * k, dy = (h[((y + 1) % size) * size + x] - h[((y + size - 1) % size) * size + x]) / 2 * k;
+      const l = Math.hypot(dx, dy, 1), i = (y * size + x) * 4;
+      data[i] = Math.round((-dx / l * .5 + .5) * 255); data[i + 1] = Math.round((-dy / l * .5 + .5) * 255); data[i + 2] = Math.round((1 / l * .5 + .5) * 255); data[i + 3] = 255;
+    }
+    pileNormals.set(key, data);
+  }
+  const t = new T.DataTexture(pileNormals.get(key), size, size, T.RGBAFormat);
+  t.wrapS = t.wrapT = T.RepeatWrapping;
+  return filtered(t);
+}
+
+// The pile laid on by position rather than by uv: sampled straight along each of a piece's own three axes (measured at
+// the world's scale, so a scaled sphere gets the same pile as everything else) and blended by which way the surface
+// faces. It keeps one size on every piece of any shape, with no stretching or pinch where uvs crowd together (the
+// crown of the bob, the tips of a pillow, the poles of a sphere), and stays fixed to the piece as she turns.
+export function triplanarPile(material, tilesPerUnit = 1075 / 256) {
+  const vary = 'varying vec3 vPilePos;\nvarying vec3 vPileNormal;\nvarying vec3 vPileX;\nvarying vec3 vPileY;\nvarying vec3 vPileZ;';
+  material.onBeforeCompile = shader => {
+    shader.uniforms.pileTile = { value: tilesPerUnit };
+    shader.vertexShader = shader.vertexShader.replace('#include <common>', `#include <common>\n${vary}`).replace('#include <begin_vertex>', `#include <begin_vertex>
+      vec3 pileScale = vec3(length(modelMatrix[0].xyz), length(modelMatrix[1].xyz), length(modelMatrix[2].xyz));
+      vPilePos = transformed * pileScale; vPileNormal = objectNormal / pileScale;
+      vPileX = normalize(mat3(modelViewMatrix) * vec3(1., 0., 0.)); vPileY = normalize(mat3(modelViewMatrix) * vec3(0., 1., 0.)); vPileZ = normalize(mat3(modelViewMatrix) * vec3(0., 0., 1.));`);
+    shader.fragmentShader = shader.fragmentShader.replace('#include <common>', `#include <common>\nuniform float pileTile;\n${vary}`).replace('#include <normal_fragment_maps>', `{
+      vec3 w = pow(abs(normalize(vPileNormal)), vec3(4.)); w /= w.x + w.y + w.z;
+      vec2 px = (texture2D(normalMap, vPilePos.zy * pileTile).xy * 2. - 1.) * normalScale;
+      vec2 py = (texture2D(normalMap, vPilePos.xz * pileTile + .37).xy * 2. - 1.) * normalScale;
+      vec2 pz = (texture2D(normalMap, vPilePos.xy * pileTile + .71).xy * 2. - 1.) * normalScale;
+      normal = normalize(normal + w.x * (px.x * vPileZ + px.y * vPileY) + w.y * (py.x * vPileX + py.y * vPileZ) + w.z * (pz.x * vPileX + pz.y * vPileY));
+    }`);
+  };
+  material.customProgramCacheKey = () => 'triplanar-pile';
+  return material;
+}
+
+// How strongly her head's pile shows (the normal scale of pileNormalTexture on her head): about a degree of unevenness,
+// which reads as soft fabric close up and is gone at phone size. Her face panel draws the same pile (embroidery.js).
+export const SKIN_PILE = .04;
 // Her plush: matte, with the soft sheen of a short pile at the turning edges, and the combed nap. `repeat` sets how many
-// nap tiles run across the surface's uv (fibres a few thousandths of her head long).
-export function plush(color, { roughness = .9, sheenTint = .3, sheenRoughness = .72, nap = .039, repeat = [12, 6], side = T.FrontSide } = {}) {
-  const normalMap = napNormalTexture(); normalMap.repeat.set(...repeat);
-  return new T.MeshPhysicalMaterial({ color, roughness, sheen: 1, sheenColor: new T.Color(color).lerp(new T.Color('#fff4ea'), sheenTint), sheenRoughness, normalMap, normalScale: new T.Vector2(nap, nap), side });
+// nap tiles run across the surface's uv (fibres a few thousandths of her head long). `pile` draws the pile seen as a
+// whole (pileHeight) instead of the nap, laid on by position (triplanarPile), at that normal scale: her head is sewn
+// from it.
+export function plush(color, { roughness = .9, sheenTint = .3, sheenRoughness = .72, nap = .039, repeat = [12, 6], side = T.FrontSide, pile = 0 } = {}) {
+  const normalMap = pile ? pileNormalTexture() : napNormalTexture(), scale = pile || nap; normalMap.repeat.set(...repeat);
+  const material = new T.MeshPhysicalMaterial({ color, roughness, sheen: 1, sheenColor: new T.Color(color).lerp(new T.Color('#fff4ea'), sheenTint), sheenRoughness, normalMap, normalScale: new T.Vector2(scale, scale), side });
+  return pile ? triplanarPile(material) : material;
 }
 
 // Her socks' fine rib knit: ribs running down the sock, each a row of little knit stitches, as a filtered normal map.

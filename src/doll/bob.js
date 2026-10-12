@@ -1,9 +1,10 @@
 // Her bob, sewn from plush like a doll's wig, in the shape it always had (the user likes her face and her bob; the
 // clarification of 11 October 2026 asked for definition and believable construction, not a new design):
-// - one shell over the crown and the back of her head, from a whorl on her crown down to a hem, cut and quilted: down
-//   the back the panels are joined by sunken seams, and at the front the shell comes down over her forehead as the
-//   swept fringe, seven stuffed locks quilted from the whorl to a scalloped edge;
-// - two side pillows, each two panels sewn round the edge and stuffed, hanging beside her face;
+// - one padded shell over the crown and the back of her head, from her crown down to a hem, smooth as plush stretched
+//   over stuffing; at the front it comes down over her forehead as the swept fringe, which ends in seven puffed
+//   scallops, each lock's padding held by a short line of stitching between it and the next;
+// - two side pillows, each two panels sewn round the edge and stuffed, hanging beside her face, a little fuller at the
+//   bottom where the stuffing settles;
 // - every edge a rolled hem with thickness, never a cut sheet; and where pieces meet or overlap, or a seam goes in,
 //   the plush is shaded (a vertex colour multiplied into the hair) as it is in a photograph of a real doll.
 // The shell is one surface, divided into the parts the hair controller has always toggled (hair-crown, bob-back,
@@ -62,10 +63,11 @@ const ANGLES = (() => {
   return out.map(a => a > Math.PI ? a - TAU : a);
 })();
 const COLS = ANGLES.length, angleAt = i => ANGLES[((i % COLS) + COLS) % COLS];
-// The whorl on her crown, towards the back and a little to her left, where the panels start: from it the back's seams
-// fall to the nape, and the fringe's come over her head and sweep down across her forehead to her right.
+// The crown of her head, towards the back and a little to her left, where the shell's columns start: from it the bob
+// falls to the nape, and the fringe comes over her head and sweeps down across her forehead to her right.
 const WHORL = new T.Vector3(Math.sin(155 * deg) * Math.sin(.42), Math.cos(.42), Math.cos(155 * deg) * Math.sin(.42)).normalize();
-const GORES = [112, 146, 180, 214, 248].map(d => d * deg);
+// How long a column is, over her head from the crown to its hem.
+const columnLength = theta => { const h = atHeight(theta, edgeHeight(theta) + .013); return Math.acos(Math.max(-1, Math.min(1, h.clone().normalize().dot(WHORL)))) * .5; };
 // Thickness of the shell over her head (its outer offset) and how far it stands off her head (inner), along a column
 // from the whorl (t = 0) to the hem (t = 1); and how deep a seam is there.
 function profile(theta, t, base) {
@@ -74,17 +76,23 @@ function profile(theta, t, base) {
   const back = ((1 - Math.cos(theta)) / 2) ** 2.5, side = Math.sin(theta) ** 2, u = lockAt(theta);
   let outer = .064 - .008 * side * (1 - back) + .034 * back + .03 * back * smooth(.7, 1, t), seam = 0;
   if (u != null) {
-    const f = u - Math.floor(u), near = Math.min(f, 1 - f), fade = smooth(.18, .55, t);
-    outer += .009 * Math.sin(Math.PI * f) * fade;// each lock stuffed
-    if (u > .02 && u < LOCKS - .02) seam = Math.exp(-((near / .085) ** 2)) * smooth(.1, .4, t);
+    // Towards its edge each lock puffs between the short lines of stitching that hold its padding, which run about a
+    // tenth of her head up from the edge (`up`: how far above the edge this is, along the column).
+    const f = u - Math.floor(u), near = Math.min(f, 1 - f), up = (1 - t) * columnLength(theta), edge = 1 - smooth(.05, .13, up);
+    outer += .009 * Math.sin(Math.PI * f) * edge;
+    // Above them the padded piece is not divided: it falls in a few broad, soft folds the way it sweeps, wide at their
+    // crests and closer in their hollows, settling out where the scallops begin.
+    const fold = Math.pow(.5 + .5 * Math.sin(TAU * u / 2.4 + .9), 1.6);
+    outer += .0055 * (fold - .45) * smooth(.3, .55, t) * (1 - .7 * edge);
+    if (u > .02 && u < LOCKS - .02) seam = Math.exp(-((near / .085) ** 2)) * (1 - smooth(.03, .09, up));
   }
-  for (const g of GORES) { const d = Math.abs(((theta - g + Math.PI) % TAU + TAU) % TAU - Math.PI); seam = Math.max(seam, Math.exp(-((d / (2.2 * deg)) ** 2)) * smooth(.15, .45, t)); }
-  outer -= .013 * seam;
+  outer -= .008 * seam;
   // Over the top of her forehead the fringe is stuffed full where its sweep begins, a little to her right, as her
   // swept locks always stood up there; it settles to its edge over her brow.
   if (base) outer += .085 * smooth(.18, .47, base.y) * smooth(-.2, .2, base.z) * Math.exp(-(((theta + .15) / 1.45) ** 2));
-  // At the whorl every column meets, so the thickness there is one value, or the columns would end in a ragged point.
-  const meet = smooth(0, .3, t);
+  // At the crown every column meets, so the thickness there is one value, or the columns would end in a ragged point;
+  // it eases into each column's own thickness gradually, so no ridge marks where.
+  const meet = smooth(0, .6, t);
   outer = .074 + (outer - .074) * meet;
   const inner = .004 + .075 * back * smooth(.55, 1, t);
   return { outer, inner, seam: seam * meet };
@@ -157,13 +165,19 @@ function shell(pillows) {
     return { p, uv: [(theta + Math.PI) / TAU * 14, v * 5.5], ao };
   });
   geo.computeVertexNormals();
+  // Where the columns meet at the crown, every column's first vertex is the same point: give them one normal, or the
+  // crown is shaded as a little star of facets.
+  const nrm = geo.attributes.normal, sum = new T.Vector3();
+  for (let i = 0; i < COLS; i++) sum.add(new T.Vector3().fromBufferAttribute(nrm, i * rows));
+  sum.normalize(); for (let i = 0; i < COLS; i++) nrm.setXYZ(i * rows, sum.x, sum.y, sum.z);
   return geo;
 }
 
 // ---- The side pillows ----------------------------------------------------------------------------------------------
 // Two panels sewn round the edge and stuffed, in the size and place of the old side locks: a slightly flattened round
-// pillow, its seam a groove all round its rim, its outer panel quilted down its length into three locks like the
-// fringe's. Returns the mesh's geometry and a rough distance to its surface.
+// pillow, its seam drawn in all round its rim, a little thinner at the top where it is sewn on and fuller at the bottom
+// where the stuffing settles. Returns the mesh's geometry and a rough distance to its surface.
+const settle = y => .94 + .1 * (.5 - .5 * y);// how full the pillow is at height y (its top 1, its bottom -1)
 function pillow(side) {
   const a = .13, b = .39, c = .245, e = 2.3, centre = new T.Vector3(side * .44, -.02, .072), turn = side * .13;
   // The sphere's seam (where its texture wraps round) is turned to the side against her head, out of sight.
@@ -172,17 +186,15 @@ function pillow(side) {
   for (let i = 0; i < p.count; i++) {
     const x = p.getX(i), y = p.getY(i), z = p.getZ(i), k = Math.pow(Math.abs(x) ** e + (y * y + z * z) ** (e / 2), -1 / e);
     let X = a * x * k, Y = b * y * k, Z = c * z * k;
-    // The seam: the rim drawn in where the two panels meet.
-    const w = Math.exp(-((X / .011) ** 2)), rho = Math.hypot(Y / b, Z / c), pull = 1 - .009 * w / (Math.hypot(Y, Z) || 1);
-    Y *= pull; Z *= pull;
-    // The quilting on the outer panel: two lines down its length, a third of the way in from each side, fading out
-    // before the rim, and each of the three locks stuffed between them.
-    const face = smooth(.15, .6, side * X / a) * (1 - smooth(.7, .97, rho)), u = (Z / c + 1) * 1.5, f = u - Math.floor(u);
-    const quilt = u > .5 && u < 2.5 ? Math.exp(-(((Math.min(f, 1 - f) * 2 * c / 3) / .024) ** 2)) : 0;
-    X += (-.0055 * quilt + .006 * Math.sin(Math.PI * f) * (1 - quilt)) * face;
+    // The seam: the rim drawn in where the two panels meet, the fabric eased into it in small irregular puckers that
+    // fade within a few millimetres of it.
+    const w = Math.exp(-((X / .011) ** 2)), rho = Math.hypot(Y / b, Z / c), around = Math.atan2(Z / c, Y / b), bySeam = Math.exp(-((X / .028) ** 2));
+    const pucker = .0017 * bySeam * (1 - .7 * w) * Math.sin(around * 29 + 1.9 * Math.sin(around * 4 + side) + 1.3 * Math.sin(around * 11));
+    const pull = 1 - (.009 * w - pucker) / (Math.hypot(Y, Z) || 1);
+    Y *= pull; Z *= pull; if (side * X > 0) X *= settle(Y / b);// the outer panel; the inner lies against her head
     v.set(X, Y, Z).applyMatrix4(rot).add(centre); p.setXYZ(i, v.x, v.y, v.z);
-    // Shading: in the seam and the quilting, and where the pillow presses against her head.
-    const near = headDistance(v), ao = (1 - .34 * w * clamp(rho)) * (1 - .22 * quilt * face) * (1 - .42 * Math.exp(-Math.max(0, near) / .022));
+    // Shading: in the seam, and where the pillow presses against her head.
+    const near = headDistance(v), ao = (1 - .34 * w * clamp(rho)) * (1 - .42 * Math.exp(-Math.max(0, near) / .022));
     shade.set([ao, ao, ao], i * 3);
     uv.setXY(i, uv.getX(i) * 6, uv.getY(i) * 3.6);
   }
@@ -190,11 +202,11 @@ function pillow(side) {
   // A rough distance to the pillow (the same shape without its seam), for shading what it lies on.
   const inv = new T.Matrix4().makeRotationZ(-turn), l = new T.Vector3();
   const distance = pt => { l.copy(pt).sub(centre).applyMatrix4(inv); const f = Math.pow(Math.abs(l.x / a) ** e + ((l.y / b) ** 2 + (l.z / c) ** 2) ** (e / 2), 1 / e); return (f - 1) * Math.min(a, b, c) * 1.6; };
-  // How far a point would have to move along `n` (towards her head) to lie inside the pillow, below the quilting lines
-  // sunk into its outer panel, and how far within the pillow's outline it is (rho: 0 at its middle, 1 at its rim). The
-  // shell under it is pressed down by this much.
+  // How far a point would have to move along `n` (towards her head) to lie a little inside the pillow, and how far
+  // within the pillow's outline it is (rho: 0 at its middle, 1 at its rim). The shell under it is pressed down by this
+  // much.
   const axis = new T.Vector3(side, 0, 0).applyMatrix4(rot);
-  const press = (pt, n) => { l.copy(pt).sub(centre).applyMatrix4(inv); const rho = Math.hypot(l.y / b, l.z / c), face = rho < 1 ? a * Math.pow(1 - rho ** e, 1 / e) : 0, over = side * l.x - (face - .004 - .0075 * (1 - smooth(.7, .97, rho))); return { rho, depth: over > 0 ? over / Math.max(.35, n.dot(axis)) : 0 }; };
+  const press = (pt, n) => { l.copy(pt).sub(centre).applyMatrix4(inv); const rho = Math.hypot(l.y / b, l.z / c), face = rho < 1 ? a * Math.pow(1 - rho ** e, 1 / e) * settle(l.y / b) : 0, over = side * l.x - (face - .006); return { rho, depth: over > 0 ? over / Math.max(.35, n.dot(axis)) : 0 }; };
   return { geo, distance, press };
 }
 
@@ -235,7 +247,7 @@ function pieces() {
 // Put her bob on her head (a group with her head's ellipsoid at its origin). `material` is her hair plush; it is
 // given vertex colours for the shading. Returns what shadeFace needs.
 export function makeBob(head, material) {
-  material.vertexColors = true; material.normalMap.repeat.set(1, 1);
+  material.vertexColors = true;
   const { parts, pillows } = pieces();
   for (const [name, geo] of parts) { const mesh = new T.Mesh(geo.clone(), material); mesh.name = name; mesh.castShadow = mesh.receiveShadow = true; head.add(mesh); }
   for (const [i, side] of [-1, 1].entries()) { const mesh = new T.Mesh(pillows[i].geo.clone(), material); mesh.name = 'side-bob'; mesh.userData.side = side; mesh.castShadow = mesh.receiveShadow = true; head.add(mesh); }

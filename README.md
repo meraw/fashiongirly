@@ -40,7 +40,7 @@ npm test
 npm run build
 ```
 
-To render her for review the same way every time, before and after a change (the same outfit, world, hour and framing; a phone screen, close views and turned views): `node scripts/render-doll.mjs <out-prefix>` with `npm run dev` running. It needs Playwright with Chromium (`npm i --no-save playwright`).
+To render her for review the same way every time, before and after a change (the same outfit, world, hour and framing; a phone screen, close views and turned views): `node scripts/render-doll.mjs <out-prefix>` with `npm run dev` running. Its studio views (`studio-front`, `studio-three`, `studio-side`, `studio-back`, `studio-top`, `studio-eyes`) show her head alone in neutral light. It needs Playwright with Chromium (`npm i --no-save playwright`).
 
 Deploy `dist/` to a static host. All runtime dependencies are copied into the build: no CDN requests, credentials, or API calls are needed. App paths work at a repository subpath such as `/fashiongirly/`.
 
@@ -49,7 +49,7 @@ For GitHub Pages: select **Settings → Pages → Source → GitHub Actions**, t
 ## Source map
 
 - `src/doll/model.js`: doll identity and separately constructed outfit, procedural fabric textures, and resource disposal.
-- `src/doll/plush.js`, `src/doll/embroidery.js`, `src/doll/bob.js`: her plush (a fine nap as a filtered normal map), her face embroidered into a panel of her head, and her bob sewn from quilted plush pieces.
+- `src/doll/plush.js`, `src/doll/embroidery.js`, `src/doll/bob.js`: her plush (a fine pile as a filtered normal map, laid on by position on her head and hair), her face embroidered into a panel of her head, and her bob sewn from padded plush pieces.
 - `src/doll/recipe.js`: clothing recipe validation and bounded description editing.
 - `src/doll/view.js`: Three.js camera, touch rotation, taps on her clothes, and rendering lifecycle; it frames her within `#frame`, the part of the page that is hers, and tells the stylesheet where her feet fall. `src/doll/light.js`: her world's light: a warm key from the painted sun's side, a lilac fill, the sky-coloured environment she reflects, her shadow on the meadow, and a mood per kind of weather. `src/doll/pose.js`: her resting pose and an attitude for each look, one smooth deformation applied to her, her hair and each fitted outfit, so garments stay fitted to the still body. `src/doll/twirl.js`: her twirl when she changes clothes. `src/hair/wind.js`: her loose hair in the wind.
 - `src/doll/tuck.js`: tucks a shirt or tee into her trousers or skirt; tap her top to tuck it in or out, and her jacket to open or close it.

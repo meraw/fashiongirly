@@ -17,7 +17,7 @@ import { makeButtonShirt, SHIRT_IDS } from './shirts.js';
 import { hairMaterial, seatFlower } from '../hair/model.js';
 import { EXPRESSIONS } from './face.js';
 import { faceMaps, faceUv, restitch, SKIN } from './embroidery.js';
-import { plush, ribKnit } from './plush.js';
+import { plush, ribKnit, SKIN_PILE } from './plush.js';
 import { makeBob, shadeFace, headDistance } from './bob.js';
 // Body and wardrobe share one toy proportion system; the face stays unscaled.
 const BODY_HEIGHT = .76;
@@ -119,17 +119,19 @@ let faceShade=null;
 function makeHead() {
   const head=new T.Group();head.name='doll-head';head.position.set(0,2.34,0);head.rotation.z=-.105;
   // Her head is sewn from her plush. The front is a face panel with her features embroidered into it (embroidery.js:
-  // her eyes, stars, lids, lashes, brows, smile and blush, each where it always was); the rest of her head, her ears
-  // and her little nose are the same plush, plain. The panel's maps read the head's second uv set, laid straight along
-  // z over the front, as the features always were.
-  const skin=plush(SKIN),maps=faceMaps('smile');head.userData.faceMaps=maps;head.userData.expression='smile';
-  const face=new T.MeshPhysicalMaterial({color:'#ffffff',map:maps.map,normalMap:maps.normalMap,roughnessMap:maps.orm,aoMap:maps.orm,roughness:1,sheen:1,sheenColor:skin.sheenColor.clone(),sheenRoughness:skin.sheenRoughness});
+  // her eyes, stars, lids, lashes, brows, smile and blush, each where it always was, in the old threads' colours and
+  // sheen); the rest of her head, her ears and her little nose are the same plush, plain, its pile the same size on
+  // each. The panel's maps read the head's second uv set, laid straight along z over the front, as the features always
+  // were; the sheen is the pile's on the fabric and the thread's on the stitches.
+  const skin=plush(SKIN,{pile:SKIN_PILE}),maps=faceMaps('smile');head.userData.faceMaps=maps;head.userData.expression='smile';
+  const face=new T.MeshPhysicalMaterial({color:'#ffffff',map:maps.map,normalMap:maps.normalMap,roughnessMap:maps.orm,aoMap:maps.orm,roughness:1,sheen:1,sheenColor:'#ffffff',sheenColorMap:maps.sheen,sheenRoughness:1,sheenRoughnessMap:maps.sheen});
   // A doll's head rather than a ball: a small chin brought forward under the smile, low enough to stay behind a
   // stand-up collar, and fuller cheeks at the jaw, both outside the face's features, which keep their places on the
-  // plain ellipsoid. Finely divided, so its outline stays round close up.
+  // plain ellipsoid. Each swells in smoothly, as stuffing fills a sewn head, with no crease where it begins. Finely
+  // divided, so its outline stays round close up.
   const headGeo=new T.SphereGeometry(1,72,54),hp=headGeo.attributes.position;
   for(let i=0;i<hp.count;i++){const x=hp.getX(i),y=hp.getY(i),z=hp.getZ(i);
-    const chin=Math.max(0,-y-.7)/.3*Math.max(0,z+.2)*.06,jaw=Math.max(0,Math.abs(x)-.72)/.28*Math.max(0,1-Math.abs(y+.25)/.45)*.05,s=1+jaw;
+    const chin=smooth(-.7,-1,y)*.1*Math.log(1+Math.exp((z+.2)/.1))*.06,jaw=smooth(.72,1,Math.abs(x))*Math.exp(-(((y+.25)/.3)**2))*.05,s=1+jaw;
     hp.setXYZ(i,x*s,y*s,z*s+chin);}
   headGeo.computeVertexNormals();
   const uv1=new Float32Array(hp.count*2);for(let i=0;i<hp.count;i++){const [u,v]=faceUv(hp.getX(i)*.5,hp.getY(i)*.47);uv1[i*2]=u;uv1[i*2+1]=v;}
@@ -138,10 +140,10 @@ function makeHead() {
   const index=headGeo.index.array,front=[],back=[];
   for(let t=0;t<index.length;t+=3)(hp.getZ(index[t])>0&&hp.getZ(index[t+1])>0&&hp.getZ(index[t+2])>0?front:back).push(index[t],index[t+1],index[t+2]);
   headGeo.setIndex([...front,...back]);headGeo.clearGroups();headGeo.addGroup(0,front.length,0);headGeo.addGroup(front.length,back.length,1);
-  const headSkin=skin.clone();put(head,headGeo,[face,headSkin],'felt-head').scale.set(.5,.47,.405);
+  const headSkin=plush(SKIN,{pile:SKIN_PILE});put(head,headGeo,[face,headSkin],'felt-head').scale.set(.5,.47,.405);
   // Her ears, in their old size and place: each a little stuffed piece sewn on, with a shallow hollow in its outer
   // face, a seam round its rim and a crease where it meets her head (under the bob; they show with other styles).
-  const ears=plush(SKIN);ears.vertexColors=true;
+  const ears=plush(SKIN,{pile:SKIN_PILE});ears.vertexColors=true;
   for(const side of [-1,1]){const ear=put(head,new T.SphereGeometry(1,28,20),ears,'ear');ear.position.set(side*.473,-.04,0);ear.scale.set(.08,.12,.075);ear.updateMatrix();
     const p=ear.geometry.attributes.position,c=new Float32Array(p.count*3),v=new T.Vector3(),w=new T.Vector3();
     for(let i=0;i<p.count;i++){v.fromBufferAttribute(p,i);const out=v.x*side,rim=Math.exp(-((v.x/.12)**2)),hollow=out>0?Math.max(0,1-(v.y*v.y+v.z*v.z)/.62):0;
@@ -150,7 +152,7 @@ function makeHead() {
     ear.geometry.setAttribute('color',new T.BufferAttribute(c,3));ear.geometry.computeVertexNormals();}
   // Her little nose: a small stuffed bump sewn onto the face, its footprint as it always was, standing a little less
   // proud than a bead would, in a softer sheen; the face's maps shade the seam round it.
-  oval(head,[.01,-.087,.4],[.037,.028,.033],plush(SKIN,{roughness:.97,sheenRoughness:.9}),'little-nose');
+  oval(head,[.01,-.087,.4],[.037,.028,.033],plush(SKIN,{roughness:.97,sheenRoughness:.9,pile:SKIN_PILE}),'little-nose');
   // Her bob, sewn from the plush every style shares (bob.js): a quilted shell from a whorl on her crown, coming down over
   // her forehead as the swept fringe, and two stuffed side pillows. Its shadow on her face is a vertex colour on her
   // head, put away while she wears another style (src/hair/model.js says when).

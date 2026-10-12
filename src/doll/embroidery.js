@@ -10,7 +10,7 @@
 // the stars along their points), so each layer catches the light differently, as real embroidery does.
 import * as T from 'three';
 import { SMILES, EXPRESSIONS } from './face.js';
-import { napHeight, filtered } from './plush.js';
+import { pileHeight, filtered, SKIN_PILE } from './plush.js';
 
 // The front of her head, x across and y up in head space, projected straight along z (as the features always were).
 export const FACE = { x0: -.42, x1: .42, y0: -.36, y1: .3, w: 1024, h: 805 };
@@ -64,13 +64,14 @@ function staticFeatures() {
   const list = [{ kind: 'seat', shape: ellipse(.01, -.087, .0367, .0278) }];
   for (const side of [-1, 1]) {
     const cx = side * .183;
-    // Satin fills: their colour, how high the padding stands, the threads' direction (an angle, or radiating from a
-    // point, the whites' from a point far below so they fan a little) and their spacing.
-    list.push({ kind: 'satin', shape: ellipse(cx, .005, .126, .095), colour: CREAM, pad: .0018, radial: [cx, -.45, .455], pitch: .0042 });
-    list.push({ kind: 'satin', shape: ellipse(cx + .017, .005, .077, .085), colour: IRIS, pad: .0027, radial: [cx + .017, .005, .066], pitch: .0036 });
-    list.push({ kind: 'satin', shape: ellipse(cx + .021, .006, .048, .064), colour: PUPIL, pad: .0033, dir: .3, pitch: .0034 });
-    list.push({ kind: 'satin', shape: star(cx + .003, .035, .027), colour: CREAM, pad: .0039, radial: [cx + .003, .035, .016], pitch: .0026 });
-    list.push({ kind: 'satin', shape: star(cx + .047, -.014, .013), colour: CREAM, pad: .0037, radial: [cx + .047, -.014, .008], pitch: .0022 });
+    // Satin fills: their colour, how far each stands above what it is stitched over (a thread's thickness or less, so
+    // the fills lie in the pile rather than on it), the threads' direction (an angle, or radiating from a point, the
+    // whites' from a point far below so they fan a little) and their spacing.
+    list.push({ kind: 'satin', shape: ellipse(cx, .005, .126, .095), colour: CREAM, pad: .0008, radial: [cx, -.45, .455], pitch: .0042 });
+    list.push({ kind: 'satin', shape: ellipse(cx + .017, .005, .077, .085), colour: IRIS, pad: .0004, radial: [cx + .017, .005, .066], pitch: .0036 });
+    list.push({ kind: 'satin', shape: ellipse(cx + .021, .006, .048, .064), colour: PUPIL, pad: .0003, dir: .3, pitch: .0034 });
+    list.push({ kind: 'satin', shape: star(cx + .003, .035, .027), colour: CREAM, pad: .0004, radial: [cx + .003, .035, .016], pitch: .0026 });
+    list.push({ kind: 'satin', shape: star(cx + .047, -.014, .013), colour: CREAM, pad: .0004, radial: [cx + .047, -.014, .008], pitch: .0022 });
   }
   // Twisted floss: the lids over the eyes and three lashes at each outer corner.
   for (const side of [-1, 1]) {
@@ -94,34 +95,47 @@ function expressionFeatures(expression) {
 const { w: W, h: H } = FACE, N = W * H;
 const toX = i => FACE.x0 + (i + .5) * PX, toY = j => FACE.y0 + (j + .5) * PY;
 const range = (box, m) => [Math.max(0, Math.floor((box[0] - m - FACE.x0) / PX)), Math.max(0, Math.floor((box[1] - m - FACE.y0) / PY)), Math.min(W - 1, Math.ceil((box[2] + m - FACE.x0) / PX)), Math.min(H - 1, Math.ceil((box[3] + m - FACE.y0) / PY))];
-// The fabric's nap at the same size as on the rest of her head (see plush.js: about 1075 nap pixels per unit there).
-const NAP_SCALE = 1075 * PX, NAP_HEIGHT = .085 / 1075;
-const RISE = .0032, SEAT = .0036, DIP = .0006, REACH = 6 * SEAT;
+// The pile at the size and strength it has on the rest of her head (plush.js: about 1075 pile pixels per unit there, and
+// the normal scale SKIN_PILE), sampled on her head's surface rather than straight along z, so it keeps its size where
+// her cheeks turn away instead of stretching into streaks.
+const PILE = 1075, PILE_HEIGHT = 9 * SKIN_PILE / PILE, HA = .5, HB = .47, HC = .405;
+// Satin rolls over its edge across RISE. Beside a stitch the pile it goes into is pressed down a little and shaded,
+// softly (SEAT, DIP): thread sunk into the fabric rather than laid on top, with no dark line round it.
+const RISE = .004, SEAT = .0028, DIP = .0002, REACH = 6 * SEAT;
+const SHEEN = (() => { const c = new T.Color(SKIN).lerp(new T.Color('#fff4ea'), .3); return [c.r, c.g, c.b]; })();
+// The thread's own sheen: the soft sheen of the floss the old features were made of (their colour towards white, at .8).
+const threadSheen = ([r, g, b]) => [(r * .65 + .35) * .8, (g * .65 + .35) * .8, (b * .65 + .35) * .8];
 
-// The working layers: linear colour, height (head units), occlusion and roughness.
+// The working layers: linear colour, height (head units; `top` is the smooth surface the next stitches lie on, without
+// the pile), occlusion, roughness, and the sheen's colour and roughness (the pile's, or the thread's where stitched).
 function fabric() {
-  const col = new Float32Array(N * 3), hgt = new Float32Array(N), ao = new Float32Array(N).fill(1), rough = new Float32Array(N).fill(.92);
-  const skin = lin(SKIN), nap = napHeight(), M = 255;
-  for (let j = 0; j < H; j++) {
-    const v = j * NAP_SCALE, v0 = v | 0, fv = v - v0, r0 = (v0 & M) * 256, r1 = ((v0 + 1) & M) * 256;
-    for (let i = 0; i < W; i++) {
-      const k = j * W + i, u = i * NAP_SCALE, u0 = u | 0, fu = u - u0, c0 = u0 & M, c1 = (u0 + 1) & M;
-      const a = nap[r0 + c0], b = nap[r0 + c1], c = nap[r1 + c0], d = nap[r1 + c1];
-      hgt[k] = (a + (b - a) * fu + (c - a) * fv + (a - b - c + d) * fu * fv) * NAP_HEIGHT;
-      col[k * 3] = skin[0]; col[k * 3 + 1] = skin[1]; col[k * 3 + 2] = skin[2];
-    }
-  }
-  return { col, hgt, ao, rough };
+  const col = new Float32Array(N * 3), hgt = new Float32Array(N), top = new Float32Array(N), ao = new Float32Array(N).fill(1), rough = new Float32Array(N).fill(.92);
+  const sheen = new Float32Array(N * 3), sr = new Float32Array(N).fill(.72), skin = lin(SKIN), pile = pileHeight(), M = 255;
+  const at = (u, v) => {
+    const u0 = Math.floor(u), v0 = Math.floor(v), fu = u - u0, fv = v - v0, c0 = u0 & M, c1 = (u0 + 1) & M, r0 = (v0 & M) * 256, r1 = ((v0 + 1) & M) * 256;
+    const a = pile[r0 + c0], b = pile[r0 + c1], c = pile[r1 + c0], d = pile[r1 + c1];
+    return a + (b - a) * fu + (c - a) * fv + (a - b - c + d) * fu * fv;
+  };
+  for (let j = 0; j < H; j++) { const y = toY(j); for (let i = 0; i < W; i++) {
+    const x = toX(i), k = j * W + i, z = HC * Math.sqrt(Math.max(0, 1 - (x / HA) ** 2 - (y / HB) ** 2));
+    // The three straight projections of the pile, blended by which way her head faces there.
+    const nx = x / (HA * HA), ny = y / (HB * HB), nz = z / (HC * HC), l = Math.hypot(nx, ny, nz) || 1, wx = (nx / l) ** 4, wy = (ny / l) ** 4, wz = (nz / l) ** 4;
+    hgt[k] = (wz * at(x * PILE, y * PILE) + wx * at(z * PILE + 91, y * PILE) + wy * at(x * PILE, z * PILE + 37)) / (wx + wy + wz || 1) * PILE_HEIGHT;
+    col[k * 3] = skin[0]; col[k * 3 + 1] = skin[1]; col[k * 3 + 2] = skin[2]; sheen[k * 3] = SHEEN[0]; sheen[k * 3 + 1] = SHEEN[1]; sheen[k * 3 + 2] = SHEEN[2];
+  } }
+  return { col, hgt, top, ao, rough, sheen, sr };
 }
 // Stitching, one kind of stitch per function so that each pixel loop reads only plain local values.
-// A covering thread: its colour (shaded), the height of its top, and it is not in shadow; beside a thread, the fabric
-// (or the layer below) is drawn down a little and shaded where the thread goes in.
-function lay(L, k, r, g, b, shade, top, cover) {
-  const col = L.col, i = k * 3;
+// A covering thread: its colour (shaded), how far its smooth top stands above what it lies on, a ripple across its
+// threads, its sheen, and it is not in shadow; beside a thread, the pile is pressed down a little where the thread goes in.
+function lay(L, k, r, g, b, shade, rise, ripple, cover, sr, sg, sb) {
+  const col = L.col, sh = L.sheen, i = k * 3, top = L.top[k] + rise;
   col[i] += (r * shade - col[i]) * cover; col[i + 1] += (g * shade - col[i + 1]) * cover; col[i + 2] += (b * shade - col[i + 2]) * cover;
-  L.hgt[k] += (top - L.hgt[k]) * cover; L.ao[k] += (1 - L.ao[k]) * cover; L.rough[k] += (.55 - L.rough[k]) * cover;
+  sh[i] += (sr - sh[i]) * cover; sh[i + 1] += (sg - sh[i + 1]) * cover; sh[i + 2] += (sb - sh[i + 2]) * cover;
+  L.hgt[k] += (top + ripple - L.hgt[k]) * cover; L.top[k] += (top - L.top[k]) * cover;
+  L.ao[k] += (1 - L.ao[k]) * cover; L.rough[k] += (.6 - L.rough[k]) * cover; L.sr[k] += (.45 - L.sr[k]) * cover;
 }
-function seat(L, k, d) { const e = Math.exp(-d / SEAT); L.hgt[k] -= DIP * e; L.ao[k] *= 1 - .38 * e; }
+function seat(L, k, d) { const e = Math.exp(-d / SEAT); L.hgt[k] -= DIP * e; L.ao[k] *= 1 - .12 * e; }
 // Airbrushed into the pile: full strength over most of the cheek, then a soft, even fall to nothing. Dye in the pile
 // reads paler than the old blush patch laid on top, so it is laid a little stronger.
 function blush(L, f) {
@@ -133,14 +147,15 @@ function blush(L, f) {
     col[k] += (r - col[k]) * t; col[k + 1] += (g - col[k + 1]) * t; col[k + 2] += (bl - col[k + 2]) * t;
   } }
 }
+// Round her sewn-on nose the fabric is drawn in a little by its stitches, and shaded, a little more below it.
 function nose(L, f) {
-  const sdf = f.shape.sdf, cy = f.shape.centre[1], [i0, j0, i1, j1] = range(f.shape.box, .02), ao = L.ao;
+  const sdf = f.shape.sdf, cy = f.shape.centre[1], [i0, j0, i1, j1] = range(f.shape.box, .02), ao = L.ao, hgt = L.hgt;
   for (let j = j0; j <= j1; j++) { const y = toY(j), below = 1 + .5 * smooth(0, -.03, y - cy); for (let i = i0; i <= i1; i++) {
-    const d = sdf(toX(i), y); if (d > 0) ao[j * W + i] *= 1 - .5 * Math.exp(-d / .0055) * below;
+    const d = sdf(toX(i), y), k = j * W + i; if (d > 0) { ao[k] *= 1 - .5 * Math.exp(-d / .0055) * below; hgt[k] -= .0005 * Math.exp(-d / .007); }
   } }
 }
 function satin(L, f) {
-  const sdf = f.shape.sdf, [i0, j0, i1, j1] = range(f.shape.box, REACH), [r, g, b] = f.colour, pad = f.pad, pitch = f.pitch;
+  const sdf = f.shape.sdf, [i0, j0, i1, j1] = range(f.shape.box, REACH), [r, g, b] = f.colour, [sr, sg, sb] = threadSheen(f.colour), pad = f.pad, pitch = f.pitch;
   const radial = !!f.radial, [rx, ry, rr] = f.radial || [0, 0, 0], sa = Math.sin(f.dir || 0), ca = Math.cos(f.dir || 0);
   // Radiating threads come round in a whole number, so there is no seam where the angle turns over.
   const count = radial ? Math.round(2 * Math.PI * rr / pitch) / (2 * Math.PI) : 0;
@@ -155,15 +170,17 @@ function satin(L, f) {
     const n = Math.floor(ph); d += ((((n * 7919) % 13) + 13) % 13 / 13 - .5) * .0006;
     if (d > 0) seat(L, k, d);
     const cover = clamp(.5 - d / PX); if (cover <= 0) continue;
+    // The fill rolls over its edge onto what it lies on; its threads show as the faintest ripple and a slight
+    // difference in how each takes the light.
     const inside = -d, wave = Math.sqrt(Math.abs(Math.sin(Math.PI * ph)));
-    const shade = (1 + .06 * Math.sin(2 * Math.PI * ph)) * (.86 + .14 * smooth(0, RISE * .9, inside));
-    lay(L, k, r, g, b, shade, pad * smooth(0, RISE, inside) + .00035 * (wave - .6), cover);
+    const shade = (1 + .03 * Math.sin(2 * Math.PI * ph)) * (.96 + .04 * smooth(0, RISE * .9, inside));
+    lay(L, k, r, g, b, shade, pad * smooth(0, RISE, inside), .00007 * (wave - .6), cover, sr, sg, sb);
   } }
 }
 // A cord: each segment of its centre line marks the pixels near it with their distance, how far along the cord they
 // lie and on which side; then each marked pixel is stitched once.
 function floss(L, f) {
-  const s = f.shape, [i0, j0, i1, j1] = range(s.box, REACH), bw = i1 - i0 + 1, bh = j1 - j0 + 1, [r, g, b] = f.colour, R = s.r, total = s.total;
+  const s = f.shape, [i0, j0, i1, j1] = range(s.box, REACH), bw = i1 - i0 + 1, bh = j1 - j0 + 1, [r, g, b] = f.colour, [sr, sg, sb] = threadSheen(f.colour), R = s.r, total = s.total;
   const dist = new Float32Array(bw * bh).fill(Infinity), along = new Float32Array(bw * bh), side = new Int8Array(bw * bh);
   const pts = s.pts, len = s.len, pad = R + REACH;
   for (let q = 1; q < pts.length; q++) {
@@ -181,18 +198,18 @@ function floss(L, f) {
     if (d > REACH) continue;
     if (d > 0) seat(L, k, d);
     const cover = clamp(.5 - d / PX); if (cover <= 0) continue;
-    // A round cord half sunk in the fabric, its stitches slanting across it as stem stitch does.
+    // A cord sunk most of its depth into the pile, its stitches slanting gently across it as stem stitch does.
     const across = clamp(dc / rad), round = Math.sqrt(1 - across * across), ph = (along[c] + side[c] * dc * 1.1) / (rad * 1.25), wave = Math.abs(Math.sin(Math.PI * ph));
-    const shade = (1 + .08 * Math.sin(2 * Math.PI * ph)) * (.82 + .18 * round);
-    lay(L, k, r, g, b, shade, rad * .55 * round + rad * .12 * (Math.pow(wave, .7) - .5) * round * round, cover);
+    const shade = (1 + .04 * Math.sin(2 * Math.PI * ph)) * (.6 + .22 * round);
+    lay(L, k, r, g, b, shade, rad * .32 * round, rad * .04 * (Math.pow(wave, .7) - .5) * round * round, cover, sr, sg, sb);
   }
 }
 const STITCH = { blush, seat: nose, satin, floss };
 function stitch(L, list) { for (const f of list) STITCH[f.kind](L, f); }
-// Pack the layers into the three maps, over a box of pixels: colour (sRGB), normals from the heights (green along +y),
-// and occlusion (red) with roughness (green).
+// Pack the layers into the four maps, over a box of pixels: colour (sRGB), normals from the heights (green along +y),
+// occlusion (red) with roughness (green), and the sheen's colour (sRGB) with its roughness (alpha).
 function pack(L, out, [i0, j0, i1, j1] = [0, 0, W - 1, H - 1]) {
-  const { col, hgt, ao, rough } = L, { colour, normal, orm } = out, sx = 1 / (2 * PX), sy = 1 / (2 * PY);
+  const { col, hgt, ao, rough, sheen: sh, sr } = L, { colour, normal, orm, sheen } = out, sx = 1 / (2 * PX), sy = 1 / (2 * PY);
   for (let j = Math.max(0, j0); j <= Math.min(H - 1, j1); j++) for (let i = Math.max(0, i0); i <= Math.min(W - 1, i1); i++) {
     const k = j * W + i, o = k * 4;
     colour[o] = enc(col[k * 3]); colour[o + 1] = enc(col[k * 3 + 1]); colour[o + 2] = enc(col[k * 3 + 2]); colour[o + 3] = 255;
@@ -200,6 +217,7 @@ function pack(L, out, [i0, j0, i1, j1] = [0, 0, W - 1, H - 1]) {
     const l = 1 / Math.sqrt(dx * dx + dy * dy + 1);
     normal[o] = (-dx * l * 127.5 + 128) | 0; normal[o + 1] = (-dy * l * 127.5 + 128) | 0; normal[o + 2] = (l * 127.5 + 128) | 0; normal[o + 3] = 255;
     orm[o] = (255 * clamp(ao[k]) + .5) | 0; orm[o + 1] = (255 * clamp(rough[k]) + .5) | 0; orm[o + 2] = 0; orm[o + 3] = 255;
+    sheen[o] = enc(sh[k * 3]); sheen[o + 1] = enc(sh[k * 3 + 1]); sheen[o + 2] = enc(sh[k * 3 + 2]); sheen[o + 3] = (255 * clamp(sr[k]) + .5) | 0;
   }
 }
 // The shared face: its layers and its maps, drawn once.
@@ -207,7 +225,7 @@ let shared = null;
 function sharedFace() {
   if (!shared) {
     const L = fabric(); stitch(L, staticFeatures());
-    const out = { colour: new Uint8Array(N * 4), normal: new Uint8Array(N * 4), orm: new Uint8Array(N * 4) }; pack(L, out);
+    const out = { colour: new Uint8Array(N * 4), normal: new Uint8Array(N * 4), orm: new Uint8Array(N * 4), sheen: new Uint8Array(N * 4) }; pack(L, out);
     shared = { L, out };
   }
   return shared;
@@ -219,9 +237,9 @@ function drawFace(expression) {
   const { L, out } = sharedFace(), list = expressionFeatures(expression);
   const box = list.map(f => range(f.shape.box, f.kind === 'blush' ? .05 : REACH)).reduce((a, b) => [Math.min(a[0], b[0]), Math.min(a[1], b[1]), Math.max(a[2], b[2]), Math.max(a[3], b[3])]);
   const rows = [box[1] - 1, box[3] + 1].map(v => Math.max(0, Math.min(H - 1, v)));
-  const E = { col: L.col.slice(), hgt: L.hgt.slice(), ao: L.ao.slice(), rough: L.rough.slice() };
+  const E = { col: L.col.slice(), hgt: L.hgt.slice(), top: L.top.slice(), ao: L.ao.slice(), rough: L.rough.slice(), sheen: L.sheen.slice(), sr: L.sr.slice() };
   stitch(E, list);
-  const maps = { colour: out.colour.slice(), normal: out.normal.slice(), orm: out.orm.slice() };
+  const maps = { colour: out.colour.slice(), normal: out.normal.slice(), orm: out.orm.slice(), sheen: out.sheen.slice() };
   pack(E, maps, [0, rows[0], W - 1, rows[1]]);
   return maps;
 }
@@ -233,12 +251,12 @@ const dataTexture = (data, srgb) => { const t = new T.DataTexture(data, W, H, T.
 // The face's maps for an expression. They read the head's second uv set (uv1), the projection along z.
 export function faceMaps(expression = 'smile') {
   const p = pixels(expression);
-  return { map: dataTexture(p.colour, true), normalMap: dataTexture(p.normal, false), orm: dataTexture(p.orm, false) };
+  return { map: dataTexture(p.colour, true), normalMap: dataTexture(p.normal, false), orm: dataTexture(p.orm, false), sheen: dataTexture(p.sheen, true) };
 }
 // Restitch the face for another expression, in place.
 export function restitch(maps, expression) {
   const p = pixels(expression);
-  for (const [key, data] of [['map', p.colour], ['normalMap', p.normal], ['orm', p.orm]]) { maps[key].image.data = data; maps[key].needsUpdate = true; }
+  for (const [key, data] of [['map', p.colour], ['normalMap', p.normal], ['orm', p.orm], ['sheen', p.sheen]]) { maps[key].image.data = data; maps[key].needsUpdate = true; }
 }
 // Where a point of her head lands on the face's maps.
 export const faceUv = (x, y) => [(x - FACE.x0) / (FACE.x1 - FACE.x0), (y - FACE.y0) / (FACE.y1 - FACE.y0)];
