@@ -195,6 +195,18 @@ test('a look chosen from a forecast read the old way is chosen again for the war
   again.close();
 });
 
+test('looks chosen by an older version of her rules are chosen again, for the same weather', async () => {
+  const { RULES_VERSION } = await import('../src/style/stylist.js');
+  const first = await open(), storage = first.saved(), pick = first.read(TODAY_KEY).trio.pick.recipe; first.close();
+  const old = JSON.parse(storage[TODAY_KEY]); delete old.rules; old.trio.pick = old.trio.easier;
+  const again = await open({ now: MORNING + 3600e3, storage: { ...storage, [TODAY_KEY]: JSON.stringify(old) } });
+  assert.equal(again.asked.length, 0, 'no new forecast');
+  assert.deepEqual(again.read(TODAY_KEY).trio.pick.recipe, pick, 'her pick, as her rules choose it now');
+  assert.deepEqual(again.app.getRecipe(), pick, 'and she wears it');
+  assert.equal(again.read(TODAY_KEY).rules, RULES_VERSION);
+  again.close();
+});
+
 test('saving a look with the heart teaches her what the user likes', async () => {
   const p = await open(), r = p.app.getRecipe();
   click(p.d, 'save');

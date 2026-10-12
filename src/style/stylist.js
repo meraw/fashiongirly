@@ -271,6 +271,10 @@ export function adjustOutfit(conditions, recipe, direction, options = {}) {
 // same weather; the bolder is bolder than her pick and the easier quieter, measured by boldness(). If a whole new
 // outfit cannot be found in that direction, the smallest change to her pick is used instead.
 export const DARING = { easier: .08, pick: .5, bolder: .95 };
+// Which version of her rules chose a day's looks. Today chooses them again, for the same weather, when it changes, so a
+// change to how she dresses shows at once rather than the next morning: raise it with such a change.
+// 2 (12 October 2026): never two pieces of one brand.
+export const RULES_VERSION = 2;
 export function composeTrio(conditions, options = {}) {
   const pick = composeOutfit(conditions, { ...options, daring: DARING.pick });
   if (!pick) return null;
