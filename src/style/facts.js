@@ -82,6 +82,16 @@ function readShape(g, st) {
   return {};
 }
 
+// The brand, as a house: the first word of the brand the catalog records (`brandAsProvided`, free text with notes), so a
+// label and its own lines count as one (Tommy Hilfiger and Tommy Jeans, adidas and adidas Originals, ONLY and ONLY
+// Carmakoma). Where the record says it is not stated but reads one from the photos ("not stated; likely Desigual"),
+// that one. Unknown: null. Two different brands sharing a first word would count as one; none in the wardrobe do.
+export function readBrand(g) {
+  const t = typeof g?.brandAsProvided === 'string' ? g.brandAsProvided.trim() : '';
+  const named = /^(not stated|none|not given|not visible)/i.test(t) ? t.match(/\b(?:read as|likely|suggests?)\s+([A-Z][\w'’.&-]*)/)?.[1] : t.split(/[(,;]/)[0].trim().split(/\s+/)[0];
+  return named ? named.toLowerCase().replace(/['’.]/g, '') : null;
+}
+
 const cache = new Map();
 export function stylingFacts(garment) {
   const g = typeof garment === 'string' ? GARMENTS[garment] : garment;
@@ -98,7 +108,7 @@ export function stylingFacts(garment) {
   const main = colours.filter(c => !c.accent);
   const words = text(g.name, g.family, st.mood, st.inferred?.mood, st.material, st.observed?.material, st.pattern);
   const facts = {
-    id: g.id, slot: g.slot, name: g.name, warmth,
+    id: g.id, slot: g.slot, name: g.name, brand: readBrand(g), warmth,
     warmthBasis: st.warmthBasis ?? (warmth == null ? null : 'recorded'),
     rain: readRain(st, g.slot, open), open, palette, colours, main: main.length ? main : colours,
     ...readPattern(st), shape: readShape(g, st),

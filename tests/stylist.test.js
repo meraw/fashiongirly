@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import { GARMENTS } from '../src/wardrobe/catalog.js';
 import { cleanRecipe } from '../src/doll/recipe.js';
 import { makeOutfit, disposeObject } from '../src/doll/model.js';
-import { stylingFacts, wardrobe, readColour } from '../src/style/facts.js';
+import { stylingFacts, wardrobe, readColour, readBrand } from '../src/style/facts.js';
 import { composeOutfit, needsFor, adjustOutfit, composeTrio, outfitOf } from '../src/style/stylist.js';
 import { learn, cleanLearned, learnedBonus, boldness } from '../src/style/taste.js';
 import { PRESETS, presetConditions, cleanConditions } from '../src/weather/conditions.js';
@@ -154,6 +154,30 @@ test('each day has three fixed looks: her pick, a bolder one and an easier one',
     for (const r of [t.pick, t.bolder, t.easier]) assert.deepEqual(cleanRecipe(r.recipe), r.recipe);
     assert.deepEqual(composeTrio(c, { seed }).bolder.recipe, t.bolder.recipe, 'the same day gives the same three');
   }
+});
+
+test('brands are read as houses: a label and its own lines are one brand, and an unknown one stays unknown', () => {
+  assert.equal(facts('tommy-green-cable-sweater-v1').brand, 'tommy');
+  assert.equal(facts('tommy-jeans-red-varsity-crest-jumper-v1').brand, 'tommy', 'Tommy Jeans is Tommy Hilfiger');
+  assert.equal(facts('adidas-originals-cropped-hoodie-black-v1').brand, facts('adidas-superstar-pink-suede-v1').brand, 'adidas Originals is adidas');
+  assert.equal(facts('desigual-painted-floral-knit-jumper-v1').brand, 'desigual', '"not stated; likely Desigual" is read as Desigual');
+  assert.equal(facts('levis-94-wide-leg-v1').brand, 'levis');
+  assert.equal(facts('pink-ditsy-floral-yoke-shirt-v1').brand, null, 'no brand recorded');
+  assert.equal(readBrand({ brandAsProvided: 'not stated (a licensed Disney Mickey Mouse print)' }), null, 'a licensed print is not a brand');
+});
+
+test('she never pairs two pieces from the same brand, unless the user keeps them', () => {
+  // The user, 12 October 2026: two Tommy Jeans pieces in one look, two Desigual pieces in another; it never works.
+  const brands = r => r.pieces.map(p => facts(p.id).brand).filter(Boolean);
+  for (const preset of PRESETS) for (const seed of [1, 2, 3, 4, 5]) {
+    const c = presetConditions(preset.id, '2026-10-12'), t = composeTrio(c, { seed }), looks = [t.pick, t.bolder, t.easier];
+    looks.push(composeOutfit(c, { seed: seed + 7, shownToday: looks.map(r => r.recipe) }));
+    for (const r of looks) assert.equal(new Set(brands(r)).size, brands(r).length, `${preset.id} seed ${seed}: ${brands(r).join(', ')}`);
+  }
+  const kept = composeOutfit(presetConditions('mild'), { seed: 1, keep: { top: 'desigual-painted-floral-knit-jumper-v1', outerwear: 'desigual-black-faux-leather-jacket-v1' } });
+  assert.equal(kept.recipe.topId, 'desigual-painted-floral-knit-jumper-v1');
+  assert.equal(kept.recipe.outerwearId, 'desigual-black-faux-leather-jacket-v1', 'kept pieces stay');
+  assert.equal(brands(kept).filter(b => b === 'desigual').length, 2, 'and nothing more from Desigual joins them');
 });
 
 test('saved looks teach her; pieces set aside count against them', () => {

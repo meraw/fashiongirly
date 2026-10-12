@@ -16,7 +16,8 @@ const lead = p => p.main.find(c => !c.quiet) || null;
 const colourWord = c => c.name.replace(/\b(stitching|topstitching|hardware|lining|print)\b/g, '').trim();
 const short = p => p.name.replace(/\s*\(.*\)$/, '');
 
-// Each principle returns [score, reason or null]. `o` holds the outfit's facts: top, under, bottom, dress, shoes, outer.
+// Each principle returns [score, reason or null]. `o` holds the outfit's facts: top, under, bottom, dress, shoes, outer;
+// `pieces` are the ones that show, `worn` all of them.
 export const PRINCIPLES = [
   {
     id: 'statement', says: 'One statement piece carries the look; a second print only when she feels daring.',
@@ -92,6 +93,16 @@ export const PRINCIPLES = [
     id: 'layers', says: 'Layers that show: a top peeking out from under another.',
     score(o, d) { return o.under ? [.3 + .4 * d, `the ${short(o.under)} peeking out from under the ${short(o.top)}`] : [0, null]; },
   },
+  {
+    // The user, 12 October 2026: two pieces from one brand never work, and about half her clothes are Desigual, so this
+    // is a firm rule rather than a nudge, and daring does not relax it. It counts every piece she wears, a top hidden
+    // under a closed jacket too. Brands are read in facts.js (readBrand).
+    id: 'brands', says: 'Never two pieces from the same brand: a look mixes labels.',
+    score(o, d, pieces, worn) {
+      const brands = worn.map(p => p.brand).filter(Boolean);
+      return [-3 * (brands.length - new Set(brands).size), null];
+    },
+  },
 ];
 
 // Whether the top shows under a closed jacket: below a waist-length jacket unless the top is cropped too, and below one
@@ -131,8 +142,9 @@ export function scoreTaste(outfit, daring) {
   const hidden = !!outfit.top && !topShows(outfit);
   const o = hidden ? { ...outfit, top: { ...outfit.outer, slot: 'top', shape: { length: ['waist', 'cropped'].includes(outfit.outer.shape.length) ? 'cropped' : 'regular', volume: outfit.outer.shape.volume } }, under: null } : outfit;
   const pieces = [hidden ? null : o.top, o.under, o.bottom, o.dress, o.shoes, o.outer].filter(Boolean);
+  const worn = [outfit.top, outfit.under, outfit.bottom, outfit.dress, outfit.shoes, outfit.outer].filter(Boolean);
   let total = 0; const reasons = [];
-  for (const p of PRINCIPLES) { const [s, r] = p.score(o, daring, pieces); total += s; if (r && s > 0) reasons.push([s, r]); }
+  for (const p of PRINCIPLES) { const [s, r] = p.score(o, daring, pieces, worn); total += s; if (r && s > 0) reasons.push([s, r]); }
   return { total, reasons };
 }
 

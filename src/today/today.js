@@ -5,7 +5,7 @@
 // the user chooses the weather. The card says what she dressed for, and "Too warm" and "Too cool" dress her a step
 // lighter or warmer, remembered for the days after: she dresses as if the forecast were that much warmer or cooler
 // (the user, 12 October 2026). Everything she remembers stays in this browser's storage.
-import { composeTrio, composeOutfit } from '../style/stylist.js';
+import { composeTrio, composeOutfit, RULES_VERSION } from '../style/stylist.js';
 import { LEARNED_KEY, learn } from '../style/taste.js';
 import { swatch, outfitSwatch } from '../doll/swatch.js';
 import { dayKey, describe, cleanConditions, presetConditions, PRESETS, forPerson, PERSONAL_LIMIT, inTheSun } from '../weather/conditions.js';
@@ -127,7 +127,7 @@ export function mountToday(doc, { storage = null, getRecipe, wear, fetch: fetchI
   function chooseLooks() {
     const trio = composeTrio(dressFor(), { seed: state.seed, recent: recent(), learned: read(LEARNED_KEY, null), current: getRecipe() });
     if (!trio) { status('Nothing in the wardrobe suits that weather.'); return false; }
-    Object.assign(state, { trio, choice: 'pick', idea: null, ideas: [], undo: [] });
+    Object.assign(state, { trio, choice: 'pick', idea: null, ideas: [], undo: [], rules: RULES_VERSION });
     save(); remember(trio.pick.recipe); wear(trio.pick.recipe); render();
     return true;
   }
@@ -159,7 +159,7 @@ export function mountToday(doc, { storage = null, getRecipe, wear, fetch: fetchI
       const trio = composeTrio(forPerson(state.conditions, o), { seed: state.seed, recent: recent(), learned: read(LEARNED_KEY, null), current: getRecipe() });
       if (!trio || (was - trio[key].warmth.total) * direction <= 0) continue;
       write(WARMTH_KEY, o);
-      Object.assign(state, { trio, choice: key, idea: null, ideas: [], undo: [] });
+      Object.assign(state, { trio, choice: key, idea: null, ideas: [], undo: [], rules: RULES_VERSION });
       save(); remember(trio[key].recipe); wear(trio[key].recipe); render();
       status(o === 0 ? 'She dresses for the forecast as it is again.' : `${direction > 0 ? 'Lighter' : 'Warmer'}. From now on she dresses as if it were ${Math.abs(o)}° ${o > 0 ? 'warmer' : 'cooler'} than the forecast.`);
       return;
@@ -246,7 +246,9 @@ export function mountToday(doc, { storage = null, getRecipe, wear, fetch: fetchI
   win?.addEventListener('resize', world);
 
   render();
-  const ready = state?.day === dayKey(now()) && state.trio && !outdated(state.conditions) ? Promise.resolve() : dressForToday();
+  // Today's looks chosen by an older version of her rules are chosen again, for the same weather.
+  const ready = state?.day === dayKey(now()) && state.trio && !outdated(state.conditions)
+    ? Promise.resolve().then(() => { if (state.rules !== RULES_VERSION && !gone()) chooseLooks(); }) : dressForToday();
   return {
     ready, getState: () => state && copy(state), title: () => state?.choice ? TITLES[state.choice] : null,
     dispose() { disposed = true; doc.removeEventListener('visibilitychange', onVisible); if (clock != null) win.clearInterval(clock); win?.removeEventListener('resize', world); $('save')?.removeEventListener('click', onSave); },
