@@ -63,3 +63,11 @@ outwards like the rest of the hair (they were lit from inside, and looked black 
 thread lines, which stood off the hair as black wires, and its side pieces now cover her ears. Her daisy is crocheted
 and pinned onto whichever style she wears (`seatFlower()`); a first attempt at yarn hair, strand by strand, was
 rejected.
+
+Side braid, shorter (12 October 2026, the user: far too long for her hair, and it began as a weird ponytail before it
+became a plait). It was a smooth lock from the back of her head round behind her ear to her shoulder, then a plait to
+her hip, lower than her long hair's V reaches (about 1.5 head units along it). It is now plaited at once from low behind
+her left ear, crosses her shoulder and ends on her upper chest at the tie and a short tail, above where her long hair
+ends: about 0.7 along it, its lowest point at y = -0.69 in the head's space rather than -1.11. Same lobes, core, tie and
+tail as before (`sideBraid()` in `src/hair/model.js`). It hangs a little clear of her body; the user preferred this
+first version to later tries that laid it closer, which sank into her thicker coats.

@@ -19,6 +19,16 @@ test('all hairstyles have finite bounded geometry and the long cut has a V hem',
     disposeHair(g);
   }
 });
+test('the side braid is only as long as her own hair could plait: plaited from behind her ear, ending above her long hair',()=>{
+  // The user, 12 October 2026: the old braid was far too long for her hair and began as a long smooth ponytail.
+  const lowest=id=>{const g=makeHair(id),y=new T.Box3().setFromObject(g).min.y;disposeHair(g);return y;};
+  assert.ok(lowest('side-braid')>lowest('straight-v')+.05,'it ends above where her long hair ends');
+  const braid=makeHair('side-braid');
+  assert.equal(braid.getObjectByName('braid-gather'),undefined,'no long gathered lock before the plait');
+  const top=new T.Box3().setFromObject(braid.getObjectByName('braid-core')).max.y;
+  assert.ok(top>-.3,'the plait starts up behind her ear');
+  disposeHair(braid);
+});
 test('switching styles preserves face/body and restores the original bob',()=>{
   const doll=makeDoll(),head=doll.getObjectByName('doll-head'),face=head.getObjectByName('felt-head'),body=doll.getObjectByName('plush-body');
   const fringe=head.children.filter(o=>['swept-fringe','fringe-thread'].includes(o.name));assert.ok(fringe.length>0);

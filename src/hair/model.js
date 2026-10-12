@@ -134,20 +134,24 @@ function ponytail(group,mat,{at,tieRadius,path,radius}){
     lock(group,pts,radius*.4,mat,'ponytail-tip',{ends:'soft'});
   }
 }
-// A three-strand plait brought over her left shoulder. The hair is gathered at the back and swept round behind her ear
-// to the plait's top. A plait shows as a chain of lobes, each strand crossing over the middle in turn: alternate lobes
-// lie to either side of the plait's centre line and slant towards it going down, so together they make the plait's
-// chevrons. A thin core fills the gaps between them; strand lines run along each lobe. It narrows a little to a hair
-// tie and a short loose tail.
+// A three-strand plait brought over her left shoulder, short enough to plait from her own hair without a haircut (the
+// user, 12 October 2026: the one before began as a long smooth ponytail from the back of her head and then hung to her
+// hip, lower than her longest hair reaches). Her hair is drawn in low behind her left ear and plaited from there at once:
+// the plait crosses her shoulder and ends on her upper chest, at a tie and a short tail, above where her long hair ends.
+// A plait shows as a chain of lobes, each strand crossing over the middle in turn: alternate lobes lie to either side of
+// the plait's centre line and slant towards it going down, so together they make the plait's chevrons. A thin core
+// fills the gaps between them. It narrows a little to the tie.
+const smoothstep=(a,b,t)=>{const x=Math.max(0,Math.min(1,(t-a)/(b-a)));return x*x*(3-2*x);};
 function sideBraid(group,mat){
-  lock(group,[[.16,-.1,-.37],[.40,-.24,-.24],[.48,-.36,.02],[.42,-.46,.17]],.072,mat,'braid-gather');
-  const path=new THREE.CatmullRomCurve3([[.42,-.44,.17],[.41,-.56,.235],[.37,-.72,.265],[.32,-.88,.275],[.29,-.98,.275]].map(point));
+  const path=new THREE.CatmullRomCurve3([[.42,-.25,-.17],[.47,-.36,-.03],[.44,-.46,.14],[.39,-.56,.23],[.36,-.63,.255]].map(point));
   line(group,Array.from({length:21},(_,i)=>path.getPointAt(i/20).toArray()),.026,mat,'braid-core');
-  const count=12,lobe=new THREE.SphereGeometry(1,20,12),m=new THREE.Matrix4(),basis=new THREE.Matrix4(),q=new THREE.Vector3();
+  const count=12,lobe=new THREE.SphereGeometry(1,20,12),m=new THREE.Matrix4(),basis=new THREE.Matrix4(),neck=new THREE.Vector3(0,-.45,0);
   for(let i=0;i<count;i++){
     const t=(i+.5)/count,c=path.getPointAt(t),along=path.getTangentAt(t).normalize();
-    // Out from her (towards the viewer at her shoulder), square to the plait; across it, the side the lobes alternate.
-    const out=new THREE.Vector3(c.x*.8,0,1).normalize(),across=new THREE.Vector3().crossVectors(along,out).normalize();out.crossVectors(across,along).normalize();
+    // Out from her, square to the plait: away from her neck beside her head, towards the viewer on her chest. Across it,
+    // the side the lobes alternate.
+    const away=c.clone().sub(neck).setY(0).normalize(),front=new THREE.Vector3(c.x*.8,0,1).normalize();
+    const out=away.lerp(front,smoothstep(.25,.65,t)).normalize(),across=new THREE.Vector3().crossVectors(along,out).normalize();out.crossVectors(across,along).normalize();
     const side=i%2?1:-1,width=.13*(1-.3*t),slant=side*.7;
     const axis=along.clone().multiplyScalar(Math.cos(slant)).addScaledVector(across,Math.sin(slant)),wide=new THREE.Vector3().crossVectors(out,axis).normalize();
     const centre=c.clone().addScaledVector(across,side*width*.26).addScaledVector(out,.016);
@@ -158,7 +162,7 @@ function sideBraid(group,mat){
   lobe.dispose();
   const end=path.getPointAt(1),down=path.getTangentAt(1);
   tie(group,end.toArray(),.03);
-  lock(group,[end.toArray(),end.clone().addScaledVector(down,.06).add(new THREE.Vector3(.008,0,.01)).toArray(),end.clone().addScaledVector(down,.13).add(new THREE.Vector3(-.006,0,.015)).toArray()],.05,mat,'braid-tail');
+  lock(group,[end.toArray(),end.clone().addScaledVector(down,.045).add(new THREE.Vector3(.006,0,.008)).toArray(),end.clone().addScaledVector(down,.09).add(new THREE.Vector3(-.004,0,.012)).toArray()],.048,mat,'braid-tail');
 }
 export function makeHair(raw){
   const id=cleanHairId(raw),group=new THREE.Group();group.name='outfit-hair';group.userData.hairId=id;
