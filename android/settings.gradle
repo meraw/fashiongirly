@@ -1,0 +1,11 @@
+// Fashiongirly for Android: a small native shell that shows the web app (built into ../dist by `npm run build`) in a
+// WebView, served from inside the APK. Build it with `npm run android` from the repository root (see README.md).
+pluginManagement {
+    repositories { google(); mavenCentral(); gradlePluginPortal() }
+}
+dependencyResolutionManagement {
+    repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS)
+    repositories { google(); mavenCentral() }
+}
+rootProject.name = 'fashiongirly'
+include ':app'

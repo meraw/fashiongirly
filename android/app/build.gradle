@@ -1,0 +1,52 @@
+plugins {
+    id 'com.android.application'
+}
+
+android {
+    namespace 'app.fashiongirly'
+    compileSdk 35
+
+    defaultConfig {
+        applicationId 'app.fashiongirly'
+        minSdk 24
+        // 34, not 35: Android 15 forces apps that target 35 to draw under the status and navigation bars.
+        targetSdk 34
+        // Each APK must have a higher versionCode than the last to install over it: `npm run android` passes the number
+        // of commits (-PversionCode), which only grows.
+        versionCode((project.findProperty('versionCode') ?: '1') as int)
+        versionName "1.0.${project.findProperty('versionCode') ?: '1'}"
+    }
+
+    // Every build is signed with the same key (android/fashiongirly.keystore, kept in the repository), so a new APK
+    // installs over the old one and keeps her saved looks. It is a private sideloaded app, not a store release.
+    signingConfigs {
+        shared {
+            storeFile file('../fashiongirly.keystore')
+            storePassword 'fashiongirly'
+            keyAlias 'fashiongirly'
+            keyPassword 'fashiongirly'
+        }
+    }
+    buildTypes {
+        debug { signingConfig signingConfigs.shared }
+        release {
+            signingConfig signingConfigs.shared
+            minifyEnabled false
+        }
+    }
+
+    // The web app itself: the static build in ../dist, served at https://appassets.androidplatform.net/assets/.
+    sourceSets {
+        main { assets.srcDirs = ['../../dist'] }
+    }
+    // No release lint pass: it only fetches extra checkers, and this is a private sideloaded app.
+    lint { checkReleaseBuilds false }
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_17
+        targetCompatibility JavaVersion.VERSION_17
+    }
+}
+
+dependencies {
+    implementation 'androidx.webkit:webkit:1.12.1'
+}
