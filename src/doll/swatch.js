@@ -1,5 +1,5 @@
-// Fabric swatches, shared by the wardrobe, picker and daily looks. Fifty-five pieces use samples of their actual
-// renderer materials; the remaining garments still use CSS approximations from their styling facts.
+// Fabric swatches, shared by the wardrobe, picker and daily looks. All current garments use
+// their renderer materials; the CSS fallback supports future garments awaiting a sample.
 import { GARMENTS } from '../wardrobe/catalog.js';
 import { stylingFacts } from '../style/facts.js';
 import { FABRIC_SWATCHES } from '../wardrobe/fabric-swatches.js';
