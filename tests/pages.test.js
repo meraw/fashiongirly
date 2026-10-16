@@ -6,6 +6,7 @@ import { startStudio } from '../src/doll/app.js';
 import { GARMENTS } from '../src/wardrobe/catalog.js';
 import { skyKind, paintSky, codeKind, weatherIcon } from '../src/today/sky.js';
 import { swatchBackground, outfitSwatch } from '../src/doll/swatch.js';
+import { FABRIC_SWATCHES } from '../src/wardrobe/fabric-swatches.js';
 import { presetConditions } from '../src/weather/conditions.js';
 
 async function studio(hash = '') {
@@ -115,7 +116,14 @@ test('the weather has a small picture, for the day and for each hour', () => {
 test('every garment has a fabric swatch with a hint of its pattern', () => {
   for (const [id, g] of Object.entries(GARMENTS)) assert.ok(swatchBackground(id), `${id} has a swatch`);
   const kind = id => swatchBackground(id);
-  assert.match(kind('pink-ditsy-floral-yoke-shirt-v1'), /radial-gradient/, 'a print scatters its colours');
+  assert.match(kind('pink-ditsy-floral-yoke-shirt-v1'), /url\("[^"]*\/pink-ditsy-floral\.webp"\) center \/ cover no-repeat/, 'the pink floral shirt uses its sampled fabric, rather than generic dots');
+  for (const [id, url] of Object.entries(FABRIC_SWATCHES)) {
+    assert.ok(GARMENTS[id], `${id} belongs to the wardrobe`);
+    const bytes = readFileSync(new URL(url));
+    assert.equal(bytes.toString('ascii', 0, 4), 'RIFF', `${id}: the sampled fabric is bundled`);
+    assert.equal(bytes.toString('ascii', 8, 12), 'WEBP', `${id}: a valid WebP container`);
+  }
+  assert.match(kind('van-gogh-patchwork-tee-v1'), /radial-gradient/, 'prints without a sampled fabric retain their CSS fallback');
   assert.match(kind('mango-plaid-jumper-v1'), /repeating-linear-gradient\(90deg[\s\S]*repeating-linear-gradient\(0deg/, 'a check crosses');
   assert.match(kind('tommy-stripe-knit-polo-v1'), /repeating-linear-gradient\(0deg/, 'stripes run across');
   assert.equal(swatchBackground('no-such-garment'), null);

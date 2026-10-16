@@ -1,14 +1,18 @@
-// Fabric swatches: a small piece of cloth in a garment's own colours, with a hint of its pattern (a scattered print,
-// stripes, a check, a sparkle for embroidery or crystals), drawn in CSS from its styling facts. Used for the day's
-// looks, her pieces on the Today page and the Wardrobe page.
+// Fabric swatches, shared by the wardrobe, picker and daily looks. Fifteen pieces use samples of their actual
+// renderer materials; the remaining garments still use CSS approximations from their styling facts.
 import { GARMENTS } from '../wardrobe/catalog.js';
 import { stylingFacts } from '../style/facts.js';
+import { FABRIC_SWATCHES } from '../wardrobe/fabric-swatches.js';
 
 const hsl = (c, alpha = 1, dl = 0) => `hsl(${Math.round(c.h)} ${Math.round(c.s * 100)}% ${Math.round(Math.max(0, Math.min(1, c.l + dl)) * 100)}% / ${alpha})`;
 const SHEEN = 'linear-gradient(155deg, rgb(255 255 255 / .28), rgb(255 255 255 / 0) 42%, rgb(0 0 0 / .14))';
 const WEAVE = 'repeating-linear-gradient(45deg, rgb(255 255 255 / .07) 0 1px, rgb(255 255 255 / 0) 1px 4px)';
 
 export function swatchBackground(id) {
+  // Small pre-rendered samples of the real colour maps and torso UVs, with the material's own tint.
+  // These pieces bypass the approximated colour words and CSS pattern below.
+  const sample = FABRIC_SWATCHES[id];
+  if (sample) return `url("${sample}") center / cover no-repeat`;
   const f = stylingFacts(id);
   if (!f) return null;
   const cols = (f.main.length ? f.main : f.colours).filter(Boolean);
