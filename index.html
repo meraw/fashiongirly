@@ -15,7 +15,7 @@
 <nav class="tabs" aria-label="Pages"><a href="#today" data-page="today">Today</a><a href="#dress" data-page="dress">Dress her</a><a href="#wardrobe" data-page="wardrobe">Wardrobe</a><button id="lookbook-open" type="button" class="tab-looks">My looks <span id="count">0</span></button></nav></header>
 <main class="sheet">
 <div class="stage-bar">
-<div class="looks" role="group" aria-label="Today's three looks" data-pages="today wardrobe"><button id="look-pick" type="button" class="look" aria-pressed="false">Her pick</button><button id="look-bolder" type="button" class="look" aria-pressed="false">Bolder</button><button id="look-easier" type="button" class="look" aria-pressed="false">Easier</button></div>
+<div id="today-suggestions" hidden><div class="looks" role="group" aria-label="Today's three looks" data-pages="today wardrobe"><button id="look-pick" type="button" class="look" aria-pressed="false">Look 1</button><button id="look-bolder" type="button" class="look" aria-pressed="false">Look 2</button><button id="look-easier" type="button" class="look" aria-pressed="false">Look 3</button></div></div>
 <div class="look-caption"><h2 id="outfit-title">Her own little experiment.</h2><button id="save" class="save" aria-label="Save this outfit">♡</button></div>
 <p id="message" role="status" aria-live="polite"></p>
 </div>
@@ -25,16 +25,25 @@
 <div class="hero"><p class="eyebrow">TODAY · <span id="today-date"></span></p>
 <div class="hero-weather"><span id="today-icon" class="today-icon"></span><span id="today-temp" class="temp"></span><p id="today-weather" class="today-weather"></p></div>
 <ul id="today-hours" class="today-hours" aria-label="Her day, hour by hour"></ul>
-<h2 id="today-heading">She checked the weather <em>and chose three looks.</em></h2>
+<h2 id="today-heading">Come ti senti oggi?</h2>
 <p id="today-status" class="today-status" role="status" aria-live="polite"></p></div>
 <div class="card">
+<section class="today-mood" aria-labelledby="mood-heading">
+<h3 id="mood-heading">Come ti senti oggi?</h3>
+<p class="mood-intro">Dimmi come stai. Poi scegliamo tra tre look, con un occhio al meteo.</p>
+<div id="today-moods" class="mood-options" role="group" aria-labelledby="mood-heading"></div>
+<p id="today-mood-criteria" class="mood-criteria" aria-live="polite"></p>
+<p id="today-choice-note" class="mood-choice-note"></p>
+</section>
+<div id="today-outfit" hidden>
 <h3 id="today-look" class="today-look"></h3>
 <p id="today-dressed" class="today-dressed"></p>
 <ul id="today-pieces" class="today-pieces" aria-label="Her outfit"></ul><ul id="today-reasons" class="today-reasons" aria-label="Why she chose it"></ul>
 <div class="today-actions"><button id="today-another" type="button">Another idea</button><button id="today-undo" type="button">Undo</button></div>
 <div class="today-feel" role="group" aria-labelledby="today-feel-label"><span id="today-feel-label">Her looks feel</span><button id="today-too-warm" type="button" aria-label="Too warm: dress her lighter">too warm</button><button id="today-too-cool" type="button" aria-label="Too cool: dress her warmer">too cool</button></div>
 <p id="today-offset" class="today-offset" hidden><span id="today-offset-text"></span> <button id="today-offset-reset" type="button">Reset</button></p>
-<p class="today-note">Her pick, Bolder and Easier stay the same all day, unless you say they feel too warm or too cool; she remembers that. Weather for <span id="today-place"></span>. The heart saves a look and teaches her what you like.</p>
+</div>
+<p class="today-note">Tre interpretazioni del tuo umore, da cambiare quando vuoi. Il cuore salva un look. Weather for <span id="today-place"></span>.</p>
 <details id="today-manual" class="today-manual"><summary>Change the place or the weather</summary>
 <form id="today-place-form" class="today-place-form"><label for="today-place-input">Type a town</label><div><input id="today-place-input" type="text" autocomplete="address-level2" placeholder="Dublin"><button type="submit">Use it</button></div></form>
 <button id="today-device" type="button" class="today-device">Use my phone's location</button>

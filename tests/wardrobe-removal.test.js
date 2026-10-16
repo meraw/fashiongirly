@@ -17,6 +17,7 @@ async function studio(t, entries = {}) {
   dom.window.HTMLDialogElement.prototype.close = function () { this.removeAttribute('open'); this.dispatchEvent(new dom.window.Event('close')); };
   const app = await startStudio(d, () => ({ update() {}, turn() {}, dispose() {} }), { fetch: null, geolocation: null, now: () => new Date(2026, 9, 16, 9).getTime() });
   await app.today.ready;
+  d.querySelector('[data-mood=tranquilla]').click();
   t.after(() => { app.dispose(); dom.window.close(); });
   const beginRemoval = id => d.querySelector(`.piece[data-id="${id}"]`).parentElement.querySelector('.piece-remove').click();
   const confirm = () => d.querySelector('#remove-piece-dialog button').click();

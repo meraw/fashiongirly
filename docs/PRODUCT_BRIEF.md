@@ -64,6 +64,12 @@ Reference images inform the asset. The intended display is a dressable garment, 
 
 The user believes reference-based reconstruction is practical from previous game-building experience and expects us to test it concretely. Do not dismiss the workflow; also do not claim fidelity before showing the result. The first actual reference is now the Desigual bronze mesh top, supplied in front and back views. After an elbow-clearance correction the user said “This is really nice” and requested a second garment; see [the garment record](garments/bronze-mesh.md). A product page link can replace attached pictures when the shop's page can be fetched; this worked for Desigual and failed for ASOS (see the handoff).
 
+## A morning that starts with the user — 16 October 2026
+
+The user chose a mood-led ritual instead of an outfit already chosen on opening. Each morning from 5:00, Today checks the weather and asks how the user feels: “Ho bisogno di coccole”, “Ho poche energie”, “Mi sento tranquilla”, “Voglio farmi notare”, “Voglio essere invisibile”, or “Sorprendimi”. It then offers three interpretations of that same mood. None is automatically the bolder option. The doll changes only when the user selects a proposal; the mood can change during the day. Do not ask whether the user is staying home or going out.
+
+Comfort, ease of dressing and low visual attention are separate criteria. Use recorded garment information; unknown tactile comfort must not be invented from a colour, photograph or romantic aesthetic. The user explicitly does not want garment-rating questions or a classification task in the app. Any personal comfort/ease information may be supplied here during development and recorded in the garment's own data. The initial implementation uses existing material/construction descriptions, distinguishing suggestions from confirmed personal experience. Weather and layering rules still apply to all proposals.
+
 ## Local first; no runtime AI API requirement
 
 Wardrobe management (16 October 2026): the user wants to remove garments directly in the app. Wardrobe's Manage pieces mode confirms removals, excludes them from dressing and daily suggestions, and offers restoration under Removed pieces. These changes stay on the device, like saved looks; authored garment assets remain available for restoration.

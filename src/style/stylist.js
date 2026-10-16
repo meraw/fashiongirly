@@ -2,6 +2,7 @@
 // Weather sets what is comfortable (how warm, whether a jacket, closed shoes in rain); her taste (taste.js) chooses
 // among what is comfortable. Every result is a recipe that cleanRecipe() accepts unchanged, and every combination it
 // can produce is one the layering tests already build, so nothing here changes how clothes fit.
+import { moodFor, scoreMood } from './moods.js';
 import { DEFAULT, cleanRecipe } from '../doll/recipe.js';
 import { HAIRSTYLES } from '../hair/catalog.js';
 import { wardrobe } from './facts.js';
@@ -90,7 +91,7 @@ function novelty(o, recent, shownToday) {
 
 // Everything the stylist works from for one request: what the weather asks, which pieces suit it, and how she scores.
 function context(conditions, options) {
-  const { seed = 1, daring = DEFAULT_DARING, keep = {}, avoid = [], recent = [], shownToday = [] } = options;
+  const { seed = 1, daring = moodFor(options.mood)?.daring ?? DEFAULT_DARING, keep = {}, avoid = [], recent = [], shownToday = [] } = options;
   const learned = cleanLearned(options.learned), rng = random(seed), needs = needsFor(conditions), w = options.wardrobe || wardrobe();
   const banned = new Set(avoid), byId = id => Object.values(w).flat().find(p => p.id === id);
   const pick = (slot, list, test) => {
@@ -116,10 +117,10 @@ function context(conditions, options) {
   const misfit = warmth => { const d = warmth - needs.target; return warmDay && d > 0 ? 1.25 * d : .5 * Math.abs(d); };
   const recentRecipes = recent.map(r => ({ ...r })), shown = shownToday.map(r => ({ ...r }));
   const score = (o, final) => {
-    const taste = scoreTaste(o, daring);
-    let total = taste.total - novelty(o, recentRecipes, shown) + learnedBonus(learned, piecesOf(o).map(p => p.id));
+    const taste = scoreTaste(o, daring), mood = scoreMood(o, options.mood, recentRecipes);
+    let total = taste.total + mood.total - novelty(o, recentRecipes, shown) + learnedBonus(learned, piecesOf(o).map(p => p.id));
     if (final) total -= misfit(outfitWarmth(o));
-    return { total, reasons: taste.reasons };
+    return { total, reasons: taste.reasons, moodReasons: mood.reasons };
   };
   return { seed, daring, keep, recent, needs, rng, shoes, outerOptions, tops, bottoms, dresses, underTops, openFor, carried, outerWarmth, fits, score, w };
 }
@@ -141,7 +142,7 @@ function finish(o, needs, s, rng, { keep = {}, recent = [], current = DEFAULT, h
     dressId: o.dress?.id ?? 'none', shoesId: o.shoes?.id ?? 'classic', outerwearId: o.outer?.id ?? 'none',
     outerwearOpen: o.open, outerwearInsert: !o.outer?.layering.detachable || needs.feels < 10 || needs.rainy, hairId: hair.id,
   });
-  const reasons = [...weatherReasons(o, needs), ...s.reasons.sort((a, b) => b[0] - a[0]).slice(0, 2).map(([, r]) => r), ...(hair.reason ? [hair.reason] : [])];
+  const reasons = [...(s.moodReasons || []), ...weatherReasons(o, needs), ...s.reasons.sort((a, b) => b[0] - a[0]).slice(0, 2).map(([, r]) => r), ...(hair.reason ? [hair.reason] : [])];
   return {
     recipe, reasons,
     pieces: [['dress', o.dress], ['top', o.top], ['under', o.under], ['bottom', o.bottom], ['shoes', o.shoes], ['outerwear', o.outer]].filter(([, p]) => p).map(([slot, p]) => ({ slot, id: p.id, name: p.name })),
@@ -274,8 +275,22 @@ export const DARING = { easier: .08, pick: .5, bolder: .95 };
 // Which version of her rules chose a day's looks. Today chooses them again, for the same weather, when it changes, so a
 // change to how she dresses shows at once rather than the next morning: raise it with such a change.
 // 2 (12 October 2026): never two pieces of one brand.
-export const RULES_VERSION = 2;
+export const RULES_VERSION = 3;
 export function composeTrio(conditions, options = {}) {
+  // All three interpretations obey the same mood. The legacy API keeps bolder/easier for callers without a mood.
+  if (moodFor(options.mood)) {
+    const results = [], signature = r => JSON.stringify(r.recipe);
+    for (const key of ['pick', 'bolder', 'easier']) {
+      let next = null;
+      for (let attempt = 0; attempt < 4; attempt++) {
+        next = composeOutfit(conditions, { ...options, seed: (options.seed ?? 1) + 101 * (results.length + attempt), shownToday: [...(options.shownToday || []), ...results.map(r => r.recipe)] });
+        if (!next || !results.some(r => signature(r) === signature(next))) break;
+      }
+      if (!next) return null;
+      results.push(next);
+    }
+    return Object.fromEntries(['pick', 'bolder', 'easier'].map((k, i) => [k, results[i]]));
+  }
   const pick = composeOutfit(conditions, { ...options, daring: DARING.pick });
   if (!pick) return null;
   const lead = r => r.recipe.dressId !== 'none' ? r.recipe.dressId : r.recipe.topId;
