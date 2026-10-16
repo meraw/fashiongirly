@@ -43,6 +43,26 @@ export const SAMPLES = [
   { id: 'levis-94-wide-leg-v1', mesh: 'jeans-hips', atlas: ['levis-94-denim.js', 'LEVIS_94_DENIM'], y: 1.08, x: 0.12, width: 0.22 },
   { id: 'mango-washed-black-v1', mesh: 'jeans-hips', atlas: ['mango-denim.js', 'MANGO_DENIM'], y: 1.08, x: 0.12, width: 0.22 },
   { id: 'levis-ribcage-straight-ankle-jeans-v1', mesh: 'jeans-hips', atlas: ['levis-ribcage-denim.js', 'LEVIS_RIBCAGE_DENIM'], y: 1.08, x: 0.12, width: 0.22 },
+  { id: 'desigual-crochet-flowers-v1', mesh: 'crochet-body', y: 1.55, cutouts: true },
+  { id: 'cream-pointelle-flower-jumper-v1', mesh: 'pointelle-body', y: 1.55, cutouts: true, details: ['embroidered-flower'] },
+  { id: 'desigual-silver-cable-jumper-v1', mesh: 'silver-cable-body', y: 1.62 },
+  { id: 'tommy-green-cable-sweater-v1', mesh: 'cable-knit-body', y: 1.55 },
+  { id: 'pull-bear-grey-chenille-high-neck-v1', mesh: 'chenille-body', y: 1.6 },
+  { id: 'striped-waffle-snap-collar-jumper-v1', mesh: 'waffle-knit-body', y: 1.55 },
+  { id: 'lapis-blue-linen-button-down-shirt-v1', mesh: 'mesh-shirt-body', y: 1.55 },
+  { id: 'white-linen-button-down-shirt-v1', mesh: 'mesh-shirt-body', y: 1.55 },
+  { id: 'paisley-print-relaxed-shirt-v1', mesh: 'mesh-shirt-body', atlas: ['paisley-shirt-atlas.js', 'PAISLEY_SHIRT_ATLAS'], y: 1.55, side: 'back' },
+  { id: 'polo-ralph-lauren-usrl-racing-hoodie-v1', mesh: 'hoodie-body', y: 1.65, details: ['applique-letters', 'embroidered-signature', 'round-badge', 'eagle-patch', 'flag-patch'] },
+  { id: 'tommy-ultra-high-mom-v1', mesh: 'jeans-hips', atlas: ['tommy-mom-denim.js', 'TOMMY_MOM_DENIM'], y: 1.08, x: 0.12, width: 0.22 },
+  { id: 'stradivarius-relaxed-v1', mesh: 'jeans-hips', atlas: ['stradivarius-denim.js', 'STRADIVARIUS_DENIM'], y: 1.08, x: 0.12, width: 0.22 },
+  { id: 'bershka-grey-wide-leg-v1', mesh: 'jeans-hips', atlas: ['bershka-grey-denim.js', 'BERSHKA_GREY_DENIM'], y: 1.08, x: 0.12, width: 0.22 },
+  { id: 'tommy-remastered-carpenter-v1', mesh: 'jeans-hips', atlas: ['tommy-carpenter-denim.js', 'TOMMY_CARPENTER_DENIM'], y: 1.08, x: 0.12, width: 0.22 },
+  { id: 'zara-cargo-joggers-v1', mesh: 'jeans-hips', atlas: ['zara-cargo-fabric.js', 'ZARA_CARGO_FABRIC'], y: 1.08, x: 0.12, width: 0.22 },
+  { id: 'topshop-washed-black-wide-crop-v1', mesh: 'jeans-hips', atlas: ['topshop-black-crop-denim.js', 'TOPSHOP_BLACK_CROP_DENIM'], y: 1.08, x: 0.12, width: 0.22 },
+  { id: 'pleated-linen-wide-trousers-v1', mesh: 'jeans-hips', atlas: ['pleated-linen-fabric.js', 'PLEATED_LINEN_FABRIC'], y: 1.08, x: 0.12, width: 0.22 },
+  { id: 'bershka-low-rise-balloon-jeans-v1', mesh: 'jeans-hips', atlas: ['bershka-balloon-denim.js', 'BERSHKA_BALLOON_DENIM'], y: 1.08, x: 0.12, width: 0.22 },
+  { id: 'mango-claudia-slim-crop-jeans-v1', mesh: 'jeans-hips', atlas: ['mango-claudia-denim.js', 'MANGO_CLAUDIA_DENIM'], y: 1.08, x: 0.12, width: 0.22 },
+  { id: 'mango-sienna-flare-crop-jeans-v1', mesh: 'jeans-hips', atlas: ['mango-sienna-denim.js', 'MANGO_SIENNA_DENIM'], y: 1.08, x: 0.12, width: 0.22 },
 ];
 
 const { chromium } = await import(process.env.PLAYWRIGHT_MODULE || 'playwright');
@@ -76,16 +96,35 @@ try {
       if (!source) throw new Error(`No ${sample.mesh} for ${sample.id}`);
       const materials = (Array.isArray(source.material) ? source.material : [source.material]).map(m => {
         if (!m.map) throw new Error(`No colour texture for ${sample.id}`);
-        return new T.MeshBasicMaterial({ color: m.color.clone(), map: m.map, vertexColors: m.vertexColors, side: T.FrontSide });
+        return new T.MeshBasicMaterial({ color: m.color.clone(), map: m.map, vertexColors: m.vertexColors, alphaTest: sample.cutouts ? m.alphaTest : 0, side: T.FrontSide });
       });
       const patch = new T.Mesh(source.geometry.clone(), Array.isArray(source.material) ? materials : materials[0]);
       const scene = new T.Scene(); scene.background = new T.Color('#fffdf9'); scene.add(patch);
+      // Sample sewn-on details from their existing meshes too (e.g. the pointelle's flowers).
+      const detailGeometries = [];
+      if (sample.details?.length) {
+        outfit.updateMatrixWorld(true);
+        const toSource = source.matrixWorld.clone().invert();
+        const found = new Set();
+        outfit.traverse(group => {
+          if (!sample.details.includes(group.name)) return;
+          found.add(group.name);
+          group.traverse(mesh => {
+            if (!mesh.isMesh) return;
+            const geometry = mesh.geometry.clone().applyMatrix4(toSource.clone().multiply(mesh.matrixWorld));
+            const flat = m => { const mat = new T.MeshBasicMaterial({ color: m.color.clone(), map: m.map, vertexColors: m.vertexColors, alphaTest: m.alphaTest, side: T.DoubleSide }); materials.push(mat); return mat; };
+            scene.add(new T.Mesh(geometry, Array.isArray(mesh.material) ? mesh.material.map(flat) : flat(mesh.material)));
+            detailGeometries.push(geometry);
+          });
+        });
+        for (const name of sample.details) if (!found.has(name)) throw new Error(`No ${name} detail for ${sample.id}`);
+      }
       const width = sample.width ?? .46, height = width * 160 / 384;
       const camera = new T.OrthographicCamera(-width / 2, width / 2, sample.y + height / 2, sample.y - height / 2, .01, 10);
       camera.position.set(sample.x ?? 0, 0, sample.side === 'back' ? -4 : 4); camera.lookAt(sample.x ?? 0, 0, 0);
       renderer.render(scene, camera);
       results.push({ id: sample.id, data: renderer.domElement.toDataURL('image/webp', .96).split(',')[1] });
-      patch.geometry.dispose(); materials.forEach(m => m.dispose()); disposeObject(outfit);
+      patch.geometry.dispose(); detailGeometries.forEach(g => g.dispose()); materials.forEach(m => m.dispose()); disposeObject(outfit);
       Object.values(textures).forEach(t => t.dispose());
     }
     renderer.dispose();

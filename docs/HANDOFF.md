@@ -10,6 +10,8 @@ Fabric swatches, 16 October 2026: the user found the Wardrobe's CSS colours and 
 
 Next fabric swatch batch, 16 October 2026: after merging PR #119, the user requested twenty more. Fifteen additional tops (painting prints, Mickey, Hawaii, floral designs, knit checks and stripes) and five denims now use sampled materials, bringing the total to thirty-five. The generator selects the garment's top/bottom slot and preserves vertex colours, including denim fading. The original fifteen images remain byte-for-byte unchanged. The user approved the four before/after comparison sheets and requested a pull request for these twenty samples.
 
+Further fabric swatch batch, 16 October 2026: after PR #120 merged, the user requested another twenty (ten tops and ten trousers), bringing the sampled set to fifty-five. Crochet and pointelle preserve the source colour map's cutouts. Optional named detail meshes are sampled in the body's local coordinate system to include the pointelle flowers and the racing hoodie's appliqués and patches. These are copied from the existing garment geometry/materials; the garment builders stay unchanged. The previous thirty-five images remain byte-for-byte unchanged. The user approved the before/after comparisons and requested a pull request for these twenty samples.
+
 Read [PRODUCT_BRIEF.md](PRODUCT_BRIEF.md) for the product's intent and agreed constraints, then the [README](../README.md) for running the code. The brief deliberately distinguishes goals from implementation. Later explicit user decisions can supersede it; update the documentation when that happens.
 
 ## Core destination and current phase — user clarification, 8 October 2026
