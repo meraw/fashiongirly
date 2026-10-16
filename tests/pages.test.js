@@ -113,8 +113,9 @@ test('the weather has a small picture, for the day and for each hour', () => {
   assert.equal(rain.getAttribute('aria-hidden'), 'true');
 });
 
-test('every garment has a fabric swatch with a hint of its pattern', () => {
+test('every garment has a bundled sample of its fabric', () => {
   for (const [id, g] of Object.entries(GARMENTS)) assert.ok(swatchBackground(id), `${id} has a swatch`);
+  assert.deepEqual(Object.keys(FABRIC_SWATCHES).sort(), Object.keys(GARMENTS).sort(), 'every current garment has a material sample');
   const kind = id => swatchBackground(id);
   assert.match(kind('pink-ditsy-floral-yoke-shirt-v1'), /url\("[^"]*\/pink-ditsy-floral\.webp"\) center \/ cover no-repeat/, 'the pink floral shirt uses its sampled fabric, rather than generic dots');
   for (const [id, url] of Object.entries(FABRIC_SWATCHES)) {
@@ -123,11 +124,11 @@ test('every garment has a fabric swatch with a hint of its pattern', () => {
     assert.equal(bytes.toString('ascii', 0, 4), 'RIFF', `${id}: the sampled fabric is bundled`);
     assert.equal(bytes.toString('ascii', 8, 12), 'WEBP', `${id}: a valid WebP container`);
   }
-  assert.match(kind('dr-martens-cow-slide-v1'), /radial-gradient/, 'prints without a sampled fabric retain their CSS fallback');
+  assert.match(kind('dr-martens-cow-slide-v1'), /\/dr-martens-cow-slide\.webp/, 'the cow print uses the actual strap texture');
   assert.match(kind('mango-plaid-jumper-v1'), /\/mango-windowpane\.webp/, 'the windowpane uses the actual knit pattern');
   assert.match(kind('topshop-barrel-jeans-v1'), /\/topshop-acid-wash\.webp/, 'bottoms use their sampled denim too');
   assert.match(kind('striped-waffle-snap-collar-jumper-v1'), /\/waffle-snap-collar\.webp/, 'the striped waffle knit uses its actual pattern');
-  assert.match(kind('marikoo-two-tone-windbreaker-v1'), /linear-gradient\(170deg/, 'unsampled colour-block outerwear retains its fallback');
+  assert.match(kind('marikoo-two-tone-windbreaker-v1'), /\/marikoo-two-tone-windbreaker\.webp/, 'the windbreaker uses its actual colour blocks');
   assert.equal(swatchBackground('no-such-garment'), null);
   const d = new JSDOM('').window.document;
   const strip = outfitSwatch(d, [{ slot: 'top', id: 'pink-ditsy-floral-yoke-shirt-v1' }, { slot: 'under', id: 'desigual-bronze-mesh-v1' }, { slot: 'bottom', id: 'mango-washed-black-v1' }, { slot: 'shoes', id: 'new-balance-550-cream-v1' }]);
