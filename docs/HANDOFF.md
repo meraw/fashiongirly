@@ -6,6 +6,8 @@ Wardrobe management, 16 October 2026: the user requested garment removal inside 
 
 ## Read first
 
+Fabric swatches, 16 October 2026: the user found the Wardrobe's CSS colours and patterns unlike the clothes. They accepted five before/after samples (Bronze Buddha mesh, lilac portrait mock neck, Desigual mountain shirt, Levi's plaid flannel and Replay rose sweatshirt), then requested ten more with before/after comparisons. The next ten are Motel tie-dye, Desigual spray floral and split floral, Mango halftone dots, pink ditsy yoke, cream ditsy rose, Levi's wildflower, Pepe Jeans ikat, Levi's lilac gingham and Tommy red varsity. The user accepted those ten too and requested one pull request containing all fifteen swatches. All fifteen use small local WebP samples of their actual colour maps, tint and torso UVs (`src/wardrobe/fabric-swatches.js`); the original five images are unchanged. `scripts/render-fabric-swatches.mjs` regenerates them through Playwright with the dev server running; `PLAYWRIGHT_MODULE` and `CHROMIUM_PATH` can select external tooling. Crops show each print; the mountain shirt uses the continuous back panel to avoid front placket artifacts. Samples show neutral material colour, without scene lighting. Other garments retain their existing swatches.
+
 Read [PRODUCT_BRIEF.md](PRODUCT_BRIEF.md) for the product's intent and agreed constraints, then the [README](../README.md) for running the code. The brief deliberately distinguishes goals from implementation. Later explicit user decisions can supersede it; update the documentation when that happens.
 
 ## Core destination and current phase — user clarification, 8 October 2026
