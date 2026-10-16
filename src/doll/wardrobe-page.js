@@ -46,7 +46,7 @@ export function wearPatch(g) {
   return { [KEY[g.slot]]: g.id };
 }
 
-export function mountWardrobe(doc, { wear, getConditions = () => null }) {
+export function mountWardrobe(doc, { wear, getConditions = () => null, inventory, onChange = () => {} }) {
   const root = doc.getElementById('wardrobe-groups'), buttons = [], groups = [];
   if (!root) return { sync() {}, dispose() {} };
   const filters = { today: false, warmth: null, colour: null };
@@ -75,6 +75,30 @@ export function mountWardrobe(doc, { wear, getConditions = () => null }) {
   status.append(count, clear);
   root.before(bar, status);
 
+  const manage = make('button', 'wardrobe-manage', 'Manage pieces');
+  manage.type = 'button'; manage.setAttribute('aria-pressed', 'false');
+  let managing = false;
+  manage.onclick = () => { managing = !managing; manage.setAttribute('aria-pressed', String(managing)); manage.textContent = managing ? 'Done' : 'Manage pieces'; apply(); };
+  const removed = make('details', 'removed-pieces'), summary = make('summary'), removedList = make('div');
+  removed.append(summary, removedList);
+  const feedback = make('p', 'wardrobe-feedback'); feedback.setAttribute('role', 'status');
+  const dialog = make('dialog', 'remove-piece-dialog'), heading = make('h2', null, 'Remove this piece?'), explanation = make('p');
+  dialog.id = 'remove-piece-dialog'; heading.id = 'remove-piece-title'; dialog.setAttribute('aria-labelledby', heading.id);
+  const confirm = make('button', null, 'Remove piece'), cancel = make('button', null, 'Keep it');
+  confirm.type = cancel.type = 'button';
+  let pending = null;
+  const close = () => { if (dialog.close) dialog.close(); else dialog.removeAttribute('open'); };
+  cancel.onclick = close;
+  confirm.onclick = () => {
+    if (!pending) return;
+    const g = pending; pending = null;
+    const saved = inventory.remove(g.id);
+    close(); onChange(); apply(); manage.focus();
+    feedback.textContent = `${g.name} removed.${saved ? '' : ' Only for this visit: your wardrobe could not be saved.'} Restore it under Removed pieces.`;
+  };
+  dialog.append(heading, explanation, confirm, cancel); doc.body.append(dialog);
+  root.before(manage, feedback); root.after(removed);
+
   for (const [slot, title] of GROUPS) {
     const items = Object.values(GARMENTS).filter(g => g.slot === slot).sort((a, b) => a.name.localeCompare(b.name));
     if (!items.length) continue;
@@ -84,14 +108,21 @@ export function mountWardrobe(doc, { wear, getConditions = () => null }) {
       b.type = 'button'; b.dataset.id = g.id; b.dataset.slot = slot;
       b.append(swatch(doc, g.id, 'piece-swatch'), name);
       b.onclick = () => wear(wearPatch(g), g);
-      grid.append(b); buttons.push(b); mine.push(b);
+      const card = make('div', 'wardrobe-piece'), remove = make('button', 'piece-remove', 'Remove');
+      remove.type = 'button'; remove.setAttribute('aria-label', `Remove ${g.name}`);
+      remove.onclick = () => {
+        pending = g; explanation.textContent = `${g.name} will leave your wardrobe and her outfit suggestions. If she is wearing it, it will be taken off or replaced. You can restore it later. Changes stay on this device.`;
+        if (dialog.showModal) dialog.showModal(); else dialog.setAttribute('open', '');
+        cancel.focus();
+      };
+      card.append(b, remove); grid.append(card); buttons.push(b); mine.push(b);
     }
     section.append(h, grid); root.append(section); groups.push({ section, h, title, buttons: mine });
   }
 
   // What suits the day is worked out once for each day's weather.
   let suitedKey = null, suited = null;
-  const suitedFor = conditions => { const key = JSON.stringify(conditions); if (key !== suitedKey) { suitedKey = key; suited = suitedToday(conditions); } return suited; };
+  const suitedFor = conditions => { const avoid = inventory?.removed() ?? [], key = JSON.stringify([conditions, avoid]); if (key !== suitedKey) { suitedKey = key; suited = suitedToday(conditions, { avoid }); } return suited; };
   function apply() {
     const conditions = getConditions(), known = !!conditions && Number.isFinite(conditions.feels);
     if (!known) filters.today = false;
@@ -106,8 +137,10 @@ export function mountWardrobe(doc, { wear, getConditions = () => null }) {
       let n = 0;
       for (const b of g.buttons) {
         const id = b.dataset.id;
-        const ok = (!fits || fits.has(id)) && (!filters.warmth || warmthBand(stylingFacts(id)?.warmth) === filters.warmth) && (!filters.colour || coloursOf(id).has(filters.colour));
-        b.hidden = !ok; if (ok) n++;
+        const ok = (inventory?.has(id) ?? true) && (!fits || fits.has(id)) && (!filters.warmth || warmthBand(stylingFacts(id)?.warmth) === filters.warmth) && (!filters.colour || coloursOf(id).has(filters.colour));
+        b.hidden = b.parentElement.hidden = !ok;
+        b.parentElement.querySelector('.piece-remove').hidden = !managing || !inventory;
+        if (ok) n++;
       }
       g.section.hidden = !n; g.h.textContent = `${g.title} · ${n}`; shown += n;
     }
@@ -116,6 +149,20 @@ export function mountWardrobe(doc, { wear, getConditions = () => null }) {
     // Said only when it changes, so a screen reader hears it once.
     const said = !on ? '' : shown ? `${shown} ${shown === 1 ? 'piece matches' : 'pieces match'}.` : 'Nothing in her wardrobe matches all of these.';
     if (count.textContent !== said) count.textContent = said;
+    manage.hidden = !inventory;
+    const ids = inventory?.removed() ?? [];
+    removed.hidden = !ids.length; summary.textContent = `Removed pieces · ${ids.length}`;
+    // Preserve the focused restore button when ordinary outfit/filter updates run.
+    const key = JSON.stringify(ids);
+    if (removedList.dataset.ids !== key) {
+      removedList.dataset.ids = key;
+      removedList.replaceChildren(...ids.map(id => {
+        const g = GARMENTS[id], row = make('div', 'removed-piece'), name = make('span', null, g.name), restore = make('button', null, 'Restore');
+        restore.type = 'button'; restore.dataset.restore = id; restore.setAttribute('aria-label', `Restore ${g.name}`);
+        restore.onclick = () => { const saved = inventory.restore(id); onChange(); apply(); manage.focus(); feedback.textContent = `${g.name} restored.${saved ? '' : ' Only for this visit: your wardrobe could not be saved.'}`; };
+        row.append(name, restore); return row;
+      }));
+    }
   }
   apply();
   return {
@@ -128,6 +175,6 @@ export function mountWardrobe(doc, { wear, getConditions = () => null }) {
       }
       apply();
     },
-    dispose() { root.replaceChildren(); bar.remove(); status.remove(); },
+    dispose() { root.replaceChildren(); bar.remove(); status.remove(); manage.remove(); feedback.remove(); removed.remove(); dialog.remove(); },
   };
 }

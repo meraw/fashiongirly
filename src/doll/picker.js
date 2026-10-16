@@ -54,7 +54,7 @@ export function clothFor(selectId, value, recipe = {}) {
   return swatchBackground(value);
 }
 
-export function mountPicker(doc, { getRecipe = () => ({}) } = {}) {
+export function mountPicker(doc, { getRecipe = () => ({}), isAvailable = () => true } = {}) {
   const Event = doc.defaultView?.Event, chips = [];
   // One dialog, filled with the pieces of whichever slot is tapped.
   const dialog = doc.createElement('dialog'), heading = doc.createElement('div'), title = doc.createElement('h2'), close = doc.createElement('button'), grid = doc.createElement('div');
@@ -80,7 +80,7 @@ export function mountPicker(doc, { getRecipe = () => ({}) } = {}) {
     close.onclick();
   }
   function show(select, chip, heading) {
-    const recipe = getRecipe(), options = [...select.options];
+    const recipe = getRecipe(), options = [...select.options].filter(o => isAvailable(o.value));
     // Nothing first, the user's own pieces by name, then the built-in study piece she started with.
     const rank = o => o.value === 'none' ? 0 : o.value === 'classic' ? 2 : 1;
     if (select.id !== 'hair-select') options.sort((a, b) => rank(a) - rank(b) || a.textContent.localeCompare(b.textContent));

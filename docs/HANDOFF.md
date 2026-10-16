@@ -2,6 +2,8 @@
 
 Last updated: 12 October 2026.
 
+Wardrobe management, 16 October 2026: the user requested garment removal inside the app. Wardrobe → Manage pieces → Remove opens a confirmation; Removed pieces offers Restore. Device-local exclusions (`fashiongirly.removed-pieces.v1`, `src/wardrobe/ownership.js`) apply to the wardrobe, picker, studies, saved-look wearing and every daily styling request. Worn removed garments fall back to classic pieces or no optional layer; authored assets and stored lookbook entries remain intact. Changing the wardrobe refreshes today's suggestions and clears old undo/idea state without putting on an unrelated outfit. `tests/wardrobe-removal.test.js` covers confirmation, persistence, restoration, stale daily looks, saved looks, empty wardrobes and storage errors.
+
 ## Read first
 
 Read [PRODUCT_BRIEF.md](PRODUCT_BRIEF.md) for the product's intent and agreed constraints, then the [README](../README.md) for running the code. The brief deliberately distinguishes goals from implementation. Later explicit user decisions can supersede it; update the documentation when that happens.

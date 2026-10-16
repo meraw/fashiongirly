@@ -26,7 +26,7 @@ const copy = v => JSON.parse(JSON.stringify(v));
 const clampOffset = v => Number.isFinite(v) ? Math.max(-PERSONAL_LIMIT, Math.min(PERSONAL_LIMIT, v)) : 0;
 // A forecast read before she dressed for the warm part of the day in the sun (it has no `shade`) is read again.
 const outdated = c => c?.source === 'forecast' && !Number.isFinite(c.shade);
-export function mountToday(doc, { storage = null, getRecipe, wear, fetch: fetchImpl = null, geolocation = null, now = () => Date.now() } = {}) {
+export function mountToday(doc, { storage = null, getRecipe, wear, getUnavailable = () => [], fetch: fetchImpl = null, geolocation = null, now = () => Date.now() } = {}) {
   const $ = id => doc.getElementById(id);
   const read = (key, fallback) => { try { const v = JSON.parse(storage?.getItem(key) || 'null'); return v ?? fallback; } catch { return fallback; } };
   const write = (key, value) => { try { storage?.setItem(key, JSON.stringify(value)); } catch {} };
@@ -53,7 +53,7 @@ export function mountToday(doc, { storage = null, getRecipe, wear, fetch: fetchI
     $('today-another').disabled = busy || !state?.trio;
     $('today-undo').disabled = busy || !state?.undo?.length;
     for (const [key] of LOOKS) $(`look-${key}`).disabled = busy || !state?.trio;
-    $('today-too-warm').disabled = $('today-too-cool').disabled = busy || !state?.trio;
+    $('today-too-warm').disabled = $('today-too-cool').disabled = busy || !current();
   }
 
   function render() {
@@ -124,11 +124,13 @@ export function mountToday(doc, { storage = null, getRecipe, wear, fetch: fetchI
 
   const recent = () => read(HISTORY_KEY, []).filter(h => h?.day && h.day < state.day).map(h => h.recipe).slice(0, 7);
   // Choose the day's three looks for the current weather and wear her pick.
-  function chooseLooks() {
-    const trio = composeTrio(dressFor(), { seed: state.seed, recent: recent(), learned: read(LEARNED_KEY, null), current: getRecipe() });
-    if (!trio) { status('Nothing in the wardrobe suits that weather.'); return false; }
-    Object.assign(state, { trio, choice: 'pick', idea: null, ideas: [], undo: [], rules: RULES_VERSION });
-    save(); remember(trio.pick.recipe); wear(trio.pick.recipe); render();
+  function chooseLooks({ putOn = true } = {}) {
+    const trio = composeTrio(dressFor(), { avoid: getUnavailable(), seed: state.seed, recent: recent(), learned: read(LEARNED_KEY, null), current: getRecipe() });
+    Object.assign(state, { trio, choice: trio && putOn ? 'pick' : null, idea: null, ideas: [], undo: [], rules: RULES_VERSION });
+    save();
+    if (!trio) { render(); status('Nothing in the wardrobe suits that weather.'); return false; }
+    if (putOn) { remember(trio.pick.recipe); wear(trio.pick.recipe); }
+    render();
     return true;
   }
   // Put on one of the three looks. These never change during the day.
@@ -141,9 +143,9 @@ export function mountToday(doc, { storage = null, getRecipe, wear, fetch: fetchI
   function another() {
     if (!state?.trio || busy) return;
     const shown = [...LOOKS.map(([k]) => state.trio[k].recipe), ...(state.ideas || [])];
-    const idea = composeOutfit(dressFor(), { seed: state.seed + 7 * (state.ideas.length + 1), recent: recent(), shownToday: shown, learned: read(LEARNED_KEY, null), current: getRecipe() });
+    const idea = composeOutfit(dressFor(), { avoid: getUnavailable(), seed: state.seed + 7 * (state.ideas.length + 1), recent: recent(), shownToday: shown, learned: read(LEARNED_KEY, null), current: getRecipe() });
     if (!idea) { status('No other outfit suits this weather.'); return; }
-    state.undo = [...(state.undo || []), { choice: state.choice, idea: state.idea }].slice(-10);
+    state.undo = current() ? [...(state.undo || []), { choice: state.choice, idea: state.idea }].slice(-10) : [];
     Object.assign(state, { choice: 'idea', idea, ideas: [...state.ideas, idea.recipe].slice(-12) });
     save(); remember(idea.recipe); wear(idea.recipe); render();
     status('');
@@ -156,7 +158,7 @@ export function mountToday(doc, { storage = null, getRecipe, wear, fetch: fetchI
     if (!state?.trio || busy) return;
     const key = state.choice && state.choice !== 'idea' ? state.choice : 'pick', was = current()?.warmth.total ?? 0;
     for (let o = offset() + 2 * direction; Math.abs(o) <= PERSONAL_LIMIT; o += 2 * direction) {
-      const trio = composeTrio(forPerson(state.conditions, o), { seed: state.seed, recent: recent(), learned: read(LEARNED_KEY, null), current: getRecipe() });
+      const trio = composeTrio(forPerson(state.conditions, o), { avoid: getUnavailable(), seed: state.seed, recent: recent(), learned: read(LEARNED_KEY, null), current: getRecipe() });
       if (!trio || (was - trio[key].warmth.total) * direction <= 0) continue;
       write(WARMTH_KEY, o);
       Object.assign(state, { trio, choice: key, idea: null, ideas: [], undo: [], rules: RULES_VERSION });
@@ -246,11 +248,17 @@ export function mountToday(doc, { storage = null, getRecipe, wear, fetch: fetchI
   win?.addEventListener('resize', world);
 
   render();
+  const hasRemoved = value => {
+    const ids = new Set(getUnavailable());
+    const visit = v => typeof v === 'string' ? ids.has(v) : v && typeof v === 'object' ? Object.values(v).some(visit) : false;
+    return visit(value);
+  };
   // Today's looks chosen by an older version of her rules are chosen again, for the same weather.
   const ready = state?.day === dayKey(now()) && state.trio && !outdated(state.conditions)
-    ? Promise.resolve().then(() => { if (state.rules !== RULES_VERSION && !gone()) chooseLooks(); }) : dressForToday();
+    ? Promise.resolve().then(() => { if ((state.rules !== RULES_VERSION || hasRemoved(state)) && !gone()) chooseLooks(); }) : dressForToday();
   return {
     ready, getState: () => state && copy(state), title: () => state?.choice ? TITLES[state.choice] : null,
+    wardrobeChanged() { if (state?.conditions) chooseLooks({ putOn: false }); },
     dispose() { disposed = true; doc.removeEventListener('visibilitychange', onVisible); if (clock != null) win.clearInterval(clock); win?.removeEventListener('resize', world); $('save')?.removeEventListener('click', onSave); },
   };
 }
