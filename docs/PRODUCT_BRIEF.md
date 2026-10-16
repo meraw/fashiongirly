@@ -66,6 +66,8 @@ The user believes reference-based reconstruction is practical from previous game
 
 ## Local first; no runtime AI API requirement
 
+Wardrobe management (16 October 2026): the user wants to remove garments directly in the app. Wardrobe's Manage pieces mode confirms removals, excludes them from dressing and daily suggestions, and offers restoration under Removed pieces. These changes stay on the device, like saved looks; authored garment assets remain available for restoration.
+
 The user explicitly wants the initial app built without API calls. Do not add an AI provider, required account, API key, backend inference dependency, live weather request or cloud service by default. The built app currently bundles its rendering dependencies and uses browser storage.
 
 Update, 9 October 2026 (the user's decision): still no AI API calls for now, but the weather may come from a free source, so a keyless public forecast fetched by the browser is allowed for daily styling. It must not need an account or key, and must fall back to manually supplied weather. See the [daily styling plan](DAILY_STYLING_PLAN.md).
