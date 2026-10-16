@@ -1,4 +1,4 @@
-// Fabric swatches, shared by the wardrobe, picker and daily looks. Thirty-five pieces use samples of their actual
+// Fabric swatches, shared by the wardrobe, picker and daily looks. Fifty-five pieces use samples of their actual
 // renderer materials; the remaining garments still use CSS approximations from their styling facts.
 import { GARMENTS } from '../wardrobe/catalog.js';
 import { stylingFacts } from '../style/facts.js';

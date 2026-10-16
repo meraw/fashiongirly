@@ -123,10 +123,11 @@ test('every garment has a fabric swatch with a hint of its pattern', () => {
     assert.equal(bytes.toString('ascii', 0, 4), 'RIFF', `${id}: the sampled fabric is bundled`);
     assert.equal(bytes.toString('ascii', 8, 12), 'WEBP', `${id}: a valid WebP container`);
   }
-  assert.match(kind('desigual-crochet-flowers-v1'), /radial-gradient/, 'prints without a sampled fabric retain their CSS fallback');
+  assert.match(kind('dr-martens-cow-slide-v1'), /radial-gradient/, 'prints without a sampled fabric retain their CSS fallback');
   assert.match(kind('mango-plaid-jumper-v1'), /\/mango-windowpane\.webp/, 'the windowpane uses the actual knit pattern');
   assert.match(kind('topshop-barrel-jeans-v1'), /\/topshop-acid-wash\.webp/, 'bottoms use their sampled denim too');
-  assert.match(kind('striped-waffle-snap-collar-jumper-v1'), /repeating-linear-gradient\(0deg/, 'unsampled stripes retain their fallback');
+  assert.match(kind('striped-waffle-snap-collar-jumper-v1'), /\/waffle-snap-collar\.webp/, 'the striped waffle knit uses its actual pattern');
+  assert.match(kind('marikoo-two-tone-windbreaker-v1'), /linear-gradient\(170deg/, 'unsampled colour-block outerwear retains its fallback');
   assert.equal(swatchBackground('no-such-garment'), null);
   const d = new JSDOM('').window.document;
   const strip = outfitSwatch(d, [{ slot: 'top', id: 'pink-ditsy-floral-yoke-shirt-v1' }, { slot: 'under', id: 'desigual-bronze-mesh-v1' }, { slot: 'bottom', id: 'mango-washed-black-v1' }, { slot: 'shoes', id: 'new-balance-550-cream-v1' }]);
