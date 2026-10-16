@@ -1,5 +1,7 @@
 # Plan: from wardrobe studio to daily self-dressing
 
+The [mood-first decision of 16 October 2026](#decisions-16-october-2026-mood-before-the-three-looks) supersedes the automatic morning dressing and bolder/easier split described in earlier versions below.
+
 Written 9 October 2026. It follows the sequence in the [product brief](PRODUCT_BRIEF.md#building-towards-daily-self-dressing): finish the import, build local outfit selection, then connect weather and the daily experience.
 
 **Status, 9 October 2026, later the same day:** the user asked for a working app now, with garments still to be added later. A first version of phases 0 to 4 is built: styling facts for every garment, the stylist, the forecast, and the Today panel. Phase 5 (installable app, device QA, tuning from the user's reactions) is next. The sections below say what was built and what is still open; the [decisions](#decisions-9-october-2026) record the user's answers.
@@ -162,3 +164,9 @@ Six ways were offered: A dress for the warm part of the day, B add the sun, C a 
 - **Dress her:** today's three looks are put away there (`data-pages="today wardrobe"` in `index.html`, read by `src/doll/pages.js`); the look she wears carries over. They still show on Wardrobe; whether they should go there too is the user's call.
 
 To tune with the user: the hours of the warm part, the sun's share, the warm-day leaning, and the layer rule's 6° and 16 °C.
+
+## Decisions, 16 October 2026: mood before the three looks
+
+Today now waits for the user's feeling before proposing three looks, and for a look selection before dressing her. The six choices are coccole, poche energie, tranquilla, farmi notare, invisibile and sorprendimi. Three numbered interpretations share the same mood rather than forcing a bolder/easier split. The same-day selection persists; after 5:00 on a new day she asks again. Changing the mood does not immediately change her outfit. No staying-home/going-out question and no garment classification prompts belong in this flow.
+
+Mood ranking uses existing garment descriptions and explicitly recorded user experience only. Material evidence may suggest softness, but neither a romantic aesthetic nor a photograph confirms physical comfort. Ease favours fewer optional layers and documented simple entry; discretion considers contrast, prints and conspicuous finishes; surprise gives more weight to recent history. Weather suitability and compatibility remain common constraints. Personal comfort/ease facts, if supplied in conversation, go in the garment's own data with a source; the app does not ask the user to rate the wardrobe.

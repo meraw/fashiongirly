@@ -386,3 +386,15 @@ dialog::backdrop{background:#1a0a36b8;backdrop-filter:blur(4px)}
   dialog.picker[open]{width:100%;max-width:100%;margin:auto 0 0;max-height:86vh;border-radius:var(--radius) var(--radius) 0 0;padding:20px 16px calc(16px + env(safe-area-inset-bottom))}
   .picker-grid{grid-template-columns:repeat(auto-fill,minmax(112px,1fr))}
 }
+
+/* The morning starts with a feeling; three numbered interpretations follow it. */
+.today-mood{margin:0 0 22px}
+.today-mood h3{font:500 27px/1.15 var(--display);color:var(--purple);margin:0 0 10px}
+.mood-intro,.mood-criteria,.mood-choice-note{font-size:13px;line-height:1.55;color:var(--muted);margin:0 0 14px}
+.mood-options{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;margin:16px 0}
+.mood-options button{min-height:50px;text-align:left;border:1.5px solid var(--lilac);border-radius:14px;padding:12px;color:var(--purple);background:#fffdf9;font:inherit;font-size:13px;line-height:1.3}
+.mood-options button[aria-pressed=true]{background:var(--purple);color:#fff8ef;border-color:var(--purple)}
+.mood-options button:focus-visible{outline:3px solid var(--orange);outline-offset:3px}
+.mood-choice-note{color:var(--purple);margin-bottom:0}
+.mood-choice-note:empty{display:none}
+#today-suggestions[hidden],#today-outfit[hidden]{display:none}

@@ -15,27 +15,29 @@ const rome = async () => ({ ok: true, status: 200, json: async () => ROME });
 const here = { getCurrentPosition(ok) { ok({ coords: { latitude: 51.51, longitude: -.13 } }); } };
 
 // A studio page with a stand-in 3D view, a recorded forecast and a fixed clock. `storage` copies an earlier visit.
-async function open({ now = MORNING, geolocation = here, storage = {}, fetch } = {}) {
+async function open({ now = MORNING, geolocation = here, storage = {}, fetch, mood = 'tranquilla', choose = true } = {}) {
   const dom = new JSDOM(readFileSync('index.html', 'utf8'), { url: 'https://example.com/' }), d = dom.window.document;
   for (const [k, v] of Object.entries(storage)) dom.window.localStorage.setItem(k, v);
   const asked = [], worn = [];
   fetch ??= async url => ({ ok: true, status: 200, json: async () => url.includes('geocoding') ? DUBLIN : LONDON });
   const app = await startStudio(d, () => ({ update(r) { worn.push(r); }, turn() {}, dispose() {} }), { fetch: async u => { asked.push(u); return fetch(u); }, geolocation, now: () => now });
   await app.today.ready;
+  if (mood && !app.today.getState()?.mood) d.querySelector(`[data-mood="${mood}"]`).click();
+  if (choose && app.today.getState()?.trio && !app.today.getState().choice) d.getElementById('look-pick').click();
   const saved = () => Object.fromEntries(Object.keys(dom.window.localStorage).map(k => [k, dom.window.localStorage.getItem(k)]));
   return { dom, d, app, asked, worn, saved, read: k => JSON.parse(dom.window.localStorage.getItem(k)), close() { app.dispose(); dom.window.close(); } };
 }
 const lead = r => r.dressId !== 'none' ? r.dressId : r.topId;
 const click = (d, id) => d.getElementById(id).click();
 
-test('in the morning she checks the forecast for where the phone is and dresses herself', async () => {
+test('after choosing a feeling and a proposal she dresses for the phone forecast', async () => {
   const p = await open();
   const r = p.app.getRecipe(), today = p.read(TODAY_KEY);
   assert.equal(today.day, '2026-10-09');
   assert.ok(GARMENTS[lead(r)], 'she wears a piece from the wardrobe');
   assert.deepEqual(r, today.trio.pick.recipe, 'she wears her pick');
   assert.equal(p.d.getElementById('look-pick').getAttribute('aria-pressed'), 'true');
-  assert.equal(p.d.getElementById('outfit-title').textContent, 'Her pick for today.');
+  assert.equal(p.d.getElementById('outfit-title').textContent, 'Il tuo primo look.');
   assert.equal(p.asked.length, 1);
   assert.match(p.asked[0], /latitude=51\.51&longitude=-0\.13/, 'the phone location is used by default');
   assert.match(p.d.getElementById('today-weather').textContent, /Your location · \w+ · .*rain likely/);
@@ -69,13 +71,13 @@ const looks = p => ({ pick: p.read(TODAY_KEY).trio.pick.recipe, bolder: p.read(T
 test('three looks for the day, under the doll, that stay the same', async () => {
   const { boldness } = await import('../src/style/taste.js'), { outfitOf } = await import('../src/style/stylist.js');
   const p = await open(), d = p.d, b = r => boldness(outfitOf(r)), day = looks(p);
-  assert.ok(b(day.bolder) > b(day.pick) && b(day.easier) < b(day.pick), 'bolder is bolder, easier is quieter');
+  assert.ok(Object.values(day).every(r => Number.isFinite(b(r))), 'three interpretations of the same mood');
   assert.equal(new Set(Object.values(day).map(lead)).size, 3, 'three different outfits');
   click(d, 'look-bolder');
   assert.deepEqual(p.app.getRecipe(), day.bolder);
   assert.equal(d.getElementById('look-bolder').getAttribute('aria-pressed'), 'true');
   assert.equal(d.getElementById('look-pick').getAttribute('aria-pressed'), 'false');
-  assert.equal(d.getElementById('outfit-title').textContent, 'Her bolder look.');
+  assert.equal(d.getElementById('outfit-title').textContent, 'Il tuo secondo look.');
   click(d, 'look-easier'); click(d, 'look-bolder'); click(d, 'look-pick');
   assert.deepEqual(p.app.getRecipe(), day.pick, 'pressing again gives the same looks');
   assert.deepEqual(looks(p), day, 'the three never change during the day');
@@ -115,6 +117,7 @@ test('without location she asks for the weather; a typed town is used from then 
   assert.equal(d.getElementById('today-manual').open, true);
   assert.deepEqual(p.app.getRecipe(), draft, 'nothing changes until there is weather');
   [...d.querySelectorAll('#today-presets button')].find(b => b.textContent === 'Cold').click();
+  click(d, 'look-pick');
   assert.ok(p.app.getRecipe().outerwearId !== 'none', 'dressed for the cold: a jacket');
   assert.match(d.getElementById('today-weather').textContent, /Cold/);
   d.getElementById('today-place-input').value = 'Dublin';
@@ -144,6 +147,7 @@ test('she says what she dressed for: the warm part of the day, in the sun when i
   click(p.d, 'today-another');
   assert.equal(dressed(p), 'Dressed for 17° · this afternoon', 'another idea is for the same day');
   [...p.d.querySelectorAll('#today-presets button')].find(b => b.textContent === 'Cold').click();
+  click(p.d, 'look-pick');
   assert.equal(dressed(p), 'Dressed for 3° · the weather you chose');
   p.close();
 });
@@ -213,5 +217,85 @@ test('saving a look with the heart teaches her what the user likes', async () =>
   const learned = p.read(LEARNED_KEY);
   assert.ok(learned.pieces[lead(r)] > 0);
   assert.ok(Object.keys(learned.pairs).length > 0);
+  p.close();
+});
+
+test('a new day waits for a mood, then offers previews and waits for a look before dressing', async () => {
+  const p = await open({ mood: null, choose: false }), d = p.d, initial = p.app.getRecipe();
+  assert.equal(p.read(TODAY_KEY).mood, null);
+  assert.equal(p.read(TODAY_KEY).trio, null);
+  assert.equal(p.read(HISTORY_KEY), null);
+  assert.equal(d.getElementById('today-suggestions').hidden, true);
+  assert.equal(d.querySelectorAll('#today-moods button').length, 6);
+  let revealed = false;
+  d.defaultView.matchMedia = () => ({ matches: true });
+  d.getElementById('today-suggestions').scrollIntoView = () => { revealed = true; };
+  d.querySelector('[data-mood=invisibile]').click();
+  assert.equal(revealed, true, 'on a phone the new proposals are brought into view');
+  assert.ok(p.read(TODAY_KEY).trio);
+  assert.equal(p.read(TODAY_KEY).choice, null);
+  assert.deepEqual(p.app.getRecipe(), initial, 'preparing previews does not dress her');
+  assert.equal(p.read(HISTORY_KEY), null, 'a preview is not recorded as worn');
+  assert.equal(d.getElementById('today-suggestions').hidden, false);
+  assert.equal(d.getElementById('today-outfit').hidden, true);
+  assert.match(d.getElementById('today-mood-criteria').textContent, /poco contrasto/);
+  click(d, 'look-easier');
+  const look = p.app.getRecipe(), storage = p.saved();
+  assert.deepEqual(look, p.read(TODAY_KEY).trio.easier.recipe);
+  assert.equal(d.getElementById('today-outfit').hidden, false);
+  p.close();
+  const again = await open({ storage, mood: null, choose: false });
+  assert.equal(again.asked.length, 0);
+  assert.equal(again.read(TODAY_KEY).mood, 'invisibile');
+  assert.equal(again.read(TODAY_KEY).choice, 'easier');
+  assert.deepEqual(again.app.getRecipe(), look);
+  const next = await open({ storage, now: new Date(2026, 9, 10, 6).getTime(), mood: null, choose: false });
+  assert.equal(next.read(TODAY_KEY).mood, null, 'a new morning asks again');
+  assert.equal(next.read(TODAY_KEY).trio, null);
+  assert.deepEqual(next.app.getRecipe(), look, 'yesterday’s outfit stays until a choice');
+  again.close(); next.close();
+});
+
+test('changing mood changes proposals without changing what she wears; ideas and warmth keep the mood', async () => {
+  const p = await open(), d = p.d, before = p.app.getRecipe();
+  d.querySelector('[data-mood=coccole]').click();
+  assert.equal(p.read(TODAY_KEY).choice, null);
+  assert.deepEqual(p.app.getRecipe(), before);
+  for (const r of Object.values(p.read(TODAY_KEY).trio)) assert.match(r.reasons.join(' '), /comfort|morbidezza/);
+  const trio = p.read(TODAY_KEY).trio;
+  d.querySelector('[data-mood=coccole]').click();
+  assert.deepEqual(p.read(TODAY_KEY).trio, trio, 'same mood does not keep reshuffling');
+  click(d, 'look-pick'); click(d, 'today-another');
+  assert.match(p.read(TODAY_KEY).idea.reasons.join(' '), /comfort|morbidezza/);
+  click(d, 'today-too-warm');
+  assert.equal(p.read(TODAY_KEY).mood, 'coccole');
+  p.close();
+});
+
+test('a feeling selected while the forecast is pending is used when it arrives', async () => {
+  let resolveForecast;
+  const response = new Promise(r => { resolveForecast = r; });
+  const dom = new JSDOM(readFileSync('index.html', 'utf8'), { url: 'https://example.com/' }), d = dom.window.document;
+  const app = await startStudio(d, () => ({ update() {}, turn() {}, dispose() {} }), { geolocation: here, fetch: () => response, now: () => MORNING });
+  const before = app.getRecipe();
+  d.querySelector('[data-mood=energie]').click();
+  assert.equal(app.today.getState().mood, 'energie');
+  assert.equal(app.today.getState().trio, null);
+  resolveForecast({ ok: true, status: 200, json: async () => LONDON });
+  await app.today.ready;
+  assert.ok(app.today.getState().trio);
+  assert.equal(app.today.getState().choice, null);
+  assert.deepEqual(app.getRecipe(), before);
+  app.dispose(); dom.window.close();
+});
+
+test('old saved daily looks without a feeling return to the question without redressing', async () => {
+  const first = await open(), storage = first.saved(), before = first.app.getRecipe(); first.close();
+  const old = JSON.parse(storage[TODAY_KEY]); delete old.mood;
+  const p = await open({ storage: { ...storage, [TODAY_KEY]: JSON.stringify(old) }, mood: null, choose: false });
+  assert.equal(p.read(TODAY_KEY).trio, null);
+  assert.equal(p.read(TODAY_KEY).mood, null);
+  assert.equal(p.asked.length, 0, 'the existing forecast is still good');
+  assert.deepEqual(p.app.getRecipe(), before);
   p.close();
 });
