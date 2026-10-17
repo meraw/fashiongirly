@@ -27,6 +27,19 @@ export async function startStudio(doc=document, makeView, options={}) {
   function swatches(id,choices,key){$(id).replaceChildren(...choices.map(([name,color])=>{const b=doc.createElement('button');b.type='button';b.style.background=color;b.setAttribute('aria-label',name);b.dataset.color=color;b.onclick=()=>{recipe[key]=color;sync();apply();};return b;}));}
   swatches('sweater-colours',SWATCHES,'sweater');swatches('denim-colours',[['Indigo','#283c59'],['Washed blue','#71899b'],['Charcoal','#39363b'],['Ecru','#d9cbb2']],'trousers');
   const hairControls=mountHairControls(doc,id=>{recipe.hairId=id;sync();apply();message(`${hairName(id)} — saved with this outfit.`);});
+  let portraitService=null,portraitLoading=null,closed=false;
+  let resolvePortraitView;
+  const portraitViewReady=new Promise(resolve=>{resolvePortraitView=resolve;});
+  const renderPortrait=async(next,key)=>{
+    await portraitViewReady;
+    if(!view||closed)return null;
+    if(view.whenSettled&&!await view.whenSettled())return null;
+    if(closed)return null;
+    await new Promise(resolve=>{const win=doc.defaultView;if(win?.requestIdleCallback)win.requestIdleCallback(resolve,{timeout:1000});else setTimeout(resolve,0);});
+    if(closed)return null;
+    portraitLoading??=import('./look-portraits.js').then(m=>closed?null:(portraitService=m.createLookPortraits(doc))).catch(error=>{portraitLoading=null;throw error;});
+    const service=await portraitLoading;return service?.render(next,key)??null;
+  };
   let today=null;
   const pages=mountPages(doc),wardrobe=mountWardrobe(doc,{getConditions:()=>today?.getState()?.conditions??null,inventory,onChange:()=>{recipe=clean(recipe);today?.wardrobeChanged();sync();apply();},wear:(patch,g)=>{recipe=clean({...recipe,...patch,...(patch.topId&&patch.topId!==recipe.topId?{tucked:undefined}:{})});sync();apply();message(`Wearing the ${g.name}.`);}});
   // Dress her as a visual picker (picker.js): a chip for each slot, opening its pieces as swatches.
@@ -121,7 +134,7 @@ export async function startStudio(doc=document, makeView, options={}) {
   }
   $('lookbook-open').onclick=()=>{book();$('lookbook').showModal();};$('lookbook-close').onclick=()=>$('lookbook').close();
   // Each morning she checks the weather and dresses herself (src/today/today.js); her pick is worn like any other recipe.
-  const win=doc.defaultView;today=mountToday(doc,{storage,getUnavailable:inventory.removed,getRecipe:()=>clean(recipe),wear:next=>{recipe=clean(next);sync();apply();message('');},
+  const win=doc.defaultView;today=mountToday(doc,{storage,renderPortrait:options.renderPortrait??(makeView?null:renderPortrait),getUnavailable:inventory.removed,getRecipe:()=>clean(recipe),wear:next=>{recipe=clean(next);sync();apply();message('');},
     fetch:'fetch' in options?options.fetch:win?.fetch?.bind(win),geolocation:'geolocation' in options?options.geolocation:win?.navigator?.geolocation,now:options.now});
   // If she cannot be shown, say why and offer to try again: reloading clears whatever failed to download.
   const showError=text=>{$('loading')?.remove();const box=$('view-error'),retry=doc.createElement('button');box.hidden=false;
@@ -133,8 +146,8 @@ export async function startStudio(doc=document, makeView, options={}) {
   // If she dressed for the day while the view was loading, show that outfit once the view is ready.
   // The 3D view is loaded separately; a download that fails is tried once more at a fresh address.
   const loadView=async()=>{try{return (await import('./view.js')).createDollView;}catch{return (await import(`./view.js?retry=${Date.now()}`)).createDollView;}};
-  try {const factory=makeView || await loadView(),first=recipe;view=await factory($('stage'),recipe);if(recipe!==first)view.update(recipe);view.turn(-25);$('loading')?.remove();}
-  catch(error){showError(/fetch|import|load/i.test(error?.message||'')?'She could not be loaded: the connection dropped while the app was downloading.':error.message||'The 3D view could not load.');}
-  return {getRecipe:()=>clean(recipe),today,dispose(){clearTimeout(timer);persist();hairControls.dispose();today.dispose();pages.dispose();wardrobe.dispose();picker.dispose();view?.dispose();}};
+  try {const factory=makeView || await loadView(),first=recipe;view=await factory($('stage'),recipe);if(recipe!==first)view.update(recipe);view.turn(-25);$('loading')?.remove();resolvePortraitView();today.refreshPreviews();}
+  catch(error){resolvePortraitView();showError(/fetch|import|load/i.test(error?.message||'')?'She could not be loaded: the connection dropped while the app was downloading.':error.message||'The 3D view could not load.');}
+  return {getRecipe:()=>clean(recipe),today,dispose(){closed=true;resolvePortraitView();portraitService?.dispose();clearTimeout(timer);persist();hairControls.dispose();today.dispose();pages.dispose();wardrobe.dispose();picker.dispose();view?.dispose();}};
 }
 

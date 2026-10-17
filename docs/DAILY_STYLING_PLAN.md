@@ -2,6 +2,7 @@
 
 Current decision after real-world use of PR #123: restore Her pick, Bolder and Easier with the improved swatches. There is no mood selector and no extra “Another idea” generation button in Today. The fixed daily trio, weather constraints and warmth feedback remain. Earlier descriptions of extra ideas below are historical and are superseded by this rollback.
 
+Look portraits, 17 October 2026 (implemented; user approved screenshots and requested a PR): Her pick is visible immediately; Bolder and Easier stay concealed until first tried. Their portraits appear after the change animation and remain for that styling day, including reopening; the next 5:00 day boundary resets alternatives. Pictures refer only to the fixed trio and never generate more outfits.
 
 Written 9 October 2026. It follows the sequence in the [product brief](PRODUCT_BRIEF.md#building-towards-daily-self-dressing): finish the import, build local outfit selection, then connect weather and the daily experience.
 

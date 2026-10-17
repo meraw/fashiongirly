@@ -32,7 +32,7 @@ const TEXTURES = {
   [PLEATED_LINEN_ID]: ['../wardrobe/pleated-linen-fabric.js', 'PLEATED_LINEN_FABRIC'],
   [BUFFALO_ASPHA_ID]: ['../wardrobe/buffalo-tape.js', 'BUFFALO_TAPE'],
 };
-const textureModule = id => TEXTURES[id] || GARMENTS[id]?.atlas || null;
+export const textureModule = id => TEXTURES[id] || GARMENTS[id]?.atlas || null;
 // A module that failed to download stays failed for the life of the page, so the retry asks for it at a new address.
 async function importWithRetry(path) {
   try { return await import(path); }
@@ -85,12 +85,14 @@ export async function createDollView(host, recipe) {
   hair.update(recipe.hairId);outfit=prepare(recipe,attitude);outfit.visible=true;fitDoll(doll,outfit);settle();let current=cleanRecipe(recipe);
   const clothingKey=state=>JSON.stringify({...state,hairId:undefined});let lastClothing=clothingKey(recipe);
   let angle=-.12,target=angle,frame=null,drag=null,pending=0,spin=0;
+  const settledWaiters=[];let hasDrawn=false;
   // On a windy day her loose hair moves (src/hair/wind.js) with the wind across the page, whichever way she faces.
   let windy=false,windStrength=1,windFrame=null,windLast=0;const windStart=performance.now(),windDir=new T.Vector3(),headTurn=new T.Quaternion();
   const still=()=>!!doc.defaultView?.matchMedia?.('(prefers-reduced-motion: reduce)')?.matches;
   const draw=()=>{frame=null;if(closed)return;model.rotation.y=angle+spin;
     if(windy&&wind.active&&!still()){model.updateMatrixWorld(true);head.getWorldQuaternion(headTurn).invert();windDir.set(1,0,0).applyQuaternion(headTurn);windDir.y=0;windDir.normalize();wind.update((performance.now()-windStart)/1000,windDir,windStrength);}
-    renderer.render(scene,camera);};
+    renderer.render(scene,camera);hasDrawn=true;
+    if(!inFlight&&!twirl&&attitude===attitudeNext)settledWaiters.splice(0).forEach(resolve=>resolve(true));};
   const render=()=>{if(!closed&&frame==null)frame=requestAnimationFrame(draw);};
   // While it is windy she is drawn about thirty times a second; otherwise only when something changes.
   const blow=now=>{windFrame=null;if(closed||!windy||still())return;if(now-windLast>=32){windLast=now;render();}windFrame=requestAnimationFrame(blow);};
@@ -172,8 +174,9 @@ export async function createDollView(host, recipe) {
           if(turning)spinAround(change);else change.apply();});}
       else if(before.hairId!==current.hairId){const change={apply:()=>swap(null,current.hairId)};if(turning)spinAround(change);else change.apply();}
       render();},
+    whenSettled(){if(closed)return Promise.resolve(false);if(hasDrawn&&!inFlight&&!twirl&&attitude===attitudeNext)return Promise.resolve(true);return new Promise(resolve=>{settledWaiters.push(resolve);render();});},
     turn(degrees){target=degrees*Math.PI/180;angle=target;render();},
-    dispose(){if(closed)return;closed=true;cancelAnimationFrame(frame);cancelAnimationFrame(hover);observer.disconnect();renderer.domElement.removeEventListener('pointerdown',down);renderer.domElement.removeEventListener('pointermove',move);renderer.domElement.removeEventListener('pointerup',up);renderer.domElement.removeEventListener('pointercancel',up);renderer.domElement.removeEventListener('webglcontextlost',lost);renderer.domElement.removeEventListener('webglcontextrestored',restored);doc.removeEventListener('weather-change',onWeather);doc.removeEventListener('world-change',onWorld);doc.removeEventListener('attitude-change',onAttitude);cancelAnimationFrame(twirlFrame);cancelAnimationFrame(windFrame);hair.dispose();disposeObject(model);Object.values(atlas).forEach(t=>t.dispose());light.dispose();renderer.dispose();renderer.domElement.remove();},
+    dispose(){if(closed)return;closed=true;settledWaiters.splice(0).forEach(resolve=>resolve(false));cancelAnimationFrame(frame);cancelAnimationFrame(hover);observer.disconnect();renderer.domElement.removeEventListener('pointerdown',down);renderer.domElement.removeEventListener('pointermove',move);renderer.domElement.removeEventListener('pointerup',up);renderer.domElement.removeEventListener('pointercancel',up);renderer.domElement.removeEventListener('webglcontextlost',lost);renderer.domElement.removeEventListener('webglcontextrestored',restored);doc.removeEventListener('weather-change',onWeather);doc.removeEventListener('world-change',onWorld);doc.removeEventListener('attitude-change',onAttitude);cancelAnimationFrame(twirlFrame);cancelAnimationFrame(windFrame);hair.dispose();disposeObject(model);Object.values(atlas).forEach(t=>t.dispose());light.dispose();renderer.dispose();renderer.domElement.remove();},
   };
 }
 
