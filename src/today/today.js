@@ -7,7 +7,8 @@
 // (the user, 12 October 2026). Everything she remembers stays in this browser's storage.
 import { composeTrio, RULES_VERSION } from '../style/stylist.js';
 import { LEARNED_KEY, learn } from '../style/taste.js';
-import { swatch, outfitSwatch } from '../doll/swatch.js';
+import { mountLookCards } from './look-cards.js';
+import { swatch } from '../doll/swatch.js';
 import { dayKey, describe, cleanConditions, presetConditions, PRESETS, forPerson, PERSONAL_LIMIT, inTheSun } from '../weather/conditions.js';
 import { fetchConditions, findPlace } from '../weather/open-meteo.js';
 import { cleanRecipe } from '../doll/recipe.js';
@@ -17,7 +18,6 @@ import { worldFor, skyWeights, paintWorld, WORLD_IDS } from './world.js';
 
 export const TODAY_KEY = 'fashiongirly.today.v2', HISTORY_KEY = 'fashiongirly.days.v1', PLACE_KEY = 'fashiongirly.place.v1', WEATHER_KEY = 'fashiongirly.weather.v1', WARMTH_KEY = 'fashiongirly.warmth.v1';
 export const LOOKS = [['pick', 'Her pick'], ['bolder', 'Bolder'], ['easier', 'Easier']];
-const NOTES = { pick: 'just right', bolder: 'turn it up', easier: 'easy to wear' };
 const TITLES = { pick: 'Her pick for today.', bolder: 'Her bolder look.', easier: 'Her easier look.' };
 const SLOT_NAMES = { dress: 'Dress', top: 'Top', under: 'Under it', bottom: 'Bottoms', shoes: 'Shoes', outerwear: 'Outerwear', hair: 'Hair' };
 const seedOf = day => [...day].reduce((h, c) => Math.imul(h ^ c.charCodeAt(0), 16777619) >>> 0, 2166136261);
@@ -26,8 +26,9 @@ const copy = v => JSON.parse(JSON.stringify(v));
 const clampOffset = v => Number.isFinite(v) ? Math.max(-PERSONAL_LIMIT, Math.min(PERSONAL_LIMIT, v)) : 0;
 // A forecast read before she dressed for the warm part of the day in the sun (it has no `shade`) is read again.
 const outdated = c => c?.source === 'forecast' && !Number.isFinite(c.shade);
-export function mountToday(doc, { storage = null, getRecipe, wear, getUnavailable = () => [], fetch: fetchImpl = null, geolocation = null, now = () => Date.now() } = {}) {
+export function mountToday(doc, { storage = null, getRecipe, wear, getUnavailable = () => [], renderPortrait = null, fetch: fetchImpl = null, geolocation = null, now = () => Date.now() } = {}) {
   const $ = id => doc.getElementById(id);
+  const cards = mountLookCards(doc, { storage, renderPortrait });
   const read = (key, fallback) => { try { const v = JSON.parse(storage?.getItem(key) || 'null'); return v ?? fallback; } catch { return fallback; } };
   const write = (key, value) => { try { storage?.setItem(key, JSON.stringify(value)); } catch {} };
   let state = read(TODAY_KEY, null), busy = false, disposed = false;
@@ -79,14 +80,7 @@ export function mountToday(doc, { storage = null, getRecipe, wear, getUnavailabl
       li.append(time, weatherIcon(doc, codeKind(x.code, { rainChance: x.rain, snow: x.snow, feels: x.feels }), { animate: false }), deg);
       return li;
     }));
-    // The three looks under the doll, each with its colours; the one she wears is pressed.
-    for (const [key, label] of LOOKS) {
-      const b = $(`look-${key}`), look = state?.trio?.[key], name = doc.createElement('span'), note = doc.createElement('span');
-      name.className = 'look-name'; name.textContent = label;
-      note.className = 'look-note'; note.textContent = NOTES[key];
-      b.replaceChildren(outfitSwatch(doc, look?.pieces), name, note);
-      b.setAttribute('aria-pressed', String(state?.choice === key));
-    }
+    cards.sync({ day, trio: state?.trio, choice: state?.choice });
     const result = current(), list = $('today-pieces');
     $('today-look').textContent = state?.choice ? TITLES[state.choice] : '';
     list.replaceChildren();
@@ -242,8 +236,9 @@ export function mountToday(doc, { storage = null, getRecipe, wear, getUnavailabl
   const ready = state?.day === dayKey(now()) && cleanConditions(state.conditions) && !outdated(state.conditions)
     ? Promise.resolve().then(() => { if ((!state.trio || state.rules !== RULES_VERSION || hasRemoved(state)) && !gone()) chooseLooks(); }) : dressForToday();
   return {
+    refreshPreviews() { if (!gone()) cards.sync({ day: state?.day ?? dayKey(now()), trio: state?.trio, choice: state?.choice }); },
     ready, getState: () => state && copy(state), title: () => state?.choice ? TITLES[state.choice] : null,
     wardrobeChanged() { if (state?.conditions) chooseLooks({ putOn: false }); },
-    dispose() { disposed = true; doc.removeEventListener('visibilitychange', onVisible); if (clock != null) win.clearInterval(clock); win?.removeEventListener('resize', world); $('save')?.removeEventListener('click', onSave); },
+    dispose() { disposed = true; cards.dispose(); doc.removeEventListener('visibilitychange', onVisible); if (clock != null) win.clearInterval(clock); win?.removeEventListener('resize', world); $('save')?.removeEventListener('click', onSave); },
   };
 }

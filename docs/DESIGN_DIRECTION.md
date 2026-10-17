@@ -84,9 +84,11 @@ and scenery, with few borders and containers. Keep the cute doll, the rich sunse
 - One signature: the embroidered flower as brand mark and on the chosen look, rickrack once as the divider between
   scene and sheet, linen only on the sheet. Stitched borders, woven label pills, corner flowers, dashed swatch outlines
   and dotted dividers go. Three type sizes in total.
-- Worth the effort later: render the day's three looks as small portraits of her, offscreen, once a day, instead of
-  swatch strips. For Dress her, either make each slot a tappable chip that opens the wardrobe filtered to that slot,
-  or fold it into Wardrobe.
+- Look portraits (17 October 2026, implemented; user approved screenshots and requested a PR): Her pick is visible immediately; Bolder and
+  Easier stay under neutral covers until first tried. After her change finishes, the portrait appears and remains
+  for the styling day, including reopening. The next day resets alternatives. Render only already revealed looks
+  from the fixed trio, using the same doll and clothes. For Dress her, either make each slot a tappable chip that
+  opens the wardrobe filtered to that slot, or fold it into Wardrobe.
 
 ### A small collection of worlds
 

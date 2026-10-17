@@ -79,7 +79,8 @@ test('three looks for the day, under the doll, that stay the same', async () => 
   click(d, 'look-easier'); click(d, 'look-bolder'); click(d, 'look-pick');
   assert.deepEqual(p.app.getRecipe(), day.pick, 'pressing again gives the same looks');
   assert.deepEqual(looks(p), day, 'the three never change during the day');
-  assert.ok(d.querySelectorAll('#look-bolder .outfit-swatch-piece').length >= 3, 'each shows its cloth');
+  assert.equal(d.getElementById('look-bolder').dataset.revealed, 'true', 'a tried alternative is revealed');
+  assert.equal(d.querySelectorAll('.looks .outfit-swatch-piece').length, 0, 'daily cards use portraits rather than cloth strips');
   assert.ok(d.querySelectorAll('#today-pieces .piece-cloth').length >= 4, 'her pieces show their cloth');
   assert.equal(d.querySelectorAll('#today-hours li').length, 4, 'four moments of her day');
   assert.equal(d.querySelectorAll('#today-icon .wx').length, 1, 'a picture of the weather');
