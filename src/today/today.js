@@ -1,12 +1,11 @@
-// Today: each morning (from 5:00) she checks the weather and asks how the user feels.
-// Only then are three interpretations proposed; choosing one puts it on her. They stay fixed
-// until the mood, weather, wardrobe change. "Another idea" shows one more outfit, and Undo goes back.
+// Today: each morning (from 5:00) she checks the weather and chooses three looks for the day: her pick, a bolder one
+// and an easier one. They stay the same all day (the user's request, 9 October 2026: three fixed choices inspire,
+// endless variations confuse). Today offers only these three choices.
 // The weather comes from the phone's location by default, or a typed town, through Open-Meteo; without a forecast
 // the user chooses the weather. The card says what she dressed for, and "Too warm" and "Too cool" dress her a step
 // lighter or warmer, remembered for the days after: she dresses as if the forecast were that much warmer or cooler
 // (the user, 12 October 2026). Everything she remembers stays in this browser's storage.
-import { MOODS, moodFor } from '../style/moods.js';
-import { composeTrio, composeOutfit, RULES_VERSION } from '../style/stylist.js';
+import { composeTrio, RULES_VERSION } from '../style/stylist.js';
 import { LEARNED_KEY, learn } from '../style/taste.js';
 import { swatch, outfitSwatch } from '../doll/swatch.js';
 import { dayKey, describe, cleanConditions, presetConditions, PRESETS, forPerson, PERSONAL_LIMIT, inTheSun } from '../weather/conditions.js';
@@ -17,9 +16,9 @@ import { paintSky, skyKind, codeKind, weatherIcon } from './sky.js';
 import { worldFor, skyWeights, paintWorld, WORLD_IDS } from './world.js';
 
 export const TODAY_KEY = 'fashiongirly.today.v2', HISTORY_KEY = 'fashiongirly.days.v1', PLACE_KEY = 'fashiongirly.place.v1', WEATHER_KEY = 'fashiongirly.weather.v1', WARMTH_KEY = 'fashiongirly.warmth.v1';
-export const LOOKS = [['pick', 'Look 1'], ['bolder', 'Look 2'], ['easier', 'Look 3']];
-const NOTES = { pick: 'una prima idea', bolder: 'un’altra interpretazione', easier: 'una terza possibilità' };
-const TITLES = { pick: 'Il tuo primo look.', bolder: 'Il tuo secondo look.', easier: 'Il tuo terzo look.', idea: 'Another idea.' };
+export const LOOKS = [['pick', 'Her pick'], ['bolder', 'Bolder'], ['easier', 'Easier']];
+const NOTES = { pick: 'just right', bolder: 'turn it up', easier: 'easy to wear' };
+const TITLES = { pick: 'Her pick for today.', bolder: 'Her bolder look.', easier: 'Her easier look.' };
 const SLOT_NAMES = { dress: 'Dress', top: 'Top', under: 'Under it', bottom: 'Bottoms', shoes: 'Shoes', outerwear: 'Outerwear', hair: 'Hair' };
 const seedOf = day => [...day].reduce((h, c) => Math.imul(h ^ c.charCodeAt(0), 16777619) >>> 0, 2166136261);
 const sentence = s => s.charAt(0).toUpperCase() + s.slice(1) + '.';
@@ -27,7 +26,7 @@ const copy = v => JSON.parse(JSON.stringify(v));
 const clampOffset = v => Number.isFinite(v) ? Math.max(-PERSONAL_LIMIT, Math.min(PERSONAL_LIMIT, v)) : 0;
 // A forecast read before she dressed for the warm part of the day in the sun (it has no `shade`) is read again.
 const outdated = c => c?.source === 'forecast' && !Number.isFinite(c.shade);
-export function mountToday(doc, { storage = null, getRecipe, wear, getUnavailable = () => [], onConditionsChange = () => {}, fetch: fetchImpl = null, geolocation = null, now = () => Date.now() } = {}) {
+export function mountToday(doc, { storage = null, getRecipe, wear, getUnavailable = () => [], fetch: fetchImpl = null, geolocation = null, now = () => Date.now() } = {}) {
   const $ = id => doc.getElementById(id);
   const read = (key, fallback) => { try { const v = JSON.parse(storage?.getItem(key) || 'null'); return v ?? fallback; } catch { return fallback; } };
   const write = (key, value) => { try { storage?.setItem(key, JSON.stringify(value)); } catch {} };
@@ -36,13 +35,18 @@ export function mountToday(doc, { storage = null, getRecipe, wear, getUnavailabl
   const ask = new URLSearchParams(doc.defaultView?.location?.search || ''), askWorld = WORLD_IDS.includes(ask.get('world')) ? ask.get('world') : null;
   const askAt = /^([01]\d|2[0-3]):[0-5]\d$/.test(ask.get('at') || '') ? ask.get('at') : null;
   if (!state || typeof state !== 'object' || typeof state.day !== 'string') state = null;
-  if (state && !moodFor(state.mood)) Object.assign(state, { mood: null, trio: null, choice: null, idea: null, ideas: [], undo: [] });
+
+  // Discard mood-era choices and extra ideas; existing forecasts, history and personal warmth stay usable.
+  if (state) {
+    if (Object.hasOwn(state, 'mood') || state.choice === 'idea') state.rules = null;
+    for (const field of ['mood', 'idea', 'ideas', 'undo']) delete state[field];
+  }
 
   // The page can go away while the weather is on its way; then there is nothing left to update.
   const gone = () => disposed || !$('today');
   const status = text => { if (!gone()) $('today-status').textContent = text || ''; };
   const place = () => { const p = read(PLACE_KEY, null); return p?.mode === 'typed' && Number.isFinite(p.lat) && Number.isFinite(p.lon) ? p : { mode: 'device' }; };
-  const current = () => state?.choice === 'idea' ? state.idea : state?.trio?.[state?.choice];
+  const current = () => state?.trio?.[state?.choice];
   // The day as she dresses for this person: the forecast, as much warmer or cooler as they have asked.
   const offset = () => clampOffset(read(WARMTH_KEY, 0)), dressFor = () => forPerson(state.conditions, offset());
   const save = () => write(TODAY_KEY, state);
@@ -52,8 +56,6 @@ export function mountToday(doc, { storage = null, getRecipe, wear, getUnavailabl
   }
   function setBusy(value) {
     busy = value; if (gone()) return;
-    $('today-another').disabled = busy || !state?.trio;
-    $('today-undo').disabled = busy || !state?.undo?.length;
     for (const [key] of LOOKS) $(`look-${key}`).disabled = busy || !state?.trio;
     $('today-too-warm').disabled = $('today-too-cool').disabled = busy || !current();
   }
@@ -61,12 +63,6 @@ export function mountToday(doc, { storage = null, getRecipe, wear, getUnavailabl
   function render() {
     if (gone()) return;
     const day = state?.day ?? dayKey(now()), c = state?.conditions;
-    const mood = moodFor(state?.mood);
-    for (const b of $('today-moods').children) b.setAttribute('aria-pressed', String(b.dataset.mood === mood?.id));
-    $('today-mood-criteria').textContent = mood?.description || 'L’umore dà la direzione; il meteo e la compatibilità dei capi restano validi per tutti e tre i look.';
-    $('today-choice-note').textContent = !mood ? 'La scelta può cambiare anche nel corso della giornata.' : !c ? 'Appena conosco il meteo, preparo le tre proposte.' : !state.trio ? 'Nessuna proposta disponibile con questi capi e questo meteo.' : !current() ? 'Le tre proposte sono pronte: scegli un look per farglielo indossare.' : '';
-    $('today-suggestions').hidden = !state?.trio;
-    $('today-outfit').hidden = !current();
     $('today-date').textContent = new Date(`${day}T12:00:00`).toLocaleDateString('en-GB', { weekday: 'long', day: 'numeric', month: 'long' });
     const p = place();
     $('today-place').textContent = p.mode === 'typed' ? p.name : 'your location';
@@ -131,19 +127,14 @@ export function mountToday(doc, { storage = null, getRecipe, wear, getUnavailabl
   }
 
   const recent = () => read(HISTORY_KEY, []).filter(h => h?.day && h.day < state.day).map(h => h.recipe).slice(0, 7);
-  // Prepare three previews. Wear one only after an explicit choice (or a warmth adjustment).
-  function chooseLooks({ putOn = false, reveal = false } = {}) {
-    if (!state?.conditions || !moodFor(state.mood)) { render(); save(); return false; }
-    const trio = composeTrio(dressFor(), { mood: state.mood, avoid: getUnavailable(), seed: state.seed, recent: recent(), learned: read(LEARNED_KEY, null), current: getRecipe() });
-    Object.assign(state, { trio, choice: trio && putOn ? (state.choice && state.choice !== 'idea' ? state.choice : 'pick') : null, idea: null, ideas: [], undo: [], rules: RULES_VERSION });
+  // Choose the day's three looks for the current weather and wear her pick.
+  function chooseLooks({ putOn = true } = {}) {
+    const trio = composeTrio(dressFor(), { avoid: getUnavailable(), seed: state.seed, recent: recent(), learned: read(LEARNED_KEY, null), current: getRecipe() });
+    Object.assign(state, { trio, choice: trio && putOn ? 'pick' : null, rules: RULES_VERSION });
     save();
     if (!trio) { render(); status('Nothing in the wardrobe suits that weather.'); return false; }
-    if (putOn) { remember(trio[state.choice].recipe); wear(trio[state.choice].recipe); }
+    if (putOn) { remember(trio.pick.recipe); wear(trio.pick.recipe); }
     render();
-    const win = doc.defaultView;
-    if (reveal && doc.body.dataset.page === 'today' && win?.matchMedia?.('(max-width: 820px)').matches) {
-      $('today-suggestions').scrollIntoView?.({ block: 'nearest', behavior: win.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth' });
-    }
     return true;
   }
   // Put on one of the three looks. These never change during the day.
@@ -152,41 +143,24 @@ export function mountToday(doc, { storage = null, getRecipe, wear, getUnavailabl
     state.choice = key; save(); remember(state.trio[key].recipe); wear(state.trio[key].recipe); render();
     status('');
   }
-  // One more outfit, different from the three and from earlier ideas; Undo goes back to what she wore before.
-  function another() {
-    if (!state?.trio || busy) return;
-    const shown = [...LOOKS.map(([k]) => state.trio[k].recipe), ...(state.ideas || [])];
-    const idea = composeOutfit(dressFor(), { mood: state.mood, avoid: getUnavailable(), seed: state.seed + 7 * (state.ideas.length + 1), recent: recent(), shownToday: shown, learned: read(LEARNED_KEY, null), current: getRecipe() });
-    if (!idea) { status('No other outfit suits this weather.'); return; }
-    state.undo = current() ? [...(state.undo || []), { choice: state.choice, idea: state.idea }].slice(-10) : [];
-    Object.assign(state, { choice: 'idea', idea, ideas: [...state.ideas, idea.recipe].slice(-12) });
-    save(); remember(idea.recipe); wear(idea.recipe); render();
-    status('');
-  }
   // "Too warm" (direction 1) or "Too cool" (-1): she dresses lighter or warmer, as if the day were warmer or cooler,
   // and remembers it. The step is the least, in twos of degrees up to PERSONAL_LIMIT, that changes the warmth of the
   // look she is wearing; if none does, she is already dressed as lightly (or as warmly) as she would for this weather,
   // and nothing changes.
   function feel(direction) {
     if (!state?.trio || busy) return;
-    const key = state.choice && state.choice !== 'idea' ? state.choice : 'pick', was = current()?.warmth.total ?? 0;
+    const key = state.choice || 'pick', was = current()?.warmth.total ?? 0;
     for (let o = offset() + 2 * direction; Math.abs(o) <= PERSONAL_LIMIT; o += 2 * direction) {
-      const trio = composeTrio(forPerson(state.conditions, o), { mood: state.mood, avoid: getUnavailable(), seed: state.seed, recent: recent(), learned: read(LEARNED_KEY, null), current: getRecipe() });
+      const trio = composeTrio(forPerson(state.conditions, o), { avoid: getUnavailable(), seed: state.seed, recent: recent(), learned: read(LEARNED_KEY, null), current: getRecipe() });
       if (!trio || (was - trio[key].warmth.total) * direction <= 0) continue;
       write(WARMTH_KEY, o);
-      Object.assign(state, { trio, choice: key, idea: null, ideas: [], undo: [], rules: RULES_VERSION });
+      Object.assign(state, { trio, choice: key, rules: RULES_VERSION });
       save(); remember(trio[key].recipe); wear(trio[key].recipe); render();
       status(o === 0 ? 'She dresses for the forecast as it is again.' : `${direction > 0 ? 'Lighter' : 'Warmer'}. From now on she dresses as if it were ${Math.abs(o)}° ${o > 0 ? 'warmer' : 'cooler'} than the forecast.`);
       return;
     }
     status(`This is already as ${direction > 0 ? 'light' : 'warm'} as she dresses for this weather.`);
   }
-  function undo() {
-    const prev = state?.undo?.pop(); if (!prev) return;
-    Object.assign(state, prev); save();
-    const r = current(); remember(r.recipe); wear(r.recipe); render();
-  }
-
   function locate() {
     return new Promise((resolve, reject) => {
       if (!geolocation?.getCurrentPosition) { reject(new Error('This browser cannot share its location.')); return; }
@@ -204,13 +178,13 @@ export function mountToday(doc, { storage = null, getRecipe, wear, getUnavailabl
     write(WEATHER_KEY, { key, conditions });
     return conditions;
   }
-  const fresh = day => ({ day, conditions: null, seed: seedOf(day), mood: null, trio: null, choice: null, idea: null, ideas: [], undo: [] });
+  const fresh = day => ({ day, conditions: null, seed: seedOf(day), trio: null, choice: null });
   const failed = error => { if (gone()) return; status(`${error.message} Choose today's weather, or type a town.`); $('today-manual').open = true; };
 
-  // A new day: check the weather and wait for the mood. Without a forecast, ask for the weather.
+  // A new day: check the weather and choose the day's looks. Without a forecast, ask for the weather.
   async function dressForToday() {
     state = fresh(dayKey(now())); save(); render(); setBusy(true); status('Checking the weather…');
-    try { state.conditions = await forecast(state.day); onConditionsChange(); if (gone()) return; status(''); chooseLooks({ reveal: true }); }
+    try { state.conditions = await forecast(state.day); if (gone()) return; status(''); chooseLooks(); }
     catch (error) { failed(error); }
     finally { setBusy(false); }
   }
@@ -218,34 +192,21 @@ export function mountToday(doc, { storage = null, getRecipe, wear, getUnavailabl
   async function refetch() {
     if (!state || state.day !== dayKey(now())) return dressForToday();
     setBusy(true); status('Checking the weather…');
-    try { state.conditions = await forecast(state.day); onConditionsChange(); status(''); chooseLooks({ reveal: true }); }
+    try { state.conditions = await forecast(state.day); status(''); chooseLooks(); }
     catch (error) { failed(error); }
     finally { setBusy(false); }
   }
 
-  $('today-moods').replaceChildren(...MOODS.map(mood => {
-    const b = doc.createElement('button'); b.type = 'button'; b.dataset.mood = mood.id; b.textContent = mood.label;
-    b.setAttribute('aria-pressed', 'false');
-    b.onclick = () => {
-      if (!state || state.day !== dayKey(now())) { dressForToday(); }
-      if (state.mood === mood.id && state.trio) return;
-      Object.assign(state, { mood: mood.id, trio: null, choice: null, idea: null, ideas: [], undo: [] });
-      save(); if (!busy) chooseLooks({ reveal: true }); else render();
-    };
-    return b;
-  }));
   for (const [key] of LOOKS) $(`look-${key}`).onclick = () => choose(key);
-  $('today-another').onclick = another;
   $('today-too-warm').onclick = () => feel(1);
   $('today-too-cool').onclick = () => feel(-1);
-  $('today-offset-reset').onclick = () => { write(WARMTH_KEY, 0); if (state?.conditions && chooseLooks({ putOn: !!state.choice })) status('She dresses for the forecast as it is again.'); else render(); };
-  $('today-undo').onclick = undo;
+  $('today-offset-reset').onclick = () => { write(WARMTH_KEY, 0); if (state?.conditions && chooseLooks()) status('She dresses for the forecast as it is again.'); else render(); };
   $('today-presets').replaceChildren(...PRESETS.map(p => {
     const b = doc.createElement('button'); b.type = 'button'; b.textContent = p.label;
     b.onclick = () => {
       if (!state || state.day !== dayKey(now())) state = fresh(dayKey(now()));
-      state.conditions = presetConditions(p.id, state.day); onConditionsChange();
-      if (chooseLooks({ reveal: true }) || !state.mood) status(`Meteo aggiornato: ${p.label.toLowerCase()}.`);
+      state.conditions = presetConditions(p.id, state.day);
+      if (chooseLooks()) status(`Dressed for ${p.label.toLowerCase()} weather.`);
     };
     return b;
   }));
@@ -279,7 +240,7 @@ export function mountToday(doc, { storage = null, getRecipe, wear, getUnavailabl
   };
   // Today's looks chosen by an older version of her rules are chosen again, for the same weather.
   const ready = state?.day === dayKey(now()) && cleanConditions(state.conditions) && !outdated(state.conditions)
-    ? Promise.resolve().then(() => { if (!state.mood) save(); if ((state.rules !== RULES_VERSION || hasRemoved(state)) && !gone()) chooseLooks({ putOn: !!state.choice }); }) : dressForToday();
+    ? Promise.resolve().then(() => { if ((!state.trio || state.rules !== RULES_VERSION || hasRemoved(state)) && !gone()) chooseLooks(); }) : dressForToday();
   return {
     ready, getState: () => state && copy(state), title: () => state?.choice ? TITLES[state.choice] : null,
     wardrobeChanged() { if (state?.conditions) chooseLooks({ putOn: false }); },

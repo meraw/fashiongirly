@@ -6,7 +6,6 @@
 // Warmth uses the catalog's one scale for every slot (tests/styling.test.js): 1 light (mesh, tees, linen, thin shells,
 // open shoes), 2 mid (shirts, light knits, sweatshirts, jeans, closed sneakers), 3 warm (heavy knits, fleece, padded or
 // wool jackets, boots), 4 very warm (a sherpa-lined knee-length parka). Open shoes are recognised from their coverage.
-import { experienceFacts } from './moods.js';
 import { GARMENTS } from '../wardrobe/catalog.js';
 
 // Colour words as hue (degrees), saturation and lightness (0–1). A palette entry takes its last colour word, so
@@ -109,7 +108,6 @@ export function stylingFacts(garment) {
   const main = colours.filter(c => !c.accent);
   const words = text(g.name, g.family, st.mood, st.inferred?.mood, st.material, st.observed?.material, st.pattern);
   const facts = {
-    experience: experienceFacts(g),
     id: g.id, slot: g.slot, name: g.name, brand: readBrand(g), warmth,
     warmthBasis: st.warmthBasis ?? (warmth == null ? null : 'recorded'),
     rain: readRain(st, g.slot, open), open, palette, colours, main: main.length ? main : colours,
