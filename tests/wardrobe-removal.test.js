@@ -17,7 +17,6 @@ async function studio(t, entries = {}) {
   dom.window.HTMLDialogElement.prototype.close = function () { this.removeAttribute('open'); this.dispatchEvent(new dom.window.Event('close')); };
   const app = await startStudio(d, () => ({ update() {}, turn() {}, dispose() {} }), { fetch: null, geolocation: null, now: () => new Date(2026, 9, 16, 9).getTime() });
   await app.today.ready;
-  d.querySelector('[data-mood=tranquilla]').click();
   t.after(() => { app.dispose(); dom.window.close(); });
   const beginRemoval = id => d.querySelector(`.piece[data-id="${id}"]`).parentElement.querySelector('.piece-remove').click();
   const confirm = () => d.querySelector('#remove-piece-dialog button').click();
@@ -55,7 +54,7 @@ test('removing a worn piece requires confirmation, updates every selector and ca
   assert.ok(loaded.d.querySelector(`#picker [data-value="${top.id}"]`));
 });
 
-test('daily looks, more ideas and cached looks never bring a removed garment back', async t => {
+test('daily looks and cached looks never bring a removed garment back', async t => {
   const s = await studio(t), { d, app } = s;
   [...d.querySelectorAll('#today-presets button')].find(b => b.textContent === 'Mild').click();
   const old = app.today.getState(), id = old.trio.pick.recipe.topId;
@@ -64,13 +63,9 @@ test('daily looks, more ideas and cached looks never bring a removed garment bac
   const changed = app.today.getState();
   excludes(changed, id); excludes(app.getRecipe(), id);
   assert.equal(changed.choice, null);
-  assert.equal(d.getElementById('today-undo').disabled, true);
-  d.getElementById('today-another').click();
-  assert.equal(d.getElementById('today-undo').disabled, true, 'no invalid undo before a new look was chosen');
   for (const key of ['pick', 'bolder', 'easier']) {
     d.getElementById(`look-${key}`).click(); excludes(app.getRecipe(), id);
   }
-  d.getElementById('today-another').click(); d.getElementById('today-undo').click();
   d.getElementById('today-too-warm').click();
   excludes(app.today.getState(), id); excludes(app.getRecipe(), id);
   const loaded = await studio(t, { [REMOVED_KEY]: [id], [TODAY_KEY]: old });
@@ -93,7 +88,7 @@ test('an empty wardrobe clears cached suggestions and still lets pieces be resto
   const s = await studio(t, { [REMOVED_KEY]: Object.keys(GARMENTS) });
   [...s.d.querySelectorAll('#today-presets button')].find(b => b.textContent === 'Mild').click();
   assert.equal(s.app.today.getState().trio, null);
-  assert.ok(s.d.getElementById('today-another').disabled);
+  for (const key of ['pick', 'bolder', 'easier']) assert.ok(s.d.getElementById(`look-${key}`).disabled);
   assert.match(s.d.getElementById('today-status').textContent, /Nothing in the wardrobe/);
   assert.ok([...s.d.querySelectorAll('.wardrobe-group')].every(g => g.hidden));
   assert.equal(s.d.querySelector('.removed-pieces').hidden, false);

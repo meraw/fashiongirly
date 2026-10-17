@@ -55,12 +55,12 @@ export async function startStudio(doc=document, makeView, options={}) {
     // A skirt in the bottom slot is worn on its own, without the layered skirt.
     if(GARMENTS[recipe.bottomId]?.layering?.skirt)$('skirt').disabled=true;
     const selected=CLEAN_OUTFITS.find((look,i)=>inventory.accepts(OUTFITS[i].recipe)&&Object.keys(DEFAULT).filter(key=>key!=='hairId').every(key=>look.recipe[key]===recipe[key]));
-    // One of today's looks, or Another idea, is named as such until she is dressed differently.
-    const day=today?.getState(),look=day&&(day.choice==='idea'?day.idea:day.trio?.[day.choice]),same=look&&JSON.stringify({...clean(look.recipe),tucked:null})===JSON.stringify({...clean(recipe),tucked:null});
+    // One of today's three looks is named as such until she is dressed differently.
+    const day=today?.getState(),look=day&&day.trio?.[day.choice],same=look&&JSON.stringify({...clean(look.recipe),tucked:null})===JSON.stringify({...clean(recipe),tucked:null});
     $('outfit-title').textContent=selected?.name||(same?today.title():'Her own little experiment.');
     // Her attitude (src/doll/pose.js) is the look's while she wears one of the day's three looks: bolder or easier;
     // otherwise her resting pose. The 3D view hears of a change.
-    const attitude=same&&day?.mood==='notare'?'bolder':same&&['coccole','energie'].includes(day?.mood)?'easier':'pick',html=doc.documentElement;
+    const attitude=same&&['bolder','easier'].includes(day?.choice)?day.choice:'pick',html=doc.documentElement;
     if(html.dataset.attitude!==attitude){html.dataset.attitude=attitude;const Event=doc.defaultView?.CustomEvent;if(Event)doc.dispatchEvent(new Event('attitude-change',{detail:{attitude}}));}
     // Controls that do not apply to what she is wearing are put away rather than greyed out.
     $('under-field').hidden=$('under-select').disabled;
@@ -120,8 +120,8 @@ export async function startStudio(doc=document, makeView, options={}) {
     looks.forEach((look,i)=>{const row=doc.createElement('div');row.className='saved-row';const colours=doc.createElement('span');colours.className='saved-colours';for(const color of [look.sweater,look.trousers]){const dot=doc.createElement('i');dot.style.background=color;colours.append(dot);}const title=doc.createElement('span');title.textContent=`Little experiment ${looks.length-i} · ${hairName(look.hairId)}`;const wear=doc.createElement('button');wear.textContent='Wear';wear.onclick=()=>{recipe=clean(look);sync();apply();$('lookbook').close();};const remove=doc.createElement('button');remove.textContent='Remove';remove.onclick=()=>{if(storeLooks(looks.filter((_,j)=>j!==i)))book();};row.append(colours,title,wear,remove);list.append(row);});
   }
   $('lookbook-open').onclick=()=>{book();$('lookbook').showModal();};$('lookbook-close').onclick=()=>$('lookbook').close();
-  // Each morning she asks for a mood; a look is worn only after the user chooses a proposal.
-  const win=doc.defaultView;today=mountToday(doc,{storage,onConditionsChange:()=>wardrobe.sync(recipe),getUnavailable:inventory.removed,getRecipe:()=>clean(recipe),wear:next=>{recipe=clean(next);sync();apply();message('');},
+  // Each morning she checks the weather and dresses herself (src/today/today.js); her pick is worn like any other recipe.
+  const win=doc.defaultView;today=mountToday(doc,{storage,getUnavailable:inventory.removed,getRecipe:()=>clean(recipe),wear:next=>{recipe=clean(next);sync();apply();message('');},
     fetch:'fetch' in options?options.fetch:win?.fetch?.bind(win),geolocation:'geolocation' in options?options.geolocation:win?.navigator?.geolocation,now:options.now});
   // If she cannot be shown, say why and offer to try again: reloading clears whatever failed to download.
   const showError=text=>{$('loading')?.remove();const box=$('view-error'),retry=doc.createElement('button');box.hidden=false;

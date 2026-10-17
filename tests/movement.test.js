@@ -113,10 +113,8 @@ test('the page tells her view the attitude of the look she wears', async () => {
   d.getElementById('today-manual').open = true;
   [...d.querySelectorAll('#today-presets button')].find(b => b.textContent === 'Mild').click();
   assert.equal(d.documentElement.dataset.attitude, 'pick', 'her pick: her resting pose');
-  d.querySelector('[data-mood=notare]').click();
   d.getElementById('look-bolder').click();
   assert.equal(d.documentElement.dataset.attitude, 'bolder'); assert.equal(heard.at(-1), 'bolder');
-  d.querySelector('[data-mood=coccole]').click();
   d.getElementById('look-easier').click();
   assert.equal(d.documentElement.dataset.attitude, 'easier');
   // Dressing her differently by hand is no longer the look: she stands at rest.
