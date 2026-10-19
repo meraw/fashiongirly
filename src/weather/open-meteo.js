@@ -1,7 +1,7 @@
 // The day's forecast from Open-Meteo (https://open-meteo.com): free, with no key or account, and callable from the
 // browser. Its free tier is for non-commercial use, which suits this personal app (the user's answer, 9 October 2026).
 // Its data is CC BY 4.0, so the Today panel credits it. This module is the app's only network request.
-import { cleanConditions, sunAllowance } from './conditions.js';
+import { cleanConditions, sunAllowance, isRainy } from './conditions.js';
 
 export const FORECAST = 'https://api.open-meteo.com/v1/forecast';
 export const GEOCODING = 'https://geocoding-api.open-meteo.com/v1/search';
@@ -9,11 +9,13 @@ export const GEOCODING = 'https://geocoding-api.open-meteo.com/v1/search';
 const HOURLY = 'temperature_2m,apparent_temperature,precipitation_probability,precipitation,snowfall,wind_speed_10m,weather_code,shortwave_radiation';
 // Sunrise and sunset, so her world's light follows the day (src/today/world.js).
 const DAILY = 'sunrise,sunset';
+// Whether it is raining as the forecast is read (only used when the forecast is for today).
+const CURRENT = 'precipitation,weather_code';
 // Her day, in local hours, and its warm part, when she is out in it: what she dresses for.
 const FROM = 8, TO = 20, WARM_FROM = 11, WARM_TO = 17, HOURS = [9, 12, 15, 18];
 
 export function forecastUrl({ lat, lon }, day) {
-  const q = new URLSearchParams({ latitude: lat.toFixed(2), longitude: lon.toFixed(2), hourly: HOURLY, daily: DAILY, timezone: 'auto', start_date: day, end_date: day });
+  const q = new URLSearchParams({ latitude: lat.toFixed(2), longitude: lon.toFixed(2), hourly: HOURLY, daily: DAILY, current: CURRENT, timezone: 'auto', start_date: day, end_date: day });
   return `${FORECAST}?${q}`;
 }
 
@@ -45,16 +47,25 @@ export function toConditions(json, day, place = null) {
   if (!feels.length) throw new Error('The forecast had no temperatures.');
   const hourOf = i => +h.time[i].slice(11, 13), warmIdx = idx.filter(i => hourOf(i) >= WARM_FROM && hourOf(i) <= WARM_TO && Number.isFinite(h.apparent_temperature?.[i]));
   const warm = warmIdx.length ? warmIdx : idx.filter(i => Number.isFinite(h.apparent_temperature?.[i])), mean = a => a.reduce((s, v) => s + v, 0) / a.length;
-  const shade = mean(warm.map(i => h.apparent_temperature[i])), sunny = Array.isArray(h.shortwave_radiation);
+  // Rain on and off: the hours of her day with rain falling (0.2 mm or more) or a wet sky, and whether it is raining now. A day of short
+  // showers has a low chance of rain in every hour, so these count as well as the chance (isRainy in conditions.js).
+  const wetHours = idx.filter(i => (h.precipitation?.[i] ?? 0) >= .2 || (h.weather_code?.[i] ?? 0) >= 51).length;
+  const now = json?.current, rainingNow = typeof now?.time === 'string' && now.time.startsWith(day) && ((now.precipitation ?? 0) > 0 || (now.weather_code ?? 0) >= 51);
+  const shade = mean(warm.map(i => h.apparent_temperature[i])), sum = a => a.reduce((s, v) => s + v, 0);
+  const rainyDay = isRainy({ rainChance: Math.max(0, ...vals('precipitation_probability')), rainMm: sum(vals('precipitation')), wetHours, rainingNow, snow: sum(vals('snowfall')) > 0 });
+  // In the sun when the sun shines; on a rainy day she dresses for the shade (a bright sky between showers is not a sunny day).
+  const sunny = Array.isArray(h.shortwave_radiation) && !rainyDay;
   const sun = sunny ? mean(warm.map(i => h.apparent_temperature[i] + sunAllowance(h.shortwave_radiation[i], h.wind_speed_10m?.[i]))) : null;
-  const sum = a => a.reduce((s, v) => s + v, 0), codes = vals('weather_code'), count = {};
+  const codes = vals('weather_code'), count = {};
   for (const c of codes) count[c] = (count[c] || 0) + 1;
   const common = list => list.sort((a, b) => count[b] - count[a] || b - a)[0];
-  const wet = Object.keys(count).map(Number).filter(c => c >= 51 && count[c] >= 2);
+  // The sky of a rainy day is its commonest wet one, however its showers are split between kinds of rain.
+  const wet = rainyDay ? Object.keys(count).map(Number).filter(c => c >= 51) : [];
   return cleanConditions({
     day, place, source: 'forecast',
     feels: sun ?? shade, shade, sun, feelsMin: Math.min(...feels), feelsMax: Math.max(...feels),
     tempMin: temp.length ? Math.min(...temp) : null, tempMax: temp.length ? Math.max(...temp) : null,
+    wetHours, rainingNow,
     rainChance: Math.max(0, ...vals('precipitation_probability')), rainMm: sum(vals('precipitation')),
     windKmh: Math.max(0, ...vals('wind_speed_10m')), snow: sum(vals('snowfall')) > 0,
     code: codes.length ? common(wet.length ? wet : Object.keys(count).map(Number)) : null,

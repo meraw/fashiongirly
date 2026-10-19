@@ -24,6 +24,21 @@ export function presetConditions(id, day = dayKey()) {
   const p = PRESETS.find(x => x.id === id); if (!p) return null;
   return cleanConditions({ ...p, day, source: 'manual', place: null, label: p.label });
 }
+// A chosen weather on top of today's forecast, when there is one (the user, 19 October 2026: "Rainy" should add rain to
+// their own warm day, not swap it for a cold one somewhere else). Rain, pouring, wind and snow keep the forecast's
+// temperatures and place; a temperature keeps its rain and wind. Without a forecast, the chosen weather as it is.
+export function presetOver(base, id, day = dayKey()) {
+  const p = PRESETS.find(x => x.id === id), b = cleanConditions(base);
+  if (!p || !b || b.day !== day) return presetConditions(id, day);
+  const kind = ['rainy', 'pouring', 'windy', 'snowy'].includes(p.id), feels = kind ? (b.shade ?? b.feels) : p.feels, shift = feels - b.feels;
+  return cleanConditions({
+    ...b, source: 'manual', label: p.label, sun: null, shade: feels, feels,
+    feelsMin: b.feelsMin + shift, feelsMax: b.feelsMax + shift,
+    ...(p.id === 'snowy' ? { feels: Math.min(feels, p.feels), shade: Math.min(feels, p.feels) } : {}),
+    ...(kind ? { rainChance: Math.max(b.rainChance, p.rainChance ?? 0), rainMm: Math.max(b.rainMm, p.rainMm ?? 0), windKmh: Math.max(b.windKmh, p.windKmh ?? 0),
+      snow: p.snow === true || b.snow, code: p.code ?? b.code, wetHours: p.rainChance ? Math.max(b.wetHours, 6) : b.wetHours } : {}),
+  });
+}
 
 // How much warmer it feels in the sun than in the shade (°C), from the sunshine reaching the ground (shortwave
 // radiation, W/m²) and the wind (km/h): the sun's term in Steadman's apparent temperature, 0.7·Q / (wind + 10) with
@@ -58,12 +73,19 @@ export function cleanConditions(v) {
     tempMin: num(v.tempMin, -40, 50), tempMax: num(v.tempMax, -40, 50),
     rainChance: num(v.rainChance, 0, 100, 0), rainMm: num(v.rainMm, 0, 500, 0), windKmh: num(v.windKmh, 0, 300, 0),
     snow: v.snow === true, code: num(v.code, 0, 99),
+    // Hours of her day with rain falling (on and off counts), and whether it is raining as the forecast is read.
+    wetHours: num(v.wetHours, 0, 24, 0), rainingNow: v.rainingNow === true,
     sunrise: clock(v.sunrise), sunset: clock(v.sunset),
     hours: (Array.isArray(v.hours) ? v.hours : []).filter(x => x && Number.isInteger(x.hour) && Number.isFinite(x.feels)).slice(0, 6).map(x => ({
       hour: Math.max(0, Math.min(23, x.hour)), temp: num(x.temp, -40, 50), feels: num(x.feels, -40, 50), rain: num(x.rain, 0, 100, 0), snow: x.snow === true, code: num(x.code, 0, 99),
     })),
   };
 }
+
+// Whether it is a rainy day: a likely chance of rain, a millimetre or more, rain in three or more hours of her day, or
+// rain falling now (one passing shower on a sunny day is not a rainy day). On a day of short showers the forecast's chance of rain stays low (each hour's chance is small),
+// so the hours themselves count too (the user, 19 October 2026: it rained all morning while she said "warm and dry").
+export const isRainy = c => !!c && ((c.rainChance ?? 0) >= 50 || (c.rainMm ?? 0) >= 1 || (c.wetHours ?? 0) >= 3 || c.rainingNow === true || c.snow === true);
 
 // WMO weather codes, as Open-Meteo reports them.
 const CODES = [[0, 'Clear'], [1, 'Mostly clear'], [2, 'Partly cloudy'], [3, 'Overcast'], [45, 'Fog'], [48, 'Fog'], [51, 'Light drizzle'], [53, 'Drizzle'],
@@ -86,7 +108,9 @@ export function describe(c) {
   else if (range) parts.push(`${range} (feels like ${Math.round(c.feels)}°)`);
   else parts.push(`about ${Math.round(c.feels)}°`);
   if (c.snow) parts.push('snow');
-  else if (c.rainChance >= 50 || c.rainMm >= 1) parts.push(`rain likely (${Math.round(c.rainChance)}%)`);
+  else if (c.rainingNow) parts.push('raining now');
+  else if (c.rainChance >= 50) parts.push(`rain likely (${Math.round(c.rainChance)}%)`);
+  else if (isRainy(c)) parts.push('rain on and off');
   else if (c.rainChance >= 25) parts.push(`a chance of rain (${Math.round(c.rainChance)}%)`);
   if (c.windKmh >= 30) parts.push('windy'); else if (c.windKmh >= 20) parts.push('breezy');
   return parts.join(' · ');

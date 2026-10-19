@@ -166,3 +166,13 @@ Six ways were offered: A dress for the warm part of the day, B add the sun, C a 
 - **Dress her:** today's three looks are put away there (`data-pages="today wardrobe"` in `index.html`, read by `src/doll/pages.js`); the look she wears carries over. They still show on Wardrobe; whether they should go there too is the user's call.
 
 To tune with the user: the hours of the warm part, the sun's share, the warm-day leaning, and the layer rule's 6° and 16 °C.
+
+## Decisions, 19 October 2026
+
+The user woke to rain on and off, with every weather app saying so, while Today said a warm, dry day and offered open shoes. Choosing "Rainy" then swapped their warm day for a cold one (12°), and the heavy coat that came with it; the "Dublin" in the town box was only its example text, which read as if the app had placed them there. What changed:
+
+- **A rainy day is read from the hours, not only the chance of rain.** On a day of short showers every hour's chance is low (Open-Meteo gave Madrid 23% at most on a day of light rain from morning to afternoon). It is a rainy day when the chance is 50% or more, a millimetre or more falls, three or more hours of her day have rain (0.2 mm, or a rainy sky), or it is raining as the forecast is read (Open-Meteo's `current`). One passing shower on a sunny day is not a rainy day. `isRainy()` in `src/weather/conditions.js` is the one answer, used by the stylist, the sky and the Today line ("raining now", "rain on and off").
+- **No open shoes on a rainy day**, whatever the chance of rain, and **no "in the sun" on a rainy day**: she dresses for the shade.
+- **The forecast is read again** when the app is opened two hours or more after the last reading. The day's three looks stay unless the new forecast changes what she dresses for (rain where there was none, or none where there was, or three degrees or more); then she dresses again and says so.
+- **A chosen weather goes on top of today's forecast.** "Rainy", "Pouring", "Windy" and "Snowy" add to the user's own day and keep its temperature and place; a temperature keeps its rain. Without a forecast, the chosen weather is as it was.
+- The town box suggests "Your town", not another city.
