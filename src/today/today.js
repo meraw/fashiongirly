@@ -9,7 +9,7 @@ import { composeTrio, RULES_VERSION } from '../style/stylist.js';
 import { LEARNED_KEY, learn } from '../style/taste.js';
 import { mountLookCards } from './look-cards.js';
 import { swatch } from '../doll/swatch.js';
-import { dayKey, describe, cleanConditions, presetConditions, PRESETS, forPerson, PERSONAL_LIMIT, inTheSun } from '../weather/conditions.js';
+import { dayKey, describe, cleanConditions, presetOver, PRESETS, forPerson, PERSONAL_LIMIT, inTheSun, isRainy } from '../weather/conditions.js';
 import { fetchConditions, findPlace } from '../weather/open-meteo.js';
 import { cleanRecipe } from '../doll/recipe.js';
 import { hairName, HAIR_COLOUR } from '../hair/catalog.js';
@@ -26,6 +26,12 @@ const copy = v => JSON.parse(JSON.stringify(v));
 const clampOffset = v => Number.isFinite(v) ? Math.max(-PERSONAL_LIMIT, Math.min(PERSONAL_LIMIT, v)) : 0;
 // A forecast read before she dressed for the warm part of the day in the sun (it has no `shade`) is read again.
 const outdated = c => c?.source === 'forecast' && !Number.isFinite(c.shade);
+// The forecast is read again when the app is opened two hours or more after it was last read (the user, 19 October
+// 2026: she read a dry forecast early in the morning and kept it while it rained). The day's three looks stay, unless
+// the new forecast changes what she would dress for: rain where there was none (or none where there was), or a
+// difference of three degrees or more.
+export const RECHECK_MS = 2 * 3600e3;
+const changed = (was, now) => isRainy(was) !== isRainy(now) || Math.abs((was?.feels ?? 0) - (now?.feels ?? 0)) >= 3;
 export function mountToday(doc, { storage = null, getRecipe, wear, getUnavailable = () => [], renderPortrait = null, fetch: fetchImpl = null, geolocation = null, now = () => Date.now() } = {}) {
   const $ = id => doc.getElementById(id);
   const cards = mountLookCards(doc, { storage, renderPortrait });
@@ -167,10 +173,24 @@ export function mountToday(doc, { storage = null, getRecipe, wear, getUnavailabl
   async function forecast(day) {
     const p = place(), where = p.mode === 'typed' ? p : await locate();
     const key = `${day}|${where.lat.toFixed(2)},${where.lon.toFixed(2)}`, cached = read(WEATHER_KEY, null);
-    if (cached?.key === key && cleanConditions(cached.conditions) && !outdated(cleanConditions(cached.conditions))) return cleanConditions(cached.conditions);
+    if (cached?.key === key && cleanConditions(cached.conditions) && !outdated(cleanConditions(cached.conditions)) && !stale(cached)) return cleanConditions(cached.conditions);
     const conditions = await fetchConditions(where, day, fetchImpl);
-    write(WEATHER_KEY, { key, conditions });
+    write(WEATHER_KEY, { key, conditions, at: now() });
     return conditions;
+  }
+  // A forecast read two hours ago or more (or before forecasts were timed) is read again.
+  const stale = cached => !(Number.isFinite(cached?.at) && now() - cached.at < RECHECK_MS && now() >= cached.at);
+  // Opened again later in the day: read the forecast again, and dress again only if it changed what she dresses for.
+  async function recheck() {
+    if (busy || !state?.conditions || state.conditions.source !== 'forecast' || state.day !== dayKey(now()) || !stale(read(WEATHER_KEY, null))) return;
+    setBusy(true);
+    try {
+      const was = state.conditions, latest = await forecast(state.day); if (gone()) return;
+      state.conditions = latest; state.forecast = latest;
+      if (changed(was, latest)) { if (chooseLooks()) status(`The forecast changed: ${isRainy(latest) && !isRainy(was) ? 'rain now' : !isRainy(latest) && isRainy(was) ? 'no rain now' : `${Math.round(latest.feels)}° now`}, so she dressed again.`); }
+      else { save(); render(); }
+    } catch { /* No forecast just now: she keeps the looks she has. */ }
+    finally { setBusy(false); }
   }
   const fresh = day => ({ day, conditions: null, seed: seedOf(day), trio: null, choice: null });
   const failed = error => { if (gone()) return; status(`${error.message} Choose today's weather, or type a town.`); $('today-manual').open = true; };
@@ -178,7 +198,7 @@ export function mountToday(doc, { storage = null, getRecipe, wear, getUnavailabl
   // A new day: check the weather and choose the day's looks. Without a forecast, ask for the weather.
   async function dressForToday() {
     state = fresh(dayKey(now())); save(); render(); setBusy(true); status('Checking the weather…');
-    try { state.conditions = await forecast(state.day); if (gone()) return; status(''); chooseLooks(); }
+    try { state.conditions = state.forecast = await forecast(state.day); if (gone()) return; status(''); chooseLooks(); }
     catch (error) { failed(error); }
     finally { setBusy(false); }
   }
@@ -186,7 +206,7 @@ export function mountToday(doc, { storage = null, getRecipe, wear, getUnavailabl
   async function refetch() {
     if (!state || state.day !== dayKey(now())) return dressForToday();
     setBusy(true); status('Checking the weather…');
-    try { state.conditions = await forecast(state.day); status(''); chooseLooks(); }
+    try { state.conditions = state.forecast = await forecast(state.day); status(''); chooseLooks(); }
     catch (error) { failed(error); }
     finally { setBusy(false); }
   }
@@ -199,7 +219,8 @@ export function mountToday(doc, { storage = null, getRecipe, wear, getUnavailabl
     const b = doc.createElement('button'); b.type = 'button'; b.textContent = p.label;
     b.onclick = () => {
       if (!state || state.day !== dayKey(now())) state = fresh(dayKey(now()));
-      state.conditions = presetConditions(p.id, state.day);
+      // On top of today's forecast when there is one: "Rainy" adds rain to her own day.
+      state.conditions = presetOver(state.forecast ?? (state.conditions?.source === 'forecast' ? state.conditions : null), p.id, state.day);
       if (chooseLooks()) status(`Dressed for ${p.label.toLowerCase()} weather.`);
     };
     return b;
@@ -219,7 +240,7 @@ export function mountToday(doc, { storage = null, getRecipe, wear, getUnavailabl
   const onSave = () => { const r = cleanRecipe(getRecipe()); const ids = [r.dressId, ...(r.dressId === 'none' ? [r.topId, r.underTopId, r.bottomId] : []), r.shoesId, r.outerwearId].filter(id => id && id !== 'none' && id !== 'classic'); write(LEARNED_KEY, learn(read(LEARNED_KEY, null), 'saved', ids)); };
   $('save')?.addEventListener('click', onSave);
   // A phone left open overnight: on coming back after 5:00 she dresses for the new day.
-  const onVisible = () => { world(); if (doc.visibilityState !== 'hidden' && state?.day !== dayKey(now()) && !busy) dressForToday(); };
+  const onVisible = () => { world(); if (doc.visibilityState === 'hidden' || busy) return; if (state?.day !== dayKey(now())) dressForToday(); else recheck(); };
   doc.addEventListener('visibilitychange', onVisible);
   // The light moves on through the day: the skies are looked at again every few minutes, and when the screen changes
   // size (the painted sun's place on the page moves with it).
@@ -234,7 +255,7 @@ export function mountToday(doc, { storage = null, getRecipe, wear, getUnavailabl
   };
   // Today's looks chosen by an older version of her rules are chosen again, for the same weather.
   const ready = state?.day === dayKey(now()) && cleanConditions(state.conditions) && !outdated(state.conditions)
-    ? Promise.resolve().then(() => { if ((!state.trio || state.rules !== RULES_VERSION || hasRemoved(state)) && !gone()) chooseLooks(); }) : dressForToday();
+    ? Promise.resolve().then(() => { if ((!state.trio || state.rules !== RULES_VERSION || hasRemoved(state)) && !gone()) chooseLooks(); }).then(recheck) : dressForToday();
   return {
     refreshPreviews() { if (!gone()) cards.sync({ day: state?.day ?? dayKey(now()), trio: state?.trio, choice: state?.choice }); },
     ready, getState: () => state && copy(state), title: () => state?.choice ? TITLES[state.choice] : null,

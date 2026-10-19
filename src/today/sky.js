@@ -7,9 +7,10 @@ const RAINY = new Set([51, 53, 55, 56, 57, 61, 63, 66, 80, 81]), HEAVY = new Set
 const SNOWY = new Set([71, 73, 75, 77, 85, 86]);
 
 // The kind of weather from a WMO code and the chance of rain, for one hour or a whole day.
-export function codeKind(code, { rainChance = 0, rainMm = 0, snow = false, feels = 15 } = {}) {
+export function codeKind(code, { rainChance = 0, rainMm = 0, snow = false, feels = 15, wetHours = 0, rainingNow = false } = {}) {
   if (snow || SNOWY.has(code)) return 'snow';
-  const wet = rainChance >= 50 || rainMm >= 1 || RAINY.has(code) || HEAVY.has(code);
+  // Rain on and off through the day, or falling now, rains in her sky too (isRainy in src/weather/conditions.js).
+  const wet = rainChance >= 50 || rainMm >= 1 || wetHours >= 3 || rainingNow || RAINY.has(code) || HEAVY.has(code);
   if (wet) return HEAVY.has(code) || rainMm >= 6 ? 'heavy-rain' : 'rain';
   if (code === 45 || code === 48) return 'fog';
   if (code === 0 || code === 1) return 'sun';

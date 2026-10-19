@@ -50,11 +50,15 @@ test('in the morning she checks the forecast for where the phone is and dresses 
 test('reopening the same day keeps her look; after 5:00 the next day she dresses again', async () => {
   const first = await open();
   const storage = first.saved(), look = first.app.getRecipe(); first.close();
+  const soon = await open({ now: MORNING + 3600e3, storage });
+  assert.equal(soon.asked.length, 0, 'within two hours the forecast she read stands');
+  soon.close();
   const again = await open({ now: MORNING + 9 * 3600e3, storage });
-  assert.equal(again.asked.length, 0, 'no new forecast on the same day');
-  assert.deepEqual(again.app.getRecipe(), look);
+  assert.equal(again.asked.length, 1, 'later in the day she reads the forecast again');
+  assert.deepEqual(again.app.getRecipe(), look, 'the same forecast: the same look');
   const early = await open({ now: new Date(2026, 9, 10, 4, 30).getTime(), storage });
-  assert.equal(early.asked.length, 0, 'before 5:00 it is still the same day');
+  assert.equal(early.read(TODAY_KEY).day, '2026-10-09', 'before 5:00 it is still the same day');
+  assert.deepEqual(early.app.getRecipe(), look);
   early.close(); again.close();
   const next = await open({ now: new Date(2026, 9, 10, 6, 0).getTime(), storage });
   assert.equal(next.read(TODAY_KEY).day, '2026-10-10');
@@ -233,4 +237,49 @@ test('an unfinished mood question reuses its valid forecast and immediately supp
   assert.deepEqual(p.app.getRecipe(), p.read(TODAY_KEY).trio.pick.recipe);
   assert.equal(Object.hasOwn(p.read(TODAY_KEY), 'mood'), false);
   p.close();
+});
+
+// A warm day of short showers (the user, 19 October 2026): every hour's chance of rain is low, but it rains on and off
+// from morning to afternoon, and it is raining as the forecast is read.
+function showers(json, day) {
+  const v = JSON.parse(JSON.stringify(json)), h = v.hourly;
+  h.time.forEach((t, i) => { if (!t.startsWith(day)) return; const hour = +t.slice(11, 13);
+    h.apparent_temperature[i] = h.temperature_2m[i] = 24; h.precipitation_probability[i] = 20; if (h.shortwave_radiation) h.shortwave_radiation[i] = 250;
+    const wet = hour >= 7 && hour <= 15 && hour % 2 === 1; h.precipitation[i] = wet ? .2 : 0; h.weather_code[i] = wet ? 61 : 3; });
+  v.current = { time: `${day}T07:30`, precipitation: .2, weather_code: 61 };
+  return v;
+}
+const answer = json => async () => ({ ok: true, status: 200, json: async () => json });
+
+test('a warm day of short showers is a rainy day: no open shoes, no "in the sun", and Rainy keeps her own warm day', async () => {
+  const p = await open({ fetch: answer(showers(LONDON, '2026-10-09')) });
+  const weather = p.d.getElementById('today-weather').textContent, c = p.read(TODAY_KEY).conditions;
+  assert.match(weather, /raining now/);
+  assert.doesNotMatch(weather, /in the sun/);
+  assert.equal(c.sun, null, 'a rainy day is dressed for in the shade');
+  for (const key of ['pick', 'bolder', 'easier']) {
+    const look = p.read(TODAY_KEY).trio[key];
+    assert.ok(!/open/.test(GARMENTS[look.recipe.shoesId]?.styling?.coverage?.foot ?? ''), `${key}: closed shoes in the rain (${look.recipe.shoesId})`);
+    assert.doesNotMatch(look.reasons.join(' '), /warm and dry/);
+  }
+  // Rainy adds rain to her own warm day: still 24°, still where she is.
+  [...p.d.querySelectorAll('#today-presets button')].find(b => b.textContent === 'Rainy').click();
+  const chosen = p.read(TODAY_KEY).conditions;
+  assert.equal(Math.round(chosen.feels), 24, 'the forecast temperature stays');
+  assert.equal(chosen.place, 'Your location');
+  assert.match(p.d.getElementById('today-weather').textContent, /^Your location · Rainy · /);
+  assert.equal(p.d.getElementById('today-place-input').getAttribute('placeholder'), 'Your town', 'no other town suggested');
+  p.close();
+});
+
+test('opened again later, she reads the forecast again and dresses again if rain has come', async () => {
+  const dry = JSON.parse(JSON.stringify(LONDON)); dry.hourly.precipitation_probability = dry.hourly.precipitation_probability.map(() => 0);
+  const morning = await open({ fetch: answer(dry) }), stored = morning.saved(), was = morning.read(TODAY_KEY).trio.pick.recipe;
+  morning.close();
+  const later = await open({ now: MORNING + 3 * 3600e3, storage: stored, fetch: answer(showers(LONDON, '2026-10-09')) });
+  assert.equal(later.asked.length, 1, 'the forecast is read again');
+  assert.match(later.d.getElementById('today-status').textContent, /The forecast changed: rain now, so she dressed again/);
+  assert.match(later.d.getElementById('today-weather').textContent, /raining now/);
+  assert.notDeepEqual(later.read(TODAY_KEY).trio.pick.recipe, was);
+  later.close();
 });

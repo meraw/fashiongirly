@@ -7,6 +7,7 @@ import { HAIRSTYLES } from '../hair/catalog.js';
 import { wardrobe } from './facts.js';
 import { DEFAULT_DARING, scoreTaste, learnedBonus, cleanLearned, boldness } from './taste.js';
 import { stylingFacts } from './facts.js';
+import { isRainy } from '../weather/conditions.js';
 
 const clamp = (v, lo, hi) => Math.max(lo, Math.min(hi, v));
 // A small seeded random generator, so "another idea" varies and tests repeat exactly.
@@ -22,14 +23,15 @@ export function random(seed) {
 // counted in how warm she is once it is off.
 export function needsFor(c) {
   const feels = Number.isFinite(c?.feels) ? c.feels : 16, rain = c?.rainChance ?? 0;
-  const rainy = rain >= 50 || (c?.rainMm ?? 0) >= 1 || !!c?.snow, windy = (c?.windKmh ?? 0) >= 30;
+  const rainy = isRainy(c), windy = (c?.windKmh ?? 0) >= 30;
   const cool = Number.isFinite(c?.feelsMin) ? Math.min(c.feelsMin, feels) : feels, layer = !rainy && feels >= 13 && feels - cool >= 6 && cool < 16;
   return {
     feels, cool, rainy, windy, snow: !!c?.snow,
     target: clamp(3 + (21 - feels) / 3, 2, 10),
     outer: feels < 13 || (rainy && feels < 20) ? 'required' : layer ? 'layer' : feels >= 21 && !rainy ? 'none' : 'optional',
     bareLegs: feels >= 15 && !c?.snow,
-    openShoes: feels >= 19 && rain < 40,
+    // Open shoes only on a warm, dry day: never when rain comes on and off, however low its chance.
+    openShoes: feels >= 19 && rain < 40 && !rainy,
     boots: feels < 22,
   };
 }
