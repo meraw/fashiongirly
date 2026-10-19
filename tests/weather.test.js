@@ -31,7 +31,7 @@ test('the forecast becomes her day: she dresses for its warm part, 11:00 to 17:0
   assert.ok(c.feels > mean(feels), 'warmer than the whole day on average, which is what she used to dress for');
   assert.equal(c.feelsMin, Math.min(...feels));
   assert.equal(c.feelsMax, Math.max(...feels));
-  assert.equal(c.rainChance, Math.max(...hours.map(i => LONDON.hourly.precipitation_probability[i])));
+  assert.equal(c.rainChance, Math.max(...hoursOf(LONDON, 11, 17).map(i => LONDON.hourly.precipitation_probability[i])), 'rain counts in the hours she is out');
   assert.equal(c.snow, false, 'no snowfall in the answer means no snow');
   assert.match(describe(c), /^London · \w+ · \d+–\d+° \(feels like \d+°\) · rain likely/);
   assert.throws(() => toConditions({}, '2026-10-09'), /expected form/);

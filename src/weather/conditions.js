@@ -82,8 +82,9 @@ export function cleanConditions(v) {
   };
 }
 
-// Whether it is a rainy day: a likely chance of rain, a millimetre or more, rain in three or more hours of her day, or
-// rain falling now (one passing shower on a sunny day is not a rainy day). On a day of short showers the forecast's chance of rain stays low (each hour's chance is small),
+// Whether it is a rainy day: in the hours she is out (11:00 to 17:00, see toConditions in open-meteo.js), a likely
+// chance of rain, a millimetre or more, rain in three or more of those hours, or rain falling in them now (one passing
+// shower on a sunny day is not a rainy day, nor is rain early in the morning that has stopped by the time she is out). On a day of short showers the forecast's chance of rain stays low (each hour's chance is small),
 // so the hours themselves count too (the user, 19 October 2026: it rained all morning while she said "warm and dry").
 export const isRainy = c => !!c && ((c.rainChance ?? 0) >= 50 || (c.rainMm ?? 0) >= 1 || (c.wetHours ?? 0) >= 3 || c.rainingNow === true || c.snow === true);
 
