@@ -47,16 +47,25 @@ export function toConditions(json, day, place = null) {
   if (!feels.length) throw new Error('The forecast had no temperatures.');
   const hourOf = i => +h.time[i].slice(11, 13), warmIdx = idx.filter(i => hourOf(i) >= WARM_FROM && hourOf(i) <= WARM_TO && Number.isFinite(h.apparent_temperature?.[i]));
   const warm = warmIdx.length ? warmIdx : idx.filter(i => Number.isFinite(h.apparent_temperature?.[i])), mean = a => a.reduce((s, v) => s + v, 0) / a.length;
-  // Rain on and off: the hours of her day with rain falling (0.2 mm or more) or a wet sky, and whether it is raining now. A day of short
-  // showers has a low chance of rain in every hour, so these count as well as the chance (isRainy in conditions.js).
-  const wetHours = idx.filter(i => (h.precipitation?.[i] ?? 0) >= .2 || (h.weather_code?.[i] ?? 0) >= 51).length;
-  const now = json?.current, rainingNow = typeof now?.time === 'string' && now.time.startsWith(day) && ((now.precipitation ?? 0) > 0 || (now.weather_code ?? 0) >= 51);
+  // Rain counts only in the hours she is out, the warm part of her day (11:00 to 17:00): rain early in the morning that
+  // has stopped by then does not make it a rainy day (the user, 19 October 2026: it rained at 7:00 with a weather alert,
+  // and by the time they went out it was mostly sunny, right for the short sleeves the old reading gave them).
+  const outIdx = idx.filter(i => hourOf(i) >= WARM_FROM && hourOf(i) <= WARM_TO), rainIdx = outIdx.length ? outIdx : idx;
+  const rainVals = key => rainIdx.map(i => h[key]?.[i]).filter(Number.isFinite);
+  // Rain on and off: those hours with rain falling (0.2 mm or more) or a wet sky. A day of short showers has a low
+  // chance of rain in every hour, so these count as well as the chance (isRainy in conditions.js). Rain falling as the
+  // forecast is read counts only when it falls in those hours too.
+  const wetHours = rainIdx.filter(i => (h.precipitation?.[i] ?? 0) >= .2 || (h.weather_code?.[i] ?? 0) >= 51).length;
+  const now = json?.current, nowHour = typeof now?.time === 'string' ? +now.time.slice(11, 13) : NaN;
+  const rainingNow = typeof now?.time === 'string' && now.time.startsWith(day) && nowHour >= WARM_FROM && nowHour <= WARM_TO && ((now.precipitation ?? 0) > 0 || (now.weather_code ?? 0) >= 51);
   const shade = mean(warm.map(i => h.apparent_temperature[i])), sum = a => a.reduce((s, v) => s + v, 0);
-  const rainyDay = isRainy({ rainChance: Math.max(0, ...vals('precipitation_probability')), rainMm: sum(vals('precipitation')), wetHours, rainingNow, snow: sum(vals('snowfall')) > 0 });
+  const rainChance = Math.max(0, ...rainVals('precipitation_probability')), rainMm = sum(rainVals('precipitation'));
+  const rainyDay = isRainy({ rainChance, rainMm, wetHours, rainingNow, snow: sum(vals('snowfall')) > 0 });
   // In the sun when the sun shines; on a rainy day she dresses for the shade (a bright sky between showers is not a sunny day).
   const sunny = Array.isArray(h.shortwave_radiation) && !rainyDay;
   const sun = sunny ? mean(warm.map(i => h.apparent_temperature[i] + sunAllowance(h.shortwave_radiation[i], h.wind_speed_10m?.[i]))) : null;
-  const codes = vals('weather_code'), count = {};
+  // Her sky is the sky of the hours she is out.
+  const codes = rainVals('weather_code').length ? rainVals('weather_code') : vals('weather_code'), count = {};
   for (const c of codes) count[c] = (count[c] || 0) + 1;
   const common = list => list.sort((a, b) => count[b] - count[a] || b - a)[0];
   // The sky of a rainy day is its commonest wet one, however its showers are split between kinds of rain.
@@ -66,7 +75,7 @@ export function toConditions(json, day, place = null) {
     feels: sun ?? shade, shade, sun, feelsMin: Math.min(...feels), feelsMax: Math.max(...feels),
     tempMin: temp.length ? Math.min(...temp) : null, tempMax: temp.length ? Math.max(...temp) : null,
     wetHours, rainingNow,
-    rainChance: Math.max(0, ...vals('precipitation_probability')), rainMm: sum(vals('precipitation')),
+    rainChance, rainMm,
     windKmh: Math.max(0, ...vals('wind_speed_10m')), snow: sum(vals('snowfall')) > 0,
     code: codes.length ? common(wet.length ? wet : Object.keys(count).map(Number)) : null,
     // Local times like "07:41", when the forecast gives them.

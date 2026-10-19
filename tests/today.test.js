@@ -254,7 +254,7 @@ const answer = json => async () => ({ ok: true, status: 200, json: async () => j
 test('a warm day of short showers is a rainy day: no open shoes, no "in the sun", and Rainy keeps her own warm day', async () => {
   const p = await open({ fetch: answer(showers(LONDON, '2026-10-09')) });
   const weather = p.d.getElementById('today-weather').textContent, c = p.read(TODAY_KEY).conditions;
-  assert.match(weather, /raining now/);
+  assert.match(weather, /rain on and off/, 'showers through the hours she is out');
   assert.doesNotMatch(weather, /in the sun/);
   assert.equal(c.sun, null, 'a rainy day is dressed for in the shade');
   for (const key of ['pick', 'bolder', 'easier']) {
@@ -279,7 +279,27 @@ test('opened again later, she reads the forecast again and dresses again if rain
   const later = await open({ now: MORNING + 3 * 3600e3, storage: stored, fetch: answer(showers(LONDON, '2026-10-09')) });
   assert.equal(later.asked.length, 1, 'the forecast is read again');
   assert.match(later.d.getElementById('today-status').textContent, /The forecast changed: rain now, so she dressed again/);
-  assert.match(later.d.getElementById('today-weather').textContent, /raining now/);
+  assert.match(later.d.getElementById('today-weather').textContent, /rain on and off/);
   assert.notDeepEqual(later.read(TODAY_KEY).trio.pick.recipe, was);
   later.close();
+});
+
+// The user's morning, 19 October 2026: rain and a weather alert at 7:00, then mostly sunny by the time they went out.
+function wetMorning(json, day) {
+  const v = JSON.parse(JSON.stringify(json)), h = v.hourly;
+  h.shortwave_radiation ??= h.time.map(() => 0);
+  h.time.forEach((t, i) => { if (!t.startsWith(day)) return; const hour = +t.slice(11, 13), wet = hour >= 6 && hour <= 9;
+    h.apparent_temperature[i] = h.temperature_2m[i] = hour < 11 ? 18 : 24; h.precipitation_probability[i] = wet ? 90 : 10; h.precipitation[i] = wet ? 1.5 : 0;
+    h.weather_code[i] = wet ? 63 : 1; h.shortwave_radiation[i] = wet ? 40 : 450; });
+  v.current = { time: `${day}T07:00`, precipitation: 1.2, weather_code: 63 };
+  return v;
+}
+test('rain early in the morning that stops before she is out does not make it a rainy day', async () => {
+  const p = await open({ fetch: answer(wetMorning(LONDON, '2026-10-09')) });
+  const c = p.read(TODAY_KEY).conditions, weather = p.d.getElementById('today-weather').textContent;
+  assert.doesNotMatch(weather, /rain|Rain/, weather);
+  assert.equal(c.rainingNow, false, 'rain at 7:00 is before she is out');
+  assert.ok(c.sun > c.shade, 'the sunny afternoon she is out in counts');
+  assert.ok(['pick', 'bolder', 'easier'].every(k => !/rain is likely/.test(p.read(TODAY_KEY).trio[k].reasons.join(' '))), 'no rain gear for a dry afternoon');
+  p.close();
 });
