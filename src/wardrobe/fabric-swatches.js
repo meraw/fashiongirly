@@ -86,4 +86,5 @@ export const FABRIC_SWATCHES = {
   'only-onlerin-dark-silver-jacket-v1': new URL('./fabric-swatches/only-onlerin-dark-silver-jacket.webp', import.meta.url).href,
   'navy-half-zip-track-dress-v1': new URL('./fabric-swatches/navy-half-zip-track-dress.webp', import.meta.url).href,
   'desigual-ivory-lace-shift-dress-v1': new URL('./fabric-swatches/desigual-ivory-lace-shift-dress.webp', import.meta.url).href,
+  'black-satin-oversized-shirt-v1': new URL('./fabric-swatches/black-satin-oversized-shirt.webp', import.meta.url).href,
 };

@@ -17,6 +17,7 @@ export { default as levisColourblockHalfZipAnorakV1 } from './levis-colourblock-
 export { default as bershkaLowRiseBalloonJeansV1 } from './bershka-low-rise-balloon-jeans-v1.js';
 export { default as mangoClaudiaSlimCropJeansV1 } from './mango-claudia-slim-crop-jeans-v1.js';
 // slot 07
+export { default as blackSatinOversizedShirtV1 } from './black-satin-oversized-shirt-v1.js';
 // slot 08
 // slot 09
 // slot 10

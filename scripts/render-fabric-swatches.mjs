@@ -93,6 +93,8 @@ export const SAMPLES = [
   { id: 'only-onlerin-dark-silver-jacket-v1', mesh: 'jacket-body', y: 1.55, shaded: true },
   { id: 'navy-half-zip-track-dress-v1', mesh: 'dress-body', y: 1.55 },
   { id: 'desigual-ivory-lace-shift-dress-v1', mesh: 'dress-body', y: 1.55, cutouts: true, details: ['lace-frill'] },
+  // Plain satin: lit, so its lustre shows.
+  { id: 'black-satin-oversized-shirt-v1', mesh: 'mesh-shirt-body', y: 1.45, shaded: true },
 ];
 
 const { chromium } = await import(process.env.PLAYWRIGHT_MODULE || 'playwright');
