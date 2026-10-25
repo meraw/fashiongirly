@@ -46,6 +46,7 @@ export const FABRIC_SWATCHES = {
   'white-linen-button-down-shirt-v1': new URL('./fabric-swatches/white-linen.webp', import.meta.url).href,
   'paisley-print-relaxed-shirt-v1': new URL('./fabric-swatches/paisley-shirt.webp', import.meta.url).href,
   'polo-ralph-lauren-usrl-racing-hoodie-v1': new URL('./fabric-swatches/polo-racing-hoodie.webp', import.meta.url).href,
+  'champion-purple-tie-dye-velour-hoodie-v1': new URL('./fabric-swatches/champion-tie-dye-velour.webp', import.meta.url).href,
   'tommy-ultra-high-mom-v1': new URL('./fabric-swatches/tommy-mom-denim.webp', import.meta.url).href,
   'stradivarius-relaxed-v1': new URL('./fabric-swatches/stradivarius-relaxed-denim.webp', import.meta.url).href,
   'bershka-grey-wide-leg-v1': new URL('./fabric-swatches/bershka-grey-denim.webp', import.meta.url).href,
