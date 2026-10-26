@@ -95,12 +95,17 @@ function context(conditions, options) {
   const { seed = 1, daring = DEFAULT_DARING, keep = {}, avoid = [], recent = [], shownToday = [] } = options;
   const learned = cleanLearned(options.learned), rng = random(seed), needs = needsFor(conditions), w = options.wardrobe || wardrobe();
   const banned = new Set(avoid), byId = id => Object.values(w).flat().find(p => p.id === id);
-  const pick = (slot, list, test) => {
+  // The pieces of a slot that pass the first of `tests` any of them pass (all of them, if none does).
+  const pick = (slot, list, ...tests) => {
     if (keep[slot]) return keep[slot] === 'none' ? [null] : [byId(keep[slot])].filter(Boolean);
-    const free = list.filter(p => !banned.has(p.id)), ok = free.filter(test);
-    return ok.length ? ok : free;
+    const free = list.filter(p => !banned.has(p.id));
+    for (const test of tests) { const ok = free.filter(test); if (ok.length) return ok; }
+    return free;
   };
-  const shoes = pick('shoes', w.shoes, s => (!s.open || needs.openShoes) && (!needs.rainy || s.rain !== 'avoid') && (!s.shape.boot || needs.boots));
+  // When no pair suits the day in every way (a warm day of showers: the boots too warm, the rest not for rain), boots
+  // come first, then shoes not made for rain; open shoes still stay out of the rain and the cold.
+  const notOpen = s => !s.open || needs.openShoes, rainProof = s => !needs.rainy || s.rain !== 'avoid';
+  const shoes = pick('shoes', w.shoes, s => notOpen(s) && rainProof(s) && (!s.shape.boot || needs.boots), s => notOpen(s) && rainProof(s), notOpen);
   const outerOptions = keep.outerwear ? pick('outerwear', w.outerwear) : needs.outer === 'none' ? [null]
     : needs.outer === 'layer' ? pick('outerwear', w.outerwear, o => warmthOf(o) <= 2)
     : [...(needs.outer === 'optional' ? [null] : []), ...pick('outerwear', w.outerwear, o => (!needs.rainy || o.rain !== 'avoid') && (needs.feels >= 5 || warmthOf(o) >= 3) && (needs.feels < 16 || warmthOf(o) <= 2))];
