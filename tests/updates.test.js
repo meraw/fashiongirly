@@ -54,7 +54,7 @@ test('in the Android app each step of a check is shown, and Check now asks the a
   assert.equal(p.text(), 'Version 563. Version 570 has arrived: tap Show them at the top. Last checked 3 min ago.');
   assert.equal(button.disabled, false);
   assert.equal(p.banner().hidden, false);
-  assert.equal(p.d.getElementById('update-text').textContent, 'New clothes have arrived (version 570).');
+  assert.equal(p.d.getElementById('update-text').textContent, 'New clothes have arrived.');
   p.d.getElementById('update-show').click();
   assert.deepEqual(app.calls, ['check', 'show']);
 });

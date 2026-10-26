@@ -31,7 +31,7 @@ export function mountUpdates(doc, { fetch: fetchImpl = null, bridge = null, now 
     // The banner, on every page, for a version that has downloaded and is not shown yet.
     const ready = s?.ready > 0 && s.ready !== dismissed;
     $('update-banner').hidden = !ready;
-    if (ready) $('update-text').textContent = `New clothes have arrived (version ${s.ready}).`;
+    if (ready) $('update-text').textContent = 'New clothes have arrived.';
   }
   const onUpdate = () => render();
   $('version-check').onclick = () => { try { bridge?.check(); } catch {} render(); };
