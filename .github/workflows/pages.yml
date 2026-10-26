@@ -1,5 +1,10 @@
 name: Deploy Pages
+# Runs on every merge to main (and by hand from the Actions tab). Besides the site, it publishes app.zip, the whole
+# build: the Android app downloads it when version.json is newer than its copy, so new garments reach the phone without
+# a new APK.
 on:
+  push:
+    branches: [main]
   workflow_dispatch:
 permissions:
   contents: read
@@ -16,12 +21,17 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+        with:
+          # The whole history: version.json counts the commits.
+          fetch-depth: 0
       - uses: actions/setup-node@v4
         with:
           node-version: 22
       - run: npm ci
       - run: npm test
       - run: npm run build
+      - name: Pack the app for the Android app
+        run: cd dist && zip -qrX ../app.zip . && mv ../app.zip app.zip
       - uses: actions/configure-pages@v5
       - uses: actions/upload-pages-artifact@v3
         with:

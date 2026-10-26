@@ -18,10 +18,13 @@ import android.webkit.WebViewClient;
 
 import androidx.webkit.WebViewAssetLoader;
 
+import java.io.File;
+
 /**
- * Shows the web app, bundled in the APK's assets, in a full-screen WebView. The pages are served from
- * https://appassets.androidplatform.net/assets/ (a secure origin, so ES modules, saved looks and location all work as in
- * a browser). Links to other sites (Open-Meteo's credit) open in the phone's browser.
+ * Shows the web app in a full-screen WebView: the copy bundled in the APK's assets, or a newer one AppUpdates has
+ * downloaded. Either is served from https://appassets.androidplatform.net/assets/ (a secure origin, so ES modules, saved
+ * looks and location all work as in a browser, and saved looks stay when the copy changes). Links to other sites
+ * (Open-Meteo's credit) open in the phone's browser.
  */
 public class MainActivity extends Activity {
     private static final String HOST = "appassets.androidplatform.net";
@@ -29,15 +32,17 @@ public class MainActivity extends Activity {
     private static final int LOCATION_REQUEST = 1;
 
     private WebView web;
+    private AppUpdates updates;
+    private volatile WebViewAssetLoader assets;
+    private File serving;
     private String pendingOrigin;
     private GeolocationPermissions.Callback pendingCallback;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        final WebViewAssetLoader assets = new WebViewAssetLoader.Builder()
-                .addPathHandler("/assets/", new WebViewAssetLoader.AssetsPathHandler(this))
-                .build();
+        updates = new AppUpdates(this);
+        serve(updates.newest());
         web = new WebView(this);
         setContentView(web);
 
@@ -85,6 +90,29 @@ public class MainActivity extends Activity {
 
         if (savedInstanceState != null) web.restoreState(savedInstanceState);
         else web.loadUrl(START);
+    }
+
+    /** Serves the downloaded copy in dir, or the APK's own copy when dir is null. */
+    private void serve(File dir) {
+        serving = dir;
+        updates.serve(dir);
+        assets = new WebViewAssetLoader.Builder()
+                .addPathHandler("/assets/", dir == null
+                        ? new WebViewAssetLoader.AssetsPathHandler(this)
+                        : new WebViewAssetLoader.InternalStoragePathHandler(this, dir))
+                .build();
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        // Back in the app: show a version downloaded since it was opened, then look for a newer one.
+        File newest = updates.newest();
+        if (newest != null && !newest.equals(serving)) {
+            serve(newest);
+            web.reload();
+        }
+        updates.checkSoon();
     }
 
     private boolean hasLocation() {

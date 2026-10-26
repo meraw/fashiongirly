@@ -54,6 +54,8 @@ Since 12 October 2026 the app also comes as an Android APK, which the user insta
 - The version number is the commit count, so every new APK installs over the last one.
 - Every APK is signed with the same key, `android/fashiongirly.keystore`, kept in the repository on purpose (password `fashiongirly`). An APK signed with any other key will not install over the user's app without uninstalling it, which loses their saved looks.
 - Run **Android app** from Actions to build the APK on GitHub and put it on the `android-latest` release, where the phone can download it.
+- **New garments and other web changes reach the phone without a new APK** (since 21 October 2026, at the user's request). **Deploy Pages** now runs on every merge to main and publishes, besides the site, `version.json` (the build's number, the commit count like the APK's) and `app.zip` (the whole build). The app checks `version.json` when it is opened or brought back, at most once an hour (`android/app/src/main/java/app/fashiongirly/AppUpdates.java`); when it is newer than the copy it has, it downloads `app.zip` in the background into its own storage and shows it the next time the app is opened or brought back. It serves the copy at the same address as the APK's own, so saved looks stay. Without internet it keeps the copy it has. An APK newer than the download wins, and older copies are deleted.
+- A new APK is still needed for changes to the Android shell itself (`android/`, for example a new permission). An APK from before 21 October 2026 does not update itself: install one built since then once.
 - Installing: open the APK on the phone and allow installing from that app when Android asks.
 
 ## Source map
@@ -67,7 +69,7 @@ Since 12 October 2026 the app also comes as an Android APK, which the user insta
 - `src/today/today.js`: the Today panel: the daily look, refinements, location and weather choice. `src/today/sky.js`: the weather over the painted world behind her, which is the page's background. `src/today/world.js`: which world she is in today and the time of day in it; its pictures are in `src/art/worlds/`, painted by `scripts/art/paint-scenery.py`. `src/doll/face.js`: her expression for the weather.
 - `src/doll/pages.js`, `src/doll/wardrobe-page.js`: the page tabs and the Wardrobe page with its filters. `src/doll/picker.js`: Dress her's chips and the picker they open.
 - `src/style/`: the stylist. `facts.js` reads each garment's styling facts, `taste.js` is her taste written down, `stylist.js` dresses her for the weather.
-- `src/weather/`: the day's conditions (`conditions.js`) and the Open-Meteo forecast and place search (`open-meteo.js`), the app's only network request.
+- `src/weather/`: the day's conditions (`conditions.js`) and the Open-Meteo forecast and place search (`open-meteo.js`), the app's only network request (the Android app also checks GitHub Pages for a newer version of itself).
 - `illustration.html`: the earlier vector study, retained for comparison.
 
 The renderer rebuilds only the outfit on a wardrobe edit. The doll's identity remains in the scene. Sleeve, body, cuff, collar, and trouser surfaces are authored approximations with explicit controls, not sewing-pattern reconstruction.
