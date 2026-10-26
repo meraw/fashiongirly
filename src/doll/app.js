@@ -8,6 +8,7 @@ import { mountPages } from './pages.js';
 import { mountWardrobe } from './wardrobe-page.js';
 import { mountPicker } from './picker.js';
 import { validImage } from '../today/look-cards.js';
+import { mountUpdates } from './updates.js';
 const KEY='fashiongirly.plush-draft.v1', BOOK='fashiongirly.plush-looks.v1';
 export async function startStudio(doc=document, makeView, options={}) {
   const $=id=>doc.getElementById(id);let storage;
@@ -162,6 +163,8 @@ export async function startStudio(doc=document, makeView, options={}) {
   // Each morning she checks the weather and dresses herself (src/today/today.js); her pick is worn like any other recipe.
   const win=doc.defaultView;today=mountToday(doc,{storage,renderPortrait:portraitRenderer,getUnavailable:inventory.removed,getRecipe:()=>clean(recipe),wear:next=>{recipe=clean(next);sync();apply();message('');},
     fetch:'fetch' in options?options.fetch:win?.fetch?.bind(win),geolocation:'geolocation' in options?options.geolocation:win?.navigator?.geolocation,now:options.now});
+  // The app's version, and in the Android app whether new clothes are on their way (updates.js).
+  const updates=mountUpdates(doc,{fetch:'fetch' in options?options.fetch:win?.fetch?.bind(win),bridge:'appBridge' in options?options.appBridge:win?.FashiongirlyApp??null,now:options.now});
   // If she cannot be shown, say why and offer to try again: reloading clears whatever failed to download.
   const showError=text=>{$('loading')?.remove();const box=$('view-error'),retry=doc.createElement('button');box.hidden=false;
     retry.type='button';retry.className='retry';retry.textContent='Try again';retry.onclick=()=>doc.defaultView.location.reload();box.replaceChildren(`${text} `,retry);};
@@ -174,6 +177,6 @@ export async function startStudio(doc=document, makeView, options={}) {
   const loadView=async()=>{try{return (await import('./view.js')).createDollView;}catch{return (await import(`./view.js?retry=${Date.now()}`)).createDollView;}};
   try {const factory=makeView || await loadView(),first=recipe;view=await factory($('stage'),recipe);if(recipe!==first)view.update(recipe);view.turn(-25);$('loading')?.remove();resolvePortraitView();today.refreshPreviews();}
   catch(error){resolvePortraitView();showError(/fetch|import|load/i.test(error?.message||'')?'She could not be loaded: the connection dropped while the app was downloading.':error.message||'The 3D view could not load.');}
-  return {getRecipe:()=>clean(recipe),today,dispose(){closed=true;resolvePortraitView();portraitService?.dispose();clearTimeout(timer);persist();hairControls.dispose();today.dispose();pages.dispose();wardrobe.dispose();picker.dispose();view?.dispose();}};
+  return {getRecipe:()=>clean(recipe),today,updates,dispose(){closed=true;resolvePortraitView();portraitService?.dispose();clearTimeout(timer);persist();hairControls.dispose();today.dispose();updates.dispose();pages.dispose();wardrobe.dispose();picker.dispose();view?.dispose();}};
 }
 
