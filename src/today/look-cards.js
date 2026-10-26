@@ -3,7 +3,7 @@ import { cleanRecipe } from '../doll/recipe.js';
 export const PREVIEWS_KEY = 'fashiongirly.look-previews.v1';
 const LOOKS = [['pick', 'Her pick', 'just right'], ['bolder', 'Bolder', 'turn it up'], ['easier', 'Easier', 'easy to wear']];
 const signature = recipe => JSON.stringify(cleanRecipe(recipe));
-const validImage = value => typeof value === 'string' && value.length < 260000 && /^data:image\/(webp|png|jpeg);base64,[A-Za-z0-9+/]+=*$/.test(value);
+export const validImage = value => typeof value === 'string' && value.length < 260000 && /^data:image\/(webp|png|jpeg);base64,[A-Za-z0-9+/]+=*$/.test(value);
 
 export function mountLookCards(doc, { storage = null, renderPortrait = null } = {}) {
   let cache = { day: null, looks: {} }, closed = false, current = null;
