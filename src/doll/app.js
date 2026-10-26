@@ -163,8 +163,9 @@ export async function startStudio(doc=document, makeView, options={}) {
   // Each morning she checks the weather and dresses herself (src/today/today.js); her pick is worn like any other recipe.
   const win=doc.defaultView;today=mountToday(doc,{storage,renderPortrait:portraitRenderer,getUnavailable:inventory.removed,getRecipe:()=>clean(recipe),wear:next=>{recipe=clean(next);sync();apply();message('');},
     fetch:'fetch' in options?options.fetch:win?.fetch?.bind(win),geolocation:'geolocation' in options?options.geolocation:win?.navigator?.geolocation,now:options.now});
-  // The app's version, and in the Android app whether new clothes are on their way (updates.js).
-  const updates=mountUpdates(doc,{fetch:'fetch' in options?options.fetch:win?.fetch?.bind(win),bridge:'appBridge' in options?options.appBridge:win?.FashiongirlyApp??null,now:options.now});
+  // The app's version, and in the Android app whether new clothes are on their way (updates.js). Tests give their own
+  // version.json, as for portraits; with a stand-in view and none given there is none.
+  const updates=mountUpdates(doc,{fetch:options.versionFetch??(makeView?null:win?.fetch?.bind(win)),bridge:'appBridge' in options?options.appBridge:win?.FashiongirlyApp??null,now:options.now});
   // If she cannot be shown, say why and offer to try again: reloading clears whatever failed to download.
   const showError=text=>{$('loading')?.remove();const box=$('view-error'),retry=doc.createElement('button');box.hidden=false;
     retry.type='button';retry.className='retry';retry.textContent='Try again';retry.onclick=()=>doc.defaultView.location.reload();box.replaceChildren(`${text} `,retry);};

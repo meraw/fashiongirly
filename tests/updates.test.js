@@ -89,7 +89,7 @@ test('a broken answer from the app still shows the page’s own version', async 
 
 test('the studio mounts the version on the Wardrobe page with the app it is given', async t => {
   const p = page(t), app = fakeApp({ state: 'current', version: 570, latest: 570, ready: 0, checkedAt: now });
-  const studio = await startStudio(p.d, () => ({ update() {}, turn() {}, dispose() {} }), { fetch: versionFile(570), geolocation: null, now: () => now, appBridge: app });
+  const studio = await startStudio(p.d, () => ({ update() {}, turn() {}, dispose() {} }), { fetch: null, versionFetch: versionFile(570), geolocation: null, now: () => now, appBridge: app });
   t.after(() => studio.dispose());
   await studio.updates.ready;
   assert.ok(p.d.querySelector('#page-wardrobe #version-status'));

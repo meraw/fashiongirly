@@ -25,3 +25,20 @@ test('the Android app reads version.json and app.zip from the Pages site', () =>
   assert.match(updates, /fetch\("version\.json"\)/);
   assert.match(updates, /open\("app\.zip"\)/);
 });
+
+test('the page and the Android app agree on how updates are reported', () => {
+  const activity = readFileSync('android/app/src/main/java/app/fashiongirly/MainActivity.java', 'utf8');
+  const app = readFileSync('src/doll/app.js', 'utf8'), page = readFileSync('src/doll/updates.js', 'utf8');
+  assert.match(activity, /addJavascriptInterface\(new Bridge\(\), "FashiongirlyApp"\)/);
+  assert.match(app, /win\?\.FashiongirlyApp/);
+  for (const method of ['status', 'check', 'showUpdate']) {
+    assert.match(activity, new RegExp(`@JavascriptInterface\\s+public \\w+ ${method}\\(\\)`), `the app answers ${method}()`);
+    assert.match(page, new RegExp(`bridge\\??\\.${method}\\(\\)`), `the page asks ${method}()`);
+  }
+  assert.match(activity, /dispatchEvent\(new Event\('app-update'\)\)/);
+  assert.match(page, /addEventListener\('app-update'/);
+  for (const state of ['checking', 'downloading', 'current', 'failed']) {
+    assert.match(updates, new RegExp(`"${state}"`), `the app reports ${state}`);
+    assert.match(page, new RegExp(`\\b${state}:`), `the page words ${state}`);
+  }
+});
