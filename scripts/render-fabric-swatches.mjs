@@ -53,6 +53,7 @@ export const SAMPLES = [
   { id: 'white-linen-button-down-shirt-v1', mesh: 'mesh-shirt-body', y: 1.55 },
   { id: 'paisley-print-relaxed-shirt-v1', mesh: 'mesh-shirt-body', atlas: ['paisley-shirt-atlas.js', 'PAISLEY_SHIRT_ATLAS'], y: 1.55, side: 'back' },
   { id: 'polo-ralph-lauren-usrl-racing-hoodie-v1', mesh: 'hoodie-body', y: 1.65, details: ['applique-letters', 'embroidered-signature', 'round-badge', 'eagle-patch', 'flag-patch'] },
+  { id: 'champion-purple-tie-dye-velour-hoodie-v1', mesh: 'hoodie-body', y: 1.6 },
   { id: 'tommy-ultra-high-mom-v1', mesh: 'jeans-hips', atlas: ['tommy-mom-denim.js', 'TOMMY_MOM_DENIM'], y: 1.08, x: 0.12, width: 0.22 },
   { id: 'stradivarius-relaxed-v1', mesh: 'jeans-hips', atlas: ['stradivarius-denim.js', 'STRADIVARIUS_DENIM'], y: 1.08, x: 0.12, width: 0.22 },
   { id: 'bershka-grey-wide-leg-v1', mesh: 'jeans-hips', atlas: ['bershka-grey-denim.js', 'BERSHKA_GREY_DENIM'], y: 1.08, x: 0.12, width: 0.22 },

@@ -10,6 +10,7 @@ import { makeMeshPrintTee } from './mesh-print-tee.js';
 import { makeRacingHoodie } from './racing-hoodie.js';
 import { makeSatinShirt } from './satin-shirt.js';
 import { makeSnapCollarJumper } from './snap-collar-jumper.js';
+import { makeVelourHoodie } from './velour-hoodie.js';
 import { makeWildflowerShirt } from './wildflower-shirt.js';
 import { makeYokeBlouse } from './yoke-blouse.js';
 
@@ -23,6 +24,7 @@ export const TOP_TEMPLATES = {
   'racing-hoodie': (id, build) => makeRacingHoodie(id, build),
   'satin-shirt': (id, build, { skirt }) => makeSatinShirt(id, build, skirt),
   'snap-collar-jumper': (id, build, { skirt }) => makeSnapCollarJumper(id, build, skirt),
+  'velour-hoodie': (id, build, { skirt }) => makeVelourHoodie(id, build, skirt),
   'wildflower-shirt': (id, build, { skirt }) => makeWildflowerShirt(id, build, skirt),
   'yoke-blouse': (id, build, { skirt }) => makeYokeBlouse(id, build, skirt),
 };

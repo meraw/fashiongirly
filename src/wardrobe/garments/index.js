@@ -84,6 +84,7 @@ export { default as replayCreamRoseEmbroideredSweatshirtV1 } from './replay-crea
 export { default as blackYokeHenleyBlouseV1 } from './black-yoke-henley-blouse-v1.js';
 // slot 57
 // slot 58
+export { default as championPurpleTieDyeVelourHoodieV1 } from './champion-purple-tie-dye-velour-hoodie-v1.js';
 // slot 59
 export { default as levisWildflowerPrintShirtV1 } from './levis-wildflower-print-shirt-v1.js';
 // slot 60
