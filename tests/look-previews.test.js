@@ -7,6 +7,7 @@ import { mountLookCards, PREVIEWS_KEY } from '../src/today/look-cards.js';
 import { TODAY_KEY } from '../src/today/today.js';
 import { composeTrio } from '../src/style/stylist.js';
 import { presetConditions } from '../src/weather/conditions.js';
+import { cleanRecipe } from '../src/doll/recipe.js';
 const IMAGE = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+jK3sAAAAASUVORK5CYII=';
 const OTHER = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNk+A8AAQUBAScY42YAAAAASUVORK5CYII=';
 const day = '2026-10-17', now = new Date(2026, 9, 17, 9).getTime(), flush = () => new Promise(r => setTimeout(r, 0));
@@ -90,4 +91,36 @@ test('portrait failures and unavailable storage leave the three daily choices us
   cards.sync({ day, trio, choice: 'pick' }); await flush();
   assert.ok(dom.window.document.querySelector('#look-pick img'));
   assert.equal(dom.window.document.querySelector('#look-bolder img'), null);
+});
+
+test('My looks shows each saved look as its own doll, without dressing her in it', async t => {
+  const calls = [], first = cleanRecipe({ hairId: 'high-bun', sleeve: 1 }), second = cleanRecipe({ skirt: true });
+  const p = await open(t, { entries: { 'fashiongirly.plush-looks.v1': JSON.stringify([first, second]) }, renderPortrait: async (recipe, key) => { calls.push({ recipe, key }); return key === 'pick' && recipe.skirt ? OTHER : IMAGE; } });
+  const lookbook = p.d.getElementById('lookbook'); lookbook.showModal = function () { this.open = true; }; lookbook.close = function () { this.open = false; };
+  const before = p.app.getRecipe(), pickCalls = calls.length;
+  p.d.getElementById('lookbook-open').click(); await flush();
+  const cards = [...p.d.querySelectorAll('#saved-list .saved-row')];
+  assert.equal(cards.length, 2);
+  assert.deepEqual(calls.slice(pickCalls).map(x => [x.recipe.hairId, x.recipe.skirt, x.key]), [['high-bun', false, 'pick'], [second.hairId, true, 'pick']]);
+  assert.deepEqual(cards.map(c => c.querySelector('.saved-portrait').dataset.state), ['ready', 'ready']);
+  assert.deepEqual(cards.map(c => c.querySelector('img').src), [IMAGE, OTHER]);
+  assert.deepEqual(p.app.getRecipe(), before, 'looking at saved looks leaves her outfit alone');
+  // Opened again, the pictures are reused for this visit.
+  lookbook.close(); p.d.getElementById('lookbook-open').click(); await flush();
+  assert.equal(calls.length, pickCalls + 2);
+  assert.equal(p.d.querySelectorAll('#saved-list img').length, 2);
+  // Wear still puts a look on her.
+  cards[0].querySelector('button').click();
+  assert.equal(p.app.getRecipe().hairId, 'high-bun'); assert.equal(p.app.getRecipe().sleeve, 1);
+});
+
+test('a saved look whose portrait fails says so and is tried again next time', async t => {
+  let fail = true;
+  const p = await open(t, { entries: { 'fashiongirly.plush-looks.v1': JSON.stringify([cleanRecipe({ skirt: true })]) }, renderPortrait: async (recipe, key) => { if (recipe.skirt && fail) throw Error('WebGL unavailable'); return IMAGE; } });
+  const lookbook = p.d.getElementById('lookbook'); lookbook.showModal = function () { this.open = true; }; lookbook.close = function () {};
+  p.d.getElementById('lookbook-open').click(); await flush();
+  assert.equal(p.d.querySelector('#saved-list .saved-portrait').dataset.state, 'unavailable');
+  assert.match(p.d.querySelector('#saved-list .saved-portrait').textContent, /Preview unavailable/);
+  fail = false; p.d.getElementById('lookbook-open').click(); await flush();
+  assert.equal(p.d.querySelector('#saved-list .saved-portrait').dataset.state, 'ready');
 });

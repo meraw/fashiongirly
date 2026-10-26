@@ -7,6 +7,7 @@ import { mountToday } from '../today/today.js';
 import { mountPages } from './pages.js';
 import { mountWardrobe } from './wardrobe-page.js';
 import { mountPicker } from './picker.js';
+import { validImage } from '../today/look-cards.js';
 const KEY='fashiongirly.plush-draft.v1', BOOK='fashiongirly.plush-looks.v1';
 export async function startStudio(doc=document, makeView, options={}) {
   const $=id=>doc.getElementById(id);let storage;
@@ -40,6 +41,8 @@ export async function startStudio(doc=document, makeView, options={}) {
     portraitLoading??=import('./look-portraits.js').then(m=>closed?null:(portraitService=m.createLookPortraits(doc))).catch(error=>{portraitLoading=null;throw error;});
     const service=await portraitLoading;return service?.render(next,key)??null;
   };
+  // Tests can bring their own; with a stand-in view and none given, there is nothing to photograph.
+  const portraitRenderer=options.renderPortrait??(makeView?null:renderPortrait);
   let today=null;
   const pages=mountPages(doc),wardrobe=mountWardrobe(doc,{getConditions:()=>today?.getState()?.conditions??null,inventory,onChange:()=>{recipe=clean(recipe);today?.wardrobeChanged();sync();apply();},wear:(patch,g)=>{recipe=clean({...recipe,...patch,...(patch.topId&&patch.topId!==recipe.topId?{tucked:undefined}:{})});sync();apply();message(`Wearing the ${g.name}.`);}});
   // Dress her as a visual picker (picker.js): a chip for each slot, opening its pieces as swatches.
@@ -127,14 +130,37 @@ export async function startStudio(doc=document, makeView, options={}) {
   $('reset').onclick=()=>{recipe=clean(DEFAULT);sync();apply();message('Back to the original outfit.');};
   function storeLooks(next){try{if(!storage)throw new Error();storage.setItem(BOOK,JSON.stringify(next));looks=next;sync();return true;}catch{message('This browser could not save your look.');return false;}}
   $('save').onclick=()=>{if(looks.length>=24){message('Your lookbook is full. Remove a look to make room.');return;}if(storeLooks([clean(recipe),...looks]))message('Saved in My looks.');};
+  // My looks shows each saved look as its own doll, photographed offscreen as Today's portraits are (look-portraits.js),
+  // so a look can be seen without dressing her in it. A look is shown as Wear would put it on (removed pieces left out);
+  // its picture is kept for this visit.
+  const portraits=new Map();
+  function savedPortrait(look){
+    const box=doc.createElement('span');box.className='look-portrait saved-portrait';box.setAttribute('aria-hidden','true');
+    const show=image=>{box.dataset.state=image?'ready':'unavailable';
+      if(image){const img=doc.createElement('img');img.className='look-photo';img.src=image;img.alt='';img.width=240;img.height=280;box.replaceChildren(img);}
+      else{const seal=doc.createElement('span'),note=doc.createElement('span');seal.className='look-seal';seal.textContent='✿';note.className='look-invitation';note.textContent='Preview unavailable';box.replaceChildren(seal,note);}};
+    const sig=JSON.stringify(look);let job=portraits.get(sig);
+    if(!job&&portraitRenderer){
+      job=Promise.resolve().then(()=>closed?null:portraitRenderer(look,'pick')).then(image=>validImage(image)?image:null,()=>null);
+      job.then(image=>{if(!image)portraits.delete(sig);});portraits.set(sig,job);
+    }
+    if(!job){show(null);return box;}
+    box.dataset.state='loading';const seal=doc.createElement('span'),note=doc.createElement('span');seal.className='look-seal';seal.textContent='✿';note.className='look-invitation';note.textContent='Preparing her…';box.append(seal,note);
+    job.then(image=>{if(!closed)show(image);});return box;
+  }
   function book(){
-    const list=$('saved-list');list.replaceChildren();
+    const list=$('saved-list');list.replaceChildren();list.classList.toggle('saved-grid',looks.length>0);
     if(!looks.length){const p=doc.createElement('p');p.className='saved-empty';p.textContent='Save a little experiment with the heart. Your looks stay in this browser.';list.append(p);}
-    looks.forEach((look,i)=>{const row=doc.createElement('div');row.className='saved-row';const colours=doc.createElement('span');colours.className='saved-colours';for(const color of [look.sweater,look.trousers]){const dot=doc.createElement('i');dot.style.background=color;colours.append(dot);}const title=doc.createElement('span');title.textContent=`Little experiment ${looks.length-i} · ${hairName(look.hairId)}`;const wear=doc.createElement('button');wear.textContent='Wear';wear.onclick=()=>{recipe=clean(look);sync();apply();$('lookbook').close();};const remove=doc.createElement('button');remove.textContent='Remove';remove.onclick=()=>{if(storeLooks(looks.filter((_,j)=>j!==i)))book();};row.append(colours,title,wear,remove);list.append(row);});
+    looks.forEach((saved,i)=>{const look=clean(saved),row=doc.createElement('figure');row.className='saved-row';
+      const title=doc.createElement('figcaption');title.textContent=`Little experiment ${looks.length-i} · ${hairName(look.hairId)}`;
+      const actions=doc.createElement('div');actions.className='saved-actions';
+      const wear=doc.createElement('button');wear.type='button';wear.textContent='Wear';wear.setAttribute('aria-label',`Wear little experiment ${looks.length-i}`);wear.onclick=()=>{recipe=clean(saved);sync();apply();$('lookbook').close();};
+      const remove=doc.createElement('button');remove.type='button';remove.textContent='Remove';remove.setAttribute('aria-label',`Remove little experiment ${looks.length-i}`);remove.onclick=()=>{if(storeLooks(looks.filter((_,j)=>j!==i)))book();};
+      actions.append(wear,remove);row.append(savedPortrait(look),title,actions);list.append(row);});
   }
   $('lookbook-open').onclick=()=>{book();$('lookbook').showModal();};$('lookbook-close').onclick=()=>$('lookbook').close();
   // Each morning she checks the weather and dresses herself (src/today/today.js); her pick is worn like any other recipe.
-  const win=doc.defaultView;today=mountToday(doc,{storage,renderPortrait:options.renderPortrait??(makeView?null:renderPortrait),getUnavailable:inventory.removed,getRecipe:()=>clean(recipe),wear:next=>{recipe=clean(next);sync();apply();message('');},
+  const win=doc.defaultView;today=mountToday(doc,{storage,renderPortrait:portraitRenderer,getUnavailable:inventory.removed,getRecipe:()=>clean(recipe),wear:next=>{recipe=clean(next);sync();apply();message('');},
     fetch:'fetch' in options?options.fetch:win?.fetch?.bind(win),geolocation:'geolocation' in options?options.geolocation:win?.navigator?.geolocation,now:options.now});
   // If she cannot be shown, say why and offer to try again: reloading clears whatever failed to download.
   const showError=text=>{$('loading')?.remove();const box=$('view-error'),retry=doc.createElement('button');box.hidden=false;
