@@ -9,6 +9,7 @@ import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.webkit.GeolocationPermissions;
+import android.webkit.JavascriptInterface;
 import android.webkit.WebChromeClient;
 import android.webkit.WebResourceRequest;
 import android.webkit.WebResourceResponse;
@@ -24,7 +25,8 @@ import java.io.File;
  * Shows the web app in a full-screen WebView: the copy bundled in the APK's assets, or a newer one AppUpdates has
  * downloaded. Either is served from https://appassets.androidplatform.net/assets/ (a secure origin, so ES modules, saved
  * looks and location all work as in a browser, and saved looks stay when the copy changes). Links to other sites
- * (Open-Meteo's credit) open in the phone's browser.
+ * (Open-Meteo's credit) open in the phone's browser, so only the app's own pages are ever shown here. They can ask how
+ * updates are going through window.FashiongirlyApp (see Bridge) and hear of a change through an app-update event.
  */
 public class MainActivity extends Activity {
     private static final String HOST = "appassets.androidplatform.net";
@@ -88,6 +90,11 @@ public class MainActivity extends Activity {
             }
         });
 
+        web.addJavascriptInterface(new Bridge(), "FashiongirlyApp");
+        updates.setListener(() -> runOnUiThread(() -> {
+            if (web != null) web.evaluateJavascript("dispatchEvent(new Event('app-update'))", null);
+        }));
+
         if (savedInstanceState != null) web.restoreState(savedInstanceState);
         else web.loadUrl(START);
     }
@@ -113,6 +120,30 @@ public class MainActivity extends Activity {
             web.reload();
         }
         updates.checkSoon();
+    }
+
+    /** What the page may ask of the app: how updates are going, to look now, and to show a downloaded version. */
+    private final class Bridge {
+        @JavascriptInterface
+        public String status() {
+            return updates.status();
+        }
+
+        @JavascriptInterface
+        public void check() {
+            updates.check();
+        }
+
+        @JavascriptInterface
+        public void showUpdate() {
+            runOnUiThread(() -> {
+                File newest = updates.newest();
+                if (web != null && newest != null && !newest.equals(serving)) {
+                    serve(newest);
+                    web.reload();
+                }
+            });
+        }
     }
 
     private boolean hasLocation() {
@@ -145,7 +176,9 @@ public class MainActivity extends Activity {
 
     @Override
     protected void onDestroy() {
+        updates.setListener(null);
         if (web != null) web.destroy();
+        web = null;
         super.onDestroy();
     }
 }

@@ -334,6 +334,16 @@ dialog.picker[open]{display:flex;flex-direction:column;width:min(760px,94%);max-
 .outfit-ideas button{border:1.5px solid var(--line);background:#fff;border-radius:999px;padding:7px 12px;font-size:12px}
 .outfit-ideas button[aria-pressed=true]{background:var(--purple);border-color:var(--purple);color:#fff6ee}
 
+/* Which version this is and whether new clothes are on their way (src/doll/updates.js). */
+.app-version{margin-top:26px;padding-top:16px;border-top:1px solid #efdfd2}
+.app-version .help{margin:0 0 4px}
+.version-status{font-size:12px;line-height:1.6;color:var(--muted);margin:0 0 6px}
+.update-banner{position:fixed;top:calc(12px + env(safe-area-inset-top));left:12px;right:12px;width:fit-content;margin:0 auto;z-index:40;display:flex;align-items:center;gap:10px;padding:8px 8px 8px 16px;border-radius:999px;background:#1a0a36eb;color:#fff6ee;font-size:13px;box-shadow:0 12px 30px -10px #000c}
+.update-banner[hidden]{display:none}
+#update-text{white-space:nowrap}
+.update-banner #update-show{border:0;border-radius:999px;padding:7px 14px;background:#fff6ee;color:var(--purple);font-size:12px;white-space:nowrap}
+.update-banner #update-later{border:0;background:none;color:#fff6ee;font-size:20px;line-height:1;padding:2px 6px}
+
 /* My looks. */
 dialog{border:0;border-radius:var(--radius);background-color:var(--card);background-image:var(--linen),linear-gradient(180deg,#fffaf4,#fdf0e4);color:var(--ink);width:min(560px,92%);max-height:80vh;padding:28px;box-shadow:0 40px 80px -30px #0d0420}
 dialog::backdrop{background:#1a0a36b8;backdrop-filter:blur(4px)}

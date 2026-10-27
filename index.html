@@ -13,6 +13,7 @@
 <div class="foreground" aria-hidden="true"></div>
 <header class="topbar"><a class="logo" href="#today"><span class="logo-flower" aria-hidden="true"></span>fashiongirly</a>
 <nav class="tabs" aria-label="Pages"><a href="#today" data-page="today">Today</a><a href="#dress" data-page="dress">Dress her</a><a href="#wardrobe" data-page="wardrobe">Wardrobe</a><button id="lookbook-open" type="button" class="tab-looks">My looks <span id="count">0</span></button></nav></header>
+<div id="update-banner" class="update-banner" role="status" aria-live="polite" hidden><span id="update-text"></span><button id="update-show" type="button">Show them</button><button id="update-later" type="button" aria-label="Not now">×</button></div>
 <main class="sheet">
 <div class="stage-bar">
 <div class="looks" role="group" aria-label="Today's three looks" data-pages="today wardrobe"><button id="look-pick" type="button" class="look" aria-pressed="false">Her pick</button><button id="look-bolder" type="button" class="look" aria-pressed="false">Bolder</button><button id="look-easier" type="button" class="look" aria-pressed="false">Easier</button></div>
@@ -70,6 +71,7 @@
 <div class="card">
 <div id="wardrobe-groups"></div>
 <details class="studies"><summary>Study looks</summary><p class="help">The looks each piece was reviewed in when it was added.</p><div id="outfit-ideas" class="outfit-ideas" aria-label="Try a study look"></div></details>
+<section class="app-version" aria-label="App version"><p class="help">New clothes arrive by themselves.</p><p id="version-status" class="version-status" role="status" aria-live="polite"></p><button id="version-check" type="button" class="filter-clear" hidden>Check now</button></section>
 </div></div>
 </section>
 </main>

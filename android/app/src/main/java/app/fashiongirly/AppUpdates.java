@@ -27,11 +27,13 @@ import java.util.zip.ZipInputStream;
  * build of main to GitHub Pages with version.json (its number: the commit count, as for the APK) and app.zip (the whole
  * build). Now and then this downloads a newer app.zip and unpacks it to files/web/<version>/; the app then serves that
  * copy instead of the one inside the APK, at the same address, so saved looks stay. Without internet, or if anything
- * fails, the app keeps the copy it has.
+ * fails, the app keeps the copy it has. It looks each time the app is opened or brought back (at most every few
+ * minutes), or when the page asks (Check now), and says how it went through status(), which the page shows
+ * (src/doll/updates.js): the user could not tell whether new clothes had arrived (26 October 2026).
  */
 final class AppUpdates {
     static final String SITE = "https://meraw.github.io/fashiongirly/";
-    private static final long CHECK_EVERY = 60 * 60 * 1000L;
+    private static final long CHECK_EVERY = 5 * 60 * 1000L;
     private static final String LAST_CHECK = "lastCheck";
 
     private final File root;
@@ -40,6 +42,13 @@ final class AppUpdates {
     private final ExecutorService worker = Executors.newSingleThreadExecutor();
     /** The downloaded copy being shown, or null for the one inside the APK. Read by the download thread. */
     private volatile File serving;
+    /** How the last check went: idle (none yet), checking, downloading, current or failed. */
+    private volatile String state = "idle";
+    private volatile int latest;
+    private volatile long checkedAt;
+    private volatile boolean busy;
+    /** Told, on the download thread, whenever status() changes. */
+    private volatile Runnable listener;
 
     AppUpdates(Context context) {
         root = new File(context.getFilesDir(), "web");
@@ -74,31 +83,72 @@ final class AppUpdates {
 
     void serve(File dir) {
         serving = dir;
+        changed();
     }
 
-    /** Looks for a newer version in the background, at most once an hour. It is shown the next time the app is opened. */
+    void setListener(Runnable listener) {
+        this.listener = listener;
+    }
+
+    /**
+     * For the page, as JSON: the state of the last check; the version shown now; the newest published one (0 until a
+     * check has read it); a downloaded version that is newer than the one shown (0 if none); and when the last check
+     * finished (milliseconds, 0 if never).
+     */
+    String status() {
+        File shown = serving, best = newest();
+        int version = shown == null ? bundled : versionOf(shown);
+        int ready = best != null && !best.equals(shown) ? versionOf(best) : 0;
+        return "{\"state\":\"" + state + "\",\"version\":" + version + ",\"latest\":" + latest + ",\"ready\":" + ready
+                + ",\"checkedAt\":" + checkedAt + "}";
+    }
+
+    /** Looks for a newer version in the background unless it looked in the last few minutes. */
     void checkSoon() {
         long now = System.currentTimeMillis();
         long last = prefs.getLong(LAST_CHECK, 0);
         if (now - last < CHECK_EVERY && now >= last) return;
-        prefs.edit().putLong(LAST_CHECK, now).apply();
+        check();
+    }
+
+    /** Looks for a newer version now, in the background, and downloads it if there is one. The page may call it too. */
+    synchronized void check() {
+        if (busy) return;
+        busy = true;
+        prefs.edit().putLong(LAST_CHECK, System.currentTimeMillis()).apply();
+        state = "checking";
+        changed();
         worker.execute(() -> {
             tidy();
+            String outcome = "current";
             try {
                 download();
             } catch (IOException | JSONException | RuntimeException e) {
                 // No internet, or Pages is mid-deploy: keep what we have and try again later.
+                outcome = "failed";
             } finally {
                 deleteAll(new File(root, "app.zip"));
                 deleteAll(new File(root, "unpacking"));
+                checkedAt = System.currentTimeMillis();
+                state = outcome;
+                busy = false;
+                changed();
             }
         });
     }
 
+    private void changed() {
+        Runnable r = listener;
+        if (r != null) r.run();
+    }
+
     private void download() throws IOException, JSONException {
         int latest = new JSONObject(new String(fetch("version.json"), StandardCharsets.UTF_8)).getInt("version");
+        this.latest = latest;
         File current = newest();
         if (latest <= (current == null ? bundled : versionOf(current))) return;
+        state = "downloading";
+        changed();
 
         root.mkdirs();
         File zip = new File(root, "app.zip");
