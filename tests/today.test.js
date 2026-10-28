@@ -3,7 +3,9 @@ import assert from 'node:assert/strict';
 import { JSDOM } from 'jsdom';
 import { readFileSync } from 'node:fs';
 import { startStudio } from '../src/doll/app.js';
-import { TODAY_KEY, HISTORY_KEY, PLACE_KEY, WEATHER_KEY, WARMTH_KEY } from '../src/today/today.js';
+import { TODAY_KEY, HISTORY_KEY, PLACE_KEY, WEATHER_KEY, WARMTH_KEY, SAVED_DAYS_KEY } from '../src/today/today.js';
+import { lookKey } from '../src/style/stylist.js';
+import { LOOKBOOK_KEY } from '../src/doll/recipe.js';
 import { LEARNED_KEY } from '../src/style/taste.js';
 import { GARMENTS } from '../src/wardrobe/catalog.js';
 
@@ -203,13 +205,38 @@ test('looks chosen by an older version of her rules are chosen again, for the sa
   again.close();
 });
 
-test('saving a look with the heart teaches her what the user likes', async () => {
-  const p = await open(), r = p.app.getRecipe();
-  click(p.d, 'save');
-  const learned = p.read(LEARNED_KEY);
-  assert.ok(learned.pieces[lead(r)] > 0);
-  assert.ok(Object.keys(learned.pairs).length > 0);
-  p.close();
+test('a look saved today is not suggested exactly this week, and the old counted learning is let go', async () => {
+  const first = await open(), storage = first.saved(), pick = first.read(TODAY_KEY).trio.pick.recipe;
+  click(first.d, 'save');
+  const days = first.read(SAVED_DAYS_KEY);
+  assert.deepEqual(Object.values(days), ['2026-10-09'], 'the save is dated');
+  const saved = first.saved(); first.close();
+  // Choosing again for the same day (as a new version of her rules does): her pick was saved, so it is not her pick now.
+  const old = JSON.parse(saved[TODAY_KEY]); delete old.rules;
+  const again = await open({ now: MORNING + 3600e3, storage: { ...saved, [TODAY_KEY]: JSON.stringify(old), [LEARNED_KEY]: JSON.stringify({ pieces: { [lead(pick)]: 3 }, pairs: {} }) } });
+  try {
+    const trio = again.read(TODAY_KEY).trio;
+    for (const key of ['pick', 'bolder', 'easier']) assert.notEqual(lookKey(trio[key].recipe), lookKey(pick), `${key} is not the saved look`);
+    assert.equal(again.read(LEARNED_KEY), null, 'what was counted before is discarded');
+  } finally { again.close(); }
+  // Without the save, the same day chooses the same pick again.
+  const old2 = JSON.parse(storage[TODAY_KEY]); delete old2.rules;
+  const plain = await open({ now: MORNING + 3600e3, storage: { ...storage, [TODAY_KEY]: JSON.stringify(old2) } });
+  try { assert.equal(lookKey(plain.read(TODAY_KEY).trio.pick.recipe), lookKey(pick)); } finally { plain.close(); }
+});
+
+test('a saved look is not suggested exactly for a week after it was saved or worn', async () => {
+  const first = await open(), storage = first.saved(), pick = first.read(TODAY_KEY).trio.pick.recipe; first.close();
+  const rechoose = async extra => {
+    const old = JSON.parse(storage[TODAY_KEY]); delete old.rules;
+    const p = await open({ now: MORNING + 3600e3, storage: { ...storage, [TODAY_KEY]: JSON.stringify(old), [LOOKBOOK_KEY]: JSON.stringify([pick]), ...extra } });
+    try { return lookKey(p.read(TODAY_KEY).trio.pick.recipe); } finally { p.close(); }
+  };
+  const savedOn = day => ({ [SAVED_DAYS_KEY]: JSON.stringify({ [lookKey(pick)]: day }) });
+  assert.notEqual(await rechoose(savedOn('2026-10-06')), lookKey(pick), 'saved three days ago');
+  assert.notEqual(await rechoose({ [HISTORY_KEY]: JSON.stringify([{ day: '2026-10-05', recipe: pick }]) }), lookKey(pick), 'worn four days ago');
+  // After the week the look may come again: she chooses as if it had never been saved that day.
+  assert.equal(await rechoose(savedOn('2026-10-01')), await rechoose({}), 'saved eight days ago: no longer held back');
 });
 
 test('cached mood proposals and extra ideas migrate to the original ranked trio without clearing personal data', async () => {

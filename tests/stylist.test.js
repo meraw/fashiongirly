@@ -4,8 +4,8 @@ import { GARMENTS } from '../src/wardrobe/catalog.js';
 import { cleanRecipe } from '../src/doll/recipe.js';
 import { makeOutfit, disposeObject } from '../src/doll/model.js';
 import { stylingFacts, wardrobe, readColour, readBrand } from '../src/style/facts.js';
-import { composeOutfit, needsFor, adjustOutfit, composeTrio, outfitOf } from '../src/style/stylist.js';
-import { learn, cleanLearned, learnedBonus, boldness } from '../src/style/taste.js';
+import { composeOutfit, needsFor, adjustOutfit, composeTrio, outfitOf, lookKey, lookPieces } from '../src/style/stylist.js';
+import { learn, cleanLearned, learnedBonus, learnedFromLooks, LEARNED_CAP, boldness } from '../src/style/taste.js';
 import { PRESETS, presetConditions, cleanConditions } from '../src/weather/conditions.js';
 
 test('every garment gives the stylist readable facts on one warmth scale', () => {
@@ -188,6 +188,44 @@ test('saved looks teach her; pieces set aside count against them', () => {
   for (let i = 0; i < 20; i++) learned = learn(learned, 'saved', ['a']);
   assert.equal(cleanLearned(learned).pieces.a, 3, 'learning is bounded');
   assert.deepEqual(cleanLearned('nonsense'), { pieces: {}, pairs: {} });
+});
+
+test('My looks teach her once per look: a look saved twice counts once, a removed one not at all', () => {
+  const a = ['jacket', 'jeans', 'shoes'], b = ['dress', 'boots'];
+  assert.deepEqual(learnedFromLooks([a, a]), learnedFromLooks([a]), 'the same look twice is one look');
+  assert.deepEqual(learnedFromLooks([[...a].reverse()]), learnedFromLooks([a]), 'whatever the order of its pieces');
+  assert.deepEqual(learnedFromLooks([b]), learnedFromLooks([a, b].slice(1)), 'removing a look takes it away');
+  assert.deepEqual(learnedFromLooks([]), { pieces: {}, pairs: {} });
+  assert.ok(learnedBonus(learnedFromLooks([a]), ['jacket', 'jeans', 'top']) > 0);
+});
+
+test('a saved look is a nudge: pieces worn this week earn nothing, and it never outweighs a repeat', () => {
+  const learned = learnedFromLooks([['jacket', 'jeans', 'shoes'], ['jacket', 'jeans', 'shoes', 'top']]);
+  const all = learnedBonus(learned, ['jacket', 'jeans', 'shoes', 'top']);
+  assert.ok(all > 0 && all <= LEARNED_CAP, `capped at ${LEARNED_CAP}: ${all}`);
+  assert.equal(learnedBonus(learned, ['jacket', 'jeans', 'shoes'], new Set(['jacket', 'jeans', 'shoes'])), 0, 'all worn this week');
+  const one = learnedFromLooks([['jacket', 'jeans', 'shoes']]);
+  assert.equal(learnedBonus(one, ['jacket', 'jeans', 'shoes'], new Set(['jacket'])), learnedBonus(one, ['jeans', 'shoes']), 'the worn jacket and its pairs earn nothing');
+  assert.ok(LEARNED_CAP < .9, 'less than wearing one piece of yesterday again costs');
+  // In a run of days, the pieces she wore yesterday come back no more often for being in a saved look.
+  const conditions = presetConditions('chilly', '2026-11-03');
+  for (const seed of [1, 2, 3, 4, 5]) {
+    const yesterday = composeOutfit(presetConditions('chilly', '2026-11-02'), { seed: seed + 50 }).recipe;
+    const saved = learnedFromLooks([lookPieces(yesterday), lookPieces(yesterday)]);
+    const without = composeOutfit(conditions, { seed, recent: [yesterday] }).recipe, withLook = composeOutfit(conditions, { seed, recent: [yesterday], learned: saved }).recipe;
+    assert.equal(lookKey(withLook), lookKey(without), `seed ${seed}: a look worn yesterday changes nothing today by being saved`);
+  }
+});
+
+test('a saved look is not suggested exactly within its week', () => {
+  for (const [id, seed] of [['mild', 1], ['chilly', 2], ['cold', 3], ['rainy', 4]]) {
+    const conditions = presetConditions(id, '2026-11-03'), first = composeOutfit(conditions, { seed });
+    const blocked = lookKey(first.recipe), again = composeOutfit(conditions, { seed, notExactly: [blocked] });
+    assert.ok(again && lookKey(again.recipe) !== blocked, `${id}: she chooses another look`);
+    const trio = composeTrio(conditions, { seed, notExactly: [blocked] });
+    for (const key of ['pick', 'bolder', 'easier']) assert.notEqual(lookKey(trio[key].recipe), blocked, `${id}: not as ${key} either`);
+  }
+  assert.equal(lookKey(cleanRecipe({ topId: 'classic', hairId: 'high-bun' })), lookKey(cleanRecipe({})), 'hair is not part of a look');
 });
 
 test('her picks build on the doll', () => {
