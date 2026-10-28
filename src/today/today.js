@@ -5,19 +5,24 @@
 // the user chooses the weather. The card says what she dressed for, and "Too warm" and "Too cool" dress her a step
 // lighter or warmer, remembered for the days after: she dresses as if the forecast were that much warmer or cooler
 // (the user, 12 October 2026). Everything she remembers stays in this browser's storage.
-import { composeTrio, RULES_VERSION } from '../style/stylist.js';
-import { LEARNED_KEY, learn } from '../style/taste.js';
+// The looks in My looks inspire her, a little and only with pieces not worn this week; she does not suggest one of them
+// exactly within a week of it being saved or worn (the user, 28 October 2026, after one saved look came back daily).
+import { composeTrio, lookKey, lookPieces, RULES_VERSION } from '../style/stylist.js';
+import { LEARNED_KEY, learnedFromLooks } from '../style/taste.js';
 import { mountLookCards } from './look-cards.js';
 import { swatch } from '../doll/swatch.js';
 import { dayKey, describe, cleanConditions, presetOver, PRESETS, forPerson, PERSONAL_LIMIT, inTheSun, isRainy } from '../weather/conditions.js';
 import { fetchConditions, findPlace } from '../weather/open-meteo.js';
-import { cleanRecipe } from '../doll/recipe.js';
+import { cleanRecipe, LOOKBOOK_KEY } from '../doll/recipe.js';
 import { hairName, HAIR_COLOUR } from '../hair/catalog.js';
 import { paintSky, skyKind, codeKind, weatherIcon } from './sky.js';
 import { worldFor, skyWeights, paintWorld, WORLD_IDS } from './world.js';
 
 export const TODAY_KEY = 'fashiongirly.today.v2', HISTORY_KEY = 'fashiongirly.days.v1', PLACE_KEY = 'fashiongirly.place.v1', WEATHER_KEY = 'fashiongirly.weather.v1', WARMTH_KEY = 'fashiongirly.warmth.v1';
 export const LOOKS = [['pick', 'Her pick'], ['bolder', 'Bolder'], ['easier', 'Easier']];
+// The day each look in My looks was last saved, by lookKey(), for the week she does not suggest it exactly.
+export const SAVED_DAYS_KEY = 'fashiongirly.saved-days.v1';
+const WEEK = 7, daysBetween = (a, b) => Math.round((Date.parse(b) - Date.parse(a)) / 864e5);
 const TITLES = { pick: 'Her pick for today.', bolder: 'Her bolder look.', easier: 'Her easier look.' };
 const SLOT_NAMES = { dress: 'Dress', top: 'Top', under: 'Under it', bottom: 'Bottoms', shoes: 'Shoes', outerwear: 'Outerwear', hair: 'Hair' };
 const seedOf = day => [...day].reduce((h, c) => Math.imul(h ^ c.charCodeAt(0), 16777619) >>> 0, 2166136261);
@@ -38,6 +43,8 @@ export function mountToday(doc, { storage = null, getRecipe, wear, getUnavailabl
   const read = (key, fallback) => { try { const v = JSON.parse(storage?.getItem(key) || 'null'); return v ?? fallback; } catch { return fallback; } };
   const write = (key, value) => { try { storage?.setItem(key, JSON.stringify(value)); } catch {} };
   let state = read(TODAY_KEY, null), busy = false, disposed = false;
+  // What she learned by counting saves, never undone when a look was removed, is replaced by My looks as it is.
+  try { storage?.removeItem(LEARNED_KEY); } catch {}
   // A preview of any world at any hour, for review: ?world=rain-garden&at=21:30 in the address.
   const ask = new URLSearchParams(doc.defaultView?.location?.search || ''), askWorld = WORLD_IDS.includes(ask.get('world')) ? ask.get('world') : null;
   const askAt = /^([01]\d|2[0-3]):[0-5]\d$/.test(ask.get('at') || '') ? ask.get('at') : null;
@@ -127,9 +134,18 @@ export function mountToday(doc, { storage = null, getRecipe, wear, getUnavailabl
   }
 
   const recent = () => read(HISTORY_KEY, []).filter(h => h?.day && h.day < state.day).map(h => h.recipe).slice(0, 7);
+  // My looks as it is now: what inspires her, and which of its looks she may not suggest exactly this week.
+  const savedLooks = () => { const v = read(LOOKBOOK_KEY, []); return Array.isArray(v) ? v.slice(0, 24).map(cleanRecipe) : []; };
+  const inWeek = day => typeof day === 'string' && daysBetween(day, state.day) >= 0 && daysBetween(day, state.day) < WEEK;
+  function fromMyLooks() {
+    const looks = savedLooks(), savedOn = read(SAVED_DAYS_KEY, {}) || {};
+    const worn = new Set(read(HISTORY_KEY, []).filter(h => inWeek(h?.day) && h.recipe).map(h => lookKey(cleanRecipe(h.recipe))));
+    const notExactly = looks.map(lookKey).filter(k => worn.has(k) || inWeek(savedOn[k]));
+    return { learned: learnedFromLooks(looks.map(lookPieces)), notExactly };
+  }
   // Choose the day's three looks for the current weather and wear her pick.
   function chooseLooks({ putOn = true } = {}) {
-    const trio = composeTrio(dressFor(), { avoid: getUnavailable(), seed: state.seed, recent: recent(), learned: read(LEARNED_KEY, null), current: getRecipe() });
+    const trio = composeTrio(dressFor(), { avoid: getUnavailable(), seed: state.seed, recent: recent(), ...fromMyLooks(), current: getRecipe() });
     Object.assign(state, { trio, choice: trio && putOn ? 'pick' : null, rules: RULES_VERSION });
     save();
     if (!trio) { render(); status('Nothing in the wardrobe suits that weather.'); return false; }
@@ -151,7 +167,7 @@ export function mountToday(doc, { storage = null, getRecipe, wear, getUnavailabl
     if (!state?.trio || busy) return;
     const key = state.choice || 'pick', was = current()?.warmth.total ?? 0;
     for (let o = offset() + 2 * direction; Math.abs(o) <= PERSONAL_LIMIT; o += 2 * direction) {
-      const trio = composeTrio(forPerson(state.conditions, o), { avoid: getUnavailable(), seed: state.seed, recent: recent(), learned: read(LEARNED_KEY, null), current: getRecipe() });
+      const trio = composeTrio(forPerson(state.conditions, o), { avoid: getUnavailable(), seed: state.seed, recent: recent(), ...fromMyLooks(), current: getRecipe() });
       if (!trio || (was - trio[key].warmth.total) * direction <= 0) continue;
       write(WARMTH_KEY, o);
       Object.assign(state, { trio, choice: key, rules: RULES_VERSION });
@@ -236,8 +252,11 @@ export function mountToday(doc, { storage = null, getRecipe, wear, getUnavailabl
     } catch (error) { status(`${error.message} Choose today's weather instead.`); $('today-manual').open = true; }
     finally { setBusy(false); }
   };
-  // Saving a look teaches her: its pieces and pairings become more likely.
-  const onSave = () => { const r = cleanRecipe(getRecipe()); const ids = [r.dressId, ...(r.dressId === 'none' ? [r.topId, r.underTopId, r.bottomId] : []), r.shoesId, r.outerwearId].filter(id => id && id !== 'none' && id !== 'classic'); write(LEARNED_KEY, learn(read(LEARNED_KEY, null), 'saved', ids)); };
+  // Saving a look starts its week: she does not suggest it exactly for seven days. Days older than two weeks are let go.
+  const onSave = () => {
+    const today = state?.day ?? dayKey(now()), kept = Object.entries(read(SAVED_DAYS_KEY, {}) || {}).filter(([, day]) => typeof day === 'string' && daysBetween(day, today) < 2 * WEEK);
+    write(SAVED_DAYS_KEY, { ...Object.fromEntries(kept), [lookKey(cleanRecipe(getRecipe()))]: today });
+  };
   $('save')?.addEventListener('click', onSave);
   // A phone left open overnight: on coming back after 5:00 she dresses for the new day.
   const onVisible = () => { world(); if (doc.visibilityState === 'hidden' || busy) return; if (state?.day !== dayKey(now())) dressForToday(); else recheck(); };
