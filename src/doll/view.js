@@ -5,6 +5,8 @@ import { makeDoll, makeOutfit, disposeObject, fitDoll, setExpression } from './m
 import { expressionFor } from './face.js';
 import { canTuck, cleanRecipe } from './recipe.js';
 import { lightScene } from './light.js';
+import { createOcclusion } from './occlusion.js';
+import { finish } from './finish.js';
 import { pose, attitudeOf, headPose } from './pose.js';
 import { wantsTwirl, spinAt, TWIRL_MS } from './twirl.js';
 import { createWind } from '../hair/wind.js';
@@ -59,7 +61,9 @@ export async function createDollView(host, recipe) {
   const texturesFor=r=>Promise.all(worn(r).map(loadTexture));
   await texturesFor(recipe);
   let renderer;
-  try { renderer=new T.WebGLRenderer({antialias:true,alpha:true}); }
+  // Her picture is drawn with its own antialiasing and then copied to the canvas with the occlusion laid over it
+  // (occlusion.js), so the canvas itself needs neither antialiasing nor a depth buffer.
+  try { renderer=new T.WebGLRenderer({antialias:false,alpha:true,depth:false}); }
   catch { Object.values(atlas).forEach(t=>t.dispose());throw new Error('This device could not start the 3D view. Try a browser with WebGL 2 enabled.'); }
   renderer.setClearColor(0x000000,0);renderer.outputColorSpace=T.SRGBColorSpace;
   renderer.toneMapping=T.ACESFilmicToneMapping;renderer.toneMappingExposure=1.2;renderer.shadowMap.enabled=true;renderer.shadowMap.type=T.PCFSoftShadowMap;
@@ -75,13 +79,17 @@ export async function createDollView(host, recipe) {
   // her world's units (the wardrobe's own group is scaled to her toy proportions, so its local space would stretch the
   // field), less the lift her shoes give her. Each part keeps its unposed shape, so she can change attitude.
   const doc=host.ownerDocument;
+  // Where things meet, light is shut out (occlusion.js); ?occlusion=off draws her without it, to compare, and
+  // ?occlusion=show the occlusion alone. Everything she is made of and wears is finished (finish.js) before it is
+  // posed: one shading across seams, filtered textures.
+  const look=new URLSearchParams(doc.defaultView?.location?.search||'').get('occlusion'),occlusion=createOcclusion(renderer,{occlusion:look!=='off',show:look==='show'}),anisotropy=Math.min(8,renderer.capabilities.getMaxAnisotropy());
   const model=new T.Group();scene.add(model);const doll=makeDoll();model.add(doll);const hair=createHairController(doll),head=doll.getObjectByName('doll-head');
   let attitude=attitudeOf(doc.documentElement.dataset.attitude),attitudeNext=attitude,wind=createWind(null);
   // Pose her body and hair in the attitude, her head turned for it; the wind takes the hair as posed.
-  const settle=()=>{wind.calm();const r=headPose(attitude);head.rotation.set(r.x,r.y,r.z);pose(doll,model,doll.position.y,attitude);wind=createWind(doll.getObjectByName('outfit-hair'));};
+  const settle=()=>{wind.calm();finish(doll,{anisotropy});const r=headPose(attitude);head.rotation.set(r.x,r.y,r.z);pose(doll,model,doll.position.y,attitude);wind=createWind(doll.getObjectByName('outfit-hair'));};
   // A new outfit, posed for the shoes it brings and the attitude it will be worn in, hidden until it is put on.
   let outfit=null;
-  const prepare=(next,a)=>{const worn=makeOutfit(next,atlas);worn.visible=false;model.add(worn);fitDoll(doll,worn);pose(worn,model,doll.position.y,a);if(outfit)fitDoll(doll,outfit);return worn;};
+  const prepare=(next,a)=>{const worn=finish(makeOutfit(next,atlas),{anisotropy});worn.visible=false;model.add(worn);fitDoll(doll,worn);pose(worn,model,doll.position.y,a);if(outfit)fitDoll(doll,outfit);return worn;};
   hair.update(recipe.hairId);outfit=prepare(recipe,attitude);outfit.visible=true;fitDoll(doll,outfit);settle();let current=cleanRecipe(recipe);
   const clothingKey=state=>JSON.stringify({...state,hairId:undefined});let lastClothing=clothingKey(recipe);
   let angle=-.12,target=angle,frame=null,drag=null,pending=0,spin=0;
@@ -91,7 +99,7 @@ export async function createDollView(host, recipe) {
   const still=()=>!!doc.defaultView?.matchMedia?.('(prefers-reduced-motion: reduce)')?.matches;
   const draw=()=>{frame=null;if(closed)return;model.rotation.y=angle+spin;
     if(windy&&wind.active&&!still()){model.updateMatrixWorld(true);head.getWorldQuaternion(headTurn).invert();windDir.set(1,0,0).applyQuaternion(headTurn);windDir.y=0;windDir.normalize();wind.update((performance.now()-windStart)/1000,windDir,windStrength);}
-    renderer.render(scene,camera);hasDrawn=true;
+    occlusion.render(scene,camera);hasDrawn=true;
     if(!inFlight&&!twirl&&attitude===attitudeNext)settledWaiters.splice(0).forEach(resolve=>resolve(true));};
   const render=()=>{if(!closed&&frame==null)frame=requestAnimationFrame(draw);};
   // While it is windy she is drawn about thirty times a second; otherwise only when something changes.
@@ -176,7 +184,7 @@ export async function createDollView(host, recipe) {
       render();},
     whenSettled(){if(closed)return Promise.resolve(false);if(hasDrawn&&!inFlight&&!twirl&&attitude===attitudeNext)return Promise.resolve(true);return new Promise(resolve=>{settledWaiters.push(resolve);render();});},
     turn(degrees){target=degrees*Math.PI/180;angle=target;render();},
-    dispose(){if(closed)return;closed=true;settledWaiters.splice(0).forEach(resolve=>resolve(false));cancelAnimationFrame(frame);cancelAnimationFrame(hover);observer.disconnect();renderer.domElement.removeEventListener('pointerdown',down);renderer.domElement.removeEventListener('pointermove',move);renderer.domElement.removeEventListener('pointerup',up);renderer.domElement.removeEventListener('pointercancel',up);renderer.domElement.removeEventListener('webglcontextlost',lost);renderer.domElement.removeEventListener('webglcontextrestored',restored);doc.removeEventListener('weather-change',onWeather);doc.removeEventListener('world-change',onWorld);doc.removeEventListener('attitude-change',onAttitude);cancelAnimationFrame(twirlFrame);cancelAnimationFrame(windFrame);hair.dispose();disposeObject(model);Object.values(atlas).forEach(t=>t.dispose());light.dispose();renderer.dispose();renderer.domElement.remove();},
+    dispose(){if(closed)return;closed=true;settledWaiters.splice(0).forEach(resolve=>resolve(false));cancelAnimationFrame(frame);cancelAnimationFrame(hover);observer.disconnect();renderer.domElement.removeEventListener('pointerdown',down);renderer.domElement.removeEventListener('pointermove',move);renderer.domElement.removeEventListener('pointerup',up);renderer.domElement.removeEventListener('pointercancel',up);renderer.domElement.removeEventListener('webglcontextlost',lost);renderer.domElement.removeEventListener('webglcontextrestored',restored);doc.removeEventListener('weather-change',onWeather);doc.removeEventListener('world-change',onWorld);doc.removeEventListener('attitude-change',onAttitude);cancelAnimationFrame(twirlFrame);cancelAnimationFrame(windFrame);hair.dispose();disposeObject(model);Object.values(atlas).forEach(t=>t.dispose());light.dispose();occlusion.dispose();renderer.dispose();renderer.domElement.remove();},
   };
 }
 
