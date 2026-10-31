@@ -77,6 +77,18 @@ export function chooseHair(o, needs, rng, { keep, recentHair = [] } = {}) {
 }
 
 const piecesOf = o => [o.top, o.under, o.bottom, o.dress, o.shoes, o.outer].filter(Boolean);
+// A look's pieces, the same for an outfit she is weighing and for a recipe (a saved look, a day she wore): two looks
+// with the same key are the same look, whatever the hair or the tuck.
+const keyOf = (dress, top, under, bottom, shoes, outer) => (dress ? [dress, '-', '-', '-', shoes, outer] : ['-', top, under, bottom, shoes, outer]).join('|');
+const outfitKey = o => keyOf(o.dress?.id, o.top?.id ?? '-', o.under?.id ?? '-', o.bottom?.id ?? '-', o.shoes?.id ?? '-', o.outer?.id ?? '-');
+export function lookKey(r) {
+  const id = v => !v || v === 'none' || v === 'classic' ? '-' : v;
+  return keyOf(id(r.dressId) === '-' ? null : r.dressId, id(r.topId), id(r.underTopId), id(r.bottomId), id(r.shoesId), id(r.outerwearId));
+}
+// The wardrobe pieces of a recipe (the built-in classic pieces are no garment).
+export function lookPieces(r) {
+  return [r.dressId, ...(r.dressId === 'none' ? [r.topId, r.underTopId, r.bottomId] : []), r.shoesId, r.outerwearId].filter(id => id && id !== 'none' && id !== 'classic');
+}
 // How recently a piece was worn: yesterday's pieces are least likely, then the last few days; ideas already shown
 // today are avoided too, so "another idea" brings something new.
 function novelty(o, recent, shownToday) {
@@ -122,13 +134,16 @@ function context(conditions, options) {
   const fits = (warmth, tolerance) => { const d = warmth - needs.target; return d <= (warmDay ? tolerance / 2 : tolerance) && -d <= tolerance; };
   const misfit = warmth => { const d = warmth - needs.target; return warmDay && d > 0 ? 1.25 * d : .5 * Math.abs(d); };
   const recentRecipes = recent.map(r => ({ ...r })), shown = shownToday.map(r => ({ ...r }));
+  const wornLately = new Set(recent.flatMap(r => Object.values(r)));
+  // Saved looks she may not suggest exactly today: saved or worn in the last week (the user, 28 October 2026).
+  const notExactly = new Set(options.notExactly || []), allowed = o => !notExactly.has(outfitKey(o));
   const score = (o, final) => {
     const taste = scoreTaste(o, daring);
-    let total = taste.total - novelty(o, recentRecipes, shown) + learnedBonus(learned, piecesOf(o).map(p => p.id));
+    let total = taste.total - novelty(o, recentRecipes, shown) + learnedBonus(learned, piecesOf(o).map(p => p.id), wornLately);
     if (final) total -= misfit(outfitWarmth(o));
     return { total, reasons: taste.reasons };
   };
-  return { seed, daring, keep, recent, needs, rng, shoes, outerOptions, tops, bottoms, dresses, underTops, openFor, carried, outerWarmth, fits, score, w };
+  return { seed, daring, keep, recent, needs, rng, shoes, outerOptions, tops, bottoms, dresses, underTops, openFor, carried, outerWarmth, fits, score, allowed, w };
 }
 
 // Daring sets how bold she goes, measured on the outfits themselves: among the outfits that suit the weather, an easy
@@ -165,7 +180,8 @@ function finish(o, needs, s, rng, { keep = {}, recent = [], current = DEFAULT, h
  *   avoid      ids she must not wear today
  *   recent     recipes of the last few days, newest first
  *   shownToday recipes already suggested today
- *   learned    what the user's reactions taught her (taste.js)
+ *   learned    what the looks in My looks teach her (taste.js learnedFromLooks)
+ *   notExactly lookKey()s of saved looks she must not suggest exactly today
  *   current    the recipe she is wearing (keeps its top and bottoms under a dress)
  * Returns { recipe, reasons, pieces, warmth: { total, target, feels }, score, boldness }, or null; warmth.feels is
  * the temperature she dressed for (Today shows it).
@@ -186,7 +202,7 @@ export function composeOutfit(conditions, options = {}) {
     let stage = bases.filter(feasible).map(o => ({ o, s: c.score(o) }));
     stage = beam(stage, 60).flatMap(({ o }) => c.shoes.map(s => ({ ...o, shoes: s }))).map(o => ({ o, s: c.score(o) }));
     stage = beam(stage, 60).flatMap(({ o }) => c.outerOptions.map(outer => ({ ...o, outer, open: c.openFor(outer), carried: c.carried })))
-      .filter(o => c.fits(outfitWarmth(o), tolerance)).map(o => ({ o, s: c.score(o, true) }));
+      .filter(o => c.fits(outfitWarmth(o), tolerance) && c.allowed(o)).map(o => ({ o, s: c.score(o, true) }));
     if (!stage.length) continue;
     pullToDaring(stage, daring).sort((a, b) => b.s.total - a.s.total);
     // Choose among the best few, favouring the higher scores, so she is not the same every morning. Only the best
@@ -250,7 +266,7 @@ function smallestChange(conditions, recipe, options, slots, want) {
     });
   };
   // A change suits the day as a new look would (c.fits), or at least no worse than the look she is wearing.
-  const off = Math.abs(outfitWarmth(now) - needs.target), fits = o => c.fits(outfitWarmth(o), 1.5) || Math.abs(outfitWarmth(o) - needs.target) <= off;
+  const off = Math.abs(outfitWarmth(now) - needs.target), fits = o => (c.fits(outfitWarmth(o), 1.5) || Math.abs(outfitWarmth(o) - needs.target) <= off) && c.allowed(o);
   let found = [];
   const one = slots.flatMap(swaps).filter(fits);
   found = one.filter(want);
@@ -282,7 +298,9 @@ export const DARING = { easier: .08, pick: .5, bolder: .95 };
 // change to how she dresses shows at once rather than the next morning: raise it with such a change.
 // 2 (12 October 2026): never two pieces of one brand.
 // 4: restore the fixed Her pick / Bolder / Easier trio after the mood experiment.
-export const RULES_VERSION = 4;
+// 5 (28 October 2026): saved looks inspire rather than repeat (learned from My looks as it is, pieces worn this week
+// left out, capped), and a saved look is not suggested exactly within a week of being saved or worn.
+export const RULES_VERSION = 5;
 export function composeTrio(conditions, options = {}) {
   const pick = composeOutfit(conditions, { ...options, daring: DARING.pick });
   if (!pick) return null;

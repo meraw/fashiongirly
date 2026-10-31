@@ -7,8 +7,9 @@
 // 9 October 2026, hence the default. To change her taste, change the principles or their weights here; the user can
 // ask for that in words ("she should love colour clashes more", "never two prints at once").
 //
-// Her reactions to looks are also remembered in this browser (`learn()`): a saved look makes its pieces and pairings
-// more likely, a piece set aside today less likely. None of this is AI; it is a set of written rules.
+// The looks in My looks also inspire her (`learnedFromLooks()`): their pieces and pairings become a little more likely,
+// but only pieces she has not worn in the last week, and never by more than LEARNED_CAP, so a saved look adds variety
+// rather than coming back every day (the user, 28 October 2026). None of this is AI; it is a set of written rules.
 export const DEFAULT_DARING = .5;
 
 const hueGap = (a, b) => { const d = Math.abs(a - b) % 360; return d > 180 ? 360 - d : d; };
@@ -148,8 +149,12 @@ export function scoreTaste(outfit, daring) {
   return { total, reasons };
 }
 
-// What she has learned from the user's reactions in this browser: pieces and pairs they saved, and pieces set aside.
+// What she learned before 28 October 2026 was counted up with every save and never undone, even when a look was
+// removed from My looks, so one look saved twice came back day after day. It is now read from My looks each time
+// (learnedFromLooks); the old count, kept under this key, is discarded.
 export const LEARNED_KEY = 'fashiongirly.taste.v1';
+// The most a saved look can add to an outfit's score: less than wearing one piece of yesterday's look again costs.
+export const LEARNED_CAP = .5;
 const clamp = v => Math.max(-3, Math.min(3, v));
 export function cleanLearned(value) {
   const v = value && typeof value === 'object' ? value : {}, out = { pieces: {}, pairs: {} };
@@ -157,11 +162,14 @@ export function cleanLearned(value) {
   return out;
 }
 const pairKey = (a, b) => a < b ? `${a}|${b}` : `${b}|${a}`;
-export function learnedBonus(learned, ids) {
+// `recent` holds the ids worn in the last week: those earn nothing, alone or in a pair, so a saved look never makes
+// her repeat what was just worn.
+export function learnedBonus(learned, ids, recent = new Set()) {
   let bonus = 0;
-  for (const id of ids) bonus += .25 * (learned.pieces[id] || 0);
-  for (let i = 0; i < ids.length; i++) for (let j = i + 1; j < ids.length; j++) bonus += .35 * (learned.pairs[pairKey(ids[i], ids[j])] || 0);
-  return bonus;
+  const fresh = ids.filter(id => !recent.has(id));
+  for (const id of fresh) bonus += .25 * (learned.pieces[id] || 0);
+  for (let i = 0; i < fresh.length; i++) for (let j = i + 1; j < fresh.length; j++) bonus += .35 * (learned.pairs[pairKey(fresh[i], fresh[j])] || 0);
+  return Math.max(-LEARNED_CAP, Math.min(LEARNED_CAP, bonus));
 }
 // A saved look: its pieces and their pairings go up. A piece set aside: it goes down a little.
 export function learn(learned, event, ids) {
@@ -172,4 +180,16 @@ export function learn(learned, event, ids) {
   }
   if (event === 'set-aside') for (const id of ids) next.pieces[id] = clamp((next.pieces[id] || 0) - .5);
   return next;
+}
+// What the looks in My looks teach her, each look's pieces given once: a look saved twice counts once, and a removed
+// look no longer counts at all.
+export function learnedFromLooks(looks) {
+  let learned = null;
+  const seen = new Set();
+  for (const ids of looks) {
+    const key = [...new Set(ids)].sort().join('|');
+    if (!key || seen.has(key)) continue;
+    seen.add(key); learned = learn(learned, 'saved', [...new Set(ids)]);
+  }
+  return cleanLearned(learned);
 }
