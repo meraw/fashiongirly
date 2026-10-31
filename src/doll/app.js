@@ -1,6 +1,6 @@
 import { mountHairControls } from '../hair/controls.js';
 import { hairName } from '../hair/catalog.js';
-import { DEFAULT, SWATCHES, OUTFITS, cleanRecipe, editRecipe, canTuck, tuckable } from './recipe.js';
+import { DEFAULT, SWATCHES, OUTFITS, LOOKBOOK_KEY, cleanRecipe, editRecipe, canTuck, tuckable } from './recipe.js';
 import { GARMENTS } from '../wardrobe/catalog.js';
 import { createWardrobe } from '../wardrobe/ownership.js';
 import { mountToday } from '../today/today.js';
@@ -9,7 +9,7 @@ import { mountWardrobe } from './wardrobe-page.js';
 import { mountPicker } from './picker.js';
 import { validImage } from '../today/look-cards.js';
 import { mountUpdates } from './updates.js';
-const KEY='fashiongirly.plush-draft.v1', BOOK='fashiongirly.plush-looks.v1';
+const KEY='fashiongirly.plush-draft.v1', BOOK=LOOKBOOK_KEY;
 export async function startStudio(doc=document, makeView, options={}) {
   const $=id=>doc.getElementById(id);let storage;
   try { storage=doc.defaultView.localStorage; } catch { storage=null; }

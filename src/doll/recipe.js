@@ -7,6 +7,8 @@ import { ADIDAS_SUPERSTAR_PINK_ID } from '../wardrobe/catalog.js';
 import { MICKEY_LONG_TEE_ID, DESIGUAL_SPLIT_FLORAL_SHIRT_ID, MANGO_DOT_SHIRT_ID, LEVIS_FLORAL_LOGO_SWEATSHIRT_ID, PINK_YOKE_SHIRT_ID, STRIPE_SNAP_JUMPER_ID, DESIGUAL_LIFE_AWESOME_ID } from '../wardrobe/catalog.js';
 import { PB_CHENILLE_ID } from '../wardrobe/catalog.js';
 import { DESIGUAL_MOUNTAIN_SHIRT_ID, ADIDAS_CROPPED_HOODIE_ID, LEVIS_PLAID_FLANNEL_ID, DESIGUAL_RUGBY_ID } from '../wardrobe/catalog.js';
+// My looks, in this browser: up to 24 saved recipes, newest first (src/doll/app.js). The daily looks read them too.
+export const LOOKBOOK_KEY = 'fashiongirly.plush-looks.v1';
 export const DEFAULT = Object.freeze({ sweater: '#bf303e', trousers: '#283c59', sleeve: .74, hem: .3, barrel: .78, knit: true, shirt: true, skirt: false, skirtColour: '#bd9bc8', topId: 'classic', bottomId: 'classic', shoesId: 'classic', underTopId: 'none', dressId: 'none', outerwearId: 'none', outerwearOpen: false, outerwearInsert: true, tucked: false, hairId: DEFAULT_HAIR_ID });
 // Tops that can be tucked in: shirts, tees and fitted tops long enough to reach past the waistband. Jumpers,
 // sweatshirts, hoodies and cardigans are worn loose, and a cropped top ends above the waistband. A catalog entry can
