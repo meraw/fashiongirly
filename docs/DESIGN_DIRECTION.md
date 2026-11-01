@@ -300,3 +300,34 @@ The interface:
 - 12 October 2026: her hands and body are sewn from her head's pile too (`plush(…, { pile: SKIN_PILE })` in
   `makeDoll`), which closes the open point about the nap above. The nap had drawn faint streaks along each piece's uv,
   crowding at the tip of a mitten; the difference shows only very close up, so nothing changes at phone size.
+- 31 October 2026, a substantial improvement of her and her clothes (the user's request). Judged on renders of the
+  same outfits before and after (the Rose sweatshirt study, and six outfits across every slot and five hairstyles),
+  phone and close up, front, side and back. Two things made everything she wears look drawn rather than photographed,
+  and both are fixed for her and every garment at once, with no garment builder changed:
+  - No light was shut out where things meet. Now `src/doll/occlusion.js` darkens, from the depth of what is on screen,
+    whatever the surfaces round a point rise above (scalable ambient obscurance): under her head on her shoulders,
+    under the fringe and beside the bob, between her arms and her body, in cuffs and collars, between her legs, in the
+    folds of her clothes, and round her soles on the ground, where the painted meadow is darkened through the canvas.
+    A curved surface never rises above itself, so the rims of her head and her clothes stay clean. Pale surfaces get
+    some of that light back from round them, in their own colour, as in a photograph: her face and cream fleece keep
+    their light and a crease in her skin stays warm, while dark hair and denim show their creases (a first setting
+    that darkened every colour alike made her face greyer). She is drawn into a
+    picture of her own first, exactly as the screen would have it, and copied to the screen with the occlusion laid
+    over it: with the occlusion off the copy is identical to the old drawing, pixel for pixel (checked on the Rose
+    study), so every approved garment keeps its colours wherever nothing is shut out. `?occlusion=off` draws her
+    without it, to compare, and `?occlusion=show` shows it alone in greys. The look portraits use it too.
+  - Seams in the shading and textures read pixel by pixel. `src/doll/finish.js`, laid on after each outfit is built
+    and before it is posed, gives the vertices of one point one direction where they face nearly the same way (the
+    front seam of every ring-built garment, the seams and poles of her head and the spheres she is made of), and
+    filters the garments' data textures (282 bump maps and 16 prints were read with their nearest pixel and no smaller
+    copies: steps up close, sparkle at phone size), keeping them sharp at a slant. Textures that cut holes (a mesh, a
+    crochet) are left as they are. Nothing is moved.
+  - Her long hair: her felt head is swollen round her jaw (`makeHead`), but the long styles followed the plain
+    ellipsoid, so her head showed through above her ears in a jagged line and the locks framing her face sank into her
+    cheeks. They now follow her head as it is made (`followHead()` in `src/hair/model.js`). The long lengths are a
+    stuffed plush panel with rounded sewn edges down the sides and along the hem, not a cut sheet; their shape, length
+    and V hem are as before.
+  - Not changed: her face, body, proportions and colours, the tone mapping, the lights, every garment's construction
+    and colours. Open: the long lengths still hang from the back of her head as a separate panel (a fuller rebuild
+    would be its own step, judged with the user); the Replay sweatshirt's open sleeve tops show past her shoulders (its
+    own pull request).
