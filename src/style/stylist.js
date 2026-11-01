@@ -17,19 +17,22 @@ export function random(seed) {
 }
 
 // What the weather asks of an outfit. `feels` is how warm the part of her day she dresses for feels (°C; see
-// src/weather/conditions.js); the thresholds are a starting point to tune with the user. Warmth adds up on the scale
-// in facts.js: a tee (1) and jeans (2) make 3, right for about 21 °C. A warm day that starts or ends much cooler
-// (`cool`, the coolest of her day) asks for a light jacket to take off later: outer is 'layer', and the jacket is not
-// counted in how warm she is once it is off.
+// src/weather/conditions.js); the thresholds are a starting point to tune with the user. Warmth adds up from the scale
+// in facts.js, with the top counting double (outfitWarmth): a shirt (1) and jeans (2) make 4, right for about 24 °C, and
+// a chenille jumper (3) and jeans make 8, right for about 12 °C (the user's own reading, 1 November 2026). Each point is
+// about 3°. A warm day that starts or ends much cooler (`cool`, the coolest of her day) asks for a light jacket to take
+// off later: outer is 'layer', and the jacket is not counted in how warm she is once it is off.
 export function needsFor(c) {
   const feels = Number.isFinite(c?.feels) ? c.feels : 16, rain = c?.rainChance ?? 0;
   const rainy = isRainy(c), windy = (c?.windKmh ?? 0) >= 30;
   const cool = Number.isFinite(c?.feelsMin) ? Math.min(c.feelsMin, feels) : feels, layer = !rainy && feels >= 13 && feels - cool >= 6 && cool < 16;
   return {
     feels, cool, rainy, windy, snow: !!c?.snow,
-    target: clamp(3 + (21 - feels) / 3, 2, 10),
+    target: clamp(4 + (24 - feels) / 3, 2, 14),
     outer: feels < 13 || (rainy && feels < 20) ? 'required' : layer ? 'layer' : feels >= 21 && !rainy ? 'none' : 'optional',
     bareLegs: feels >= 15 && !c?.snow,
+    // Light trousers (warmth 1: thin joggers, a nylon track pant, linen) stay home in the cold, however warm the coat.
+    lightLegs: feels >= 10 && !c?.snow,
     // Open shoes only on a warm, dry day: never when rain comes on and off, however low its chance.
     openShoes: feels >= 19 && rain < 40 && !rainy,
     boots: feels < 22,
@@ -38,10 +41,17 @@ export function needsFor(c) {
 
 const warmthOf = p => p?.warmth ?? 2;
 // How warm an outfit is; a jacket carried for the cool of the day (o.carried) is off for the warm part she dresses for.
-function outfitWarmth(o) {
-  const body = o.dress ? warmthOf(o.dress) + .5 : warmthOf(o.top) + (o.under ? .5 * warmthOf(o.under) : 0) + warmthOf(o.bottom);
+// The top counts double: it decides whether she is warm or cold far more than her jeans do. A shirt and a chenille
+// jumper are a point or two apart on the garment scale but some 12° apart to wear (the user, 1 November 2026, after a
+// shirt and jeans and a chenille jumper and jeans were offered for the same day). A top under a cardigan counts half a
+// top; a dress counts as a top, with a point for the legs. Jacket, bottoms and shoes keep the garment scale.
+export const TOP_WEIGHT = 2;
+export function outfitWarmth(o) {
+  const body = o.dress ? TOP_WEIGHT * warmthOf(o.dress) + 1 : TOP_WEIGHT * warmthOf(o.top) + (o.under ? TOP_WEIGHT / 2 * warmthOf(o.under) : 0) + warmthOf(o.bottom);
   return body + (o.outer && !o.carried ? warmthOf(o.outer) - (o.open ? .5 : 0) : 0) + (o.shoes ? (warmthOf(o.shoes) - 2) * .5 : 0);
 }
+// How far Bolder and Easier may be from her pick's warmth: a point, about 3°.
+export const NEAR = 1;
 
 function weatherReasons(o, needs) {
   const out = [];
@@ -121,8 +131,11 @@ function context(conditions, options) {
   const outerOptions = keep.outerwear ? pick('outerwear', w.outerwear) : needs.outer === 'none' ? [null]
     : needs.outer === 'layer' ? pick('outerwear', w.outerwear, o => warmthOf(o) <= 2)
     : [...(needs.outer === 'optional' ? [null] : []), ...pick('outerwear', w.outerwear, o => (!needs.rainy || o.rain !== 'avoid') && (needs.feels >= 5 || warmthOf(o) >= 3) && (needs.feels < 16 || warmthOf(o) <= 2))];
-  const tops = pick('top', w.top, () => true), bottoms = pick('bottom', w.bottom, b => !needs.rainy || b.rain !== 'avoid');
-  const dresses = keep.top || keep.bottom ? [] : pick('dress', w.dress, d => !d.bareLegs || needs.bareLegs).filter(d => keep.dress || !d.bareLegs || needs.bareLegs);
+  // Bare legs (a mini skirt, as a mini dress) only from 15°, as the skirt's own record says: warm or mild days; light
+  // trousers only from 10°. A warm coat does not make up for cold legs.
+  const legs = p => (!p.bareLegs || needs.bareLegs) && (p.slot !== 'bottom' || warmthOf(p) >= 2 || needs.lightLegs);
+  const tops = pick('top', w.top, () => true), bottoms = pick('bottom', w.bottom, b => legs(b) && (!needs.rainy || b.rain !== 'avoid'), legs).filter(b => keep.bottom || legs(b));
+  const dresses = keep.top || keep.bottom ? [] : pick('dress', w.dress, legs).filter(d => keep.dress || legs(d));
   const underTops = w.top.filter(p => p.layering.underTop && !banned.has(p.id));
   const openFor = outer => !!outer?.layering.openByDefault && needs.feels >= 12 && !needs.windy && !needs.rainy;
   // What a jacket adds to how warm she is: nothing when it is carried for the cool of the day.
@@ -137,13 +150,16 @@ function context(conditions, options) {
   const wornLately = new Set(recent.flatMap(r => Object.values(r)));
   // Saved looks she may not suggest exactly today: saved or worn in the last week (the user, 28 October 2026).
   const notExactly = new Set(options.notExactly || []), allowed = o => !notExactly.has(outfitKey(o));
+  // Bolder and Easier are dressed for the same day as her pick: within NEAR of its warmth (`near`), so the three looks
+  // differ in how bold they are, not in how warm.
+  const near = Number.isFinite(options.near) ? options.near : null, close = warmth => near == null || Math.abs(warmth - near) <= NEAR;
   const score = (o, final) => {
     const taste = scoreTaste(o, daring);
     let total = taste.total - novelty(o, recentRecipes, shown) + learnedBonus(learned, piecesOf(o).map(p => p.id), wornLately);
     if (final) total -= misfit(outfitWarmth(o));
     return { total, reasons: taste.reasons };
   };
-  return { seed, daring, keep, recent, needs, rng, shoes, outerOptions, tops, bottoms, dresses, underTops, openFor, carried, outerWarmth, fits, score, allowed, w };
+  return { seed, daring, keep, recent, needs, rng, shoes, outerOptions, tops, bottoms, dresses, underTops, openFor, carried, outerWarmth, fits, close, score, allowed, w };
 }
 
 // Daring sets how bold she goes, measured on the outfits themselves: among the outfits that suit the weather, an easy
@@ -183,6 +199,7 @@ function finish(o, needs, s, rng, { keep = {}, recent = [], current = DEFAULT, h
  *   learned    what the looks in My looks teach her (taste.js learnedFromLooks)
  *   notExactly lookKey()s of saved looks she must not suggest exactly today
  *   current    the recipe she is wearing (keeps its top and bottoms under a dress)
+ *   near       a warmth (outfitWarmth) the look must be within NEAR of: her pick's, for Bolder and Easier
  * Returns { recipe, reasons, pieces, warmth: { total, target, feels }, score, boldness }, or null; warmth.feels is
  * the temperature she dressed for (Today shows it).
  */
@@ -198,11 +215,11 @@ export function composeOutfit(conditions, options = {}) {
     return best;
   };
   for (const tolerance of [1.5, 2.5, Infinity]) {
-    const feasible = o => { const base = outfitWarmth({ ...o, outer: null, shoes: null }); return [...extras].some(x => c.fits(base + x, tolerance)); };
+    const feasible = o => { const base = outfitWarmth({ ...o, outer: null, shoes: null }); return [...extras].some(x => c.fits(base + x, tolerance) && c.close(base + x)); };
     let stage = bases.filter(feasible).map(o => ({ o, s: c.score(o) }));
     stage = beam(stage, 60).flatMap(({ o }) => c.shoes.map(s => ({ ...o, shoes: s }))).map(o => ({ o, s: c.score(o) }));
     stage = beam(stage, 60).flatMap(({ o }) => c.outerOptions.map(outer => ({ ...o, outer, open: c.openFor(outer), carried: c.carried })))
-      .filter(o => c.fits(outfitWarmth(o), tolerance) && c.allowed(o)).map(o => ({ o, s: c.score(o, true) }));
+      .filter(o => c.fits(outfitWarmth(o), tolerance) && c.close(outfitWarmth(o)) && c.allowed(o)).map(o => ({ o, s: c.score(o, true) }));
     if (!stage.length) continue;
     pullToDaring(stage, daring).sort((a, b) => b.s.total - a.s.total);
     // Choose among the best few, favouring the higher scores, so she is not the same every morning. Only the best
@@ -266,7 +283,7 @@ function smallestChange(conditions, recipe, options, slots, want) {
     });
   };
   // A change suits the day as a new look would (c.fits), or at least no worse than the look she is wearing.
-  const off = Math.abs(outfitWarmth(now) - needs.target), fits = o => (c.fits(outfitWarmth(o), 1.5) || Math.abs(outfitWarmth(o) - needs.target) <= off) && c.allowed(o);
+  const off = Math.abs(outfitWarmth(now) - needs.target), fits = o => (c.fits(outfitWarmth(o), 1.5) || Math.abs(outfitWarmth(o) - needs.target) <= off) && c.close(outfitWarmth(o)) && c.allowed(o);
   let found = [];
   const one = slots.flatMap(swaps).filter(fits);
   found = one.filter(want);
@@ -291,8 +308,10 @@ export function adjustOutfit(conditions, recipe, direction, options = {}) {
 }
 // The day's three looks: her pick, a bolder one and an easier one, chosen once and fixed for the day (the user's
 // request, 9 October 2026: three fixed choices inspire; endless variations confuse). Each is a different outfit in the
-// same weather; the bolder is bolder than her pick and the easier quieter, measured by boldness(). If a whole new
-// outfit cannot be found in that direction, the smallest change to her pick is used instead.
+// same weather; the bolder is bolder than her pick and the easier quieter, measured by boldness(), and both are dressed
+// for the same temperature as her pick, within NEAR (the user, 1 November 2026: a shirt and jeans as Bolder and a
+// chenille jumper and jeans as Easier, one for 25°, the other for 12°). If a whole new outfit cannot be found in that
+// direction, the smallest change to her pick is used instead.
 export const DARING = { easier: .08, pick: .5, bolder: .95 };
 // Which version of her rules chose a day's looks. Today chooses them again, for the same weather, when it changes, so a
 // change to how she dresses shows at once rather than the next morning: raise it with such a change.
@@ -300,17 +319,18 @@ export const DARING = { easier: .08, pick: .5, bolder: .95 };
 // 4: restore the fixed Her pick / Bolder / Easier trio after the mood experiment.
 // 5 (28 October 2026): saved looks inspire rather than repeat (learned from My looks as it is, pieces worn this week
 // left out, capped), and a saved look is not suggested exactly within a week of being saved or worn.
-export const RULES_VERSION = 5;
+// 6 (1 November 2026): the top counts double in how warm a look is, and Bolder and Easier are as warm as her pick.
+export const RULES_VERSION = 6;
 export function composeTrio(conditions, options = {}) {
   const pick = composeOutfit(conditions, { ...options, daring: DARING.pick });
   if (!pick) return null;
-  const lead = r => r.recipe.dressId !== 'none' ? r.recipe.dressId : r.recipe.topId;
+  const lead = r => r.recipe.dressId !== 'none' ? r.recipe.dressId : r.recipe.topId, near = pick.warmth.total;
   const away = (direction, shown) => {
     for (let i = 0; i < 4; i++) {
-      const r = composeOutfit(conditions, { ...options, seed: (options.seed ?? 1) + 101 * (i + 1) * direction, daring: direction > 0 ? DARING.bolder : DARING.easier, shownToday: [...(options.shownToday || []), ...shown.map(x => x.recipe)] });
+      const r = composeOutfit(conditions, { ...options, near, seed: (options.seed ?? 1) + 101 * (i + 1) * direction, daring: direction > 0 ? DARING.bolder : DARING.easier, shownToday: [...(options.shownToday || []), ...shown.map(x => x.recipe)] });
       if (r && (r.boldness - pick.boldness) * direction > .05 && !shown.some(x => lead(x) === lead(r))) return r;
     }
-    return adjustOutfit(conditions, pick.recipe, direction, options) || pick;
+    return adjustOutfit(conditions, pick.recipe, direction, { ...options, near }) || pick;
   };
   const bolder = away(1, [pick]), easier = away(-1, [pick, bolder]);
   return { pick, bolder, easier };

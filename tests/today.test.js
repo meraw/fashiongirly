@@ -175,12 +175,16 @@ test('too warm dresses her lighter and is remembered on the days after; too cool
 });
 
 test('when she is already dressed as lightly as the weather allows, too warm says so and changes nothing', async () => {
-  const p = await open({ now: ROME_MORNING, fetch: rome }), look = p.app.getRecipe();
-  click(p.d, 'today-too-warm');
-  assert.equal(p.d.getElementById('today-status').textContent, 'This is already as light as she dresses for this weather.');
-  assert.equal(p.read(WARMTH_KEY), null, 'nothing to remember');
-  assert.deepEqual(p.app.getRecipe(), look);
-  p.close();
+  // Rome ten degrees hotter, about 35° in the sun: only her lightest looks suit it. (At Rome's own 25° a shirt and jeans
+  // suit, and she can still go lighter: rules version 6, 1 November 2026.)
+  const hot = { ...ROME, hourly: { ...ROME.hourly, temperature_2m: ROME.hourly.temperature_2m.map(t => t + 10), apparent_temperature: ROME.hourly.apparent_temperature.map(t => t + 10) } };
+  const p = await open({ now: ROME_MORNING, fetch: async () => ({ ok: true, status: 200, json: async () => hot }) }), look = p.app.getRecipe();
+  try {
+    click(p.d, 'today-too-warm');
+    assert.equal(p.d.getElementById('today-status').textContent, 'This is already as light as she dresses for this weather.');
+    assert.equal(p.read(WARMTH_KEY), null, 'nothing to remember');
+    assert.deepEqual(p.app.getRecipe(), look);
+  } finally { p.close(); }
 });
 
 test('a look chosen from a forecast read the old way is chosen again for the warm part of the day', async () => {
