@@ -4,7 +4,7 @@ import { GARMENTS } from '../src/wardrobe/catalog.js';
 import { cleanRecipe } from '../src/doll/recipe.js';
 import { makeOutfit, disposeObject } from '../src/doll/model.js';
 import { stylingFacts, wardrobe, readColour, readBrand } from '../src/style/facts.js';
-import { composeOutfit, needsFor, adjustOutfit, composeTrio, outfitOf, lookKey, lookPieces } from '../src/style/stylist.js';
+import { composeOutfit, needsFor, adjustOutfit, composeTrio, outfitOf, lookKey, lookPieces, outfitWarmth, TOP_WEIGHT, NEAR } from '../src/style/stylist.js';
 import { learn, cleanLearned, learnedBonus, learnedFromLooks, LEARNED_CAP, boldness } from '../src/style/taste.js';
 import { PRESETS, presetConditions, cleanConditions } from '../src/weather/conditions.js';
 
@@ -64,6 +64,43 @@ test('on a warm day she dresses light: a little cooler than the day asks rather 
   }
 });
 
+test('a top counts for more than jeans: a shirt and jeans suit about 24°, a chenille jumper and jeans about 12°', () => {
+  // The user, 1 November 2026: Bolder was a button-up shirt and jeans, Easier a chenille jumper and jeans, "I would
+  // easily wear the first in 25 degrees celsius, the second with 12".
+  const jeans = facts('levis-94-wide-leg-v1'), shirt = facts('white-linen-button-down-shirt-v1'), chenille = facts('pull-bear-grey-chenille-high-neck-v1');
+  const shirtLook = outfitWarmth({ top: shirt, bottom: jeans }), jumperLook = outfitWarmth({ top: chenille, bottom: jeans });
+  assert.equal(shirtLook, needsFor({ feels: 24 }).target, 'a shirt and jeans for 24°');
+  assert.equal(jumperLook, needsFor({ feels: 12 }).target, 'a chenille jumper and jeans for 12°');
+  // Light joggers and open slides do not make the chenille jumper as light as a shirt and jeans.
+  assert.ok(outfitWarmth({ top: chenille, bottom: facts('zara-cargo-joggers-v1'), shoes: facts('dr-martens-cow-slide-v1') }) > shirtLook + 2);
+});
+
+test('the day\'s three looks are dressed for the same weather: bolder and easier as warm as her pick', () => {
+  const light = r => r.recipe.dressId === 'none' && r.recipe.outerwearId === 'none' && facts(r.recipe.topId).warmth === 1;
+  const warm = r => r.recipe.dressId === 'none' && r.recipe.outerwearId === 'none' && facts(r.recipe.topId).warmth >= 3;
+  for (const feels of [4, 10, 13, 15, 17, 19, 22, 26]) for (const seed of [1, 2, 3, 4, 5]) {
+    const t = composeTrio(cleanConditions({ day: '2026-11-01', source: 'manual', feels }), { seed }), label = `${feels}° seed ${seed}`;
+    for (const k of ['bolder', 'easier']) assert.ok(Math.abs(t[k].warmth.total - t.pick.warmth.total) <= NEAR, `${label}: ${k} ${t[k].warmth.total} beside her pick's ${t.pick.warmth.total}`);
+    const looks = Object.values(t);
+    assert.ok(!(looks.some(light) && looks.some(warm)), `${label}: never a thin top and a heavy knit, both without a jacket, for the same day`);
+  }
+});
+
+test('bare legs only from 15° and light trousers only from 10°, however warm the jacket', () => {
+  assert.equal(facts('laced-flame-print-mini-skirt-v1').bareLegs, true, 'the mini skirt\'s record says bare legs');
+  assert.equal(facts('levis-94-wide-leg-v1').bareLegs, false);
+  for (const feels of [-2, 4, 8, 11, 14]) for (const seed of [1, 2, 3]) {
+    const t = composeTrio(cleanConditions({ day: '2026-11-01', source: 'manual', feels }), { seed });
+    for (const [k, r] of Object.entries(t)) {
+      const bottom = r.recipe.dressId === 'none' ? facts(r.recipe.bottomId) : facts(r.recipe.dressId);
+      assert.ok(!bottom.bareLegs, `${feels}° seed ${seed}, ${k}: no bare legs (${bottom.id})`);
+      if (feels < 10 && bottom.slot === 'bottom') assert.ok(bottom.warmth >= 2, `${feels}° seed ${seed}, ${k}: no light trousers (${bottom.id})`);
+    }
+  }
+  const kept = composeOutfit(presetConditions('cold'), { keep: { bottom: 'laced-flame-print-mini-skirt-v1' } });
+  assert.equal(kept.recipe.bottomId, 'laced-flame-print-mini-skirt-v1', 'a kept skirt is still worn');
+});
+
 test('a warm afternoon after a cool morning: a light jacket comes along, to take off', () => {
   const c = cleanConditions({ day: '2026-10-12', source: 'forecast', feels: 24, feelsMin: 12, feelsMax: 22, shade: 21, sun: 24 }), w = id => facts(id).warmth;
   assert.equal(needsFor(c).outer, 'layer');
@@ -72,7 +109,7 @@ test('a warm afternoon after a cool morning: a light jacket comes along, to take
     assert.notEqual(recipe.outerwearId, 'none', `seed ${seed}: a jacket comes along`);
     assert.ok(w(recipe.outerwearId) <= 2, `seed ${seed}: a light one`);
     assert.ok(r.reasons.some(x => /12° in the cool of the day.*to take off/.test(x)), `seed ${seed}: she says why`);
-    const body = recipe.dressId !== 'none' ? w(recipe.dressId) + .5 : w(recipe.topId) + (recipe.underTopId !== 'none' ? .5 * w(recipe.underTopId) : 0) + w(recipe.bottomId);
+    const body = recipe.dressId !== 'none' ? TOP_WEIGHT * w(recipe.dressId) + 1 : TOP_WEIGHT * w(recipe.topId) + (recipe.underTopId !== 'none' ? TOP_WEIGHT / 2 * w(recipe.underTopId) : 0) + w(recipe.bottomId);
     assert.equal(r.warmth.total, body + (w(recipe.shoesId) - 2) * .5, `seed ${seed}: the jacket she carries does not count once it is off`);
   }
   assert.equal(needsFor({ ...c, feelsMin: 20 }).outer, 'none', 'warm from morning to evening: nothing to carry');

@@ -114,7 +114,8 @@ export function stylingFacts(garment) {
     ...readPattern(st), shape: readShape(g, st),
     // A neck that wants to be seen (a collar, mock or stand neck, a hood) suits hair worn up.
     highNeck: /high|mock|stand|polo|rugby|hood|point collar|big collar/.test(text(st.coverage?.neck, st.observed?.coverage)),
-    bareLegs: !!g.layering?.bareLegs, cropped: /cropped/.test(text(st.coverage?.midriff)),
+    // Bare legs: a mini dress says so in its layering; a mini skirt in its leg coverage ("mini, bare legs").
+    bareLegs: !!g.layering?.bareLegs || /bare legs|bare from/.test(text(st.coverage?.legs)), cropped: /cropped/.test(text(st.coverage?.midriff)),
     sporty: /track|hood|windbreaker|anorak|sneaker|racing|jogger|rugby|polo|sweatshirt|varsity|cargo|trainer|superstar|gazelle|campus|550/.test(words),
     soft: /lace|floral|flower|crochet|pointelle|fur|ditsy|rose|pink|lilac|ruffle|frill|cherub|heart|cardigan/.test(words),
     mood: text(st.mood, st.inferred?.mood),
