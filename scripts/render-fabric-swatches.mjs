@@ -63,6 +63,8 @@ export const SAMPLES = [
   { id: 'pleated-linen-wide-trousers-v1', mesh: 'jeans-hips', atlas: ['pleated-linen-fabric.js', 'PLEATED_LINEN_FABRIC'], y: 1.08, x: 0.12, width: 0.22 },
   { id: 'bershka-low-rise-balloon-jeans-v1', mesh: 'jeans-hips', atlas: ['bershka-balloon-denim.js', 'BERSHKA_BALLOON_DENIM'], y: 1.08, x: 0.12, width: 0.22 },
   { id: 'mango-claudia-slim-crop-jeans-v1', mesh: 'jeans-hips', atlas: ['mango-claudia-denim.js', 'MANGO_CLAUDIA_DENIM'], y: 1.08, x: 0.12, width: 0.22 },
+  { id: 'bershka-low-rise-barrel-jeans-black-v1', mesh: 'jeans-hips', atlas: ['bershka-barrel-black-denim.js', 'BERSHKA_BARREL_BLACK_DENIM'], y: 1.08, x: 0.12, width: 0.22 },
+  { id: 'bershka-low-rise-barrel-jeans-blue-v1', mesh: 'jeans-hips', atlas: ['bershka-barrel-blue-denim.js', 'BERSHKA_BARREL_BLUE_DENIM'], y: 1.08, x: 0.12, width: 0.22 },
   { id: 'mango-sienna-flare-crop-jeans-v1', mesh: 'jeans-hips', atlas: ['mango-sienna-denim.js', 'MANGO_SIENNA_DENIM'], y: 1.08, x: 0.12, width: 0.22 },
   { id: 'adidas-originals-cropped-hoodie-black-v1', mesh: 'hoodie-body', y: 1.65, shaded: true, details: ['embroidered-logo', 'woven-patch'] },
   { id: 'desigual-navy-rugby-tiger-patches-v1', mesh: 'mesh-shirt-body', y: 1.65, details: ['applique-patch', 'contrast-placket'] },
