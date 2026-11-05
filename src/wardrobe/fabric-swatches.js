@@ -56,6 +56,8 @@ export const FABRIC_SWATCHES = {
   'pleated-linen-wide-trousers-v1': new URL('./fabric-swatches/pleated-linen-fabric.webp', import.meta.url).href,
   'bershka-low-rise-balloon-jeans-v1': new URL('./fabric-swatches/bershka-balloon-denim.webp', import.meta.url).href,
   'mango-claudia-slim-crop-jeans-v1': new URL('./fabric-swatches/mango-claudia-denim.webp', import.meta.url).href,
+  'bershka-low-rise-barrel-jeans-black-v1': new URL('./fabric-swatches/bershka-barrel-black-denim.webp', import.meta.url).href,
+  'bershka-low-rise-barrel-jeans-blue-v1': new URL('./fabric-swatches/bershka-barrel-blue-denim.webp', import.meta.url).href,
   'mango-sienna-flare-crop-jeans-v1': new URL('./fabric-swatches/mango-sienna-denim.webp', import.meta.url).href,
   'adidas-originals-cropped-hoodie-black-v1': new URL('./fabric-swatches/adidas-originals-cropped-hoodie-black.webp', import.meta.url).href,
   'desigual-navy-rugby-tiger-patches-v1': new URL('./fabric-swatches/desigual-navy-rugby-tiger-patches.webp', import.meta.url).href,

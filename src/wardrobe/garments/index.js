@@ -6,6 +6,7 @@
 export { default as desigualGardenPrintMeshTeeV1 } from './desigual-garden-print-mesh-tee-v1.js';
 // slot 01
 // slot 02
+export { default as bershkaLowRiseBarrelJeansBlueV1 } from './bershka-low-rise-barrel-jeans-blue-v1.js';
 export { default as whiteLinenButtonDownShirtV1 } from './white-linen-button-down-shirt-v1.js';
 // slot 03
 export { default as lapisBlueLinenButtonDownShirtV1 } from './lapis-blue-linen-button-down-shirt-v1.js';
@@ -36,6 +37,7 @@ export { default as lacedFlamePrintMiniSkirtV1 } from './laced-flame-print-mini-
 export { default as paisleyPrintRelaxedShirtV1 } from './paisley-print-relaxed-shirt-v1.js';
 // slot 22
 // slot 23
+export { default as bershkaLowRiseBarrelJeansBlackV1 } from './bershka-low-rise-barrel-jeans-black-v1.js';
 export { default as onlyOnlerinDarkSilverJacketV1 } from './only-onlerin-dark-silver-jacket-v1.js';
 // slot 24
 // slot 25
