@@ -4,7 +4,7 @@ import { readFileSync } from 'node:fs';
 import { JSDOM } from 'jsdom';
 import * as T from 'three';
 import { HAIRSTYLES } from '../src/hair/catalog.js';
-import { makeHair, createHairController, disposeHair } from '../src/hair/model.js';
+import { makeHair, createHairController, disposeHair, followHead } from '../src/hair/model.js';
 import { makeDoll, disposeObject } from '../src/doll/model.js';
 import { cleanRecipe } from '../src/doll/recipe.js';
 import { startStudio } from '../src/doll/app.js';
@@ -48,13 +48,37 @@ test('hair selector saves and restores with looks and survives clothing preset c
   app.dispose();assert.equal(d.getElementById('hair-select'),null);dom.window.close();
 });
 
+// How far a point lies out from her felt head as makeHead shapes it (the ellipsoid, swollen round her jaw): 1 on it.
+const outFromHead=([x,y,z])=>{const u=x/.5,v=y/.47,w=z/.405,k=Math.hypot(u,v,w),surface=followHead([x/k,y/k,z/k]);return Math.hypot(x,y,z)/Math.hypot(...surface);};
 test('hairline roots follow the head rather than an offset cap',()=>{
   const hair=makeHair('straight-v'),p=hair.getObjectByName('styled-scalp').geometry.attributes.position;
-  // Last ring is the complete hairline, including temples and nape.
+  // Last ring is the complete hairline, including temples and nape: just outside her head as it is made, swollen round
+  // her jaw (31 October 2026: following the plain ellipsoid, her head showed through in a jagged line above her ears).
   for(let i=p.count-65;i<p.count;i++){
-    const x=p.getX(i),y=p.getY(i),z=p.getZ(i);
-    const radius=Math.sqrt((x/.5)**2+(y/.47)**2+(z/.405)**2);
+    const radius=outFromHead([p.getX(i),p.getY(i),p.getZ(i)]);
     assert.ok(radius>1&&radius<1.005,`root clearance ${radius}`);
   }
   disposeHair(hair);
+});
+test('her felt head never shows through the hair laid over it',()=>{
+  // Her head's own surface, sampled as makeHead builds it, against the scalp of a long style: every vertex of her head
+  // under the hairline lies inside the scalp.
+  const doll=makeDoll(),face=doll.getObjectByName('felt-head'),head=face.geometry.attributes.position,hair=makeHair('straight-v');
+  const scalp=hair.getObjectByName('styled-scalp').geometry.attributes.position;
+  const [sx,sy,sz]=face.scale.toArray();
+  for(let i=0;i<head.count;i+=7){const p=[head.getX(i)*sx,head.getY(i)*sy,head.getZ(i)*sz],surface=followHead(p.map((v,k)=>v/Math.hypot(head.getX(i),head.getY(i),head.getZ(i))));
+    assert.ok(Math.abs(Math.hypot(...p)-Math.hypot(...surface))<.002,'followHead is her head as makeHead shapes it');}
+  let lowest=Infinity;for(let i=0;i<scalp.count;i++)lowest=Math.min(lowest,outFromHead([scalp.getX(i),scalp.getY(i),scalp.getZ(i)]));
+  assert.ok(lowest>1,`the scalp lies on her head everywhere (${lowest})`);
+  disposeHair(hair);disposeObject(doll);
+});
+test('the long lengths are a stuffed panel, closed down its sides and along its hem',()=>{
+  for(const id of ['straight-v','wavy-v','half-up']){
+    const hair=makeHair(id),g=hair.getObjectByName('v-shaped-lengths').geometry,p=g.attributes.position,half=p.count/2,cols=49;
+    let thickest=0;
+    for(let i=0;i<half;i++){const d=Math.hypot(p.getX(i+half)-p.getX(i),p.getY(i+half)-p.getY(i),p.getZ(i+half)-p.getZ(i));thickest=Math.max(thickest,d);
+      const col=i%cols,row=Math.floor(i/cols),edge=col===0||col===cols-1||row===half/cols-1;if(edge)assert.ok(d<1e-6,`${id}: the faces meet at the edge (${d})`);}
+    assert.ok(thickest>.03&&thickest<.06,`${id}: stuffed, not a sheet (${thickest})`);
+    disposeHair(hair);
+  }
 });

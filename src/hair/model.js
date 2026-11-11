@@ -17,7 +17,17 @@ export function hairMaterial(colour=HAIR_COLOUR){
 const material=hairMaterial;
 // The felt head's ellipsoid, and a point lifted off it along its normal.
 const HEAD=[.5,.47,.405];
-function offHead(x,y,z,lift){const n=new THREE.Vector3(x/(HEAD[0]*HEAD[0]),y/(HEAD[1]*HEAD[1]),z/(HEAD[2]*HEAD[2])).normalize();return [x+n.x*lift,y+n.y*lift,z+n.z*lift];}
+// The felt head is not quite that ellipsoid: makeHead (src/doll/model.js) swells it round her ears, by up to a
+// twentieth at the jaw, and brings her chin forward. Hair laid close over her head follows the same swelling (the
+// same formula, by the direction of the point), or her head shows through it in a jagged line above her ears and the
+// locks framing her face sink into her cheeks (31 October 2026).
+const easeStep=(a,b,t)=>{const x=Math.max(0,Math.min(1,(t-a)/(b-a)));return x*x*(3-2*x);};
+export function followHead([x,y,z]){
+  const u=x/HEAD[0],v=y/HEAD[1],w=z/HEAD[2],k=Math.hypot(u,v,w)||1,du=u/k,dv=v/k,dw=w/k;
+  const chin=easeStep(-.7,-1,dv)*.1*Math.log(1+Math.exp((dw+.2)/.1))*.06,s=1+easeStep(.72,1,Math.abs(du))*Math.exp(-(((dv+.25)/.3)**2))*.05;
+  return [x*s,y*s,z*s+chin*HEAD[2]];
+}
+function offHead(x,y,z,lift){const n=new THREE.Vector3(x/(HEAD[0]*HEAD[0]),y/(HEAD[1]*HEAD[1]),z/(HEAD[2]*HEAD[2])).normalize(),[hx,hy,hz]=followHead([x,y,z]);return [hx+n.x*lift,hy+n.y*lift,hz+n.z*lift];}
 function scalp(group,mat){
   const pos=[],index=[],cols=64,rows=24;
   // Follow the actual felt-head ellipsoid. The edge sits almost on the skin;
@@ -66,13 +76,26 @@ function curtain(group,mat,wavy=false){
     const drape=-.41+.025*s*s;
     return [x,y,rootZ*(1-smooth)+drape*smooth-offset-swellAt(s,t)];
   };
-  const uv=[];
-  for(let j=0;j<=rows;j++)for(let i=0;i<=cols;i++){pos.push(...surface(i/cols*2-1,j/rows));uv.push(i/cols*.92,j/rows*.9);}
-  for(let j=0;j<rows;j++)for(let i=0;i<cols;i++){const a=j*(cols+1)+i,b=a+cols+1;index.push(a,b,a+1,a+1,b,b+1);}
-  // Wound to face outwards, away from her, like the rest of her hair.
-  for(let i=0;i<index.length;i+=3)[index[i+1],index[i+2]]=[index[i+2],index[i+1]];
+  // The lengths are a stuffed plush panel, not a cut sheet (31 October 2026: seen from the side they read as paper): the
+  // surface above is its inner face, lying where the hair always lay, and its outer face stands off it by the stuffing,
+  // fullest in the middle of the panel and drawn in to a rounded sewn edge down each side and along the hem. At the
+  // roots, under her scalp, the two faces meet.
+  const uv=[],inner=[],outer=[],e=1e-3,c=new THREE.Vector3(),ds=new THREE.Vector3(),dt=new THREE.Vector3(),n=new THREE.Vector3();
+  const at=(s,t)=>new THREE.Vector3(...surface(Math.max(-1,Math.min(1,s)),Math.max(0,Math.min(1,t))));
+  const stuffing=(s,t)=>.05*Math.sqrt(Math.max(0,1-s*s))*Math.sqrt(Math.max(0,1-t))*easeStep(0,.3,t);
+  for(let j=0;j<=rows;j++)for(let i=0;i<=cols;i++){
+    const s=i/cols*2-1,t=j/rows;c.copy(at(s,t));
+    ds.subVectors(at(s+e,t),at(s-e,t));dt.subVectors(at(s,t+e),at(s,t-e));n.crossVectors(ds,dt).normalize();
+    // Out, away from her: from the line she stands on, and back.
+    if(n.x*c.x+n.z*c.z+n.z*-.2<0)n.negate();
+    inner.push(c.x,c.y,c.z);c.addScaledVector(n,stuffing(s,t));outer.push(c.x,c.y,c.z);uv.push(i/cols*.92,j/rows*.9);
+  }
+  pos.push(...inner,...outer);uv.push(...uv);
+  // The inner face is wound towards her, the outer face away from her, like the rest of her hair.
+  const layer=(rows+1)*(cols+1);
+  for(let j=0;j<rows;j++)for(let i=0;i<cols;i++){const a=j*(cols+1)+i,b=a+cols+1;index.push(a,b,a+1,a+1,b,b+1,layer+a,layer+a+1,layer+b,layer+a+1,layer+b+1,layer+b);}
   const geo=new THREE.BufferGeometry();geo.setAttribute('position',new THREE.Float32BufferAttribute(pos,3));geo.setAttribute('uv',new THREE.Float32BufferAttribute(uv,2));geo.setIndex(index);geo.computeVertexNormals();mesh(group,geo,mat,'v-shaped-lengths');
-  for(const side of [-1,1])lock(group,[[side*.47,.14,.10],[side*.49,-.18,.025],[side*.46,-.45,-.16],[side*.39,-.62,-.32]],.056,mat,'face-framing-lock',{ends:'soft'});
+  for(const side of [-1,1])lock(group,[[side*.47,.14,.10],[side*.49,-.18,.025],[side*.46,-.45,-.16],[side*.39,-.62,-.32]].map(followHead),.056,mat,'face-framing-lock',{ends:'soft'});
 }
 // A lock of hair along a path: fuller in the middle, and ending in a point (a lock that is combed to its tip), softly
 // (a rounded tip) or round at both ends (a section lying on the hair). It is one stuffed plush piece.

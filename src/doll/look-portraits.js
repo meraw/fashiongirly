@@ -4,18 +4,21 @@ import { makeDoll, makeOutfit, fitDoll, disposeObject, setExpression } from './m
 import { createHairController } from '../hair/model.js';
 import { textureModule } from './view.js';
 import { lightScene } from './light.js';
+import { createOcclusion } from './occlusion.js';
+import { finish } from './finish.js';
 import { pose, attitudeOf, headPose } from './pose.js';
 import { expressionFor } from './face.js';
 
 export function createLookPortraits(doc) {
-  let renderer = null, scene, light, closed = false, queue = Promise.resolve();
+  let renderer = null, scene, light, occlusion, closed = false, queue = Promise.resolve();
   function init() {
     if (renderer) return;
-    renderer = new T.WebGLRenderer({ antialias: true, alpha: true, preserveDrawingBuffer: true });
+    // Drawn as the live view draws her (occlusion.js): antialiased in its own picture, then copied with the occlusion.
+    renderer = new T.WebGLRenderer({ antialias: false, alpha: true, depth: false, preserveDrawingBuffer: true });
     renderer.setSize(240, 280); renderer.setPixelRatio(1); renderer.setClearColor(0x000000, 0);
     renderer.outputColorSpace = T.SRGBColorSpace; renderer.toneMapping = T.ACESFilmicToneMapping; renderer.toneMappingExposure = 1.2;
     renderer.shadowMap.enabled = true; renderer.shadowMap.type = T.PCFSoftShadowMap;
-    scene = new T.Scene(); light = lightScene(scene, renderer);
+    scene = new T.Scene(); light = lightScene(scene, renderer); occlusion = createOcclusion(renderer);
     // Enough detail for a small photograph without another full-size shadow map on a phone.
     light.key.shadow.mapSize.set(512, 512);
   }
@@ -39,6 +42,7 @@ export function createLookPortraits(doc) {
       model = new T.Group(); const doll = makeDoll(); model.add(doll);
       hair = createHairController(doll); hair.update(recipe.hairId);
       const outfit = makeOutfit(recipe, atlas); model.add(outfit); fitDoll(doll, outfit);
+      finish(model, { anisotropy: Math.min(8, renderer.capabilities.getMaxAnisotropy()) });
       setExpression(doll, expressionFor({ kind: sky?.dataset.kind, feels: Number(sky?.dataset.feels) }));
       const attitude = attitudeOf(key), head = doll.getObjectByName('doll-head'), turn = headPose(attitude);
       head.rotation.set(turn.x, turn.y, turn.z); pose(doll, model, doll.position.y, attitude); pose(outfit, model, doll.position.y, attitude);
@@ -57,7 +61,7 @@ export function createLookPortraits(doc) {
       model.rotation.y = -.22; scene.add(model);
       const camera = new T.PerspectiveCamera(24, 240 / 280, .1, 40);
       camera.position.set(0, 1.18, 7.3); camera.lookAt(0, 1.22, 0);
-      renderer.render(scene, camera);
+      occlusion.render(scene, camera);
       return renderer.domElement.toDataURL('image/webp', .86);
     } finally {
       // Hair controller disposal would touch the live doll's shared texture originals; cloned meshes own their maps.
@@ -67,6 +71,6 @@ export function createLookPortraits(doc) {
   }
   return {
     render(recipe, key) { const result = queue.then(() => photograph(recipe, key)); queue = result.catch(() => null); return result; },
-    dispose() { closed = true; queue.finally(() => { light?.dispose(); renderer?.dispose(); renderer?.forceContextLoss(); renderer = null; }); },
+    dispose() { closed = true; queue.finally(() => { light?.dispose(); occlusion?.dispose(); renderer?.dispose(); renderer?.forceContextLoss(); renderer = null; }); },
   };
 }

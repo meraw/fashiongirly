@@ -13,7 +13,8 @@
 // Needs Playwright with Chromium (npm i --no-save playwright, or a global install) and the dev server (npm run dev).
 //   node scripts/render-doll.mjs <out-prefix> [views=phone,face,body,side] [base=http://localhost:5173]
 // The outfit is the RECIPE environment variable (a recipe as JSON; default: the Rose sweatshirt study); WORLD and AT pick
-// the world and the hour (default apricot-mountains at 11:00).
+// the world and the hour (default apricot-mountains at 11:00); PARAMS adds to the page's address (occlusion=off draws
+// her without the occlusion of src/doll/occlusion.js, to compare).
 import { execSync } from 'node:child_process';
 import { join } from 'node:path';
 import { pathToFileURL } from 'node:url';
@@ -29,7 +30,7 @@ const [out, views = 'phone,face,body,side', base = 'http://localhost:5173'] = pr
 if (!out) { console.error('usage: node scripts/render-doll.mjs <out-prefix> [views] [base]'); process.exit(1); }
 const ROSE = { topId: 'replay-cream-rose-embroidered-sweatshirt-v1', bottomId: 'mango-washed-black-v1', shoesId: 'classic', knit: false, shirt: false };
 const recipe = process.env.RECIPE ? JSON.parse(process.env.RECIPE) : ROSE;
-const url = `${base}/index.html?world=${process.env.WORLD || 'apricot-mountains'}&at=${process.env.AT || '11:00'}`;
+const url = `${base}/index.html?world=${process.env.WORLD || 'apricot-mountains'}&at=${process.env.AT || '11:00'}${process.env.PARAMS ? `&${process.env.PARAMS}` : ''}`;
 const { chromium } = await playwright();
 const browser = await chromium.launch({ args: ['--ignore-gpu-blocklist', '--enable-unsafe-swiftshader'] });
 
