@@ -161,7 +161,7 @@ export async function startStudio(doc=document, makeView, options={}) {
   }
   $('lookbook-open').onclick=()=>{book();$('lookbook').showModal();};$('lookbook-close').onclick=()=>$('lookbook').close();
   // Each morning she checks the weather and dresses herself (src/today/today.js); her pick is worn like any other recipe.
-  const win=doc.defaultView;today=mountToday(doc,{storage,renderPortrait:portraitRenderer,getUnavailable:inventory.removed,getRecipe:()=>clean(recipe),wear:next=>{recipe=clean(next);sync();apply();message('');},
+  const win=doc.defaultView;today=mountToday(doc,{storage,bridge:'appBridge' in options?options.appBridge:win?.FashiongirlyApp??null,renderPortrait:portraitRenderer,getUnavailable:inventory.removed,getRecipe:()=>clean(recipe),wear:next=>{recipe=clean(next);sync();apply();message('');},
     fetch:'fetch' in options?options.fetch:win?.fetch?.bind(win),geolocation:'geolocation' in options?options.geolocation:win?.navigator?.geolocation,now:options.now});
   // The app's version, and in the Android app whether new clothes are on their way (updates.js). Tests give their own
   // version.json, as for portraits; with a stand-in view and none given there is none.

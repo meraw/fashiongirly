@@ -7,7 +7,7 @@ import { HAIRSTYLES } from '../hair/catalog.js';
 import { wardrobe } from './facts.js';
 import { DEFAULT_DARING, scoreTaste, learnedBonus, cleanLearned, boldness } from './taste.js';
 import { stylingFacts } from './facts.js';
-import { isRainy } from '../weather/conditions.js';
+import { isRainy, isWindy } from '../weather/conditions.js';
 
 const clamp = (v, lo, hi) => Math.max(lo, Math.min(hi, v));
 // A small seeded random generator, so "another idea" varies and tests repeat exactly.
@@ -24,13 +24,14 @@ export function random(seed) {
 // off later: outer is 'layer', and the jacket is not counted in how warm she is once it is off.
 export function needsFor(c) {
   const feels = Number.isFinite(c?.feels) ? c.feels : 16, rain = c?.rainChance ?? 0;
-  const rainy = isRainy(c), windy = (c?.windKmh ?? 0) >= 30;
+  const rainy = isRainy(c), windy = isWindy(c);
   const cool = Number.isFinite(c?.feelsMin) ? Math.min(c.feelsMin, feels) : feels, layer = !rainy && feels >= 13 && feels - cool >= 6 && cool < 16;
   return {
     feels, cool, rainy, windy, snow: !!c?.snow,
     target: clamp(4 + (24 - feels) / 3, 2, 14),
     outer: feels < 13 || (rainy && feels < 20) ? 'required' : layer ? 'layer' : feels >= 21 && !rainy ? 'none' : 'optional',
-    bareLegs: feels >= 15 && !c?.snow,
+    // No mini skirt or mini dress in the wind (20 November 2026): the day's heads-up warns that short skirts fly up.
+    bareLegs: feels >= 15 && !c?.snow && !windy,
     // Light trousers (warmth 1: thin joggers, a nylon track pant, linen) stay home in the cold, however warm the coat.
     lightLegs: feels >= 10 && !c?.snow,
     // Open shoes only on a warm, dry day: never when rain comes on and off, however low its chance.
@@ -320,7 +321,9 @@ export const DARING = { easier: .08, pick: .5, bolder: .95 };
 // 5 (28 October 2026): saved looks inspire rather than repeat (learned from My looks as it is, pieces worn this week
 // left out, capped), and a saved look is not suggested exactly within a week of being saved or worn.
 // 6 (1 November 2026): the top counts double in how warm a look is, and Bolder and Easier are as warm as her pick.
-export const RULES_VERSION = 6;
+// 7 (20 November 2026): gusts of 45 km/h or more make a windy day too (isWindy in conditions.js), so her hair is tied back,
+// and a windy day keeps her out of mini skirts and mini dresses.
+export const RULES_VERSION = 7;
 export function composeTrio(conditions, options = {}) {
   const pick = composeOutfit(conditions, { ...options, daring: DARING.pick });
   if (!pick) return null;

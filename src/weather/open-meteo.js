@@ -6,7 +6,8 @@ import { cleanConditions, sunAllowance, isRainy } from './conditions.js';
 export const FORECAST = 'https://api.open-meteo.com/v1/forecast';
 export const GEOCODING = 'https://geocoding-api.open-meteo.com/v1/search';
 // How sunny each hour is (shortwave radiation) makes the warmth in the sun (sunAllowance in conditions.js).
-const HOURLY = 'temperature_2m,apparent_temperature,precipitation_probability,precipitation,snowfall,wind_speed_10m,weather_code,shortwave_radiation';
+// Gusts and the UV index feed the day's heads-up (src/weather/heads-up.js).
+const HOURLY = 'temperature_2m,apparent_temperature,precipitation_probability,precipitation,snowfall,wind_speed_10m,wind_gusts_10m,uv_index,weather_code,shortwave_radiation';
 // Sunrise and sunset, so her world's light follows the day (src/today/world.js).
 const DAILY = 'sunrise,sunset';
 // Whether it is raining as the forecast is read (only used when the forecast is for today).
@@ -15,6 +16,7 @@ const CURRENT = 'precipitation,weather_code';
 const FROM = 8, TO = 20, WARM_FROM = 11, WARM_TO = 17, HOURS = [9, 12, 15, 18];
 
 export function forecastUrl({ lat, lon }, day) {
+  // URLSearchParams from the global scope, or the bundle's own where there is none (scripts/heads-up-bundle.mjs).
   const q = new URLSearchParams({ latitude: lat.toFixed(2), longitude: lon.toFixed(2), hourly: HOURLY, daily: DAILY, current: CURRENT, timezone: 'auto', start_date: day, end_date: day });
   return `${FORECAST}?${q}`;
 }
@@ -64,6 +66,10 @@ export function toConditions(json, day, place = null) {
   // In the sun when the sun shines; on a rainy day she dresses for the shade (a bright sky between showers is not a sunny day).
   const sunny = Array.isArray(h.shortwave_radiation) && !rainyDay;
   const sun = sunny ? mean(warm.map(i => h.apparent_temperature[i] + sunAllowance(h.shortwave_radiation[i], h.wind_speed_10m?.[i]))) : null;
+  // When rain is likely or falling in her whole day (8:00 to 20:00), for the heads-up: "rain from 14:00".
+  const wetIdx = idx.filter(i => (h.precipitation?.[i] ?? 0) >= .2 || (h.precipitation_probability?.[i] ?? 0) >= 50 || (h.weather_code?.[i] ?? 0) >= 51 || (h.snowfall?.[i] ?? 0) > 0);
+  // The windiest hour of her day, by its gusts (or its steady wind when the forecast gives no gusts).
+  const windOf = i => Math.max(h.wind_gusts_10m?.[i] ?? 0, h.wind_speed_10m?.[i] ?? 0), windiest = idx.reduce((best, i) => best == null || windOf(i) > windOf(best) ? i : best, null);
   // Her sky is the sky of the hours she is out.
   const codes = rainVals('weather_code').length ? rainVals('weather_code') : vals('weather_code'), count = {};
   for (const c of codes) count[c] = (count[c] || 0) + 1;
@@ -77,6 +83,9 @@ export function toConditions(json, day, place = null) {
     wetHours, rainingNow,
     rainChance, rainMm,
     windKmh: Math.max(0, ...vals('wind_speed_10m')), snow: sum(vals('snowfall')) > 0,
+    gustKmh: Math.max(0, ...vals('wind_gusts_10m')), uvMax: vals('uv_index').length ? Math.max(...vals('uv_index')) : null,
+    windiestAt: windiest != null && windOf(windiest) > 0 ? hourOf(windiest) : null,
+    wetFrom: wetIdx.length ? hourOf(wetIdx[0]) : null, wetUntil: wetIdx.length ? hourOf(wetIdx[wetIdx.length - 1]) : null,
     code: codes.length ? common(wet.length ? wet : Object.keys(count).map(Number)) : null,
     // Local times like "07:41", when the forecast gives them.
     sunrise: json?.daily?.sunrise?.[0]?.slice(11, 16), sunset: json?.daily?.sunset?.[0]?.slice(11, 16),
@@ -94,6 +103,7 @@ export async function fetchConditions(place, day, fetchImpl, { timeoutMs = 10000
 
 // A typed town to coordinates, with Open-Meteo's free place search.
 export async function findPlace(name, fetchImpl, { timeoutMs = 10000 } = {}) {
+  // URLSearchParams from the global scope, or the bundle's own where there is none (scripts/heads-up-bundle.mjs).
   const q = new URLSearchParams({ name: String(name).trim(), count: '1', language: 'en', format: 'json' });
   const json = await getJson(`${GEOCODING}?${q}`, fetchImpl, timeoutMs), r = json?.results?.[0];
   if (!r || !Number.isFinite(r.latitude) || !Number.isFinite(r.longitude)) return null;

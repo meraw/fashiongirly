@@ -3,6 +3,7 @@
 // a blue veil by night, then rain, heavy rain, snow, fog or gusts in front. Plain elements animated by CSS
 // (studio.css); with reduced motion they hold still.
 // weatherIcon() draws the same weather small, for the Today page.
+import { isWindy } from '../weather/conditions.js';
 const RAINY = new Set([51, 53, 55, 56, 57, 61, 63, 66, 80, 81]), HEAVY = new Set([65, 67, 82, 95, 96, 99]);
 const SNOWY = new Set([71, 73, 75, 77, 85, 86]);
 
@@ -28,17 +29,17 @@ const scatter = i => { const x = Math.sin(i * 12.9898) * 43758.5453; return x - 
 
 export function paintSky(el, conditions) {
   if (!el) return 'none';
-  const kind = skyKind(conditions), windy = (conditions?.windKmh ?? 0) >= 30, feels = Number.isFinite(conditions?.feels) ? String(Math.round(conditions.feels)) : '';
+  const kind = skyKind(conditions), windy = isWindy(conditions), wind = Math.max(conditions?.windKmh ?? 0, (conditions?.gustKmh ?? 0) * .7), feels = Number.isFinite(conditions?.feels) ? String(Math.round(conditions.feels)) : '';
   // How warm it feels changes her face (src/doll/face.js) even when the sky stays the same.
   if (el.dataset.kind === kind && (el.dataset.windy === 'true') === windy && (el.dataset.feels ?? '') === feels && el.childElementCount) return kind;
-  el.dataset.kind = kind; el.dataset.windy = String(windy); el.dataset.feels = feels; el.dataset.wind = String(Math.round(conditions?.windKmh ?? 0));
+  el.dataset.kind = kind; el.dataset.windy = String(windy); el.dataset.feels = feels; el.dataset.wind = String(Math.round(wind));
   const doc = el.ownerDocument, parts = [];
   // The land, ground and foreground take the weather's tint through :root (studio.css).
   doc.documentElement.dataset.sky = kind;
   // The 3D view lights her for this weather (src/doll/light.js); her face follows it (src/doll/face.js), and her hair
   // moves in a wind (src/hair/wind.js).
   const Event = doc.defaultView?.CustomEvent;
-  if (Event) el.dispatchEvent(new Event('weather-change', { bubbles: true, detail: { kind, feels: conditions?.feels ?? null, windy, wind: conditions?.windKmh ?? 0 } }));
+  if (Event) el.dispatchEvent(new Event('weather-change', { bubbles: true, detail: { kind, feels: conditions?.feels ?? null, windy, wind } }));
   const add = (cls, vars = {}) => { const s = doc.createElement('span'); s.className = cls; for (const [k, v] of Object.entries(vars)) s.style.setProperty(k, v); parts.push(s); };
   add('sky-night'); add('sky-day'); add('sky-golden');
   if (kind === 'sun' || kind === 'partly') add('sun');
