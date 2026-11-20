@@ -246,7 +246,8 @@ final class HeadsUp {
         String place = p.getString("place", "");
         try (JavaScriptSandbox sandbox = JavaScriptSandbox.createConnectedInstanceAsync(context).get(WAIT, TimeUnit.SECONDS);
              JavaScriptIsolate js = sandbox.createIsolate()) {
-            js.evaluateJavaScriptAsync(script(context)).get(WAIT, TimeUnit.SECONDS);
+            // The script defines FashiongirlyHeadsUp; it ends on a plain string so the sandbox has a value to hand back.
+            js.evaluateJavaScriptAsync(script(context) + "\n;'ready'").get(WAIT, TimeUnit.SECONDS);
             String url = js.evaluateJavaScriptAsync("FashiongirlyHeadsUp.morningUrl(" + p.getString("lat", "0") + ", "
                     + p.getString("lon", "0") + ", " + JSONObject.quote(day) + ")").get(WAIT, TimeUnit.SECONDS);
             if (url == null || !url.startsWith(FORECAST)) throw new IOException("Unexpected forecast address");
