@@ -99,11 +99,14 @@ test('on a windy day her loose hair moves with the wind and is set back exactly 
   }
   for (const id of ['high-bun', 'low-bun']) assert.equal(createWind(makeHair(id)).active, false, `${id}: nothing loose to blow`);
   assert.equal(createWind(null).update(1, across), false, 'the original bob is short');
-  // The weather tells her hair: windy days are 30 km/h or more.
+  // The weather tells her hair: windy days are 30 km/h or more, or gusts of 45 km/h (since 20 November 2026), and how
+  // hard it blows is the steady wind or seven tenths of the gusts, whichever is more.
   const dom = new JSDOM('<div id="sky"></div>'), el = dom.window.document.getElementById('sky'), heard = [];
   dom.window.document.addEventListener('weather-change', e => heard.push(e.detail));
   paintSky(el, presetConditions('windy'));
-  assert.equal(heard.at(-1).windy, true); assert.equal(heard.at(-1).wind, 45); assert.equal(el.dataset.wind, '45');
+  assert.equal(heard.at(-1).windy, true); assert.equal(heard.at(-1).wind, 45.5); assert.equal(el.dataset.wind, '46');
+  paintSky(el, { ...presetConditions('mild'), windKmh: 20, gustKmh: 50 });
+  assert.equal(heard.at(-1).windy, true, 'gusts alone make it windy'); assert.equal(heard.at(-1).wind, 35);
 });
 
 test('the page tells her view the attitude of the look she wears', async () => {

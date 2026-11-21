@@ -151,7 +151,7 @@ The user's answers:
 5. Non-commercial: it holds the user's personal wardrobe. Open-Meteo's free tier fits.
 6. This chat (Claude Code) owns the shared daily-styling code for now.
 
-Still open: background behaviour (nothing runs while the app is closed), notifications, and the thresholds and weights, which need the user's reactions to real mornings.
+Still open: the thresholds and weights, which need the user's reactions to real mornings. (Background behaviour and notifications were decided on 20 November 2026: see below.)
 
 ## Decisions, 12 October 2026
 
@@ -195,3 +195,12 @@ What changed (rules version 6, so today's looks are chosen again at once, for th
 A side effect: the old scale had her as lightly dressed as she goes from 24 °C, so on a 25 °C day "too warm" could change nothing. Now a shirt and jeans are the 25 °C look, and "too warm" can still take her lighter (linen or light trousers, mesh, open shoes) up to about 30 °C.
 
 To tune with the user: the top's weight, the 24 °C and 12 °C anchors, how near the three looks must be, and whether a jacket may balance a lighter top within the trio.
+
+## Decisions, 20 November 2026
+
+The user's report: on a very windy day they wore their hair down and lip gloss, and their hair blew into it. The app already tied her hair back in the wind, but that was the only sign; the weather was "a secondary part of the app". They asked for a heads-up about "what the weather says regarding how you should dress", not the weather in general: hair up in the wind, waterproof in the rain, and the like, and then for it as a phone notification too.
+
+- **Gusts make a windy day.** The forecast was read for the steady wind only, so a day of 20 to 25 km/h with gusts of 50 did not count. The forecast now asks for `wind_gusts_10m` (and `uv_index`), and a day is windy at a steady 30 km/h or gusts of 45 km/h (`isWindy()` in `src/weather/conditions.js`). The stylist, her sky and her hair in the wind all read it, so her hair is tied back on a gusty day too, and a windy day keeps her out of mini skirts and mini dresses, as the heads-up says short skirts fly (rules version 7). A forecast reread later in the day dresses her again when the wind comes or goes.
+- **The heads-up on Today** (`src/weather/heads-up.js`), a stitched patch above her looks, only on a day with something to watch out for: rain with its hours ("Rain from 14:00", heavy rain, raining now), snow, wind (hair up, skip the lip gloss, skirts, a hood rather than an umbrella), ice, cold, heat, strong sun (UV 6 and over), and a cool morning before a warm afternoon (layers); small notes for rain after her day, a passing shower, a chance of rain, or rain that stopped early. Written rules on the forecast, not AI. It reads the weather itself, not the warmth asked for this person. Thresholds are constants at the top of the file, to tune with the user.
+- **A morning notification from the Android app** (`android/.../HeadsUp.java`), turned on and timed on the Today page (07:30 by default; `src/today/notify.js`). An alarm at that time hands the check to a job that runs once the phone is online; it lets go of a check more than three hours late. It runs the web app's own rules in a JavaScript sandbox (`androidx.javascriptengine`), from `heads-up.js`, which the build makes from `src/weather/morning.js` (`scripts/heads-up-bundle.mjs`), so the rules update with the web app without a new APK. The place is the last one the Today page used, so no background location is needed. It notifies only on a day with something to say (notes such as wet ground from early rain stay on the card); "Send one now" sends today's at once, or says there is nothing to watch out for. It needs Android 8 and a WebView with the JavaScript sandbox; otherwise the page says to update Android System WebView.
+

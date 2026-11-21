@@ -1,6 +1,6 @@
 // The day's weather as the stylist reads it, wherever it came from: a forecast or the user's own choice.
 // { day, place, source: 'forecast' | 'manual', feels, feelsMin, feelsMax, shade, sun, tempMin, tempMax, rainChance,
-//   rainMm, windKmh, snow, code }. Temperatures are °C. `feels` is what she dresses for: how warm the warm part of her
+//   rainMm, windKmh, gustKmh, uvMax, wetFrom, wetUntil, windiestAt, snow, code }. Temperatures are °C. `feels` is what she dresses for: how warm the warm part of her
 // day (11:00 to 17:00, when she is out in it) feels, in the sun when the forecast says how sunny it is (the user,
 // 12 October 2026: the old average of 8:00 to 20:00 in the shade dressed her for a day cooler than the one she had).
 // `shade` and `sun` are those hours in the shade and in the sun; feelsMin and feelsMax span her whole day, 8:00 to
@@ -17,7 +17,7 @@ export function dayKey(now = Date.now(), startsAt = DAY_STARTS_AT) {
 export const PRESETS = [
   { id: 'hot', label: 'Hot', feels: 28 }, { id: 'warm', label: 'Warm', feels: 22 }, { id: 'mild', label: 'Mild', feels: 16 },
   { id: 'chilly', label: 'Chilly', feels: 10 }, { id: 'cold', label: 'Cold', feels: 3 }, { id: 'freezing', label: 'Freezing', feels: -3 },
-  { id: 'rainy', label: 'Rainy', feels: 12, rainChance: 85, rainMm: 5, code: 63 }, { id: 'pouring', label: 'Pouring', feels: 11, rainChance: 95, rainMm: 14, code: 65 }, { id: 'windy', label: 'Windy', feels: 13, windKmh: 45 },
+  { id: 'rainy', label: 'Rainy', feels: 12, rainChance: 85, rainMm: 5, code: 63 }, { id: 'pouring', label: 'Pouring', feels: 11, rainChance: 95, rainMm: 14, code: 65 }, { id: 'windy', label: 'Windy', feels: 13, windKmh: 45, gustKmh: 65 },
   { id: 'snowy', label: 'Snowy', feels: -2, rainChance: 80, snow: true, code: 73 },
 ];
 export function presetConditions(id, day = dayKey()) {
@@ -35,8 +35,10 @@ export function presetOver(base, id, day = dayKey()) {
     ...b, source: 'manual', label: p.label, sun: null, shade: feels, feels,
     feelsMin: b.feelsMin + shift, feelsMax: b.feelsMax + shift,
     ...(p.id === 'snowy' ? { feels: Math.min(feels, p.feels), shade: Math.min(feels, p.feels) } : {}),
-    ...(kind ? { rainChance: Math.max(b.rainChance, p.rainChance ?? 0), rainMm: Math.max(b.rainMm, p.rainMm ?? 0), windKmh: Math.max(b.windKmh, p.windKmh ?? 0),
-      snow: p.snow === true || b.snow, code: p.code ?? b.code, wetHours: p.rainChance ? Math.max(b.wetHours, 6) : b.wetHours } : {}),
+    ...(kind ? { rainChance: Math.max(b.rainChance, p.rainChance ?? 0), rainMm: Math.max(b.rainMm, p.rainMm ?? 0), windKmh: Math.max(b.windKmh, p.windKmh ?? 0), gustKmh: Math.max(b.gustKmh, p.gustKmh ?? 0),
+      snow: p.snow === true || b.snow, code: p.code ?? b.code, wetHours: p.rainChance ? Math.max(b.wetHours, 6) : b.wetHours,
+      // Chosen rain falls all day, not only in the forecast's wet hours.
+      ...(p.rainChance ? { wetFrom: null, wetUntil: null } : {}) } : {}),
   });
 }
 
@@ -63,6 +65,7 @@ export const inTheSun = c => Number.isFinite(c?.sun) && Number.isFinite(c?.shade
 const num = (v, lo, hi, fallback = null) => Number.isFinite(v) ? Math.max(lo, Math.min(hi, v)) : fallback;
 // A local time of day, "HH:MM", or null.
 const clock = v => typeof v === 'string' && /^([01]\d|2[0-3]):[0-5]\d$/.test(v) ? v : null;
+const hourOf = v => Number.isInteger(v) && v >= 0 && v <= 23 ? v : null;
 export function cleanConditions(v) {
   if (!v || typeof v !== 'object' || !Number.isFinite(v.feels)) return null;
   return {
@@ -72,6 +75,10 @@ export function cleanConditions(v) {
     shade: num(v.shade, -40, 50), sun: num(v.sun, -40, 50),
     tempMin: num(v.tempMin, -40, 50), tempMax: num(v.tempMax, -40, 50),
     rainChance: num(v.rainChance, 0, 100, 0), rainMm: num(v.rainMm, 0, 500, 0), windKmh: num(v.windKmh, 0, 300, 0),
+    // The strongest gust of her day (km/h), the hour the wind is strongest, and the highest UV index (null when unknown).
+    gustKmh: num(v.gustKmh, 0, 400, 0), windiestAt: hourOf(v.windiestAt), uvMax: num(v.uvMax, 0, 20),
+    // The first and last hours of her whole day (8:00 to 20:00) with rain or snow likely or falling, or null.
+    wetFrom: hourOf(v.wetFrom), wetUntil: hourOf(v.wetUntil),
     snow: v.snow === true, code: num(v.code, 0, 99),
     // Hours of her day with rain falling (on and off counts), and whether it is raining as the forecast is read.
     wetHours: num(v.wetHours, 0, 24, 0), rainingNow: v.rainingNow === true,
@@ -87,6 +94,12 @@ export function cleanConditions(v) {
 // shower on a sunny day is not a rainy day, nor is rain early in the morning that has stopped by the time she is out). On a day of short showers the forecast's chance of rain stays low (each hour's chance is small),
 // so the hours themselves count too (the user, 19 October 2026: it rained all morning while she said "warm and dry").
 export const isRainy = c => !!c && ((c.rainChance ?? 0) >= 50 || (c.rainMm ?? 0) >= 1 || (c.wetHours ?? 0) >= 3 || c.rainingNow === true || c.snow === true);
+
+// Whether it is a windy day: a steady 30 km/h, or gusts of 45 km/h or more. Gusts count since 20 November 2026 (the
+// user: a very windy day blew their loose hair into their lip gloss while the steady wind stayed under 30 km/h). It ties
+// her hair back and keeps a jacket closed (src/style/stylist.js), and the Today page warns of it (heads-up.js).
+export const WINDY_KMH = 30, WINDY_GUST_KMH = 45;
+export const isWindy = c => !!c && ((c.windKmh ?? 0) >= WINDY_KMH || (c.gustKmh ?? 0) >= WINDY_GUST_KMH);
 
 // WMO weather codes, as Open-Meteo reports them.
 const CODES = [[0, 'Clear'], [1, 'Mostly clear'], [2, 'Partly cloudy'], [3, 'Overcast'], [45, 'Fog'], [48, 'Fog'], [51, 'Light drizzle'], [53, 'Drizzle'],
@@ -113,6 +126,6 @@ export function describe(c) {
   else if (c.rainChance >= 50) parts.push(`rain likely (${Math.round(c.rainChance)}%)`);
   else if (isRainy(c)) parts.push('rain on and off');
   else if (c.rainChance >= 25) parts.push(`a chance of rain (${Math.round(c.rainChance)}%)`);
-  if (c.windKmh >= 30) parts.push('windy'); else if (c.windKmh >= 20) parts.push('breezy');
+  if (isWindy(c)) parts.push('windy'); else if (c.windKmh >= 20 || c.gustKmh >= 35) parts.push('breezy');
   return parts.join(' · ');
 }

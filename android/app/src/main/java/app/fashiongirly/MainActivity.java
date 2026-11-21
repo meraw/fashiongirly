@@ -8,6 +8,7 @@ import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+import android.provider.Settings;
 import android.webkit.GeolocationPermissions;
 import android.webkit.JavascriptInterface;
 import android.webkit.WebChromeClient;
@@ -26,12 +27,14 @@ import java.io.File;
  * downloaded. Either is served from https://appassets.androidplatform.net/assets/ (a secure origin, so ES modules, saved
  * looks and location all work as in a browser, and saved looks stay when the copy changes). Links to other sites
  * (Open-Meteo's credit) open in the phone's browser, so only the app's own pages are ever shown here. They can ask how
- * updates are going through window.FashiongirlyApp (see Bridge) and hear of a change through an app-update event.
+ * updates are going through window.FashiongirlyApp (see Bridge) and hear of a change through an app-update event, and
+ * set the morning heads-up (HeadsUp), hearing of its changes through a heads-up-change event.
  */
 public class MainActivity extends Activity {
     private static final String HOST = "appassets.androidplatform.net";
     private static final String START = "https://" + HOST + "/assets/index.html";
     private static final int LOCATION_REQUEST = 1;
+    private static final int NOTIFY_REQUEST = 2;
 
     private WebView web;
     private AppUpdates updates;
@@ -39,6 +42,9 @@ public class MainActivity extends Activity {
     private File serving;
     private String pendingOrigin;
     private GeolocationPermissions.Callback pendingCallback;
+    /** What to do once Android answers the notification permission: turn the heads-up on at this time, or test it. */
+    private String pendingTime;
+    private boolean pendingTest;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -94,6 +100,9 @@ public class MainActivity extends Activity {
         updates.setListener(() -> runOnUiThread(() -> {
             if (web != null) web.evaluateJavascript("dispatchEvent(new Event('app-update'))", null);
         }));
+        HeadsUp.setListener(this::headsUpChanged);
+        // The morning alarm, set again on every open in case Android dropped it.
+        HeadsUp.schedule(this);
 
         if (savedInstanceState != null) web.restoreState(savedInstanceState);
         else web.loadUrl(START);
@@ -120,6 +129,36 @@ public class MainActivity extends Activity {
             web.reload();
         }
         updates.checkSoon();
+        // Notifications may have been turned on or off in Android's settings meanwhile.
+        if (HeadsUp.allowed(this)) HeadsUp.setRefused(this, false);
+        headsUpChanged();
+    }
+
+    /** Tells the page the heads-up's status may have changed (src/today/notify.js). */
+    private void headsUpChanged() {
+        runOnUiThread(() -> {
+            if (web != null) web.evaluateJavascript("dispatchEvent(new Event('heads-up-change'))", null);
+        });
+    }
+
+    /** Turns the heads-up on (asking for the notification permission first if needed) or off, or tests it. */
+    private void headsUp(boolean on, String time, boolean test) {
+        if (!on) {
+            HeadsUp.setEnabled(this, false, time);
+            return;
+        }
+        if (Build.VERSION.SDK_INT >= 33 && checkSelfPermission(Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED) {
+            if (HeadsUp.prefs(this).getBoolean("refused", false)) {
+                headsUpChanged();
+                return;
+            }
+            pendingTime = time;
+            pendingTest = test;
+            requestPermissions(new String[]{Manifest.permission.POST_NOTIFICATIONS}, NOTIFY_REQUEST);
+            return;
+        }
+        if (test) HeadsUp.test(this);
+        else HeadsUp.setEnabled(this, true, time);
     }
 
     /** What the page may ask of the app: how updates are going, to look now, and to show a downloaded version. */
@@ -132,6 +171,40 @@ public class MainActivity extends Activity {
         @JavascriptInterface
         public void check() {
             updates.check();
+        }
+
+        @JavascriptInterface
+        public String headsUp() {
+            return HeadsUp.status(MainActivity.this);
+        }
+
+        @JavascriptInterface
+        public void setHeadsUp(boolean on, String time) {
+            runOnUiThread(() -> MainActivity.this.headsUp(on, time, false));
+        }
+
+        @JavascriptInterface
+        public void testHeadsUp() {
+            runOnUiThread(() -> MainActivity.this.headsUp(true, null, true));
+        }
+
+        @JavascriptInterface
+        public void setPlace(double lat, double lon, String name) {
+            HeadsUp.setPlace(MainActivity.this, lat, lon, name);
+        }
+
+        @JavascriptInterface
+        public void notificationSettings() {
+            runOnUiThread(() -> {
+                Intent intent = Build.VERSION.SDK_INT >= Build.VERSION_CODES.O
+                        ? new Intent(Settings.ACTION_APP_NOTIFICATION_SETTINGS).putExtra(Settings.EXTRA_APP_PACKAGE, getPackageName())
+                        : new Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS, Uri.parse("package:" + getPackageName()));
+                try {
+                    startActivity(intent);
+                } catch (ActivityNotFoundException ignored) {
+                    // No settings screen to open.
+                }
+            });
         }
 
         @JavascriptInterface
@@ -154,6 +227,14 @@ public class MainActivity extends Activity {
     @Override
     public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        if (requestCode == NOTIFY_REQUEST) {
+            boolean granted = grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED;
+            HeadsUp.setRefused(this, !granted);
+            if (granted && pendingTest) HeadsUp.test(this);
+            else if (granted) HeadsUp.setEnabled(this, true, pendingTime);
+            headsUpChanged();
+            return;
+        }
         if (requestCode != LOCATION_REQUEST || pendingCallback == null) return;
         boolean granted = grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED;
         pendingCallback.invoke(pendingOrigin, granted, false);
@@ -177,6 +258,7 @@ public class MainActivity extends Activity {
     @Override
     protected void onDestroy() {
         updates.setListener(null);
+        HeadsUp.setListener(null);
         if (web != null) web.destroy();
         web = null;
         super.onDestroy();

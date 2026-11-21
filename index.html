@@ -26,6 +26,7 @@
 <div class="hero"><p class="eyebrow">TODAY · <span id="today-date"></span></p>
 <div class="hero-weather"><span id="today-icon" class="today-icon"></span><span id="today-temp" class="temp"></span><p id="today-weather" class="today-weather"></p></div>
 <ul id="today-hours" class="today-hours" aria-label="Her day, hour by hour"></ul>
+<section id="today-headsup" class="headsup" aria-labelledby="today-headsup-label" hidden><p id="today-headsup-label" class="headsup-label">Heads-up for getting dressed</p><ul id="today-headsup-list" class="headsup-list"></ul></section>
 <h2 id="today-heading">She checked the weather <em>and chose three looks.</em></h2>
 <p id="today-status" class="today-status" role="status" aria-live="polite"></p></div>
 <div class="card">
@@ -39,6 +40,7 @@
 <form id="today-place-form" class="today-place-form"><label for="today-place-input">Type a town</label><div><input id="today-place-input" type="text" autocomplete="address-level2" placeholder="Your town"><button type="submit">Use it</button></div></form>
 <button id="today-device" type="button" class="today-device">Use my phone's location</button>
 <p class="today-label">Or choose the weather</p><div id="today-presets" class="today-presets"></div></details>
+<div id="today-notify" class="today-notify" hidden><div class="today-notify-row"><label class="toggle"><input id="today-notify-on" type="checkbox"> Morning heads-up on my phone</label><label class="today-notify-time">at <input id="today-notify-time" type="time" value="07:30" aria-label="Time of the morning heads-up"></label></div><p id="today-notify-status" class="today-notify-status"></p><div class="today-notify-actions"><button id="today-notify-test" type="button">Send one now</button><button id="today-notify-settings" type="button" hidden>Open Android settings</button></div></div>
 <p class="today-credit">Her choices follow written styling rules, not AI. <a href="https://open-meteo.com/" rel="noopener">Weather data by Open-Meteo.com</a></p>
 </div></section>
 </div>

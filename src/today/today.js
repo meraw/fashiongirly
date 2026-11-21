@@ -11,7 +11,9 @@ import { composeTrio, lookKey, lookPieces, RULES_VERSION } from '../style/stylis
 import { LEARNED_KEY, learnedFromLooks } from '../style/taste.js';
 import { mountLookCards } from './look-cards.js';
 import { swatch } from '../doll/swatch.js';
-import { dayKey, describe, cleanConditions, presetOver, PRESETS, forPerson, PERSONAL_LIMIT, inTheSun, isRainy } from '../weather/conditions.js';
+import { dayKey, describe, cleanConditions, presetOver, PRESETS, forPerson, PERSONAL_LIMIT, inTheSun, isRainy, isWindy } from '../weather/conditions.js';
+import { headsUp } from '../weather/heads-up.js';
+import { mountNotify } from './notify.js';
 import { fetchConditions, findPlace } from '../weather/open-meteo.js';
 import { cleanRecipe, LOOKBOOK_KEY } from '../doll/recipe.js';
 import { hairName, HAIR_COLOUR } from '../hair/catalog.js';
@@ -34,12 +36,12 @@ const outdated = c => c?.source === 'forecast' && !Number.isFinite(c.shade);
 // The forecast is read again when the app is opened two hours or more after it was last read (the user, 19 October
 // 2026: she read a dry forecast early in the morning and kept it while it rained). The day's three looks stay, unless
 // the new forecast changes what she would dress for: rain where there was none (or none where there was), or a
-// difference of three degrees or more.
+// difference of three degrees or more, or wind where there was none (or none where there was).
 export const RECHECK_MS = 2 * 3600e3;
-const changed = (was, now) => isRainy(was) !== isRainy(now) || Math.abs((was?.feels ?? 0) - (now?.feels ?? 0)) >= 3;
-export function mountToday(doc, { storage = null, getRecipe, wear, getUnavailable = () => [], renderPortrait = null, fetch: fetchImpl = null, geolocation = null, now = () => Date.now() } = {}) {
+const changed = (was, now) => isRainy(was) !== isRainy(now) || isWindy(was) !== isWindy(now) || Math.abs((was?.feels ?? 0) - (now?.feels ?? 0)) >= 3;
+export function mountToday(doc, { storage = null, getRecipe, wear, getUnavailable = () => [], renderPortrait = null, fetch: fetchImpl = null, geolocation = null, bridge = null, now = () => Date.now() } = {}) {
   const $ = id => doc.getElementById(id);
-  const cards = mountLookCards(doc, { storage, renderPortrait });
+  const cards = mountLookCards(doc, { storage, renderPortrait }), notify = mountNotify(doc, { bridge, now });
   const read = (key, fallback) => { try { const v = JSON.parse(storage?.getItem(key) || 'null'); return v ?? fallback; } catch { return fallback; } };
   const write = (key, value) => { try { storage?.setItem(key, JSON.stringify(value)); } catch {} };
   let state = read(TODAY_KEY, null), busy = false, disposed = false;
@@ -93,6 +95,7 @@ export function mountToday(doc, { storage = null, getRecipe, wear, getUnavailabl
       li.append(time, weatherIcon(doc, codeKind(x.code, { rainChance: x.rain, snow: x.snow, feels: x.feels }), { animate: false }), deg);
       return li;
     }));
+    headsUpCard(c);
     cards.sync({ day, trio: state?.trio, choice: state?.choice });
     const result = current(), list = $('today-pieces');
     $('today-look').textContent = state?.choice ? TITLES[state.choice] : '';
@@ -124,6 +127,23 @@ export function mountToday(doc, { storage = null, getRecipe, wear, getUnavailabl
     $('today-offset').hidden = !o;
     $('today-offset-text').textContent = o ? `For you, she dresses as if it were ${Math.abs(o)}° ${o > 0 ? 'warmer' : 'cooler'} than the forecast.` : '';
     setBusy(busy);
+  }
+
+  // The heads-up (src/weather/heads-up.js): what the day's weather means for getting dressed, at the top of Today, only
+  // on a day with something to watch out for. It reads the weather itself, not the warmth asked for this person.
+  function headsUpCard(c) {
+    const items = headsUp(c), box = $('today-headsup');
+    if (!box) return;
+    box.hidden = !items.length;
+    $('today-headsup-list').replaceChildren(...items.map(a => {
+      const li = doc.createElement('li'), title = doc.createElement('strong'), tips = doc.createElement('ul');
+      li.className = `headsup-item ${a.level}`; li.dataset.kind = a.id; title.textContent = a.title;
+      li.append(title);
+      if (a.detail) { const detail = doc.createElement('span'); detail.className = 'headsup-detail'; detail.textContent = ` · ${a.detail}`; li.append(detail); }
+      tips.replaceChildren(...a.tips.map(t => { const tip = doc.createElement('li'); tip.textContent = t; return tip; }));
+      li.append(tips);
+      return li;
+    }));
   }
 
   // Her world for the day and the hour in it (src/today/world.js): the sun's times come with the forecast.
@@ -188,6 +208,8 @@ export function mountToday(doc, { storage = null, getRecipe, wear, getUnavailabl
   }
   async function forecast(day) {
     const p = place(), where = p.mode === 'typed' ? p : await locate();
+    // The Android app checks the morning forecast for the last place the page used (notify.js).
+    try { bridge?.setPlace?.(where.lat, where.lon, p.mode === 'typed' ? p.name : ''); } catch {}
     const key = `${day}|${where.lat.toFixed(2)},${where.lon.toFixed(2)}`, cached = read(WEATHER_KEY, null);
     if (cached?.key === key && cleanConditions(cached.conditions) && !outdated(cleanConditions(cached.conditions)) && !stale(cached)) return cleanConditions(cached.conditions);
     const conditions = await fetchConditions(where, day, fetchImpl);
@@ -279,6 +301,6 @@ export function mountToday(doc, { storage = null, getRecipe, wear, getUnavailabl
     refreshPreviews() { if (!gone()) cards.sync({ day: state?.day ?? dayKey(now()), trio: state?.trio, choice: state?.choice }); },
     ready, getState: () => state && copy(state), title: () => state?.choice ? TITLES[state.choice] : null,
     wardrobeChanged() { if (state?.conditions) chooseLooks({ putOn: false }); },
-    dispose() { disposed = true; cards.dispose(); doc.removeEventListener('visibilitychange', onVisible); if (clock != null) win.clearInterval(clock); win?.removeEventListener('resize', world); $('save')?.removeEventListener('click', onSave); },
+    dispose() { disposed = true; cards.dispose(); notify.dispose(); doc.removeEventListener('visibilitychange', onVisible); if (clock != null) win.clearInterval(clock); win?.removeEventListener('resize', world); $('save')?.removeEventListener('click', onSave); },
   };
 }
