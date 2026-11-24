@@ -13,11 +13,12 @@ permissions:
 concurrency:
   group: pages
   cancel-in-progress: true
+# Two jobs, as GitHub's own Pages workflow has them: build uploads the site, then deploy publishes it. With both steps in
+# one job the deploy sometimes asked for the upload seconds after it finished and found none (21 and 24 November 2026:
+# "Found 0 artifact(s)"), and re-running that job uploaded a second copy, which the deploy also refuses (5 November). Now
+# the deploy runs after the build job has finished, and re-running only the deploy job reuses the one upload.
 jobs:
-  deploy:
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
+  build:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -36,6 +37,13 @@ jobs:
       - uses: actions/upload-pages-artifact@v3
         with:
           path: dist
+  deploy:
+    needs: build
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    runs-on: ubuntu-latest
+    steps:
       - name: Deploy
         id: deployment
         uses: actions/deploy-pages@v4

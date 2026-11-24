@@ -13,6 +13,10 @@ test('Pages deploys every merge to main with the whole history and app.zip', () 
   assert.match(pages, /zip -qrX \.\.\/app\.zip \. && mv \.\.\/app\.zip app\.zip/);
   assert.ok(pages.indexOf('npm run build') < pages.indexOf('zip -qrX'), 'app.zip is packed after the build');
   assert.ok(pages.indexOf('zip -qrX') < pages.indexOf('upload-pages-artifact'), 'app.zip is packed before the upload');
+  // The deploy is its own job after the build (21 and 24 November 2026: in one job it looked for the upload too soon).
+  assert.match(pages, /\n {2}deploy:\n {4}needs: build\n/);
+  assert.ok(pages.indexOf('upload-pages-artifact') < pages.indexOf('needs: build'), 'the build job uploads, the deploy job publishes');
+  assert.ok(pages.indexOf('needs: build') < pages.indexOf('deploy-pages'));
 });
 
 test('the build numbers itself by commit count, as the APK does', () => {
